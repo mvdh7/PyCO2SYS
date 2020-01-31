@@ -1230,19 +1230,19 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PO4 = PO4.astype('float64')
 
     # Assign input to the 'historical' variable names.
-    pHScale      = deepcopy(pHSCALEIN)
-    WhichKs      = deepcopy(K1K2CONSTANTS)
-    WhoseKSO4    = deepcopy(KSO4CONSTANTS)
-    p1           = deepcopy(PAR1TYPE)
-    p2           = deepcopy(PAR2TYPE)
-    TempCi       = deepcopy(TEMPIN)
-    TempCo       = deepcopy(TEMPOUT)
-    Pdbari       = deepcopy(PRESIN)
-    Pdbaro       = deepcopy(PRESOUT)
-    Sal          = deepcopy(SAL)
+    pHScale      = pHSCALEIN
+    WhichKs      = K1K2CONSTANTS
+    WhoseKSO4    = KSO4CONSTANTS
+    p1           = PAR1TYPE
+    p2           = PAR2TYPE
+    TempCi       = TEMPIN
+    TempCo       = TEMPOUT
+    Pdbari       = PRESIN
+    Pdbaro       = PRESOUT
+    Sal          = SAL
     sqrSal       = sqrt(SAL)
-    TP           = deepcopy(PO4)
-    TSi          = deepcopy(SI)
+    TP           = PO4
+    TSi          = SI
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
