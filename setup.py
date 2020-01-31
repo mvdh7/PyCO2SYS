@@ -1,5 +1,3 @@
-# PyCO2SYS: Python implementation of CO2SYS.
-# Copyright (C) 2020  Matthew Paul Humphreys  (GNU GPLv3)
 import setuptools
 
 with open('README.md', 'r') as fh:
