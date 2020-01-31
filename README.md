@@ -8,7 +8,7 @@
 
 ## Usage
 
-Usage has been kept as close to the MATLAB version as possible:
+Usage has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience:
 
 ```python
 from PyCO2SYS import CO2SYS
@@ -16,7 +16,7 @@ co2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
                  PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
 ```
 
-Vector inputs should be provided either as Numpy arrays (either row or column).
+Vector inputs should be provided as Numpy arrays (either row or column, makes no difference which).
 
 See also the example scripts in the repo.
 
