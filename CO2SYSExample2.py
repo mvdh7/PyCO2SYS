@@ -1,5 +1,3 @@
-import numpy as np
-from matplotlib import pyplot as plt
 from PyCO2SYS import CO2SYS
 
 print(" ")
