@@ -2,15 +2,21 @@
 
 **PyCO2SYS** is a Python implementation of CO2SYS, based on the [MATLAB version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB). This software calculates the full marine carbonate system from values of any two of its variables.
 
-## Installation and usage
+## Installation
 
     pip install PyCO2SYS
-    
+
+## Usage
+
+Usage has been kept as close to the MATLAB version as possible:
+
 ```python
 from PyCO2SYS import CO2SYS
-co2dict = CO2SYS(par1, par2, par1type, par2type, sal, tempin, tempout, 
-                 presin, presout, sil, po4, pHscale, k1k2c, kso4c)[0]
+co2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
+                 PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
 ```
+
+Vector inputs should be provided either as Numpy arrays (either row or column).
 
 See also the example scripts in the repo.
 
