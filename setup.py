@@ -6,7 +6,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 setuptools.setup(
     name = 'PyCO2SYS',
-    version = '0.1.0',
+    version = '0.1',
     author = 'Matthew P. Humphreys',
     author_email = 'm.p.humphreys@icloud.com',
     description = 'Python implementation of CO2SYS',
