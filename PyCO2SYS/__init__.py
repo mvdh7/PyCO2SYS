@@ -1,5 +1,4 @@
 from copy import deepcopy
-import numpy as np
 from numpy import (array, exp, full, log, log10, logical_and, logical_or, nan,
                    ones, size, sqrt, unique, vstack, zeros)
 from numpy import abs as np_abs
@@ -31,6 +30,9 @@ def _Constants(TempC, Pdbar):
     global K0, fH, FugFac, VPFac, ntps, TempK, logTempK
     global K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi
     global TB, TF, TS, TP, TSi, RGasConstant, Sal
+    
+    RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
+    # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
 
     TempK    = TempC + 273.15
     RT       = RGasConstant*TempK
@@ -81,7 +83,7 @@ def _Constants(TempC, Pdbar):
 
     # CalculateK0:
     # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
-    TempK100  = TempK/100
+    TempK100 = TempK/100
     lnK0 = (-60.2409 + 93.4517 / TempK100 + 23.3585 * log(TempK100) + Sal *
         (0.023517 - 0.023656 * TempK100 + 0.0047036 * TempK100 **2))
     K0 = exp(lnK0)                  # this is in mol/kg-SW/atm
@@ -841,7 +843,7 @@ def _CalculatepHfromTATC(TAx, TCx):
         # to keep the jump from being too big;
         while any(np_abs(deltapH) > 1):
             FF=np_abs(deltapH)>1; deltapH[FF]=deltapH[FF]/2
-        pHx       = pHx + deltapH # Is on the same scale as K1 and K2 were calculated...
+        pHx = pHx + deltapH # Is on the same scale as K1 and K2 were calculated...
     return pHx
 
 def _CalculatefCO2fromTCpH(TCx, pHx):
@@ -938,7 +940,7 @@ def _CalculatepHfromTAfCO2(TAi, fCO2i):
         deltapH   = Residual/Slope; #' this is Newton's method
         # ' to keep the jump from being too big:
         while np_any(np_abs(deltapH) > 1):
-            FF=abs(deltapH)>1; deltapH[FF]=deltapH[FF]/2
+            FF=np_abs(deltapH)>1; deltapH[FF]=deltapH[FF]/2
         pH = pH + deltapH
     return pH
 
@@ -1219,23 +1221,28 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
             for arg in args]
     (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
         SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS) = args
+    SAL = SAL.astype('float64')
+    TEMPIN = TEMPIN.astype('float64')
+    TEMPOUT = TEMPOUT.astype('float64')
+    PRESIN = PRESIN.astype('float64')
+    PRESOUT = PRESOUT.astype('float64')
+    SI = SI.astype('float64')
+    PO4 = PO4.astype('float64')
 
     # Assign input to the 'historical' variable names.
-    pHScale      = pHSCALEIN
-    WhichKs      = K1K2CONSTANTS
-    WhoseKSO4    = KSO4CONSTANTS
-    p1           = PAR1TYPE
-    p2           = PAR2TYPE
-    TempCi       = TEMPIN
-    TempCo       = TEMPOUT
-    Pdbari       = PRESIN
-    Pdbaro       = PRESOUT
-    Sal          = SAL
+    pHScale      = deepcopy(pHSCALEIN)
+    WhichKs      = deepcopy(K1K2CONSTANTS)
+    WhoseKSO4    = deepcopy(KSO4CONSTANTS)
+    p1           = deepcopy(PAR1TYPE)
+    p2           = deepcopy(PAR2TYPE)
+    TempCi       = deepcopy(TEMPIN)
+    TempCo       = deepcopy(TEMPOUT)
+    Pdbari       = deepcopy(PRESIN)
+    Pdbaro       = deepcopy(PRESOUT)
+    Sal          = deepcopy(SAL)
     sqrSal       = sqrt(SAL)
-    TP           = PO4
-    TSi          = SI
-    RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
-    # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
+    TP           = deepcopy(PO4)
+    TSi          = deepcopy(SI)
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
@@ -1303,7 +1310,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
                                                    TCc[F])
     F=Icase==13 # input TA, pH
     if any(F):
-        TCc[F]  =   _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F])
+        TCc[F]  = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F])
         FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F])
     F=logical_or(Icase==14, Icase==15) # input TA, (pCO2 or fCO2)
     if any(F):
@@ -1311,7 +1318,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         TCc[F]  = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F])
     F=Icase==23 # input TC, pH
     if any(F):
-        TAc[F]  = CalculateTAfromTCpH  (TCc[F], PHic[F]) + PengCorrection[F]
+        TAc[F]  = _CalculateTAfromTCpH  (TCc[F], PHic[F]) + PengCorrection[F]
         FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F])
     F=logical_or(Icase==24, Icase==25) # input TC, (pCO2 or fCO2)
     if any(F):
@@ -1489,8 +1496,3 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     DICT = {HEADERS[i]: DATA[i] for i in range(len(DATA))}
 
     return DICT, DATA, HEADERS, NICEHEADERS
-
-ta = np.vstack(np.ones(10)*2200)
-dic = np.ones(10)*2050
-DICT, DATA, HEADERS, NICEHEADERS = co2sys(ta, dic, 1, 2, 35, 10, 10, 0, 0, 0, 0, 3, 10, 3)
-# print(test)
