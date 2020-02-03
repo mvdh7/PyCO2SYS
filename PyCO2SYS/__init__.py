@@ -246,6 +246,8 @@
 # Vectorization, internal refinements and speed improvements by
 # Steven van Heuven, University of Groningen, The Netherlands.
 # Questions, bug reports et cetera (MATLAB): svheuven@gmail.com
+# Conversion to Python by Matthew Humphreys, NIOZ Royal Netherlands Institute
+# for Sea Research, Texel, and Utrecht University, the Netherlands.
 # Questions, bug reports et cetera (Python): m.p.humphreys@icloud.com
 #
 #**************************************************************************
