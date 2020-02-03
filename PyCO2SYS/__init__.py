@@ -580,7 +580,7 @@ def _Constants(TempC, Pdbar):
         # The 2s precision in pK2 is .017, or 4.1# in K2.
         # This is from Table 4 on p. 1739.
         pK1[F] = 851.4/TempK[F] + 3.237 - 0.0106*Sal[F] + 0.000105*Sal[F]**2
-        K1[F] = 10.0**(-pK1[F]); # this is on the SWS pH scale in mol/kg-SW
+        K1[F] = 10.0**(-pK1[F]) # this is on the SWS pH scale in mol/kg-SW
         # This is from Table 4 on p. 1739.
         pK2[F] = (-3885.4/TempK[F] + 125.844 - 18.141*logTempK[F]
             - 0.0192*Sal[F] + 0.000132*Sal[F]**2)
@@ -690,11 +690,11 @@ def _Constants(TempC, Pdbar):
         # sigma for pK1 is reported to be 0.0056
         # sigma for pK2 is reported to be 0.010
         # This is from the abstract and pages 2536-2537
-        pK1 =  -43.6977 - 0.0129037*Sal[F] + 1.364e-4*Sal[F]**2 + 2885.378/TempK[F] +  7.045159*log(TempK[F])
-        pK2 = (-452.0940 + 13.142162*Sal[F] - 8.101e-4*Sal[F]**2 + 21263.61/TempK[F] + 68.483143*log(TempK[F])
+        pK1[F] =  -43.6977 - 0.0129037*Sal[F] + 1.364e-4*Sal[F]**2 + 2885.378/TempK[F] +  7.045159*log(TempK[F])
+        pK2[F] = (-452.0940 + 13.142162*Sal[F] - 8.101e-4*Sal[F]**2 + 21263.61/TempK[F] + 68.483143*log(TempK[F])
                     + (-581.4428*Sal[F] + 0.259601*Sal[F]**2)/TempK[F] - 1.967035*Sal[F]*log(TempK[F]))
-        K1[F] = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
-        K2[F] = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
+        K1[F] = 10.0**-pK1[F] # this is on the SWS pH scale in mol/kg-SW
+        K2[F] = 10.0**-pK2[F] # this is on the SWS pH scale in mol/kg-SW
     F=(WhichKs==12)
     if any(F):
         # Millero et al., 2002. Deep-Sea Res. I (49) 1705-1723.
@@ -702,10 +702,10 @@ def _Constants(TempC, Pdbar):
         # sigma for pK1 is reported to be 0.005
         # sigma for pK2 is reported to be 0.008
         # This is from page 1715
-        pK1 =  6.359 - 0.00664*Sal[F] - 0.01322*TempC[F] + 4.989e-5*TempC[F]**2
-        pK2 =  9.867 - 0.01314*Sal[F] - 0.01904*TempC[F] + 2.448e-5*TempC[F]**2
-        K1[F] = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
-        K2[F] = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
+        pK1[F] =  6.359 - 0.00664*Sal[F] - 0.01322*TempC[F] + 4.989e-5*TempC[F]**2
+        pK2[F] =  9.867 - 0.01314*Sal[F] - 0.01904*TempC[F] + 2.448e-5*TempC[F]**2
+        K1[F] = 10.0**-pK1[F] # this is on the SWS pH scale in mol/kg-SW
+        K2[F] = 10.0**-pK2[F] # this is on the SWS pH scale in mol/kg-SW
     F=(WhichKs==13)
     if any(F):
         # From Millero 2006 work on pK1 and pK2 from titrations
@@ -736,16 +736,16 @@ def _Constants(TempC, Pdbar):
         A1 = 13.4038*Sal[F]**0.5 + 0.03206*Sal[F] - 5.242e-5*Sal[F]**2
         B1 = -530.659*Sal[F]**0.5 - 5.8210*Sal[F]
         C1 = -2.0664*Sal[F]**0.5
-        pK1 = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
-        K1[F] = 10.0**-pK1
+        pK1[F] = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
+        K1[F] = 10.0**-pK1[F]
         # This is from page 141
         pK20 =  -90.18333 + 5143.692/TempK[F] + 14.613358*log(TempK[F])
         # This is from their table 3, page 140.
         A2 = 21.3728*Sal[F]**0.5 + 0.1218*Sal[F] - 3.688e-4*Sal[F]**2
         B2 = -788.289*Sal[F]**0.5 - 19.189*Sal[F]
         C2 = -3.374*Sal[F]**0.5
-        pK2 = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
-        K2[F] = 10.0**-pK2
+        pK2[F] = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
+        K2[F] = 10.0**-pK2[F]
     F=(WhichKs==15);
     # Added by J. C. Orr on 4 Dec 2016
     if any(F):
@@ -758,14 +758,14 @@ def _Constants(TempC, Pdbar):
     	A1 = 13.409160*Sal[F]**0.5 + 0.031646*Sal[F] - 5.1895e-5*Sal[F]**2
     	B1 = -531.3642*Sal[F]**0.5 - 5.713*Sal[F]
     	C1 = -2.0669166*Sal[F]**0.5
-    	pK1 = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
-    	K1[F] = 10.0**-pK1
+    	pK1[F] = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
+    	K1[F] = 10.0**-pK1[F]
     	pK20 =  -90.18333 + 5143.692/TempK[F] + 14.613358*log(TempK[F])
     	A2 = 21.225890*Sal[F]**0.5 + 0.12450870*Sal[F] - 3.7243e-4*Sal[F]**2
     	B2 = -779.3444*Sal[F]**0.5 - 19.91739*Sal[F]
     	C2 = -3.3534679*Sal[F]**0.5
-    	pK2 = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
-    	K2[F] = 10.0**-pK2
+    	pK2[F] = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
+    	K2[F] = 10.0**-pK2[F]
 
     #***************************************************************************
     #CorrectKsForPressureNow:
