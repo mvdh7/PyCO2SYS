@@ -22,7 +22,73 @@ Vector inputs should be provided as Numpy arrays (either row or column, makes no
 
 See also the example scripts in the repo.
 
-## Output contents
+## Inputs
+
+Taken directly from the MATLAB version:
+
+```matlab
+% INPUT:
+%
+%   PAR1  (some unit) : scalar or vector of size n
+%   PAR2  (some unit) : scalar or vector of size n
+%   PAR1TYPE       () : scalar or vector of size n (*)
+%   PAR2TYPE       () : scalar or vector of size n (*)
+%   SAL            () : scalar or vector of size n
+%   TEMPIN  (degr. C) : scalar or vector of size n
+%   TEMPOUT (degr. C) : scalar or vector of size n
+%   PRESIN     (dbar) : scalar or vector of size n
+%   PRESOUT    (dbar) : scalar or vector of size n
+%   SI    (umol/kgSW) : scalar or vector of size n
+%   PO4   (umol/kgSW) : scalar or vector of size n
+%   pHSCALEIN         : scalar or vector of size n (**)
+%   K1K2CONSTANTS     : scalar or vector of size n (***)
+%   KSO4CONSTANTS     : scalar or vector of size n (****)
+%
+%  (*) Each element must be an integer,
+%      indicating that PAR1 (or PAR2) is of type:
+%  1 = Total Alkalinity
+%  2 = DIC
+%  3 = pH
+%  4 = pCO2
+%  5 = fCO2
+%
+%  (**) Each element must be an integer,
+%       indicating that the pH-input (PAR1 or PAR2, if any) is at:
+%  1 = Total scale
+%  2 = Seawater scale
+%  3 = Free scale
+%  4 = NBS scale
+%
+%  (***) Each element must be an integer,
+%        indicating the K1 K2 dissociation constants that are to be used:
+%   1 = Roy, 1993											                    T:    0-45  S:  5-45. Total scale. Artificial seawater.
+%   2 = Goyet & Poisson										                T:   -1-40  S: 10-50. Seaw. scale. Artificial seawater.
+%   3 = HANSSON              refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
+%   4 = MEHRBACH             refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
+%   5 = HANSSON and MEHRBACH refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
+%   6 = GEOSECS (i.e., original Mehrbach)					        T:    2-35  S: 19-43. NBS scale.   Real seawater.
+%   7 = Peng	(i.e., originam Mehrbach but without XXX)	  T:    2-35  S: 19-43. NBS scale.   Real seawater.
+%   8 = Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)	T:    0-50  S:     0.
+%   9 = Cai and Wang, 1998								              	T:    2-35  S:  0-49. NBS scale.   Real and artificial seawater.
+%  10 = Lueker et al, 2000									              T:    2-35  S: 19-43. Total scale. Real seawater.
+%  11 = Mojica Prieto and Millero, 2002.					        T:    0-45  S:  5-42. Seaw. scale. Real seawater
+%  12 = Millero et al, 2002									              T: -1.6-35  S: 34-37. Seaw. scale. Field measurements.
+%  13 = Millero et al, 2006								             	  T:    0-50  S:  1-50. Seaw. scale. Real seawater.
+%  14 = Millero        2010  								       	      T:    0-50  S:  1-50. Seaw. scale. Real seawater.
+%  15 = Waters, Millero, & Woosley 2014  							    T:    0-50  S:  1-50. Seaw. scale. Real seawater.
+%
+%  (****) Each element must be an integer that
+%         indicates the KSO4 dissociation constants that are to be used,
+%         in combination with the formulation of the borate-to-salinity ratio to be used.
+%         Having both these choices in a single argument is somewhat awkward,
+%         but it maintains syntax compatibility with the previous version.
+%  1 = KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (PREFERRED)
+%  2 = KSO4 of Khoo et al 1977 & TB of Uppstrom 1974
+%  3 = KSO4 of Dickson 1990a   & TB of Lee 2010
+%  4 = KSO4 of Khoo et al 1977 & TB of Lee 2010
+```
+
+## Outputs
 
 The keys of the output `DICT`, and rows of `DATA`, correspond to the  variables in the list below. For example, to access the bicarbonate ion concentrations under the input conditions, we could use either of the following options:
 
@@ -126,3 +192,4 @@ See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for mo
   * If you use any CO2SYS related software, please cite the original work by Lewis and Wallace (1998).
   * If you use CO2SYS.m, please cite van Heuven et al (2011).
   * If you use errors.m or derivnum.m, please cite Orr et al. (2018).
+  * If you use CO2SYS.py, please mention it somewhere with a link to this repository.
