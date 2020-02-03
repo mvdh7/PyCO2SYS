@@ -2,7 +2,7 @@
 #
 # First   CO2SYS.m version: 1.1 (Sep 2011)
 # MATLAB  CO2SYS.m version: 2.0 (20 Dec 2016)
-# Current PyCO2SYS version: 0.1 (31 Jan 2020)
+# Current PyCO2SYS version: 1.0.0 (3 Feb 2020)
 #
 # CO2SYS is a MATLAB-version of the original CO2SYS for DOS. 
 # CO2SYS calculates and returns the state of the carbonate system of 
