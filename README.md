@@ -10,12 +10,22 @@ Every combination of input parameters has been tested, with differences in the r
 
 ## Usage
 
-Usage has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience:
+Usage has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. Recommended usage is therefore:
 
 ```python
 from PyCO2SYS import CO2SYS
-DICT, DATA, HEADERS, NICEHEADERS = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
-    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
+DICT = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
+    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
+    pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
+```
+
+To get all the MATLAB outputs (noting that `DATA` and `DICT` contain the exact same information, [just in a different format](#outputs)):
+
+```python
+DICT, DATA, HEADERS, NICEHEADERS = CO2SYS(
+    PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
+    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
+    pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)
 ```
 
 Vector inputs should be provided as Numpy arrays (either row or column, makes no difference which).
@@ -96,6 +106,8 @@ The keys of the output `DICT`, and rows of `DATA`, correspond to the  variables 
 bicarb_in = DICT['HCO3in']
 bicarb_in = DATA[5]
 ```
+
+The other outputs (`DATA`, `HEADERS` and `NICEHEADERS`) are ~the same as in the MATLAB (except as noted [here](#differences-from-the-matlab-original)).
 
   * 0 - `TAlk` - total alkalinity (umol/kgSW)
   * 1 - `TCO2` - dissolved inorganic carbon (umol/kgSW)
