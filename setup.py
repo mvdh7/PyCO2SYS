@@ -4,7 +4,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 setuptools.setup(
     name = 'PyCO2SYS',
-    version = '0.1',
+    version = '1.0.0',
     author = 'Matthew P. Humphreys',
     author_email = 'm.p.humphreys@icloud.com',
     description = 'Python implementation of CO2SYS',
@@ -16,7 +16,7 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

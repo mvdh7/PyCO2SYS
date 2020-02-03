@@ -1,8 +1,8 @@
-# PyCO2SYS v0.1
+# PyCO2SYS v1.0
 
 **PyCO2SYS** is a Python implementation of CO2SYS, based on the [MATLAB version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB). This software calculates the full marine carbonate system from values of any two of its variables.
 
-> **Some basic comparisons have not shown any differences in the results, but a thorough intercomparison between the MATLAB and Python has not yet been carried out - so use at your own risk (for now)!**
+Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors (i.e. negligible). See the scripts `CO2SYStest.m` and `CO2SYStest.py` to see how and check this for yourself. **Please [let me know](https://mvdh.xyz/contact) ASAP if you discover a discrepancy that I have not spotted!**
 
 ## Installation
 
@@ -67,7 +67,7 @@ Taken directly from the MATLAB version:
 %   4 = MEHRBACH             refit BY DICKSON AND MILLERO T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
 %   5 = HANSSON and MEHRBACH refit BY DICKSON AND MILLERO T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
 %   6 = GEOSECS (i.e., original Mehrbach)                 T:    2-35  S: 19-43. NBS scale.   Real seawater.
-%   7 = Peng	(i.e., original Mehrbach but without XXX)   T:    2-35  S: 19-43. NBS scale.   Real seawater.
+%   7 = Peng    (i.e., original Mehrbach but without XXX) T:    2-35  S: 19-43. NBS scale.   Real seawater.
 %   8 = Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)  T:    0-50  S:     0.
 %   9 = Cai and Wang, 1998                                T:    2-35  S:  0-49. NBS scale.   Real and artificial seawater.
 %  10 = Lueker et al, 2000                                T:    2-35  S: 19-43. Total scale. Real seawater.
