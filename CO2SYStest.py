@@ -4,7 +4,7 @@ from PyCO2SYS import CO2SYS
 
 # Import input conditions: CO2SYStest.mat was generated in MATLAB using the
 # script CO2SYStest.m.
-matfile = loadmat('testing/CO2SYStest.mat')['co2s']
+matfile = loadmat('Github/PyCO2SYS/testing/CO2SYStest.mat')['co2s']
 PARSin = matfile['PARSin'][0][0]
 PAR12combos = matfile['PAR12combos'][0][0]
 sal = matfile['SAL'][0][0]
