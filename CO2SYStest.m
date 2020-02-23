@@ -21,10 +21,12 @@ si = 10;
 phos = 1;
 
 %% Run CO2SYS
+tic
 [DATA, HEADERS] = ...
     CO2SYSv2(PARSin(:, 1), PARSin(:, 2), PAR12combos(:, 1), ...
     PAR12combos(:, 2), sal, tempin, tempout, presin, presout, ...
     si, phos, pHscales, K1K2, KSO4);
+toc
 
 %% Extract and save outputs
 for V = 1:numel(HEADERS)
