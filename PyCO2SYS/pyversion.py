@@ -1,4 +1,4 @@
-from scipy.io import loadmat
+from . import dissoc, conc
 
 #**************************************************************************
 #
@@ -295,106 +295,51 @@ def _Constants(TempC, Pdbar):
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
 
-    TempK    = TempC + 273.15
-    RT       = RGasConstant*TempK
+    TempK = TempC + 273.15
+    RT = RGasConstant*TempK
     logTempK = log(TempK)
-    Pbar     = Pdbar / 10
+    Pbar = Pdbar/10
 
     # Generate empty vectors for holding results
     TB = full(ntps, nan)
     TF = full(ntps, nan)
     TS = full(ntps, nan)
 
-    # CalculateTB - Total Borate:
-    F=(WhichKs==8) # Pure water case.
-    if any(F):
+    # Calculate total borate
+    F = WhichKs==8
+    if any(F): # Pure water
         TB[F] = 0
-    F=logical_or(WhichKs==6, WhichKs==7)
+    F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        TB[F] = 0.0004106*Sal[F]/35 # in mol/kg-SW
-        # this is .00001173*Sali
-        # this is about 1# lower than Uppstrom's value
-        # Culkin, F., in Chemical Oceanography,
-        # ed. Riley and Skirrow, 1965:
-        # GEOSECS references this, but this value is not explicitly
-        # given here
-    F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8)) # All other cases
+        TB[F] = conc.borate_C65(Sal[F])
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+    if any(F): # All other cases
+        FF = logical_and(F, logical_or(WhoseKSO4==1, WhoseKSO4==2)) 
+        if any(FF): # If user opted for Uppstrom's values
+            TB[FF] = conc.borate_U74(Sal[FF])
+        FF = logical_and(F, logical_or(WhoseKSO4==3, WhoseKSO4==4)) 
+        if any(FF): # If user opted for the new Lee values
+            TB[FF] = conc.borate_LKB10(Sal[FF])
+
+    # Calculate total fluoride and sulfate and ionic strength
+    TF = conc.fluoride_R65(Sal)
+    TS = conc.sulfate_MR66(Sal)
+    IonS = conc.ionstr_DOE(Sal)
+
+    # Calculate K0 (Henry's constant for CO2)
+    K0 = dissoc.k0_W74(TempK, Sal)
+
+    # Calculate KS (bisulfate ion dissociation constant)
+    KS = full(ntps, nan)
+    F = logical_or(WhoseKSO4==1, WhoseKSO4==3)
     if any(F):
-        FF=logical_and(F, logical_or(WhoseKSO4==1, WhoseKSO4==2)) # If user opted for Uppstrom's values:
-        if any(FF):
-            # Uppstrom, L., Deep-Sea Research 21:161-162, 1974:
-            # this is .000416*Sali/35. = .0000119*Sali
-            # TB[FF] = (0.000232/10.811)*(Sal[FF]/1.80655); # in mol/kg-SW
-            TB[FF] =  0.0004157*Sal[FF]/35 # in mol/kg-SW
-        FF=logical_and(F, logical_or(WhoseKSO4==3, WhoseKSO4==4)) # If user opted for the new Lee values:
-        if any(FF):
-            # Lee, Kim, Byrne, Millero, Feely, Yong-Ming Liu. 2010.
-             # Geochimica Et Cosmochimica Acta 74 (6): 1801â€“1811.
-            TB[FF] =  0.0004326*Sal[FF]/35 # in mol/kg-SW
-
-    # CalculateTF;
-    # Riley, J. P., Deep-Sea Research 12:219-220, 1965:
-    # this is .000068*Sali/35. = .00000195*Sali
-    TF = (0.000067/18.998)*(Sal/1.80655) # in mol/kg-SW
-
-    # CalculateTS ;
-    # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
-    # this is .02824*Sali/35. = .0008067*Sali
-    TS = (0.14/96.062)*(Sal/1.80655) # in mol/kg-SW
-
-    # CalculateK0:
-    # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
-    TempK100 = TempK/100
-    lnK0 = (-60.2409 + 93.4517 / TempK100 + 23.3585 * log(TempK100) + Sal *
-        (0.023517 - 0.023656 * TempK100 + 0.0047036 * TempK100 **2))
-    K0 = exp(lnK0)                  # this is in mol/kg-SW/atm
-
-    # CalculateIonS:
-    # This is from the DOE handbook, Chapter 5, p. 13/22, eq. 7.2.4:
-    IonS = 19.924*Sal/(1000 - 1.005*Sal)
-
-    # CalculateKS:
-    lnKS = full(ntps, nan); pKS = full(ntps, nan); KS = full(ntps, nan)
-    F=logical_or(WhoseKSO4==1, WhoseKSO4==3)
-    if any(F):
-        # Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
-        # The goodness of fit is .021.
-        # It was given in mol/kg-H2O. I convert it to mol/kg-SW.
-        # TYPO on p. 121: the constant e9 should be e8.
-        # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
-        lnKS[F] = (-4276.1/TempK[F] + 141.328 - 23.093*logTempK[F] +
-          (-13856/TempK[F] + 324.57 - 47.986*logTempK[F])*sqrt(IonS[F]) +
-          (35474/TempK[F] - 771.54 + 114.723*logTempK[F])*IonS[F] +
-          (-2698/TempK[F])*sqrt(IonS[F])*IonS[F] + (1776/TempK[F])*IonS[F]**2)
-        KS[F] = (exp(lnKS[F])            # this is on the free pH scale in mol/kg-H2O
-            * (1 - 0.001005 * Sal[F]))   # convert to mol/kg-SW
+        KS[F] = dissoc.kS_D90(TempK[F], Sal[F])
     F=logical_or(WhoseKSO4==2, WhoseKSO4==4)
     if any(F):
-        # Khoo, et al, Analytical Chemistry, 49(1):29-34, 1977
-        # KS was found by titrations with a hydrogen electrode
-        # of artificial seawater containing sulfate (but without F)
-        # at 3 salinities from 20 to 45 and artificial seawater NOT
-        # containing sulfate (nor F) at 16 salinities from 15 to 45,
-        # both at temperatures from 5 to 40 deg C.
-        # KS is on the Free pH scale (inherently so).
-        # It was given in mol/kg-H2O. I convert it to mol/kg-SW.
-        # He finds log(beta) which = my pKS;
-        # his beta is an association constant.
-        # The rms error is .0021 in pKS, or about .5# in KS.
-        # This is equation 20 on p. 33:
-        pKS[F] = 647.59 / TempK[F] - 6.3451 + 0.019085*TempK[F] - 0.5208*sqrt(IonS[F])
-        KS[F] = (10.0**(-pKS[F])          # this is on the free pH scale in mol/kg-H2O
-            * (1 - 0.001005*Sal[F]))    # convert to mol/kg-SW
+        KS[F] = dissoc.kS_K77(TempK[F], Sal[F])
 
-    # CalculateKF:
-    # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
-    lnKF = 1590.2/TempK - 12.641 + 1.525*IonS**0.5
-    KF   = (exp(lnKF)                 # this is on the free pH scale in mol/kg-H2O
-        *(1 - 0.001005*Sal))          # convert to mol/kg-SW
-    # Another expression exists for KF: Perez and Fraga 1987. Not used here since ill defined for low salinity. (to be used for S: 10-40, T: 9-33)
-    # Nonetheless, P&F87 might actually be better than the fit of D&R79 above, which is based on only three salinities: [0 26.7 34.6]
-    # lnKF = 874/TempK - 9.68 + 0.111*Sal**0.5;
-    # KF   = exp(lnKF);                   # this is on the free pH scale in mol/kg-SW
+    # Calculate KF (hydrogen fluoride dissociation constant)
+    KF = dissoc.kF_DR79(TempK, Sal)
 
     # CalculatepHScaleConversionFactors:
     #       These are NOT pressure-corrected.
