@@ -1,3 +1,6 @@
+from . import pyversion
+__all__ = ['pyversion']
+
 #**************************************************************************
 #
 # First   CO2SYS.m version: 1.1 (Sep 2011)
