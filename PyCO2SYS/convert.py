@@ -1,10 +1,10 @@
 def sws2tot(TS, KS, TF, KF):
     """Seawater to Total pH scale conversion factor."""
-    return (1 + TS/KS)/(1 + TS/KS + TF/KF)
+    return (1.0 + TS/KS)/(1.0 + TS/KS + TF/KF)
 
 def free2tot(TS, KS):
     """Free to Total pH scale conversion factor."""
-    return 1 + TS/KS
+    return 1.0 + TS/KS
 
 def fH_P87(TempK, Sal):
     """fH following P87."""
