@@ -1,4 +1,4 @@
-from . import dissoc, conc
+from . import dissoc, conc, convert
 
 #**************************************************************************
 #
@@ -334,483 +334,228 @@ def _Constants(TempC, Pdbar):
     F = logical_or(WhoseKSO4==1, WhoseKSO4==3)
     if any(F):
         KS[F] = dissoc.kS_D90(TempK[F], Sal[F])
-    F=logical_or(WhoseKSO4==2, WhoseKSO4==4)
+    F = logical_or(WhoseKSO4==2, WhoseKSO4==4)
     if any(F):
         KS[F] = dissoc.kS_K77(TempK[F], Sal[F])
 
     # Calculate KF (hydrogen fluoride dissociation constant)
     KF = dissoc.kF_DR79(TempK, Sal)
 
-    # CalculatepHScaleConversionFactors:
-    #       These are NOT pressure-corrected.
-    SWStoTOT  = (1 + TS/KS)/(1 + TS/KS + TF/KF)
-    FREEtoTOT =  1 + TS/KS
+    # Calculate pH scale conversion factors:
+    # These are NOT pressure-corrected.
+    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
+    FREEtoTOT = convert.free2tot(TS, KS)
 
-    # CalculatefH
+    # Calculate fH
     fH = full(ntps, nan)
     # Use GEOSECS's value for cases 1,2,3,4,5 (and 6) to convert pH scales.
-    F=(WhichKs==8)
+    F = WhichKs==8
     if any(F):
         fH[F] = 1 # this shouldn't occur in the program for this case
-    F=(WhichKs==7)
+    F = WhichKs==7
     if any(F):
-        fH[F] = (1.29 - 0.00204*  TempK[F] + (0.00046 -
-            0.00000148*TempK[F])*Sal[F]*Sal[F])
-        # Peng et al, Tellus 39B:439-458, 1987:
-        # They reference the GEOSECS report, but round the value
-        # given there off so that it is about .008 (1#) lower. It
-        # doesn't agree with the check value they give on p. 456.
-    F=logical_and(WhichKs!=7, WhichKs!=8)
+        fH[F] = convert.fH_P87(TempK[F], Sal[F])
+    F = logical_and(WhichKs!=7, WhichKs!=8)
     if any(F):
-        fH[F] = (1.2948 - 0.002036*TempK[F] + (0.0004607 -
-            0.000001475*TempK[F])*Sal[F]**2)
-        # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
-        # v. 3, 1982 (p. 80);
+        fH[F] = convert.fH_T82(TempK[F], Sal[F])
 
-    # CalculateKB:
-    KB      = full(ntps, nan); logKB   = full(ntps, nan)
-    lnKBtop = full(ntps, nan); lnKB    = full(ntps, nan)
-    F=(WhichKs==8) # Pure water case
+    # Calculate boric acid dissociation constant (KB)
+    KB = full(ntps, nan)
+    F = WhichKs==8 # Pure water case
     if any(F):
         KB[F] = 0
-    F=logical_or(WhichKs==6, WhichKs==7)
+    F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        # This is for GEOSECS and Peng et al.
-        # Lyman, John, UCLA Thesis, 1957
-        # fit by Li et al, JGR 74:5507-5525, 1969:
-        logKB[F] = -9.26 + 0.00886*Sal[F] + 0.01*TempC[F]
-        KB[F] = (10.0**(logKB[F])  # this is on the NBS scale
-            /fH[F])               # convert to the SWS scale
-    F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+        KB[F] = dissoc.kB_L69(TempC[F], Sal[F], fH[F])
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        # Dickson, A. G., Deep-Sea Research 37:755-766, 1990:
-        lnKBtop[F] = (-8966.9 - 2890.53*sqrSal[F] - 77.942*Sal[F] +
-            1.728*sqrSal[F]*Sal[F] - 0.0996*Sal[F]**2)
-        lnKB[F] = (lnKBtop[F]/TempK[F] + 148.0248 + 137.1942*sqrSal[F] +
-            1.62142*Sal[F] + (-24.4344 - 25.085*sqrSal[F] - 0.2474*
-            Sal[F])*logTempK[F] + 0.053105*sqrSal[F]*TempK[F])
-        KB[F] = (exp(lnKB[F])    # this is on the total pH scale in mol/kg-SW
-            /SWStoTOT[F])        # convert to SWS pH scale
+        KB[F] = dissoc.kB_D90(TempK[F], logTempK[F], Sal[F], sqrSal[F],
+                              SWStoTOT[F])
 
-    # CalculateKW:
-    lnKW = full(ntps, nan); KW = full(ntps, nan)
-    F=(WhichKs==7)
+    # Calculate water dissociation constant (KW)
+    lnKW = full(ntps, nan)
+    KW = full(ntps, nan)
+    F = WhichKs==7
     if any(F):
-        # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
-        lnKW[F] = (148.9802 - 13847.26/TempK[F] - 23.6521*logTempK[F] +
-            (-79.2447 + 3298.72/TempK[F] + 12.0408*logTempK[F])*
-            sqrSal[F] - 0.019813*Sal[F])
-    F=(WhichKs==8)
+        lnKW[F] = dissoc.lnkW_M79(TempK[F], logTempK[F], Sal[F], sqrSal[F])
+    F = WhichKs==8
     if any(F):
-        # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
-        # refit data of Harned and Owen, The Physical Chemistry of
-        # Electrolyte Solutions, 1958
-        lnKW[F] = 148.9802 - 13847.26/TempK[F] - 23.6521*logTempK[F]
-    F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+        lnKW[F] = dissoc.lnkW_HO58(TempK[F], logTempK[F])
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
-        # his check value of 1.6 umol/kg-SW should be 6.2
-        lnKW[F] = (148.9802 - 13847.26/TempK[F] - 23.6521*logTempK[F] +
-            (-5.977 + 118.67/TempK[F] + 1.0495*logTempK[F])*
-            sqrSal[F] - 0.01615*Sal[F])
+        lnKW[F] = dissoc.lnkW_M95(TempK[F], logTempK[F], Sal[F], sqrSal[F])
     KW = exp(lnKW) # this is on the SWS pH scale in (mol/kg-SW)^2
-    F=(WhichKs==6)
+    F = WhichKs==6
     if any(F):
         KW[F] = 0 # GEOSECS doesn't include OH effects
 
-    # CalculateKP1KP2KP3KSi:
-    KP1      = full(ntps, nan); KP2      = full(ntps, nan);
-    KP3      = full(ntps, nan); KSi      = full(ntps, nan);
-    lnKP1    = full(ntps, nan); lnKP2    = full(ntps, nan);
-    lnKP3    = full(ntps, nan); lnKSi    = full(ntps, nan);
-    F=(WhichKs==7)
+    # Calculate phosphate and silicate dissociation constants
+    KP1 = full(ntps, nan)
+    KP2 = full(ntps, nan)
+    KP3 = full(ntps, nan)
+    KSi = full(ntps, nan)
+    F = WhichKs==7
     if any(F):
-        KP1[F] = 0.02
-        # Peng et al don't include the contribution from this term,
-        # but it is so small it doesn't contribute. It needs to be
-        # kept so that the routines work ok.
-        # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
-        # Limnology and Oceanography 12:243-252, 1967:
-        # these are only for sals 33 to 36 and are on the NBS scale
-        KP2[F] = (exp(-9.039 - 1450/TempK[F]) # this is on the NBS scale
-            /fH[F])                          # convert to SWS scale
-        KP3[F] = (exp(4.466 - 7276/TempK[F])  # this is on the NBS scale
-            /fH[F])                          # convert to SWS scale
-        # Sillen, Martell, and Bjerrum,  Stability Constants of metal-ion complexes,
-        # The Chemical Society (London), Special Publ. 17:751, 1964:
-        KSi[F] = (0.0000000004              # this is on the NBS scale
-            /fH[F])                          # convert to SWS scale
-    F=logical_or(WhichKs==6, WhichKs==8)
+        KP1[F], KP2[F], KP3[F] = dissoc.kP_KP67(TempK[F], fH[F])
+        KSi[F] = dissoc.kSi_SMB64(fH[F])
+    F = logical_or(WhichKs==6, WhichKs==8)
     if any(F):
-        KP1[F] = 0; KP2[F] = 0; KP3[F] = 0; KSi[F] = 0;
         # Neither the GEOSECS choice nor the freshwater choice
         # include contributions from phosphate or silicate.
-    F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+        KP1[F] = 0
+        KP2[F] = 0
+        KP3[F] = 0
+        KSi[F] = 0
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
-        # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
-        # KSi was given on the SWS pH scale in molal units.
-        lnKP1[F] = (-4576.752/TempK[F] + 115.54 - 18.453*logTempK[F] + (-106.736/TempK[F] +
-            0.69171)*sqrSal[F] + (-0.65643/TempK[F] - 0.01844)*Sal[F])
-        KP1[F] = exp(lnKP1[F])
-        lnKP2[F] = (-8814.715/TempK[F] + 172.1033 - 27.927*logTempK[F] + (-160.34/TempK[F] +
-            1.3566)*sqrSal[F] + (0.37335/TempK[F] - 0.05778)*Sal[F])
-        KP2[F] = exp(lnKP2[F])
-        lnKP3[F] = (-3070.75/TempK[F] - 18.126 + (17.27039/TempK[F] + 2.81197)*sqrSal[F] +
-            (-44.99486/TempK[F] - 0.09984)*Sal[F])
-        KP3[F] = exp(lnKP3[F])
-        lnKSi[F] = (-8904.2/TempK[F] + 117.4 - 19.334*logTempK[F] + (-458.79/TempK[F] +
-            3.5913)*sqrt(IonS[F]) + (188.74/TempK[F] - 1.5998)*IonS[F] +
-            (-12.1652/TempK[F] + 0.07871)*IonS[F]**2)
-        KSi[F] = (exp(lnKSi[F])               # this is on the SWS pH scale in mol/kg-H2O
-            *(1 - 0.001005*Sal[F]))        # convert to mol/kg-SW
+        KP1[F], KP2[F], KP3[F] = dissoc.kP_YM95(TempK[F], logTempK[F],
+                                                Sal[F], sqrSal[F])
+        KSi[F] = dissoc.kSi_YM95(TempK[F], logTempK[F], Sal[F], sqrSal[F],
+                                 IonS[F])
 
-    # CalculateK1K2:
-    logK1    = full(ntps, nan); lnK1     = full(ntps, nan);
-    pK1      = full(ntps, nan); K1       = full(ntps, nan);
-    logK2    = full(ntps, nan); lnK2     = full(ntps, nan);
-    pK2      = full(ntps, nan); K2       = full(ntps, nan);
-    F=(WhichKs==1)
+    # Calculate carbonic acid dissociation constants (K1 and K2)
+    K1 = full(ntps, nan)
+    K2 = full(ntps, nan)
+    F = WhichKs==1
     if any(F):
-        # ROY et al, Marine Chemistry, 44:249-267, 1993
-        # (see also: Erratum, Marine Chemistry 45:337, 1994
-        # and Erratum, Marine Chemistry 52:183, 1996)
-        # Typo: in the abstract on p. 249: in the eq. for lnK1* the
-        # last term should have S raised to the power 1.5.
-        # They claim standard deviations (p. 254) of the fits as
-        # .0048 for lnK1 (.5# in K1) and .007 in lnK2 (.7# in K2).
-        # They also claim (p. 258) 2s precisions of .004 in pK1 and
-        # .006 in pK2. These are consistent, but Andrew Dickson
-        # (personal communication) obtained an rms deviation of about
-        # .004 in pK1 and .003 in pK2. This would be a 2s precision
-        # of about 2# in K1 and 1.5# in K2.
-        # T:  0-45  S:  5-45. Total Scale. Artificial sewater.
-        # This is eq. 29 on p. 254 and what they use in their abstract:
-        lnK1[F] = (2.83655 - 2307.1266/TempK[F] - 1.5529413*logTempK[F] +
-            (-0.20760841 - 4.0484/TempK[F])*sqrSal[F] + 0.08468345*Sal[F] -
-            0.00654208*sqrSal[F]*Sal[F])
-        K1[F] = (exp(lnK1[F])            # this is on the total pH scale in mol/kg-H2O
-            *(1 - 0.001005*Sal[F])    # convert to mol/kg-SW
-            /SWStoTOT[F])                 # convert to SWS pH scale
-        # This is eq. 30 on p. 254 and what they use in their abstract:
-        lnK2[F] = (-9.226508 - 3351.6106/TempK[F] - 0.2005743*logTempK[F] +
-            (-0.106901773 - 23.9722/TempK[F])*sqrSal[F] + 0.1130822*Sal[F] -
-            0.00846934*sqrSal[F]*Sal[F])
-        K2[F] = (exp(lnK2[F])            # this is on the total pH scale in mol/kg-H2O
-            *(1 - 0.001005*Sal[F])    # convert to mol/kg-SW
-            /SWStoTOT[F])                 # convert to SWS pH scale
-    F=(WhichKs==2)
+        K1[F], K2[F] = dissoc.kC_R93(TempK[F], logTempK[F], Sal[F], sqrSal[F],
+                                     SWStoTOT[F])
+    F = WhichKs==2
     if any(F):
-        # GOYET AND POISSON, Deep-Sea Research, 36(11):1635-1654, 1989
-        # The 2s precision in pK1 is .011, or 2.5# in K1.
-        # The 2s precision in pK2 is .02, or 4.5# in K2.
-        # This is in Table 5 on p. 1652 and what they use in the abstract:
-        pK1[F] = (812.27/TempK[F] + 3.356 - 0.00171*Sal[F]*logTempK[F]
-            + 0.000091*Sal[F]**2)
-        K1[F] = 10.0**(-pK1[F]) # this is on the SWS pH scale in mol/kg-SW
-        # This is in Table 5 on p. 1652 and what they use in the abstract:
-        pK2[F] = (1450.87/TempK[F] + 4.604 - 0.00385*Sal[F]*logTempK[F]
-            + 0.000182*Sal[F]**2)
-        K2[F] = 10.0**(-pK2[F]) # this is on the SWS pH scale in mol/kg-SW
-    F=(WhichKs==3)
+        K1[F], K2[F] = dissoc.kC_GP89(TempK[F], logTempK[F], Sal[F])
+    F = WhichKs==3
     if any(F):
-        # HANSSON refit BY DICKSON AND MILLERO
-        # Dickson and Millero, Deep-Sea Research, 34(10):1733-1743, 1987
-        # (see also Corrigenda, Deep-Sea Research, 36:983, 1989)
-        # refit data of Hansson, Deep-Sea Research, 20:461-478, 1973
-        # and Hansson, Acta Chemica Scandanavia, 27:931-944, 1973.
-        # on the SWS pH scale in mol/kg-SW.
-        # Hansson gave his results on the Total scale (he called it
-        # the seawater scale) and in mol/kg-SW.
-        # Typo in DM on p. 1739 in Table 4: the equation for pK2*
-        # for Hansson should have a .000132 *S^2
-        # instead of a .000116 *S^2.
-        # The 2s precision in pK1 is .013, or 3# in K1.
-        # The 2s precision in pK2 is .017, or 4.1# in K2.
-        # This is from Table 4 on p. 1739.
-        pK1[F] = 851.4/TempK[F] + 3.237 - 0.0106*Sal[F] + 0.000105*Sal[F]**2
-        K1[F] = 10.0**(-pK1[F]) # this is on the SWS pH scale in mol/kg-SW
-        # This is from Table 4 on p. 1739.
-        pK2[F] = (-3885.4/TempK[F] + 125.844 - 18.141*logTempK[F]
-            - 0.0192*Sal[F] + 0.000132*Sal[F]**2)
-        K2[F] = 10.0**(-pK2[F]) # this is on the SWS pH scale in mol/kg-SW
-    F=(WhichKs==4)
+        K1[F], K2[F] = dissoc.kC_H73_DM87(TempK[F], logTempK[F], Sal[F])
+    F = WhichKs==4
     if any(F):
-        # MEHRBACH refit BY DICKSON AND MILLERO
-        # Dickson and Millero, Deep-Sea Research, 34(10):1733-1743, 1987
-        # (see also Corrigenda, Deep-Sea Research, 36:983, 1989)
-        # refit data of Mehrbach et al, Limn Oc, 18(6):897-907, 1973
-        # on the SWS pH scale in mol/kg-SW.
-        # Mehrbach et al gave results on the NBS scale.
-        # The 2s precision in pK1 is .011, or 2.6# in K1.
-        # The 2s precision in pK2 is .020, or 4.6# in K2.
-        # Valid for salinity 20-40.
-        # This is in Table 4 on p. 1739.
-        pK1[F] = (3670.7/TempK[F] - 62.008 + 9.7944*logTempK[F]
-                 - 0.0118*Sal[F] + 0.000116*Sal[F]**2)
-        K1[F] = 10.0**(-pK1[F]) # this is on the SWS pH scale in mol/kg-SW
-        # This is in Table 4 on p. 1739.
-        pK2[F] = 1394.7/TempK[F] + 4.777 - 0.0184*Sal[F] + 0.000118*Sal[F]**2
-        K2[F] = 10.0**(-pK2[F]) # this is on the SWS pH scale in mol/kg-SW
-    F=(WhichKs==5)
+        K1[F], K2[F] = dissoc.kC_M73_DM87(TempK[F], logTempK[F], Sal[F])
+    F = WhichKs==5
     if any(F):
-        # HANSSON and MEHRBACH refit BY DICKSON AND MILLERO
-        # Dickson and Millero, Deep-Sea Research,34(10):1733-1743, 1987
-        # (see also Corrigenda, Deep-Sea Research, 36:983, 1989)
-        # refit data of Hansson, Deep-Sea Research, 20:461-478, 1973,
-        # Hansson, Acta Chemica Scandanavia, 27:931-944, 1973,
-        # and Mehrbach et al, Limnol. Oceanogr.,18(6):897-907, 1973
-        # on the SWS pH scale in mol/kg-SW.
-        # Typo in DM on p. 1740 in Table 5: the second equation
-        # should be pK2* =, not pK1* =.
-        # The 2s precision in pK1 is .017, or 4# in K1.
-        # The 2s precision in pK2 is .026, or 6# in K2.
-        # Valid for salinity 20-40.
-        # This is in Table 5 on p. 1740.
-        pK1[F] = 845/TempK[F] + 3.248 - 0.0098*Sal[F] + 0.000087*Sal[F]**2
-        K1[F] = 10.0**(-pK1[F]) # this is on the SWS pH scale in mol/kg-SW
-        # This is in Table 5 on p. 1740.
-        pK2[F] = 1377.3/TempK[F] + 4.824 - 0.0185*Sal[F] + 0.000122*Sal[F]**2
-        K2[F] = 10.0**(-pK2[F]) # this is on the SWS pH scale in mol/kg-SW
-    F=logical_or(WhichKs==6, WhichKs==7)
+        K1[F], K2[F] = dissoc.kC_HM_DM87(TempK[F], Sal[F])
+    F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        # GEOSECS and Peng et al use K1, K2 from Mehrbach et al,
-        # Limnology and Oceanography, 18(6):897-907, 1973.
-        # I.e., these are the original Mehrbach dissociation constants.
-        # The 2s precision in pK1 is .005, or 1.2# in K1.
-        # The 2s precision in pK2 is .008, or 2# in K2.
-        pK1[F] = (- 13.7201 + 0.031334*TempK[F] + 3235.76/TempK[F]
-            + 1.3e-5*Sal[F]*TempK[F] - 0.1032*Sal[F]**0.5)
-        K1[F] = (10.0**(-pK1[F])         # this is on the NBS scale
-            /fH[F])                     # convert to SWS scale
-        pK2[F] = (5371.9645 + 1.671221*TempK[F] + 0.22913*Sal[F] + 18.3802*log10(Sal[F])
-                 - 128375.28/TempK[F] - 2194.3055*log10(TempK[F]) - 8.0944e-4*Sal[F]*TempK[F]
-                 - 5617.11*log10(Sal[F])/TempK[F] + 2.136*Sal[F]/TempK[F]) # pK2 is not defined for Sal=0, since log10(0)=-inf
-        K2[F] = (10.0**(-pK2[F])         # this is on the NBS scale
-            /fH[F])                     # convert to SWS scale
-    F=(WhichKs==8)
+        K1[F], K2[F] = dissoc.kC_M73(TempK[F], Sal[F], fH[F])
+    F = WhichKs==8
     if any(F):
-        # PURE WATER CASE
-        # Millero, F. J., Geochemica et Cosmochemica Acta 43:1651-1661, 1979:
-        # K1 from refit data from Harned and Davis,
-        # J American Chemical Society, 65:2030-2037, 1943.
-        # K2 from refit data from Harned and Scholes,
-        # J American Chemical Society, 43:1706-1709, 1941.
-        # This is only to be used for Sal=0 water (note the absence of S in the below formulations)
-        # These are the thermodynamic Constants:
-        lnK1[F] = 290.9097 - 14554.21/TempK[F] - 45.0575*logTempK[F]
-        K1[F] = exp(lnK1[F])
-        lnK2[F] = 207.6548 - 11843.79/TempK[F] - 33.6485*logTempK[F]
-        K2[F] = exp(lnK2[F])
-    F=(WhichKs==9)
+        K1[F], K2[F] = dissoc.kC_M79_purewater(TempK[F], logTempK[F])
+    F = WhichKs==9
     if any(F):
-        # From Cai and Wang 1998, for estuarine use.
-        # Data used in this work is from:
-        # K1: Merhback (1973) for S>15, for S<15: Mook and Keone (1975)
-        # K2: Merhback (1973) for S>20, for S<20: Edmond and Gieskes (1970)
-        # Sigma of residuals between fits and above data: Â±0.015, +0.040 for K1 and K2, respectively.
-        # Sal 0-40, Temp 0.2-30
-        # Limnol. Oceanogr. 43(4) (1998) 657-668
-        # On the NBS scale
-        # Their check values for F1 don't work out, not sure if this was correctly published...
-        F1 = 200.1/TempK[F] + 0.3220
-        pK1[F] = 3404.71/TempK[F] + 0.032786*TempK[F] - 14.8435 - 0.071692*F1*Sal[F]**0.5 + 0.0021487*Sal[F]
-        K1[F]  = (10.0**-pK1[F]         # this is on the NBS scale
-            /fH[F])                    # convert to SWS scale (uncertain at low Sal due to junction potential);
-        F2 = -129.24/TempK[F] + 1.4381
-        pK2[F] = 2902.39/TempK[F] + 0.02379*TempK[F] - 6.4980 - 0.3191*F2*Sal[F]**0.5 + 0.0198*Sal[F]
-        K2[F]  = (10.0**-pK2[F]         # this is on the NBS scale
-            /fH[F])                    # convert to SWS scale (uncertain at low Sal due to junction potential);
-    F=(WhichKs==10)
+        K1[F], K2[F] = dissoc.kC_CW98(TempK[F], Sal[F], fH[F])
+    F = WhichKs==10
     if any(F):
-        # From Lueker, Dickson, Keeling, 2000
-        # This is Mehrbach's data refit after conversion to the total scale, for comparison with their equilibrator work.
-        # Mar. Chem. 70 (2000) 105-119
-        # Total scale and kg-sw
-        pK1[F] = 3633.86/TempK[F]-61.2172+9.6777*log(TempK[F])-0.011555*Sal[F]+0.0001152*Sal[F]**2
-        K1[F]  = (10.0**-pK1[F]           # this is on the total pH scale in mol/kg-SW
-            /SWStoTOT[F])                # convert to SWS pH scale
-        pK2[F] = 471.78/TempK[F]+25.929 -3.16967*log(TempK[F])-0.01781 *Sal[F]+0.0001122*Sal[F]**2
-        K2[F]  = (10.0**-pK2[F]           # this is on the total pH scale in mol/kg-SW
-            /SWStoTOT[F])               # convert to SWS pH scale
-    F=(WhichKs==11)
+        K1[F], K2[F] = dissoc.kC_LDK00(TempK[F], Sal[F], SWStoTOT[F])
+    F = WhichKs==11
     if any(F):
-        # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14) 2529-2540.
-        # sigma for pK1 is reported to be 0.0056
-        # sigma for pK2 is reported to be 0.010
-        # This is from the abstract and pages 2536-2537
-        pK1[F] =  -43.6977 - 0.0129037*Sal[F] + 1.364e-4*Sal[F]**2 + 2885.378/TempK[F] +  7.045159*log(TempK[F])
-        pK2[F] = (-452.0940 + 13.142162*Sal[F] - 8.101e-4*Sal[F]**2 + 21263.61/TempK[F] + 68.483143*log(TempK[F])
-                    + (-581.4428*Sal[F] + 0.259601*Sal[F]**2)/TempK[F] - 1.967035*Sal[F]*log(TempK[F]))
-        K1[F] = 10.0**-pK1[F] # this is on the SWS pH scale in mol/kg-SW
-        K2[F] = 10.0**-pK2[F] # this is on the SWS pH scale in mol/kg-SW
-    F=(WhichKs==12)
+        K1[F], K2[F] = dissoc.kC_MPM02(TempK[F], Sal[F])
+    F = WhichKs==12
     if any(F):
-        # Millero et al., 2002. Deep-Sea Res. I (49) 1705-1723.
-        # Calculated from overdetermined WOCE-era field measurements
-        # sigma for pK1 is reported to be 0.005
-        # sigma for pK2 is reported to be 0.008
-        # This is from page 1715
-        pK1[F] =  6.359 - 0.00664*Sal[F] - 0.01322*TempC[F] + 4.989e-5*TempC[F]**2
-        pK2[F] =  9.867 - 0.01314*Sal[F] - 0.01904*TempC[F] + 2.448e-5*TempC[F]**2
-        K1[F] = 10.0**-pK1[F] # this is on the SWS pH scale in mol/kg-SW
-        K2[F] = 10.0**-pK2[F] # this is on the SWS pH scale in mol/kg-SW
-    F=(WhichKs==13)
+        K1[F], K2[F] = dissoc.kC_M02(TempC[F], Sal[F])
+    F = WhichKs==13
     if any(F):
-        # From Millero 2006 work on pK1 and pK2 from titrations
-        # Millero, Graham, Huang, Bustos-Serrano, Pierrot. Mar.Chem. 100 (2006) 80-94.
-        # S=1 to 50, T=0 to 50. On seawater scale (SWS). From titrations in Gulf Stream seawater.
-        pK1_0 = -126.34048 + 6320.813/TempK[F] + 19.568224*log(TempK[F])
-        A_1   = 13.4191*Sal[F]**0.5 + 0.0331*Sal[F] - 5.33e-5*Sal[F]**2
-        B_1   = -530.123*Sal[F]**0.5 - 6.103*Sal[F]
-        C_1   = -2.06950*Sal[F]**0.5
-        pK1[F]= A_1 + B_1/TempK[F] + C_1*log(TempK[F]) + pK1_0 # pK1 sigma = 0.0054
-        K1[F] = 10.0**-(pK1[F])
-        pK2_0= -90.18333 + 5143.692/TempK[F] + 14.613358*log(TempK[F])
-        A_2   = 21.0894*Sal[F]**0.5 + 0.1248*Sal[F] - 3.687e-4*Sal[F]**2
-        B_2   = -772.483*Sal[F]**0.5 - 20.051*Sal[F]
-        C_2   = -3.3336*Sal[F]**0.5
-        pK2[F]= A_2 + B_2/TempK[F] + C_2*log(TempK[F]) + pK2_0 #pK2 sigma = 0.011
-        K2[F] = 10.0**-(pK2[F])
-    F=(WhichKs==14)
+        K1[F], K2[F] = dissoc.kC_MGH06(TempK[F], Sal[F])
+    F = WhichKs==14
     if any(F):
-        # From Millero, 2010, also for estuarine use.
-        # Marine and Freshwater Research, v. 61, p. 139â€“142.
-        # Fits through compilation of real seawater titration results:
-        # Mehrbach et al. (1973), Mojica-Prieto & Millero (2002), Millero et al. (2006)
-        # Constants for K's on the SWS;
-        # This is from page 141
-        pK10 = -126.34048 + 6320.813/TempK[F] + 19.568224*log(TempK[F])
-        # This is from their table 2, page 140.
-        A1 = 13.4038*Sal[F]**0.5 + 0.03206*Sal[F] - 5.242e-5*Sal[F]**2
-        B1 = -530.659*Sal[F]**0.5 - 5.8210*Sal[F]
-        C1 = -2.0664*Sal[F]**0.5
-        pK1[F] = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
-        K1[F] = 10.0**-pK1[F]
-        # This is from page 141
-        pK20 =  -90.18333 + 5143.692/TempK[F] + 14.613358*log(TempK[F])
-        # This is from their table 3, page 140.
-        A2 = 21.3728*Sal[F]**0.5 + 0.1218*Sal[F] - 3.688e-4*Sal[F]**2
-        B2 = -788.289*Sal[F]**0.5 - 19.189*Sal[F]
-        C2 = -3.374*Sal[F]**0.5
-        pK2[F] = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
-        K2[F] = 10.0**-pK2[F]
-    F=(WhichKs==15);
+        K1[F], K2[F] = dissoc.kC_M10(TempK[F], Sal[F])
+    F = WhichKs==15
     # Added by J. C. Orr on 4 Dec 2016
     if any(F):
-        # From Waters, Millero, Woosley 2014
-    	# Mar. Chem., 165, 66-67, 2014
-        # Corrigendum to �The free proton concentration scale for seawater pH�.
-    	# Effectively, this is an update of Millero (2010) formulation (WhichKs==14)
-    	# Constants for K's on the SWS;
-    	pK10 = -126.34048 + 6320.813/TempK[F] + 19.568224*log(TempK[F])
-    	A1 = 13.409160*Sal[F]**0.5 + 0.031646*Sal[F] - 5.1895e-5*Sal[F]**2
-    	B1 = -531.3642*Sal[F]**0.5 - 5.713*Sal[F]
-    	C1 = -2.0669166*Sal[F]**0.5
-    	pK1[F] = pK10 + A1 + B1/TempK[F] + C1*log(TempK[F])
-    	K1[F] = 10.0**-pK1[F]
-    	pK20 =  -90.18333 + 5143.692/TempK[F] + 14.613358*log(TempK[F])
-    	A2 = 21.225890*Sal[F]**0.5 + 0.12450870*Sal[F] - 3.7243e-4*Sal[F]**2
-    	B2 = -779.3444*Sal[F]**0.5 - 19.91739*Sal[F]
-    	C2 = -3.3534679*Sal[F]**0.5
-    	pK2[F] = pK20 + A2 + B2/TempK[F] + C2*log(TempK[F])
-    	K2[F] = 10.0**-pK2[F]
+        K1[F], K2[F] = dissoc.kC_WMW14(TempK[F], Sal[F])
 
-    #***************************************************************************
-    #CorrectKsForPressureNow:
-    # Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
-    #       the free scale) are on the SWS scale.
-    #       For WhichKs# = 6, KW set to 0, KP1, KP2, KP3, KSi don't matter.
-    #       For WhichKs# = 8, K1, K2, and KW are on the "pH" pH scale
-    #       (the pH scales are the same in this case); the other Ks don't matter.
-    #
-    #
-    # No salinity dependence is given for the pressure coefficients here.
-    # It is assumed that the salinity is at or very near Sali = 35.
-    # These are valid for the SWS pH scale, but the difference between this and
-    # the total only yields a difference of .004 pH units at 1000 bars, much
-    # less than the uncertainties in the values.
-    #****************************************************************************
-    # The sources used are:
-    # Millero, 1995:
-    #       Millero, F. J., Thermodynamics of the carbon dioxide system in the
-    #       oceans, Geochemica et Cosmochemica Acta 59:661-677, 1995.
-    #       See table 9 and eqs. 90-92, p. 675.
-    #       TYPO: a factor of 10^3 was left out of the definition of Kappa
-    #       TYPO: the value of R given is incorrect with the wrong units
-    #       TYPO: the values of the a's for H2S and H2O are from the 1983
-    #                values for fresh water
-    #       TYPO: the value of a1 for B(OH)3 should be +.1622
-    #        Table 9 on p. 675 has no values for Si.
-    #       There are a variety of other typos in Table 9 on p. 675.
-    #       There are other typos in the paper, and most of the check values
-    #       given don't check.
-    # Millero, 1992:
-    #       Millero, Frank J., and Sohn, Mary L., Chemical Oceanography,
-    #       CRC Press, 1992. See chapter 6.
-    #       TYPO: this chapter has numerous typos (eqs. 36, 52, 56, 65, 72,
-    #               79, and 96 have typos).
-    # Millero, 1983:
-    #       Millero, Frank J., Influence of pressure on chemical processes in
-    #       the sea. Chapter 43 in Chemical Oceanography, eds. Riley, J. P. and
-    #       Chester, R., Academic Press, 1983.
-    #       TYPO: p. 51, eq. 94: the value -26.69 should be -25.59
-    #       TYPO: p. 51, eq. 95: the term .1700t should be .0800t
-    #       these two are necessary to match the values given in Table 43.24
-    # Millero, 1979:
-    #       Millero, F. J., The thermodynamics of the carbon dioxide system
-    #       in seawater, Geochemica et Cosmochemica Acta 43:1651-1661, 1979.
-    #       See table 5 and eqs. 7, 7a, 7b on pp. 1656-1657.
-    # Takahashi et al, in GEOSECS Pacific Expedition, v. 3, 1982.
-    #       TYPO: the pressure dependence of K2 should have a 16.4, not 26.4
-    #       This matches the GEOSECS results and is in Edmond and Gieskes.
-    # Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
-    #       boric acid, and the pH of seawater, Limnology and Oceanography
-    #       13:403-417, 1968.
-    # Edmond, John M. and Gieskes, J. M. T. M., The calculation of the degree of
-    #       seawater with respect to calcium carbonate under in situ conditions,
-    #       Geochemica et Cosmochemica Acta, 34:1261-1291, 1970.
-    #****************************************************************************
-    # These references often disagree and give different fits for the same thing.
-    # They are not always just an update either; that is, Millero, 1995 may agree
-    #       with Millero, 1979, but differ from Millero, 1983.
-    # For WhichKs# = 7 (Peng choice) I used the same factors for KW, KP1, KP2,
-    #       KP3, and KSi as for the other cases. Peng et al didn't consider the
-    #       case of P different from 0. GEOSECS did consider pressure, but didn't
-    #       include Phos, Si, or OH, so including the factors here won't matter.
-    # For WhichKs# = 8 (freshwater) the values are from Millero, 1983 (for K1, K2,
-    #       and KW). The other aren't used (TB = TS = TF = TP = TSi = 0.), so
-    #       including the factors won't matter.
-    #****************************************************************************
-    #       deltaVs are in cm3/mole
-    #       Kappas are in cm3/mole/bar
-    #****************************************************************************
+#****************************************************************************
+# Correct dissociation constants for pressure
+# Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
+#       the free scale) are on the SWS scale.
+#       For WhichKs# = 6, KW set to 0, KP1, KP2, KP3, KSi don't matter.
+#       For WhichKs# = 8, K1, K2, and KW are on the "pH" pH scale
+#       (the pH scales are the same in this case); the other Ks don't
+#       matter.
+#
+# No salinity dependence is given for the pressure coefficients here.
+# It is assumed that the salinity is at or very near Sali = 35.
+# These are valid for the SWS pH scale, but the difference between this and
+# the total only yields a difference of .004 pH units at 1000 bars, much
+# less than the uncertainties in the values.
+#****************************************************************************
+# The sources used are:
+# Millero, 1995:
+#       Millero, F. J., Thermodynamics of the carbon dioxide system in the
+#       oceans, Geochemica et Cosmochemica Acta 59:661-677, 1995.
+#       See table 9 and eqs. 90-92, p. 675.
+#       TYPO: a factor of 10^3 was left out of the definition of Kappa
+#       TYPO: the value of R given is incorrect with the wrong units
+#       TYPO: the values of the a's for H2S and H2O are from the 1983
+#                values for fresh water
+#       TYPO: the value of a1 for B(OH)3 should be +.1622
+#        Table 9 on p. 675 has no values for Si.
+#       There are a variety of other typos in Table 9 on p. 675.
+#       There are other typos in the paper, and most of the check values
+#       given don't check.
+# Millero, 1992:
+#       Millero, Frank J., and Sohn, Mary L., Chemical Oceanography,
+#       CRC Press, 1992. See chapter 6.
+#       TYPO: this chapter has numerous typos (eqs. 36, 52, 56, 65, 72,
+#               79, and 96 have typos).
+# Millero, 1983:
+#       Millero, Frank J., Influence of pressure on chemical processes in
+#       the sea. Chapter 43 in Chemical Oceanography, eds. Riley, J. P. and
+#       Chester, R., Academic Press, 1983.
+#       TYPO: p. 51, eq. 94: the value -26.69 should be -25.59
+#       TYPO: p. 51, eq. 95: the term .1700t should be .0800t
+#       these two are necessary to match the values given in Table 43.24
+# Millero, 1979:
+#       Millero, F. J., The thermodynamics of the carbon dioxide system
+#       in seawater, Geochemica et Cosmochemica Acta 43:1651-1661, 1979.
+#       See table 5 and eqs. 7, 7a, 7b on pp. 1656-1657.
+# Takahashi et al, in GEOSECS Pacific Expedition, v. 3, 1982.
+#       TYPO: the pressure dependence of K2 should have a 16.4, not 26.4
+#       This matches the GEOSECS results and is in Edmond and Gieskes.
+# Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
+#       boric acid, and the pH of seawater, Limnology and Oceanography
+#       13:403-417, 1968.
+# Edmond, John M. and Gieskes, J. M. T. M., The calculation of the degree of
+#       seawater with respect to calcium carbonate under in situ conditions,
+#       Geochemica et Cosmochemica Acta, 34:1261-1291, 1970.
+#****************************************************************************
+# These references often disagree and give different fits for the same thing.
+# They are not always just an update either; that is, Millero, 1995 may agree
+#       with Millero, 1979, but differ from Millero, 1983.
+# For WhichKs# = 7 (Peng choice) I used the same factors for KW, KP1, KP2,
+#       KP3, and KSi as for the other cases. Peng et al didn't consider the
+#       case of P different from 0. GEOSECS did consider pressure, but didn't
+#       include Phos, Si, or OH, so including the factors here won't matter.
+# For WhichKs# = 8 (freshwater) the values are from Millero, 1983 (for K1, K2,
+#       and KW). The other aren't used (TB = TS = TF = TP = TSi = 0.), so
+#       including the factors won't matter.
+#****************************************************************************
+#       deltaVs are in cm3/mole
+#       Kappas are in cm3/mole/bar
+#****************************************************************************
 
-    #CorrectK1K2KBForPressure:
-    deltaV    = full(ntps, nan); Kappa     = full(ntps, nan);
-    lnK1fac   = full(ntps, nan); lnK2fac   = full(ntps, nan);
-    lnKBfac   = full(ntps, nan);
-    F=(WhichKs==8)
+    # Correct K1, K2 and KB for pressure:
+    deltaV = full(ntps, nan)
+    Kappa = full(ntps, nan)
+    lnK1fac = full(ntps, nan)
+    lnK2fac = full(ntps, nan)
+    lnKBfac = full(ntps, nan)
+    F = WhichKs==8
     if any(F):
-        #***PressureEffectsOnK1inFreshWater:
-        #               This is from Millero, 1983.
+        # Pressure effects on K1 in freshwater: this is from Millero, 1983.
         deltaV[F]  = -30.54 + 0.1849 *TempC[F] - 0.0023366*TempC[F]**2
         Kappa[F]   = (-6.22 + 0.1368 *TempC[F] - 0.001233 *TempC[F]**2)/1000
         lnK1fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
-        #***PressureEffectsOnK2inFreshWater:
-        #               This is from Millero, 1983.
+        # Pressure effects on K2 in freshwater: this is from Millero, 1983.
         deltaV[F]  = -29.81 + 0.115*TempC[F] - 0.001816*TempC[F]**2
         Kappa[F]   = (-5.74 + 0.093*TempC[F] - 0.001896*TempC[F]**2)/1000
         lnK2fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
         lnKBfac[F] = 0 #; this doesn't matter since TB = 0 for this case
-    F=logical_or(WhichKs==6, WhichKs==7)
+    F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        #               GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
-        #               Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
-        #               Culberson and Pytkowicz, L and O 13:403-417, 1968:
-        #               but the fits are the same as those in
-        #               Edmond and Gieskes, GCA, 34:1261-1291, 1970
-        #               who in turn quote Li, personal communication
+        # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
+        # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
+        # Culberson and Pytkowicz, L and O 13:403-417, 1968:
+        # but the fits are the same as those in
+        # Edmond and Gieskes, GCA, 34:1261-1291, 1970
+        # who in turn quote Li, personal communication
         lnK1fac[F] = (24.2 - 0.085*TempC[F])*Pbar[F]/RT[F]
         lnK2fac[F] = (16.4 - 0.04 *TempC[F])*Pbar[F]/RT[F]
         #               Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
@@ -1295,7 +1040,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
     # '       13:403-417, 1968.
     # '***********************************************************************
     Ca = full(ntps, nan)
-    Ar = full(ntps, nan)
+    # Ar = full(ntps, nan)
     KCa = full(ntps, nan)
     KAr = full(ntps, nan)
     F=logical_and(WhichKs!=6, WhichKs!=7)

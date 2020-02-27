@@ -18,7 +18,6 @@ si = matfile['SI'][0][0]
 pHscales = matfile['pHSCALEIN'][0][0]
 K1K2 = matfile['K1K2CONSTANTS'][0][0]
 KSO4 = matfile['KSO4CONSTANTS'][0][0]
-
 co2args = (PAR1, PAR2, PAR12combos[:, 0], PAR12combos[:, 1],
            sal, tempin, tempout, presin, presout, phos, si,
            pHscales, K1K2, KSO4)
