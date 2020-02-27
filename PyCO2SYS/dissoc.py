@@ -2,7 +2,7 @@ from numpy import exp, log, log10, sqrt
 from . import conc
 
 def k0_W74(TempK, Sal):
-    """K0 (Henry's constant for CO2) in mol/kg-sw/atm following W74."""
+    """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""
     # === CO2SYS.m comments: =======
     # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # This is in mol/kg-SW/atm.
@@ -371,7 +371,7 @@ def kC_LDK00(TempK, Sal, SWStoTOT):
 def kC_MPM02(TempK, Sal):
     """Carbonic acid dissociation constants following MPM02."""
     # === CO2SYS.m comments: =======
-    # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14)#
+    # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14),
     # 2529-2540.
     # sigma for pK1 is reported to be 0.0056
     # sigma for pK2 is reported to be 0.010
