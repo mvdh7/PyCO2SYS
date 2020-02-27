@@ -325,19 +325,19 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     IonS = conc.ionstr_DOE(Sal)
 
     # Calculate K0 (Henry's constant for CO2)
-    K0 = eq.k0_W74(TempK, Sal)
+    K0 = eq.kCO2_W74(TempK, Sal)
 
     # Calculate KS (bisulfate ion dissociation constant)
     KS = full(ntps, nan)
     F = logical_or(WhoseKSO4==1, WhoseKSO4==3)
     if any(F):
-        KS[F] = eq.kS_D90(TempK[F], Sal[F])
+        KS[F] = eq.kHSO4_D90(TempK[F], Sal[F])
     F = logical_or(WhoseKSO4==2, WhoseKSO4==4)
     if any(F):
-        KS[F] = eq.kS_K77(TempK[F], Sal[F])
+        KS[F] = eq.kHSO4_K77(TempK[F], Sal[F])
 
     # Calculate KF (hydrogen fluoride dissociation constant)
-    KF = eq.kF_DR79(TempK, Sal)
+    KF = eq.kHF_DR79(TempK, Sal)
 
     # Calculate pH scale conversion factors:
     # These are NOT pressure-corrected.
@@ -364,10 +364,10 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
         KB[F] = 0.0
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        KB[F] = eq.kB_L69(TempC[F], Sal[F], fH[F])
+        KB[F] = eq.kBOH3_L69(TempC[F], Sal[F], fH[F])
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        KB[F] = eq.kB_D90(TempK[F], logTempK[F], Sal[F], sqrSal[F],
+        KB[F] = eq.kBOH3_D90(TempK[F], logTempK[F], Sal[F], sqrSal[F],
                               SWStoTOT[F])
 
     # Calculate water dissociation constant (KW)
@@ -375,13 +375,13 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     KW = full(ntps, nan)
     F = WhichKs==7
     if any(F):
-        lnKW[F] = eq.lnkW_M79(TempK[F], logTempK[F], Sal[F], sqrSal[F])
+        lnKW[F] = eq.lnkH2O_M79(TempK[F], logTempK[F], Sal[F], sqrSal[F])
     F = WhichKs==8
     if any(F):
-        lnKW[F] = eq.lnkW_HO58(TempK[F], logTempK[F])
+        lnKW[F] = eq.lnkH2O_HO58(TempK[F], logTempK[F])
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        lnKW[F] = eq.lnkW_M95(TempK[F], logTempK[F], Sal[F], sqrSal[F])
+        lnKW[F] = eq.lnkH2O_M95(TempK[F], logTempK[F], Sal[F], sqrSal[F])
     KW = exp(lnKW) # this is on the SWS pH scale in (mol/kg-SW)**2
     F = WhichKs==6
     if any(F):
@@ -394,7 +394,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     KSi = full(ntps, nan)
     F = WhichKs==7
     if any(F):
-        KP1[F], KP2[F], KP3[F] = eq.kP_KP67(TempK[F], fH[F])
+        KP1[F], KP2[F], KP3[F] = eq.kH3PO4_KP67(TempK[F], fH[F])
         KSi[F] = eq.kSi_SMB64(fH[F])
     F = logical_or(WhichKs==6, WhichKs==8)
     if any(F):
@@ -406,7 +406,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
         KSi[F] = 0.0
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        KP1[F], KP2[F], KP3[F] = eq.kP_YM95(TempK[F], logTempK[F],
+        KP1[F], KP2[F], KP3[F] = eq.kH3PO4_YM95(TempK[F], logTempK[F],
                                                 Sal[F], sqrSal[F])
         KSi[F] = eq.kSi_YM95(TempK[F], logTempK[F], Sal[F], sqrSal[F],
                                  IonS[F])
@@ -416,48 +416,48 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     K2 = full(ntps, nan)
     F = WhichKs==1
     if any(F):
-        K1[F], K2[F] = eq.kC_R93(TempK[F], logTempK[F], Sal[F], sqrSal[F],
+        K1[F], K2[F] = eq.kH2CO3_R93(TempK[F], logTempK[F], Sal[F], sqrSal[F],
                                      SWStoTOT[F])
     F = WhichKs==2
     if any(F):
-        K1[F], K2[F] = eq.kC_GP89(TempK[F], logTempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_GP89(TempK[F], logTempK[F], Sal[F])
     F = WhichKs==3
     if any(F):
-        K1[F], K2[F] = eq.kC_H73_DM87(TempK[F], logTempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_H73_DM87(TempK[F], logTempK[F], Sal[F])
     F = WhichKs==4
     if any(F):
-        K1[F], K2[F] = eq.kC_M73_DM87(TempK[F], logTempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_M73_DM87(TempK[F], logTempK[F], Sal[F])
     F = WhichKs==5
     if any(F):
-        K1[F], K2[F] = eq.kC_HM_DM87(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_HM_DM87(TempK[F], Sal[F])
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        K1[F], K2[F] = eq.kC_M73(TempK[F], Sal[F], fH[F])
+        K1[F], K2[F] = eq.kH2CO3_M73(TempK[F], Sal[F], fH[F])
     F = WhichKs==8
     if any(F):
-        K1[F], K2[F] = eq.kC_M79_purewater(TempK[F], logTempK[F])
+        K1[F], K2[F] = eq.kH2CO3_M79_purewater(TempK[F], logTempK[F])
     F = WhichKs==9
     if any(F):
-        K1[F], K2[F] = eq.kC_CW98(TempK[F], Sal[F], fH[F])
+        K1[F], K2[F] = eq.kH2CO3_CW98(TempK[F], Sal[F], fH[F])
     F = WhichKs==10
     if any(F):
-        K1[F], K2[F] = eq.kC_LDK00(TempK[F], Sal[F], SWStoTOT[F])
+        K1[F], K2[F] = eq.kH2CO3_LDK00(TempK[F], Sal[F], SWStoTOT[F])
     F = WhichKs==11
     if any(F):
-        K1[F], K2[F] = eq.kC_MPM02(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_MPM02(TempK[F], Sal[F])
     F = WhichKs==12
     if any(F):
-        K1[F], K2[F] = eq.kC_M02(TempC[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_M02(TempC[F], Sal[F])
     F = WhichKs==13
     if any(F):
-        K1[F], K2[F] = eq.kC_MGH06(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_MGH06(TempK[F], Sal[F])
     F = WhichKs==14
     if any(F):
-        K1[F], K2[F] = eq.kC_M10(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_M10(TempK[F], Sal[F])
     F = WhichKs==15
     # Added by J. C. Orr on 4 Dec 2016
     if any(F):
-        K1[F], K2[F] = eq.kC_WMW14(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_WMW14(TempK[F], Sal[F])
 
 #****************************************************************************
 # Correct dissociation constants for pressure
