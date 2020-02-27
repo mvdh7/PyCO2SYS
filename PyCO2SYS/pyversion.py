@@ -1,4 +1,5 @@
-from . import dissoc, conc, convert
+from . import conc, convert
+from . import dissociation as dissoc
 
 #**************************************************************************
 #
@@ -97,8 +98,8 @@ from . import dissoc, conc, convert
 #  11 = Mojica Prieto and Millero, 2002.					T:    0-45  S:  5-42. Seaw. scale. Real seawater
 #  12 = Millero et al, 2002									T: -1.6-35  S: 34-37. Seaw. scale. Field measurements.
 #  13 = Millero et al, 2006									T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-#  14 = Millero        2010  									T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-#  15 = Waters, Millero, & Woosley 2014  							T:    0-50  S:  1-50. Seaw. scale. Real seawater.
+#  14 = Millero        2010  								T:    0-50  S:  1-50. Seaw. scale. Real seawater.
+#  15 = Waters, Millero, & Woosley 2014  					T:    0-50  S:  1-50. Seaw. scale. Real seawater.
 # 
 #  (****) Each element must be an integer that 
 #         indicates the KSO4 dissociation constants that are to be used,

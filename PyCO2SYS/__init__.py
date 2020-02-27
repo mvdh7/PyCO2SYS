@@ -1,5 +1,5 @@
-from . import pyversion, dissoc, conc, convert
-__all__ = ['pyversion', 'dissoc', 'conc', 'convert']
+from . import pyversion, dissociation, conc, convert
+__all__ = ['pyversion', 'dissociation', 'conc', 'convert']
 
 #**************************************************************************
 #
