@@ -409,16 +409,16 @@ def kC_MGH06(TempK, Sal):
     # S=1 to 50, T=0 to 50. On seawater scale (SWS). From titrations in Gulf
     # Stream seawater.
     pK1_0 = -126.34048 + 6320.813/TempK + 19.568224*log(TempK)
-    A_1   = 13.4191*Sal**0.5 + 0.0331*Sal - 5.33e-5*Sal**2
-    B_1   = -530.123*Sal**0.5 - 6.103*Sal
-    C_1   = -2.06950*Sal**0.5
+    A_1 = 13.4191*Sal**0.5 + 0.0331*Sal - 5.33e-5*Sal**2
+    B_1 = -530.123*Sal**0.5 - 6.103*Sal
+    C_1 = -2.06950*Sal**0.5
     pK1= A_1 + B_1/TempK + C_1*log(TempK) + pK1_0 # pK1 sigma = 0.0054
     K1 = 10.0**-(pK1)
-    pK2_0= -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
-    A_2   = 21.0894*Sal**0.5 + 0.1248*Sal - 3.687e-4*Sal**2
-    B_2   = -772.483*Sal**0.5 - 20.051*Sal
-    C_2   = -3.3336*Sal**0.5
-    pK2= A_2 + B_2/TempK + C_2*log(TempK) + pK2_0 #pK2 sigma = 0.011
+    pK2_0 = -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
+    A_2 = 21.0894*Sal**0.5 + 0.1248*Sal - 3.687e-4*Sal**2
+    B_2 = -772.483*Sal**0.5 - 20.051*Sal
+    C_2 = -3.3336*Sal**0.5
+    pK2 = A_2 + B_2/TempK + C_2*log(TempK) + pK2_0 #pK2 sigma = 0.011
     K2 = 10.0**-(pK2)
     return K1, K2
 
@@ -440,7 +440,7 @@ def kC_M10(TempK, Sal):
     pK1 = pK10 + A1 + B1/TempK + C1*log(TempK)
     K1 = 10.0**-pK1
     # This is from page 141
-    pK20 =  -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
+    pK20 = -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
     # This is from their table 3, page 140.
     A2 = 21.3728*Sal**0.5 + 0.1218*Sal - 3.688e-4*Sal**2
     B2 = -788.289*Sal**0.5 - 19.189*Sal
@@ -464,7 +464,7 @@ def kC_WMW14(TempK, Sal):
     C1 = -2.0669166*Sal**0.5
     pK1 = pK10 + A1 + B1/TempK + C1*log(TempK)
     K1 = 10.0**-pK1
-    pK20 =  -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
+    pK20 = -90.18333 + 5143.692/TempK + 14.613358*log(TempK)
     A2 = 21.225890*Sal**0.5 + 0.12450870*Sal - 3.7243e-4*Sal**2
     B2 = -779.3444*Sal**0.5 - 19.91739*Sal
     C2 = -3.3534679*Sal**0.5
