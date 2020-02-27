@@ -11,3 +11,4 @@ theme: readthedocs
 nav:
   - Overview and installation: index.md
   - Version history: versions.md
+  - References: refs.md
