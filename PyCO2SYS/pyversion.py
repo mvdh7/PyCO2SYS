@@ -444,7 +444,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
         K1[F], K2[F] = eq.kH2CO3_LDK00(TempK[F], Sal[F], SWStoTOT[F])
     F = WhichKs==11
     if any(F):
-        K1[F], K2[F] = eq.kH2CO3_MPM02(TempK[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_MM02(TempK[F], Sal[F])
     F = WhichKs==12
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_M02(TempC[F], Sal[F])

@@ -368,7 +368,7 @@ def kH2CO3_LDK00(TempK, Sal, SWStoTOT):
         /SWStoTOT)               # convert to SWS pH scale
     return K1, K2
         
-def kH2CO3_MPM02(TempK, Sal):
+def kH2CO3_MM02(TempK, Sal):
     """Carbonic acid dissociation constants following MPM02."""
     # === CO2SYS.m comments: =======
     # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14),
