@@ -287,10 +287,9 @@ def _Constants(TempC, Pdbar):
 #               pHScale# (the chosen one) in units of mol/kg-SW
 #               except KS and KF are on the free scale
 #               and KW is in units of (mol/kg-SW)^2
-    global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar, RT
-    global K0, fH, FugFac, VPFac, ntps, TempK, logTempK
-    global K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi
-    global TB, TF, TS, TP, TSi, RGasConstant, Sal
+    global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar
+    global ntps, TempK, logTempK    
+    global TP, TSi, Sal
     
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
@@ -743,6 +742,8 @@ def _Constants(TempC, Pdbar):
     VPCorrWP = exp(-0.000544*Sal)
     VPSWWP = VPWP*VPCorrWP
     VPFac = 1 - VPSWWP # this assumes 1 atmosphere
+    return (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS,
+            RGasConstant, RT, K0, fH, FugFac, VPFac)
 
 def _CalculatepHfromTATC(TAx, TCx):
     global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar, RT
@@ -1172,6 +1173,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
             for arg in args]
     (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
         SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS) = args
+    
+    # Convert any integer inputs to floats.
     SAL = SAL.astype('float64')
     TEMPIN = TEMPIN.astype('float64')
     TEMPOUT = TEMPOUT.astype('float64')
@@ -1181,19 +1184,19 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PO4 = PO4.astype('float64')
 
     # Assign input to the 'historical' variable names.
-    pHScale      = pHSCALEIN
-    WhichKs      = K1K2CONSTANTS
-    WhoseKSO4    = KSO4CONSTANTS
-    p1           = PAR1TYPE
-    p2           = PAR2TYPE
-    TempCi       = TEMPIN
-    TempCo       = TEMPOUT
-    Pdbari       = PRESIN
-    Pdbaro       = PRESOUT
-    Sal          = SAL
-    sqrSal       = sqrt(SAL)
-    TP           = PO4
-    TSi          = SI
+    pHScale = pHSCALEIN
+    WhichKs = K1K2CONSTANTS
+    WhoseKSO4 = KSO4CONSTANTS
+    p1 = PAR1TYPE
+    p2 = PAR2TYPE
+    TempCi = TEMPIN
+    TempCo = TEMPOUT
+    Pdbari = PRESIN
+    Pdbaro = PRESOUT
+    Sal = SAL
+    sqrSal = sqrt(SAL)
+    TP = PO4
+    TSi = SI
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
@@ -1203,28 +1206,28 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     FC = full(ntps, nan) # fCO2
 
     # Assign values to empty vectors.
-    F=(p1==1); TA[F]=PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
-    F=(p1==2); TC[F]=PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
-    F=(p1==3); PH[F]=PAR1[F]
-    F=(p1==4); PC[F]=PAR1[F]/1e6 # Convert from microatm. to atm.
-    F=(p1==5); FC[F]=PAR1[F]/1e6 # Convert from microatm. to atm.
-    F=(p2==1); TA[F]=PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
-    F=(p2==2); TC[F]=PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
-    F=(p2==3); PH[F]=PAR2[F]
-    F=(p2==4); PC[F]=PAR2[F]/1e6 # Convert from microatm. to atm.
-    F=(p2==5); FC[F]=PAR2[F]/1e6 # Convert from microatm. to atm.
+    F = p1==1; TA[F] = PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
+    F = p1==2; TC[F] = PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
+    F = p1==3; PH[F] = PAR1[F]
+    F = p1==4; PC[F] = PAR1[F]/1e6 # Convert from microatm. to atm.
+    F = p1==5; FC[F] = PAR1[F]/1e6 # Convert from microatm. to atm.
+    F = p2==1; TA[F] = PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
+    F = p2==2; TC[F] = PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
+    F = p2==3; PH[F] = PAR2[F]
+    F = p2==4; PC[F] = PAR2[F]/1e6 # Convert from microatm. to atm.
+    F = p2==5; FC[F] = PAR2[F]/1e6 # Convert from microatm. to atm.
 
     # Generate the columns holding Si, Phos and Sal.
     # Pure Water case:
-    F=(WhichKs==8)
+    F = WhichKs==8
     Sal[F] = 0
     # GEOSECS and Pure Water:
-    F=logical_or(WhichKs==8, WhichKs==6)
-    TP[F]  = 0
+    F = logical_or(WhichKs==8, WhichKs==6)
+    TP[F] = 0
     TSi[F] = 0
     # All other cases
-    F=~F
-    TP[F]  = TP[F]/1e6
+    F = ~F
+    TP[F] = TP[F]/1e6
     TSi[F] = TSi[F]/1e6
 
     # The vector 'PengCorrection' is used to modify the value of TA, for those
@@ -1235,15 +1238,17 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
-    _Constants(TempCi, Pdbari)
+    (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
+        K0, fH, FugFac, VPFac) = _Constants(TempCi, Pdbari)
 
     # Make sure fCO2 is available for each sample that has pCO2.
-    F=logical_or(p1==4, p2==4); FC[F] = PC[F]*FugFac[F]
+    F = logical_or(p1==4, p2==4)
+    FC[F] = PC[F]*FugFac[F]
 
     # Generate vector for results, and copy the raw input values into them. This
     # copies ~60% NaNs, which will be replaced for calculated values later on.
-    TAc  = deepcopy(TA)
-    TCc  = deepcopy(TC)
+    TAc = deepcopy(TA)
+    TCc = deepcopy(TC)
     PHic = deepcopy(PH)
     PCic = deepcopy(PC)
     FCic = deepcopy(FC)
@@ -1302,7 +1307,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
                    KP2, KP3, KSi])
 
     # Calculate the constants for all samples at output conditions
-    _Constants(TempCo, Pdbaro)
+    (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
+        K0, fH, FugFac, VPFac) = _Constants(TempCo, Pdbaro)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
     F=full(ntps, True) # i.e., do for all samples:

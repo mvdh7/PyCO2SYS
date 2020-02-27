@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.io import loadmat
-from PyCO2SYS import CO2SYS
+from PyCO2SYS.pyversion import CO2SYS
 from time import time
 
 # Import input conditions: CO2SYStest.mat was generated in MATLAB using the
