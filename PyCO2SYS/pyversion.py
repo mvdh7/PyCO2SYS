@@ -267,7 +267,8 @@ from numpy import any as np_any
 from numpy import min as np_min
 from numpy import max as np_max
 
-def _Constants(TempC, Pdbar):
+def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
+        ntps, TP, TSi, Sal):
 # SUB Constants, version 04.01, 10-13-97, written by Ernie Lewis.
 # Converted from MATLAB to Python 2020-01-29 by Matthew Humphreys.
 # Inputs: pHScale#, WhichKs#, WhoseKSO4#, Sali, TempCi, Pdbar
@@ -287,8 +288,6 @@ def _Constants(TempC, Pdbar):
 #               pHScale# (the chosen one) in units of mol/kg-SW
 #               except KS and KF are on the free scale
 #               and KW is in units of (mol/kg-SW)^2
-    global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar
-    global ntps, TP, TSi, Sal
     
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
@@ -742,7 +741,7 @@ def _Constants(TempC, Pdbar):
     VPSWWP = VPWP*VPCorrWP
     VPFac = 1 - VPSWWP # this assumes 1 atmosphere
     return (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS,
-            RGasConstant, RT, K0, fH, FugFac, VPFac, TempK, logTempK)
+            RGasConstant, RT, K0, fH, FugFac, VPFac, TempK, logTempK, Pbar)
 
 def _CalculatepHfromTATC(TAx, TCx):
     global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar, RT
@@ -1237,8 +1236,10 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
+    ConstPuts = (pHScale, WhichKs, WhoseKSO4, sqrSal, ntps, TP, TSi, Sal)
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
-        K0, fH, FugFac, VPFac, TempK, logTempK) = _Constants(TempCi, Pdbari)
+        K0, fH, FugFac, VPFac, TempK, logTempK, Pbar) = _Constants(
+            TempCi, Pdbari, *ConstPuts)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = logical_or(p1==4, p2==4)
@@ -1307,7 +1308,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Calculate the constants for all samples at output conditions
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
-        K0, fH, FugFac, VPFac, TempK, logTempK) = _Constants(TempCo, Pdbaro)
+        K0, fH, FugFac, VPFac, TempK, logTempK, Pbar) = _Constants(
+            TempCo, Pdbaro, *ConstPuts)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
     F=full(ntps, True) # i.e., do for all samples:
