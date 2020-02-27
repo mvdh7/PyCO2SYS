@@ -288,8 +288,7 @@ def _Constants(TempC, Pdbar):
 #               except KS and KF are on the free scale
 #               and KW is in units of (mol/kg-SW)^2
     global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar
-    global ntps, TempK, logTempK    
-    global TP, TSi, Sal
+    global ntps, TP, TSi, Sal
     
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
@@ -297,7 +296,7 @@ def _Constants(TempC, Pdbar):
     TempK = TempC + 273.15
     RT = RGasConstant*TempK
     logTempK = log(TempK)
-    Pbar = Pdbar/10
+    Pbar = Pdbar/10.0
 
     # Generate empty vectors for holding results
     TB = full(ntps, nan)
@@ -307,7 +306,7 @@ def _Constants(TempC, Pdbar):
     # Calculate total borate
     F = WhichKs==8
     if any(F): # Pure water
-        TB[F] = 0
+        TB[F] = 0.0
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
         TB[F] = conc.borate_C65(Sal[F])
@@ -350,7 +349,7 @@ def _Constants(TempC, Pdbar):
     # Use GEOSECS's value for cases 1,2,3,4,5 (and 6) to convert pH scales.
     F = WhichKs==8
     if any(F):
-        fH[F] = 1 # this shouldn't occur in the program for this case
+        fH[F] = 1.0 # this shouldn't occur in the program for this case
     F = WhichKs==7
     if any(F):
         fH[F] = convert.fH_P87(TempK[F], Sal[F])
@@ -362,7 +361,7 @@ def _Constants(TempC, Pdbar):
     KB = full(ntps, nan)
     F = WhichKs==8 # Pure water case
     if any(F):
-        KB[F] = 0
+        KB[F] = 0.0
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
         KB[F] = dissoc.kB_L69(TempC[F], Sal[F], fH[F])
@@ -383,7 +382,7 @@ def _Constants(TempC, Pdbar):
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
         lnKW[F] = dissoc.lnkW_M95(TempK[F], logTempK[F], Sal[F], sqrSal[F])
-    KW = exp(lnKW) # this is on the SWS pH scale in (mol/kg-SW)^2
+    KW = exp(lnKW) # this is on the SWS pH scale in (mol/kg-SW)**2
     F = WhichKs==6
     if any(F):
         KW[F] = 0 # GEOSECS doesn't include OH effects
@@ -401,10 +400,10 @@ def _Constants(TempC, Pdbar):
     if any(F):
         # Neither the GEOSECS choice nor the freshwater choice
         # include contributions from phosphate or silicate.
-        KP1[F] = 0
-        KP2[F] = 0
-        KP3[F] = 0
-        KSi[F] = 0
+        KP1[F] = 0.0
+        KP2[F] = 0.0
+        KP3[F] = 0.0
+        KSi[F] = 0.0
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
         KP1[F], KP2[F], KP3[F] = dissoc.kP_YM95(TempK[F], logTempK[F],
@@ -743,7 +742,7 @@ def _Constants(TempC, Pdbar):
     VPSWWP = VPWP*VPCorrWP
     VPFac = 1 - VPSWWP # this assumes 1 atmosphere
     return (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS,
-            RGasConstant, RT, K0, fH, FugFac, VPFac)
+            RGasConstant, RT, K0, fH, FugFac, VPFac, TempK, logTempK)
 
 def _CalculatepHfromTATC(TAx, TCx):
     global pHScale, WhichKs, WhoseKSO4, sqrSal, Pbar, RT
@@ -1239,7 +1238,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
-        K0, fH, FugFac, VPFac) = _Constants(TempCi, Pdbari)
+        K0, fH, FugFac, VPFac, TempK, logTempK) = _Constants(TempCi, Pdbari)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = logical_or(p1==4, p2==4)
@@ -1308,7 +1307,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Calculate the constants for all samples at output conditions
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
-        K0, fH, FugFac, VPFac) = _Constants(TempCo, Pdbaro)
+        K0, fH, FugFac, VPFac, TempK, logTempK) = _Constants(TempCo, Pdbaro)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
     F=full(ntps, True) # i.e., do for all samples:
