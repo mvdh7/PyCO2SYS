@@ -7,3 +7,7 @@ site_url: https://pyco2sys.readthedocs.io/
 repo_url: https://github.com/mvdh7/PyCO2SYS
 
 theme: readthedocs
+
+nav:
+  - Overview and installation: index.md
+  - Version history: versions.md
