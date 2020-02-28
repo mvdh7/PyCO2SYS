@@ -284,8 +284,7 @@ from numpy import any as np_any
 from numpy import min as np_min
 from numpy import max as np_max
 
-def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
-        ntps, TP, TSi, Sal):
+def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
     """
@@ -436,8 +435,8 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     F = WhichKs==1
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_TOT_RRV93(TempK[F], Sal[F])
-        K1[F] /= SWStoTOT[F]
-        K2[F] /= SWStoTOT[F]
+        K1[F] /= SWStoTOT[F] # Convert TOT to SWS
+        K2[F] /= SWStoTOT[F] # Convert TOT to SWS
     F = WhichKs==2
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_SWS_GP89(TempK[F], Sal[F])
@@ -453,21 +452,21 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_NBS_MCHP73(TempK[F], Sal[F])
-        K1[F] /= fH[F]
-        K2[F] /= fH[F]
+        K1[F] /= fH[F] # Convert NBS to SWS
+        K2[F] /= fH[F] # Convert NBS to SWS
     F = WhichKs==8
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_SWS_M79(TempK[F], Sal[F])
     F = WhichKs==9
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_NBS_CW98(TempK[F], Sal[F])
-        K1[F] /= fH[F]
-        K2[F] /= fH[F]
+        K1[F] /= fH[F] # Convert NBS to SWS
+        K2[F] /= fH[F] # Convert NBS to SWS
     F = WhichKs==10
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_TOT_LDK00(TempK[F], Sal[F])
-        K1[F] /= SWStoTOT[F]
-        K2[F] /= SWStoTOT[F]
+        K1[F] /= SWStoTOT[F] # Convert TOT to SWS
+        K2[F] /= SWStoTOT[F] # Convert TOT to SWS
     F = WhichKs==11
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_SWS_MM02(TempK[F], Sal[F])
@@ -695,16 +694,16 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     lnKSifac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
 
     # CorrectKsForPressureHere:
-    K1fac  = exp(lnK1fac);  K1  = K1 *K1fac;
-    K2fac  = exp(lnK2fac);  K2  = K2 *K2fac;
-    KWfac  = exp(lnKWfac);  KW  = KW *KWfac;
-    KBfac  = exp(lnKBfac);  KB  = KB *KBfac;
-    KFfac  = exp(lnKFfac);  KF  = KF *KFfac;
-    KSfac  = exp(lnKSfac);  KS  = KS *KSfac;
-    KP1fac = exp(lnKP1fac); KP1 = KP1*KP1fac;
-    KP2fac = exp(lnKP2fac); KP2 = KP2*KP2fac;
-    KP3fac = exp(lnKP3fac); KP3 = KP3*KP3fac;
-    KSifac = exp(lnKSifac); KSi = KSi*KSifac;
+    K1fac  = exp(lnK1fac);  K1  = K1 *K1fac
+    K2fac  = exp(lnK2fac);  K2  = K2 *K2fac
+    KWfac  = exp(lnKWfac);  KW  = KW *KWfac
+    KBfac  = exp(lnKBfac);  KB  = KB *KBfac
+    KFfac  = exp(lnKFfac);  KF  = KF *KFfac
+    KSfac  = exp(lnKSfac);  KS  = KS *KSfac
+    KP1fac = exp(lnKP1fac); KP1 = KP1*KP1fac
+    KP2fac = exp(lnKP2fac); KP2 = KP2*KP2fac
+    KP3fac = exp(lnKP3fac); KP3 = KP3*KP3fac
+    KSifac = exp(lnKSifac); KSi = KSi*KSifac
 
     # CorrectpHScaleConversionsForPressure:
     # fH has been assumed to be independent of pressure.
@@ -727,10 +726,14 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     pHfactor[F] = fH[F]
 
     # ConvertFromSWSpHScaleToChosenScale:
-    K1  = K1* pHfactor; K2  = K2* pHfactor;
-    KW  = KW* pHfactor; KB  = KB* pHfactor;
-    KP1 = KP1*pHfactor; KP2 = KP2*pHfactor;
-    KP3 = KP3*pHfactor; KSi = KSi*pHfactor;
+    K1  = K1* pHfactor
+    K2  = K2* pHfactor
+    KW  = KW* pHfactor
+    KB  = KB* pHfactor
+    KP1 = KP1*pHfactor
+    KP2 = KP2*pHfactor
+    KP3 = KP3*pHfactor
+    KSi = KSi*pHfactor
 
     # CalculateFugacityConstants:
     # This assumes that the pressure is at one atmosphere, or close to it.
@@ -825,21 +828,21 @@ def _CalculatepHfromTATC(TAx, TCx):
 
 def _CalculatefCO2fromTCpH(TCx, pHx):
     global K0, K1, K2, F
-    # ' SUB CalculatefCO2fromTCpH, version 02.02, 12-13-96, written by Ernie Lewis.
-    # ' Inputs: TC, pH, K0, K1, K2
-    # ' Output: fCO2
-    # ' This calculates fCO2 from TC and pH, using K0, K1, and K2.
+# SUB CalculatefCO2fromTCpH, version 02.02, 12-13-96, written by Ernie Lewis.
+# Inputs: TC, pH, K0, K1, K2
+# Output: fCO2
+# This calculates fCO2 from TC and pH, using K0, K1, and K2.
     H = 10.0**(-pHx)
     fCO2x = TCx*H*H/(H*H + K1[F]*H + K1[F]*K2[F])/K0[F]
     return fCO2x
 
 def _CalculatepHfCO2fromTATC(TAx, TCx):
     global FugFac, F
-    # Outputs pH fCO2, in that order
-    # SUB FindpHfCO2fromTATC, version 01.02, 10-10-97, written by Ernie Lewis.
-    # Inputs: pHScale%, WhichKs%, WhoseKSO4%, TA, TC, Sal, K(), T(), TempC, Pdbar
-    # Outputs: pH, fCO2
-    # This calculates pH and fCO2 from TA and TC at output conditions.
+# Outputs pH fCO2, in that order
+# SUB FindpHfCO2fromTATC, version 01.02, 10-10-97, written by Ernie Lewis.
+# Inputs: pHScale%, WhichKs%, WhoseKSO4%, TA, TC, Sal, K(), T(), TempC, Pdbar
+# Outputs: pH, fCO2
+# This calculates pH and fCO2 from TA and TC at output conditions.
     pHx = _CalculatepHfromTATC(TAx, TCx) # pH is returned on the scale requested in "pHscale" (see 'constants'...)
     fCO2x = _CalculatefCO2fromTCpH(TCx, pHx)
     return pHx, fCO2x
@@ -851,13 +854,13 @@ def _CalculateTCfromTApH(TAx, pHx):
     KP1F=KP1[F]; KP2F=KP2[F]; KP3F=KP3[F]; TPF=TP[F];
     TSiF=TSi[F]; KSiF=KSi[F]; TBF=TB[F];   KBF=KB[F];
     TSF=TS[F];   KSF=KS[F];   TFF=TF[F];   KFF=KF[F];
-    # ' SUB CalculateTCfromTApH, version 02.03, 10-10-97, written by Ernie Lewis.
-    # ' Inputs: TA, pH, K(), T()
-    # ' Output: TC
-    # ' This calculates TC from TA and pH.
-    # ' Though it is coded for H on the total pH scale, for the pH values occuring
-    # ' in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    # ' negligible) as long as the K Constants are on that scale.
+# SUB CalculateTCfromTApH, version 02.03, 10-10-97, written by Ernie Lewis.
+# Inputs: TA, pH, K(), T()
+# Output: TC
+# This calculates TC from TA and pH.
+# Though it is coded for H on the total pH scale, for the pH values occuring
+# in seawater (pH > 6) it will be equally valid on any pH scale (H terms
+# negligible) as long as the K Constants are on that scale.
     H         = 10.0**(-pHx)
     BAlk      = TBF*KBF/(KBF + H)
     OH        = KWF/H
@@ -1263,7 +1266,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
-    ConstPuts = (pHScale, WhichKs, WhoseKSO4, sqrSal, ntps, TP, TSi, Sal)
+    ConstPuts = (pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal)
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS, RGasConstant, RT,
         K0, fH, FugFac, VPFac, TempK, logTempK, Pbar) = _Constants(
             TempCi, Pdbari, *ConstPuts)

@@ -41,4 +41,4 @@ def sulfate_MR66(Sal):
     # === CO2SYS.m comments: =======
     # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
     # this is .02824*Sali/35. = .0008067*Sali; in mol/kg-SW.
-    return (0.14/96.062)*Sal/1.80655 
+    return (0.14/96.062)*Sal/1.80655
