@@ -304,7 +304,7 @@ def kH2CO3_M73(TempK, Sal, fH):
         /fH)           # convert to SWS scale
     return K1, K2
 
-def kH2CO3_M79_purewater(TempK, logTempK):
+def kH2CO3_M79(TempK):
     """Carbonic acid dissociation constants following M79, pure water case."""
     # === CO2SYS.m comments: =======
     # PURE WATER CASE
@@ -316,6 +316,7 @@ def kH2CO3_M79_purewater(TempK, logTempK):
     # This is only to be used for Sal=0 water (note the absence of S in the
     # below formulations).
     # These are the thermodynamic Constants:
+    logTempK = log(TempK)
     lnK1 = 290.9097 - 14554.21/TempK - 45.0575*logTempK
     K1 = exp(lnK1)
     lnK2 = 207.6548 - 11843.79/TempK - 33.6485*logTempK
@@ -369,7 +370,7 @@ def kH2CO3_LDK00(TempK, Sal, SWStoTOT):
     return K1, K2
         
 def kH2CO3_MM02(TempK, Sal):
-    """Carbonic acid dissociation constants following MPM02."""
+    """Carbonic acid dissociation constants following MM02."""
     # === CO2SYS.m comments: =======
     # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14),
     # 2529-2540.
@@ -386,8 +387,8 @@ def kH2CO3_MM02(TempK, Sal):
     K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_M02(TempC, Sal):
-    """Carbonic acid dissociation constants following M02."""
+def kH2CO3_MPL02(TempC, Sal):
+    """Carbonic acid dissociation constants following MPL02."""
     # === CO2SYS.m comments: =======
     # Millero et al., 2002. Deep-Sea Res. I (49) 1705-1723.
     # Calculated from overdetermined WOCE-era field measurements
@@ -426,7 +427,7 @@ def kH2CO3_M10(TempK, Sal):
     """Carbonic acid dissociation constants following M10."""
     # === CO2SYS.m comments: =======
     # From Millero, 2010, also for estuarine use.
-    # Marine and Freshwater Research, v. 61, p. 139â€“142.
+    # Marine and Freshwater Research, v. 61, p. 139-142.
     # Fits through compilation of real seawater titration results:
     # Mehrbach et al. (1973), Mojica-Prieto & Millero (2002), Millero et al.
     # (2006)

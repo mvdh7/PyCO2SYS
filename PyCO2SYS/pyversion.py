@@ -435,7 +435,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
         K1[F], K2[F] = eq.kH2CO3_M73(TempK[F], Sal[F], fH[F])
     F = WhichKs==8
     if any(F):
-        K1[F], K2[F] = eq.kH2CO3_M79_purewater(TempK[F], logTempK[F])
+        K1[F], K2[F] = eq.kH2CO3_M79(TempK[F])
     F = WhichKs==9
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_CW98(TempK[F], Sal[F], fH[F])
@@ -447,7 +447,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
         K1[F], K2[F] = eq.kH2CO3_MM02(TempK[F], Sal[F])
     F = WhichKs==12
     if any(F):
-        K1[F], K2[F] = eq.kH2CO3_M02(TempC[F], Sal[F])
+        K1[F], K2[F] = eq.kH2CO3_MPL02(TempC[F], Sal[F])
     F = WhichKs==13
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_MGH06(TempK[F], Sal[F])
