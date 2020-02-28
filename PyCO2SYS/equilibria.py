@@ -11,8 +11,8 @@ def kCO2_W74(TempK, Sal):
             Sal*(0.023517 - 0.023656*TempK100 + 0.0047036*TempK100 **2))
     return exp(lnK0)
     
-def kHSO4_D90(TempK, Sal):
-    """Bisulfate dissociation constant following D90."""
+def kHSO4_FREE_D90a(TempK, Sal):
+    """Bisulfate dissociation constant following D90a."""
     # === CO2SYS.m comments: =======
     # Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
     # The goodness of fit is .021.
@@ -21,15 +21,15 @@ def kHSO4_D90(TempK, Sal):
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
     logTempK = log(TempK)
-    IonS = conc.ionstr_DOE(Sal)
+    IonS = conc.ionstr_DOE94(Sal)
     lnKS = (-4276.1/TempK + 141.328 - 23.093*logTempK +
       (-13856/TempK + 324.57 - 47.986*logTempK)*sqrt(IonS) +
       (35474/TempK - 771.54 + 114.723*logTempK)*IonS +
       (-2698/TempK)*sqrt(IonS)*IonS + (1776/TempK)*IonS**2)
     return exp(lnKS)*(1 - 0.001005*Sal)
 
-def kHSO4_K77(TempK, Sal):
-    """Bisulfate dissociation constant following K77."""
+def kHSO4_FREE_KRCB77(TempK, Sal):
+    """Bisulfate dissociation constant following KRCB77."""
     # === CO2SYS.m comments: =======
     # Khoo, et al, Analytical Chemistry, 49(1):29-34, 1977
     # KS was found by titrations with a hydrogen electrode
@@ -44,20 +44,20 @@ def kHSO4_K77(TempK, Sal):
     # The rms error is .0021 in pKS, or about .5% in KS.
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
-    IonS = conc.ionstr_DOE(Sal)
+    IonS = conc.ionstr_DOE94(Sal)
     pKS = 647.59/TempK - 6.3451 + 0.019085*TempK - 0.5208*sqrt(IonS)
     return 10.0**-pKS*(1 - 0.001005*Sal)
 
-def kHF_DR79(TempK, Sal):
+def kHF_FREE_DR79(TempK, Sal):
     """Hydrogen fluoride dissociation constant following DR79."""
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    IonS = conc.ionstr_DOE(Sal)
+    IonS = conc.ionstr_DOE94(Sal)
     lnKF = 1590.2/TempK - 12.641 + 1.525*IonS**0.5
     return exp(lnKF)*(1 - 0.001005*Sal)
     
-def kHF_PF87(TempK, Sal):
+def kHF_FREE_PF87(TempK, Sal):
     """Hydrogen fluoride dissociation constant following PF87."""
     # Note that this is not currently used or an option in CO2SYS,
     # despite the equations below appearing in CO2SYS.m (commented out).
@@ -162,7 +162,7 @@ def kSi_SWS_YM95(TempK, Sal):
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KSi was given on the SWS pH scale in mol/kg-H2O, but is converted here
     # to mol/kg-sw.
-    IonS = conc.ionstr_DOE(Sal)
+    IonS = conc.ionstr_DOE94(Sal)
     lnKSi = (-8904.2/TempK + 117.4 - 19.334*log(TempK) + (-458.79/TempK +
         3.5913)*sqrt(IonS) + (188.74/TempK - 1.5998)*IonS +
         (-12.1652/TempK + 0.07871)*IonS**2)

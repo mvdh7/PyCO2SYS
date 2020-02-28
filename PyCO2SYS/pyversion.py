@@ -330,13 +330,13 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, sqrSal,
     KS = full(ntps, nan)
     F = logical_or(WhoseKSO4==1, WhoseKSO4==3)
     if any(F):
-        KS[F] = eq.kHSO4_D90(TempK[F], Sal[F])
+        KS[F] = eq.kHSO4_FREE_D90a(TempK[F], Sal[F])
     F = logical_or(WhoseKSO4==2, WhoseKSO4==4)
     if any(F):
-        KS[F] = eq.kHSO4_K77(TempK[F], Sal[F])
+        KS[F] = eq.kHSO4_FREE_KRCB77(TempK[F], Sal[F])
 
     # Calculate KF (hydrogen fluoride dissociation constant)
-    KF = eq.kHF_DR79(TempK, Sal)
+    KF = eq.kHF_FREE_DR79(TempK, Sal)
 
     # Calculate pH scale conversion factors:
     # These are NOT pressure-corrected.

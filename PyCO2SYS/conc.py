@@ -1,5 +1,5 @@
-def ionstr_DOE(Sal):
-    """Ionic strength following DOE."""
+def ionstr_DOE94(Sal):
+    """Ionic strength following DOE94."""
     # === CO2SYS.m comments: =======
     # This is from the DOE handbook, Chapter 5, p. 13/22, eq. 7.2.4.
     return 19.924*Sal/(1000 - 1.005*Sal)
