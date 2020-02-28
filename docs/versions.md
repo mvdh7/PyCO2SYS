@@ -1,5 +1,9 @@
 # Version history
 
+## 1.1.0
+
+**Release date:** forthcoming
+
 ## 1.0.1
 
 **Release date:** 28 Feb 2020

@@ -1,4 +1,4 @@
-# PyCO2SYS v1.0.1
+# PyCO2SYS v1.1.0-dev
 
 PyCO2SYS is a Python implementation of CO2SYS [[LW98](refs/#LW98), [HPR11](refs/#HPR11), [OEDG18](refs/#OEDG18)], the MATLAB toolbox for marine carbonate system calculations.
 
@@ -25,3 +25,7 @@ The entries of `DICT` contain all the variables from the original MATLAB output 
   * If you use CO2SYS.m, please cite van Heuven et al. (2011) [[HPR11](refs/#HPR11)].
   * If you use errors.m or derivnum.m, please cite Orr et al. (2018) [[OEDG18](refs/#OEDG18)].
   * If you use PyCO2SYS, please mention it with a link to the Github repository: [github.com/mvdh7/PyCO2SYS](https://github.com/mvdh7/PyCO2SYS).
+
+## About
+
+PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz) at NIOZ Royal Netherlands Institute for Sea Research, Department of Ocean Systems (OCS), and Utrecht University, Texel, the Netherlands.
