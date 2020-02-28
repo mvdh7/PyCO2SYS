@@ -1,11 +1,12 @@
 import setuptools
+from PyCO2SYS import __author__, __version__
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 setuptools.setup(
     name = 'PyCO2SYS',
-    version = '1.0.0',
-    author = 'Matthew P. Humphreys',
+    version = __version__,
+    author = __author__,
     author_email = 'm.p.humphreys@icloud.com',
     description = 'Python implementation of CO2SYS',
     url = 'https://github.com/mvdh7/PyCO2SYS',

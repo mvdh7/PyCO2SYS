@@ -4,6 +4,8 @@
 
 Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors (i.e. negligible). See the scripts `CO2SYStest.m` and `CO2SYStest.py` to see how and check this for yourself. **Please [let me know](https://mvdh.xyz/contact) ASAP if you discover a discrepancy that I have not spotted!**
 
+Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
+
 ## Installation
 
     pip install PyCO2SYS

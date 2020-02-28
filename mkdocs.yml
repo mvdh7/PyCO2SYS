@@ -1,0 +1,14 @@
+site_name: PyCO2SYS
+site_author: Matthew P. Humphreys
+site_description: Python implementation of CO2SYS
+copyright: Copyright &copy; 2020 Matthew P. Humphreys (GNU GPLv3).
+
+site_url: https://pyco2sys.readthedocs.io/
+repo_url: https://github.com/mvdh7/PyCO2SYS
+
+theme: readthedocs
+
+nav:
+  - Overview and installation: index.md
+  - Version history: versions.md
+  - References: refs.md
