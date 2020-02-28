@@ -13,6 +13,9 @@ __all__ = [
     'original',
 ]
 
+__author__ = 'Matthew P. Humphreys'
+__version__ = meta.version
+
 # Shorthand module names
 conc = concentrations
 eq = equilibria
