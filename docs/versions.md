@@ -10,7 +10,7 @@ Starting to make things more Pythonic.
 
   * Eliminated all global variables from the `_Constants` function.
 
-  * Moved the as-close-as-possible version into module `original`, and removed the new `DICT` output from it. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
+  * Moved the as-close-as-possible version into module `original`. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
 
 ## 1.0.0
 
