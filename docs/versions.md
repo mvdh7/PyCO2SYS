@@ -2,9 +2,9 @@
 
 ## 1.0.1
 
-**Release date:** forthcoming
+**Release date:** 28 Feb 2020
 
-Making things more Pythonic.
+Starting to make things more Pythonic.
 
   * Extracted all equations for concentrations and equilibrium constants into functions in separate modules.
 
