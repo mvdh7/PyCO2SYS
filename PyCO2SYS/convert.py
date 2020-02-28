@@ -6,8 +6,8 @@ def free2tot(TS, KS):
     """Free to Total pH scale conversion factor."""
     return 1.0 + TS/KS
 
-def fH_P87(TempK, Sal):
-    """fH following P87."""
+def fH_PTBO87(TempK, Sal):
+    """fH following PTBO87."""
     # === CO2SYS.m comments: =======
     # Peng et al, Tellus 39B:439-458, 1987:
     # They reference the GEOSECS report, but round the value
@@ -15,8 +15,8 @@ def fH_P87(TempK, Sal):
     # doesn't agree with the check value they give on p. 456.
     return 1.29 - 0.00204*TempK + (0.00046 - 0.00000148*TempK)*Sal**2
         
-def fH_T82(TempK, Sal):
-    """fH following T82."""
+def fH_TWB82(TempK, Sal):
+    """fH following TWB82."""
     # === CO2SYS.m comments: =======
     # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
     # v. 3, 1982 (p. 80).

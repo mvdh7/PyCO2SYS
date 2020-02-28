@@ -70,54 +70,56 @@ def kHF_PF87(TempK, Sal):
     lnKF = 874/TempK - 9.68 + 0.111*Sal**0.5
     return exp(lnKF)
 
-def kBOH3_L69(TempC, Sal, fH):
-    """Boric acid dissociation constant following L69."""
+def kBOH3_NBS_LTB69(TempK, Sal):
+    """Boric acid dissociation constant following LTB69."""
     # === CO2SYS.m comments: =======
     # This is for GEOSECS and Peng et al.
     # Lyman, John, UCLA Thesis, 1957
     # fit by Li et al, JGR 74:5507-5525, 1969.
-    # logKB is on NBS pH scale, but output here is on the Seawater scale.
+    # logKB is on NBS pH scale
+    TempC = TempK - 273.15
     logKB = -9.26 + 0.00886*Sal + 0.01*TempC
-    return 10.0**(logKB)/fH
+    return 10.0**logKB
 
-def kBOH3_D90(TempK, logTempK, Sal, sqrSal, SWStoTOT):
-    """Boric acid dissociation constant following D90."""
+def kBOH3_TOT_D90b(TempK, Sal):
+    """Boric acid dissociation constant following D90b."""
     # === CO2SYS.m comments: =======
     # Dickson, A. G., Deep-Sea Research 37:755-766, 1990.
-    # lnKB is on Total pH scale, but output here is on the Seawater scale.
+    # lnKB is on Total pH scale
+    sqrSal = sqrt(Sal)
     lnKBtop = (-8966.9 - 2890.53*sqrSal - 77.942*Sal +
         1.728*sqrSal*Sal - 0.0996*Sal**2)
     lnKB = (lnKBtop/TempK + 148.0248 + 137.1942*sqrSal +
         1.62142*Sal + (-24.4344 - 25.085*sqrSal - 0.2474*
-        Sal)*logTempK + 0.053105*sqrSal*TempK)
-    return exp(lnKB)/SWStoTOT
+        Sal)*log(TempK) + 0.053105*sqrSal*TempK)
+    return exp(lnKB)
 
-def lnkH2O_M79(TempK, logTempK, Sal, sqrSal):
+def kH2O_SWS_M79(TempK, Sal):
     """Water dissociation constant following M79."""
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
-    return (148.9802 - 13847.26/TempK - 23.6521*logTempK +
-        (-79.2447 + 3298.72/TempK + 12.0408*logTempK)*
-        sqrSal - 0.019813*Sal)
+    return exp(148.9802 - 13847.26/TempK - 23.6521*log(TempK) +
+        (-79.2447 + 3298.72/TempK + 12.0408*log(TempK))*
+        sqrt(Sal) - 0.019813*Sal)
 
-def lnkH2O_HO58(TempK, logTempK):
+def kH2O_SWS_HO58_M79(TempK, Sal):
     """Water dissociation constant following HO58 refit by M79."""
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
-    return 148.9802 - 13847.26/TempK - 23.6521*logTempK
+    return exp(148.9802 - 13847.26/TempK - 23.6521*log(TempK))
     
-def lnkH2O_M95(TempK, logTempK, Sal, sqrSal):
+def kH2O_SWS_M95(TempK, Sal):
     """Water dissociation constant following M95."""
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
-    # his check value of 1.6 umol/kg-SW should be 6.2
-    return (148.9802 - 13847.26/TempK - 23.6521*logTempK +
-        (-5.977 + 118.67/TempK + 1.0495*logTempK)*
-        sqrSal - 0.01615*Sal)
+    # his check value of 1.6 umol/kg-SW should be 6.2 (for ln(k))
+    return exp(148.9802 - 13847.26/TempK - 23.6521*log(TempK) +
+        (-5.977 + 118.67/TempK + 1.0495*log(TempK))*
+        sqrt(Sal) - 0.01615*Sal)
     
-def kH3PO4_KP67(TempK, fH):
+def kH3PO4_NBS_KP67(TempK, Sal):
     """Phosphate dissociation constants following KP67."""
     # === CO2SYS.m comments: =======
     # Peng et al don't include the contribution from the KP1 term,
@@ -126,49 +128,48 @@ def kH3PO4_KP67(TempK, fH):
     # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
-    # The fH factor converts to Seawater scale.
-    KP1 = 0.02
-    KP2 = exp(-9.039 - 1450/TempK)/fH
-    KP3 = exp(4.466 - 7276/TempK)/fH
+    KP1 = 0.02 # This is already on the seawater scale!
+    KP2 = exp(-9.039 - 1450/TempK)
+    KP3 = exp(4.466 - 7276/TempK)
     return KP1, KP2, KP3
 
-def kSi_SMB64(fH):
+def kSi_NBS_SMB64(TempK, Sal):
     """Silicate dissociation constant following SMB64."""
     # === CO2SYS.m comments: =======
     # Sillen, Martell, and Bjerrum,  Stability Constants of metal-ion
     # complexes, The Chemical Society (London), Special Publ. 17:751, 1964.
-    # The fH factor converts from NBS to Seawater pH scale.
-    return 0.0000000004/fH
+    return 0.0000000004
 
-def kH3PO4_YM95(TempK, logTempK, Sal, sqrSal):
+def kH3PO4_SWS_YM95(TempK, Sal):
     """Phosphate dissociation constants following YM95."""
     # === CO2SYS.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
-    lnKP1 = (-4576.752/TempK + 115.54 - 18.453*logTempK + (-106.736/TempK +
-        0.69171)*sqrSal + (-0.65643/TempK - 0.01844)*Sal)
+    lnKP1 = (-4576.752/TempK + 115.54 - 18.453*log(TempK) + (-106.736/TempK +
+        0.69171)*sqrt(Sal) + (-0.65643/TempK - 0.01844)*Sal)
     KP1 = exp(lnKP1)
-    lnKP2 = (-8814.715/TempK + 172.1033 - 27.927*logTempK + (-160.34/TempK +
-        1.3566)*sqrSal + (0.37335/TempK - 0.05778)*Sal)
+    lnKP2 = (-8814.715/TempK + 172.1033 - 27.927*log(TempK) + (-160.34/TempK +
+        1.3566)*sqrt(Sal) + (0.37335/TempK - 0.05778)*Sal)
     KP2 = exp(lnKP2)
-    lnKP3 = (-3070.75/TempK - 18.126 + (17.27039/TempK + 2.81197)*sqrSal +
+    lnKP3 = (-3070.75/TempK - 18.126 + (17.27039/TempK + 2.81197)*sqrt(Sal) +
         (-44.99486/TempK - 0.09984)*Sal)
     KP3 = exp(lnKP3)
     return KP1, KP2, KP3
 
-def kSi_YM95(TempK, logTempK, Sal, sqrSal, IonS):
+def kSi_SWS_YM95(TempK, Sal):
     """Silicate dissociation constant following YM95."""
     # === CO2SYS.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KSi was given on the SWS pH scale in mol/kg-H2O, but is converted here
     # to mol/kg-sw.
-    lnKSi = (-8904.2/TempK + 117.4 - 19.334*logTempK + (-458.79/TempK +
+    IonS = conc.ionstr_DOE(Sal)
+    lnKSi = (-8904.2/TempK + 117.4 - 19.334*log(TempK) + (-458.79/TempK +
         3.5913)*sqrt(IonS) + (188.74/TempK - 1.5998)*IonS +
         (-12.1652/TempK + 0.07871)*IonS**2)
     return exp(lnKSi)*(1 - 0.001005*Sal)
 
-def kH2CO3_R93(TempK, logTempK, Sal, sqrSal, SWStoTOT):
-    """Carbonic acid dissociation constants following R93."""
+def kH2CO3_TOT_RRV93(TempK, Sal):
+    """Carbonic acid dissociation constants following RRV93."""
     # === CO2SYS.m comments: =======
     # ROY et al, Marine Chemistry, 44:249-267, 1993
     # (see also: Erratum, Marine Chemistry 45:337, 1994
@@ -184,39 +185,39 @@ def kH2CO3_R93(TempK, logTempK, Sal, sqrSal, SWStoTOT):
     # of about 2% in K1 and 1.5% in K2.
     # T:  0-45  S:  5-45. Total Scale. Artificial sewater.
     # This is eq. 29 on p. 254 and what they use in their abstract:
-    lnK1 = (2.83655 - 2307.1266/TempK - 1.5529413*logTempK +
-        (-0.20760841 - 4.0484/TempK)*sqrSal + 0.08468345*Sal -
-        0.00654208*sqrSal*Sal)
-    K1 = (exp(lnK1)            # this is on the total pH scale in mol/kg-H2O
-        *(1 - 0.001005*Sal)    # convert to mol/kg-SW
-        /SWStoTOT)             # convert to SWS pH scale
+    lnK1 = (2.83655 - 2307.1266/TempK - 1.5529413*log(TempK) +
+        (-0.20760841 - 4.0484/TempK)*sqrt(Sal) + 0.08468345*Sal -
+        0.00654208*sqrt(Sal)*Sal)
+    K1 = (exp(lnK1)          # this is on the total pH scale in mol/kg-H2O
+        *(1 - 0.001005*Sal)) # convert to mol/kg-SW
     # This is eq. 30 on p. 254 and what they use in their abstract:
-    lnK2 = (-9.226508 - 3351.6106/TempK - 0.2005743*logTempK +
-        (-0.106901773 - 23.9722/TempK)*sqrSal + 0.1130822*Sal -
-        0.00846934*sqrSal*Sal)
-    K2 = (exp(lnK2)            # this is on the total pH scale in mol/kg-H2O
-        *(1 - 0.001005*Sal)    # convert to mol/kg-SW
-        /SWStoTOT)             # convert to SWS pH scale
+    lnK2 = (-9.226508 - 3351.6106/TempK - 0.2005743*log(TempK) +
+        (-0.106901773 - 23.9722/TempK)*sqrt(Sal) + 0.1130822*Sal -
+        0.00846934*sqrt(Sal)*Sal)
+    K2 = (exp(lnK2)          # this is on the total pH scale in mol/kg-H2O
+        *(1 - 0.001005*Sal)) # convert to mol/kg-SW
     return K1, K2
 
-def kH2CO3_GP89(TempK, logTempK, Sal):
+def kH2CO3_SWS_GP89(TempK, Sal):
     """Carbonic acid dissociation constants following GP89."""
     # === CO2SYS.m comments: =======
     # GOYET AND POISSON, Deep-Sea Research, 36(11):1635-1654, 1989
     # The 2s precision in pK1 is .011, or 2.5% in K1.
     # The 2s precision in pK2 is .02, or 4.5% in K2.
     # This is in Table 5 on p. 1652 and what they use in the abstract:
-    pK1 = (812.27/TempK + 3.356 - 0.00171*Sal*logTempK
+    pK1 = (812.27/TempK + 3.356 - 0.00171*Sal*log(TempK)
         + 0.000091*Sal**2)
-    K1 = 10.0**(-pK1) # this is on the SWS pH scale in mol/kg-SW
+    K1 = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
     # This is in Table 5 on p. 1652 and what they use in the abstract:
-    pK2 = (1450.87/TempK + 4.604 - 0.00385*Sal*logTempK
+    pK2 = (1450.87/TempK + 4.604 - 0.00385*Sal*log(TempK)
         + 0.000182*Sal**2)
-    K2 = 10.0**(-pK2) # this is on the SWS pH scale in mol/kg-SW
+    K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_H73_DM87(TempK, logTempK, Sal):
-    """Carbonic acid dissociation constants following DM87 refit of H73."""
+def kH2CO3_SWS_H73_DM87(TempK, Sal):
+    """Carbonic acid dissociation constants following DM87 refit of H73a and
+    H73b.
+    """
     # === CO2SYS.m comments: =======
     # HANSSON refit BY DICKSON AND MILLERO
     # Dickson and Millero, Deep-Sea Research, 34(10):1733-1743, 1987
@@ -233,15 +234,15 @@ def kH2CO3_H73_DM87(TempK, logTempK, Sal):
     # The 2s precision in pK2 is .017, or 4.1% in K2.
     # This is from Table 4 on p. 1739.
     pK1 = 851.4/TempK + 3.237 - 0.0106*Sal + 0.000105*Sal**2
-    K1 = 10.0**(-pK1) # this is on the SWS pH scale in mol/kg-SW
+    K1 = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
     # This is from Table 4 on p. 1739.
-    pK2 = (-3885.4/TempK + 125.844 - 18.141*logTempK
-        - 0.0192*Sal + 0.000132*Sal**2)
-    K2 = 10.0**(-pK2) # this is on the SWS pH scale in mol/kg-SW
+    pK2 = (-3885.4/TempK + 125.844 - 18.141*log(TempK)
+           - 0.0192*Sal + 0.000132*Sal**2)
+    K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_M73_DM87(TempK, logTempK, Sal):
-    """Carbonic acid dissociation constants following DM87 refit of M73."""
+def kH2CO3_SWS_MCHP73_DM87(TempK, Sal):
+    """Carbonic acid dissociation constants following DM87 refit of MCHP73."""
     # === CO2SYS.m comments: =======
     # MEHRBACH refit BY DICKSON AND MILLERO
     # Dickson and Millero, Deep-Sea Research, 34(10):1733-1743, 1987
@@ -253,16 +254,18 @@ def kH2CO3_M73_DM87(TempK, logTempK, Sal):
     # The 2s precision in pK2 is .020, or 4.6% in K2.
     # Valid for salinity 20-40.
     # This is in Table 4 on p. 1739.
-    pK1 = (3670.7/TempK - 62.008 + 9.7944*logTempK
+    pK1 = (3670.7/TempK - 62.008 + 9.7944*log(TempK)
              - 0.0118*Sal + 0.000116*Sal**2)
-    K1 = 10.0**(-pK1) # this is on the SWS pH scale in mol/kg-SW
+    K1 = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
     # This is in Table 4 on p. 1739.
     pK2 = 1394.7/TempK + 4.777 - 0.0184*Sal + 0.000118*Sal**2
-    K2 = 10.0**(-pK2) # this is on the SWS pH scale in mol/kg-SW
+    K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_HM_DM87(TempK, Sal):
-    """Carbonic acid dissociation constants following DM87 refit of HM."""
+def kH2CO3_SWS_HM_DM87(TempK, Sal):
+    """Carbonic acid dissociation constants following DM87 refit of MCHP73
+    plus studies by Hansson [H73a, H73b].
+    """
     # === CO2SYS.m comments: =======
     # HANSSON and MEHRBACH refit BY DICKSON AND MILLERO
     # Dickson and Millero, Deep-Sea Research,34(10):1733-1743, 1987
@@ -278,14 +281,14 @@ def kH2CO3_HM_DM87(TempK, Sal):
     # Valid for salinity 20-40.
     # This is in Table 5 on p. 1740.
     pK1 = 845/TempK + 3.248 - 0.0098*Sal + 0.000087*Sal**2
-    K1 = 10.0**(-pK1) # this is on the SWS pH scale in mol/kg-SW
+    K1 = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
     # This is in Table 5 on p. 1740.
     pK2 = 1377.3/TempK + 4.824 - 0.0185*Sal + 0.000122*Sal**2
-    K2 = 10.0**(-pK2) # this is on the SWS pH scale in mol/kg-SW
+    K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_M73(TempK, Sal, fH):
-    """Carbonic acid dissociation constants following M73."""
+def kH2CO3_NBS_MCHP73(TempK, Sal):
+    """Carbonic acid dissociation constants following MCHP73."""
     # === CO2SYS.m comments: =======
     # GEOSECS and Peng et al use K1, K2 from Mehrbach et al,
     # Limnology and Oceanography, 18(6):897-907, 1973.
@@ -294,17 +297,15 @@ def kH2CO3_M73(TempK, Sal, fH):
     # The 2s precision in pK2 is .008, or 2% in K2.
     pK1 = (- 13.7201 + 0.031334*TempK + 3235.76/TempK
         + 1.3e-5*Sal*TempK - 0.1032*Sal**0.5)
-    K1 = (10.0**(-pK1)         # this is on the NBS scale
-        /fH)                   # convert to SWS scale
+    K1 = 10.0**(-pK1)         # this is on the NBS scale
     pK2 = (5371.9645 + 1.671221*TempK + 0.22913*Sal + 18.3802*log10(Sal)
              - 128375.28/TempK - 2194.3055*log10(TempK) - 8.0944e-4*Sal*TempK
              - 5617.11*log10(Sal)/TempK + 2.136*Sal/TempK)
     # pK2 is not defined for Sal=0, since log10(0)=-inf
-    K2 = (10.0**(-pK2) # this is on the NBS scale
-        /fH)           # convert to SWS scale
+    K2 = 10.0**(-pK2) # this is on the NBS scale
     return K1, K2
 
-def kH2CO3_M79(TempK):
+def kH2CO3_SWS_M79(TempK, Sal):
     """Carbonic acid dissociation constants following M79, pure water case."""
     # === CO2SYS.m comments: =======
     # PURE WATER CASE
@@ -323,7 +324,7 @@ def kH2CO3_M79(TempK):
     K2 = exp(lnK2)
     return K1, K2
 
-def kH2CO3_CW98(TempK, Sal, fH):
+def kH2CO3_NBS_CW98(TempK, Sal):
     """Carbonic acid dissociation constants following CW98."""
     # === CO2SYS.m comments: =======
     # From Cai and Wang 1998, for estuarine use.
@@ -337,39 +338,35 @@ def kH2CO3_CW98(TempK, Sal, fH):
     # On the NBS scale
     # Their check values for F1 don't work out, not sure if this was correctly
     # published...
+    # Conversion to SWS scale by division by fH is uncertain at low Sal due to
+    # junction potential.
     F1 = 200.1/TempK + 0.3220
     pK1 = (3404.71/TempK + 0.032786*TempK - 14.8435 - 0.071692*F1*Sal**0.5 +
            0.0021487*Sal)
-    K1  = (10.0**-pK1 # this is on the NBS scale
-        /fH)          # convert to SWS scale (uncertain at low Sal due to
-                      # junction potential)
+    K1  = 10.0**-pK1 # this is on the NBS scale
     F2 = -129.24/TempK + 1.4381
     pK2 = (2902.39/TempK + 0.02379*TempK - 6.4980 - 0.3191*F2*Sal**0.5 +
            0.0198*Sal)
-    K2  = (10.0**-pK2 # this is on the NBS scale
-        /fH)          # convert to SWS scale (uncertain at low Sal due to
-                      # junction potential)
+    K2  = 10.0**-pK2 # this is on the NBS scale
     return K1, K2
 
-def kH2CO3_LDK00(TempK, Sal, SWStoTOT):
+def kH2CO3_TOT_LDK00(TempK, Sal):
     """Carbonic acid dissociation constants following LDK00."""
     # === CO2SYS.m comments: =======
     # From Lueker, Dickson, Keeling, 2000
-    # This is Mehrbach's data refit after conversion to the total scale, for
+    # This is Mehrbach's data refit after conversion to the Total scale, for
     # comparison with their equilibrator work.
     # Mar. Chem. 70 (2000) 105-119
     # Total scale and kg-sw
     pK1 = (3633.86/TempK - 61.2172 + 9.6777*log(TempK) - 0.011555*Sal +
            0.0001152*Sal**2)
-    K1 = (10.0**-pK1           # this is on the total pH scale in mol/kg-SW
-        /SWStoTOT)                # convert to SWS pH scale
+    K1 = 10.0**-pK1 # this is on the Total pH scale in mol/kg-SW
     pK2 = (471.78/TempK + 25.929 - 3.16967*log(TempK) - 0.01781 * Sal + 
            0.0001122*Sal**2)
-    K2 = (10.0**-pK2           # this is on the total pH scale in mol/kg-SW
-        /SWStoTOT)               # convert to SWS pH scale
+    K2 = 10.0**-pK2 # this is on the Total pH scale in mol/kg-SW
     return K1, K2
         
-def kH2CO3_MM02(TempK, Sal):
+def kH2CO3_SWS_MM02(TempK, Sal):
     """Carbonic acid dissociation constants following MM02."""
     # === CO2SYS.m comments: =======
     # Mojica Prieto and Millero 2002. Geochim. et Cosmochim. Acta. 66(14),
@@ -387,7 +384,7 @@ def kH2CO3_MM02(TempK, Sal):
     K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_MPL02(TempC, Sal):
+def kH2CO3_SWS_MPL02(TempK, Sal):
     """Carbonic acid dissociation constants following MPL02."""
     # === CO2SYS.m comments: =======
     # Millero et al., 2002. Deep-Sea Res. I (49) 1705-1723.
@@ -395,13 +392,14 @@ def kH2CO3_MPL02(TempC, Sal):
     # sigma for pK1 is reported to be 0.005
     # sigma for pK2 is reported to be 0.008
     # This is from page 1715
+    TempC = TempK - 273.15
     pK1 = 6.359 - 0.00664*Sal - 0.01322*TempC + 4.989e-5*TempC**2
     pK2 = 9.867 - 0.01314*Sal - 0.01904*TempC + 2.448e-5*TempC**2
     K1 = 10.0**-pK1 # this is on the SWS pH scale in mol/kg-SW
     K2 = 10.0**-pK2 # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
-def kH2CO3_MGH06(TempK, Sal):
+def kH2CO3_SWS_MGH06(TempK, Sal):
     """Carbonic acid dissociation constants following MGH06."""
     # === CO2SYS.m comments: =======
     # From Millero 2006 work on pK1 and pK2 from titrations
@@ -423,7 +421,7 @@ def kH2CO3_MGH06(TempK, Sal):
     K2 = 10.0**-(pK2)
     return K1, K2
 
-def kH2CO3_M10(TempK, Sal):
+def kH2CO3_SWS_M10(TempK, Sal):
     """Carbonic acid dissociation constants following M10."""
     # === CO2SYS.m comments: =======
     # From Millero, 2010, also for estuarine use.
@@ -450,7 +448,7 @@ def kH2CO3_M10(TempK, Sal):
     K2 = 10.0**-pK2
     return K1, K2
 
-def kH2CO3_WMW14(TempK, Sal):
+def kH2CO3_SWS_WMW14(TempK, Sal):
     """Carbonic acid dissociation constants following WMW14."""
     # === CO2SYS.m comments: =======
     # From Waters, Millero, Woosley 2014
