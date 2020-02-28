@@ -1,5 +1,5 @@
 from numpy import exp, log, log10, sqrt
-from . import conc
+from . import concentrations as conc
 
 def kCO2_W74(TempK, Sal):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""

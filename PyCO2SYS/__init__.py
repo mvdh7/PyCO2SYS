@@ -1,5 +1,5 @@
-from . import pyversion, equilibria, conc, convert
-__all__ = ['pyversion', 'equilibria', 'conc', 'convert']
+from . import pyversion, equilibria, concentrations, convert
+__all__ = ['pyversion', 'equilibria', 'concentrations', 'convert']
 
 #**************************************************************************
 #
