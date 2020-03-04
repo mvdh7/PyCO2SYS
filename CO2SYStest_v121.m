@@ -61,4 +61,5 @@ co2s.P1 = P1;
 co2s.P2 = P2;
 co2s.P1type = P1type;
 co2s.P2type = P2type;
+co2s.KSO4_only = KSO4_only;
 save('testing/CO2SYStest_v121.mat', 'co2s')

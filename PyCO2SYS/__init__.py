@@ -280,13 +280,14 @@ eq = equilibria
 
 from copy import deepcopy
 from numpy import (array, exp, full, log, log10, logical_and, logical_or, nan,
-                   ones, size, sqrt, unique, vstack, where, zeros)
+                   ones, size, sqrt, unique, where, zeros)
 from numpy import abs as np_abs
 from numpy import any as np_any
 from numpy import min as np_min
 from numpy import max as np_max
 
-def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
+def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
+        ntps, TP, TSi, Sal):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
     """
@@ -331,10 +332,10 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
         TB[F] = conc.borate_C65(Sal[F])
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F): # All other cases
-        FF = logical_and(F, logical_or(WhoseKSO4==1, WhoseKSO4==2)) 
+        FF = logical_and(F, WhoseTB==1) 
         if any(FF): # If user opted for Uppstrom's values
             TB[FF] = conc.borate_U74(Sal[FF])
-        FF = logical_and(F, logical_or(WhoseKSO4==3, WhoseKSO4==4)) 
+        FF = logical_and(F, WhoseTB==2) 
         if any(FF): # If user opted for the new Lee values
             TB[FF] = conc.borate_LKB10(Sal[FF])
 
@@ -347,15 +348,21 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
 
     # Calculate KS (bisulfate ion dissociation constant)
     KS = full(ntps, nan)
-    F = logical_or(WhoseKSO4==1, WhoseKSO4==3)
+    F = WhoseKSO4==1
     if any(F):
         KS[F] = eq.kHSO4_FREE_D90a(TempK[F], Sal[F])
-    F = logical_or(WhoseKSO4==2, WhoseKSO4==4)
+    F = WhoseKSO4==2
     if any(F):
         KS[F] = eq.kHSO4_FREE_KRCB77(TempK[F], Sal[F])
 
     # Calculate KF (hydrogen fluoride dissociation constant)
-    KF = eq.kHF_FREE_DR79(TempK, Sal)
+    KF = full(ntps, nan)
+    F = WhoseKF==1
+    if any(F):
+        KF[F] = eq.kHF_FREE_DR79(TempK[F], Sal[F])
+    F = WhoseKF==2
+    if any(F):
+        KF[F] = eq.kHF_FREE_PF87(TempK[F], Sal[F])
 
     # Calculate pH scale conversion factors:
     # These are NOT pressure-corrected.
@@ -998,7 +1005,7 @@ def _CalculateTAfromTCpH(TCi, pHi):
     Hfree     = H/FREEtoTOT #' for H on the total scale
     HSO4      = TSF/(1 + KSF/Hfree)# ' since KS is on the free scale
     HF        = TFF/(1 + KFF/Hfree)# ' since KF is on the free scale
-    TActemp   = (CAlk + BAlk + OH + PAlk + SiAlk - NH3Alk - H2SAlk - Hfree -
+    TActemp   = (CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree -
                  HSO4 - HF)
     return TActemp
 
@@ -1349,8 +1356,9 @@ def _FindpHOnAllScales(pH):
     return pHtot, pHsws, pHfree, pHNBS
 
 def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
-        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS):
-    global pHScale, WhichKs, WhoseKSO4, Pbar
+        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
+        KFCONSTANT, BORON):
+    global pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, Pbar
     global Sal, sqrSal, TempK, logTempK, TempCi, TempCo, Pdbari, Pdbaro
     global FugFac, VPFac, PengCorrection, ntps, RGasConstant
     global fH, RT
@@ -1359,8 +1367,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Input conditioning.
     args = [PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
-            PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS,
-            KSO4CONSTANTS]
+        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
+        KFCONSTANT, BORON]
 
     # Determine lengths of input vectors.
     veclengths = [size(arg) for arg in args]
@@ -1373,8 +1381,9 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     ntps = max(veclengths)
     args = [full(ntps, arg) if size(arg)==1 else arg.ravel()
             for arg in args]
-    (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
-        SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS) = args
+    (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
+        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
+        KFCONSTANT, BORON) = args
     
     # Convert any integer inputs to floats.
     SAL = SAL.astype('float64')
@@ -1390,19 +1399,21 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Assign input to the 'historical' variable names.
     pHScale = pHSCALEIN
     WhichKs = K1K2CONSTANTS
-    WhoseKSO4 = KSO4CONSTANTS
+    WhoseKSO4 = KSO4CONSTANT
+    WhoseKF = KFCONSTANT
+    WhoseTB = BORON
     p1 = PAR1TYPE
     p2 = PAR2TYPE
     TempCi = TEMPIN
     TempCo = TEMPOUT
     Pdbari = PRESIN
     Pdbaro = PRESOUT
-    Sal = SAL
+    Sal = deepcopy(SAL)
     sqrSal = sqrt(SAL)
-    TP = PO4
-    TSi = SI
-    TNH3 = NH3
-    TH2S = H2S
+    TP = deepcopy(PO4)
+    TSi = deepcopy(SI)
+    TNH3 = deepcopy(NH3)
+    TH2S = deepcopy(H2S)
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
@@ -1453,7 +1464,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
-    ConstPuts = (pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal)
+    ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, ntps, TP, TSi,
+                 Sal)
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KH2S, KNH3, TB, TF, TS,
             RGasConstant, RT, K0, fH, FugFac, VPFac, TempK, logTempK, Pbar) = \
         _Constants(TempCi, Pdbari, *ConstPuts)
@@ -1507,6 +1519,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     if any(F):
         PHic[F] = _CalculatepHfromTCfCO2(TCc[F], FCic[F])
         TAc[F] = _CalculateTAfromTCpH(TCc[F], PHic[F]) + PengCorrection[F]
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F])
     F = Icase==26 # input TC, CARB
     if any(F):
         PHic[F] = _CalculatepHfromTCCarb(TCc[F], CARBic[F])
@@ -1544,9 +1557,22 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Just for reference, convert pH at input conditions to the other scales, too.
     pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic)
 
-    # Merge the Ks at input into an array. Ks at output will be glued to this later.
-    KIVEC = array([K0, K1, K2, -log10(K1), -log10(K2), KW, KB, KF, KS, KP1,
-                   KP2, KP3, KSi, KNH3, KH2S])
+    # Save the Ks at input
+    K0in = deepcopy(K0)
+    K1in = deepcopy(K1)
+    K2in = deepcopy(K2)
+    pK1in = -log10(K1)
+    pK2in = -log10(K2)
+    KWin = deepcopy(KW)
+    KBin = deepcopy(KB)
+    KFin = deepcopy(KF)
+    KSin = deepcopy(KS)
+    KP1in = deepcopy(KP1)
+    KP2in = deepcopy(KP2)
+    KP3in = deepcopy(KP3)
+    KSiin = deepcopy(KSi)
+    KNH3in = deepcopy(KNH3)
+    KH2Sin = deepcopy(KH2S)
 
     # Calculate the constants for all samples at output conditions
     (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KH2S, KNH3, TB, TF, TS,
@@ -1571,47 +1597,119 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Just for reference, convert pH at output conditions to the other scales, too.
     pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc)
 
-    KOVEC = array([K0, K1, K2, -log10(K1), -log10(K2), KW, KB, KF, KS, KP1,
-                   KP2, KP3, KSi, KNH3, KH2S])
-    TVEC = array([TB, TF, TS])
+    # Save the Ks at output
+    K0out = deepcopy(K0)
+    K1out = deepcopy(K1)
+    K2out = deepcopy(K2)
+    pK1out = -log10(K1)
+    pK2out = -log10(K2)
+    KWout = deepcopy(KW)
+    KBout = deepcopy(KB)
+    KFout = deepcopy(KF)
+    KSout = deepcopy(KS)
+    KP1out = deepcopy(KP1)
+    KP2out = deepcopy(KP2)
+    KP3out = deepcopy(KP3)
+    KSiout = deepcopy(KSi)
+    KNH3out = deepcopy(KNH3)
+    KH2Sout = deepcopy(KH2S)
 
-    # Saving data in array, 81 columns, as many rows as samples input
-    DATA = vstack((array([
-        TAc*1e6      ,  TCc*1e6        , PHic          , PCic*1e6       , FCic*1e6,
-        HCO3inp*1e6  ,  CARBic*1e6     , CO2inp*1e6    , BAlkinp*1e6    , OHinp*1e6,
-        PAlkinp*1e6  ,  SiAlkinp*1e6   , NH3Alkinp*1e6 , H2SAlkinp*1e6  ,
-        Hfreeinp*1e6  , Revelleinp     , OmegaCainp, # Multiplied Hfreeinp *1e6, svh20100827
-        OmegaArinp   ,  xCO2dryinp*1e6 , PHoc          , PCoc*1e6       , FCoc*1e6,
-        HCO3out*1e6  ,  CARBoc*1e6     , CO2out*1e6    , BAlkout*1e6    , OHout*1e6,
-        PAlkout*1e6  ,  SiAlkout*1e6   , NH3Alkout*1e6 , H2SAlkout*1e6  ,
-        Hfreeout*1e6  , Revelleout     , OmegaCaout, # Multiplied Hfreeout *1e6, svh20100827
-        OmegaArout   ,  xCO2dryout*1e6 , pHicT         , pHicS          , pHicF,
-        pHicN        ,  pHocT          , pHocS         , pHocF          , pHocN,
-        TEMPIN       ,  TEMPOUT        , PRESIN        , PRESOUT        , PAR1TYPE,
-        PAR2TYPE     ,  K1K2CONSTANTS  , KSO4CONSTANTS , pHSCALEIN      , SAL,
-        PO4          ,  SI             ,
-    ]), KIVEC, KOVEC, TVEC*1e6))
-
-    HEADERS = array(['TAlk', 'TCO2', 'pHin', 'pCO2in', 'fCO2in',
-        'HCO3in', 'CO3in', 'CO2in', 'BAlkin', 'OHin',
-        'PAlkin', 'SiAlkin', 'NH3Alkin', 'H2SAlkin',
-        'Hfreein', 'RFin', 'OmegaCAin',
-        'OmegaARin', 'xCO2in', 'pHout', 'pCO2out', 'fCO2out',
-        'HCO3out', 'CO3out', 'CO2out', 'BAlkout', 'OHout',
-        'PAlkout', 'SiAlkout', 'NH3Alkout', 'H2SAlkout',
-        'Hfreeout', 'RFout', 'OmegaCAout',
-        'OmegaARout', 'xCO2out', 'pHinTOTAL', 'pHinSWS', 'pHinFREE',
-        'pHinNBS', 'pHoutTOTAL', 'pHoutSWS', 'pHoutFREE', 'pHoutNBS',
-        'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT', 'PAR1TYPE',
-        'PAR2TYPE', 'K1K2CONSTANTS', 'KSO4CONSTANTS', 'pHSCALEIN', 'SAL',
-        'PO4', 'SI',
-        'K0input', 'K1input', 'K2input', 'pK1input', 'pK2input',
-        'KWinput', 'KBinput', 'KFinput', 'KSinput', 'KP1input',
-        'KP2input', 'KP3input', 'KSiinput', 'KNH3input', 'KH2Sinput',
-        'K0output', 'K1output', 'K2output', 'pK1output', 'pK2output',
-        'KWoutput', 'KBoutput', 'KFoutput', 'KSoutput', 'KP1output',
-        'KP2output', 'KP3output', 'KSioutput', 'KNH3output', 'KH2Soutput',
-        'TB', 'TF', 'TS'])
+    # Save data directly as a dict to avoid ordering issues
+    DICT = {
+        'TAlk': TAc*1e6,
+        'TCO2': TCc*1e6,
+        'pHin': PHic,
+        'pCO2in': PCic*1e6,
+        'fCO2in': FCic*1e6,
+        'HCO3in': HCO3inp*1e6,
+        'CO3in': CARBic*1e6,
+        'CO2in': CO2inp*1e6,
+        'BAlkin': BAlkinp*1e6,
+        'OHin': OHinp*1e6,
+        'PAlkin': PAlkinp*1e6,
+        'SiAlkin': SiAlkinp*1e6,
+        'NH3Alkin': NH3Alkinp*1e6,
+        'H2SAlkin': H2SAlkinp*1e6,
+        'Hfreein': Hfreeinp*1e6,
+        'RFin': Revelleinp,
+        'OmegaCAin': OmegaCainp,
+        'OmegaARin': OmegaArinp,
+        'xCO2in': xCO2dryinp*1e6,
+        'pHout': PHoc,
+        'pCO2out': PCoc*1e6,
+        'fCO2out': FCoc*1e6,
+        'HCO3out': HCO3out*1e6,
+        'CO3out': CARBoc*1e6,
+        'CO2out': CO2out*1e6,
+        'BAlkout': BAlkout*1e6,
+        'OHout': OHout*1e6,
+        'PAlkout': PAlkout*1e6,
+        'SiAlkout': SiAlkout*1e6,
+        'NH3Alkout': NH3Alkout*1e6,
+        'H2SAlkout': H2SAlkout*1e6,
+        'Hfreeout': Hfreeout*1e6,
+        'RFout': Revelleout,
+        'OmegaCAout': OmegaCaout,
+        'OmegaARout': OmegaArout,
+        'xCO2out': xCO2dryout*1e6,
+        'pHinTOTAL': pHicT,
+        'pHinSWS': pHicS,
+        'pHinFREE': pHicF,
+        'pHinNBS': pHicN,
+        'pHoutTOTAL': pHocT,
+        'pHoutSWS': pHocS,
+        'pHoutFREE': pHocF,
+        'pHoutNBS': pHocN,
+        'TEMPIN': TEMPIN,
+        'TEMPOUT': TEMPOUT,
+        'PRESIN': PRESIN,
+        'PRESOUT': PRESOUT,
+        'PAR1TYPE': PAR1TYPE,
+        'PAR2TYPE': PAR2TYPE,
+        'K1K2CONSTANTS': K1K2CONSTANTS,
+        'KSO4CONSTANT': KSO4CONSTANT,
+        'KFCONSTANT': KFCONSTANT,
+        'BORON': BORON,
+        'pHSCALEIN': pHSCALEIN,
+        'SAL': SAL,
+        'PO4': PO4,
+        'SI': SI,
+        'NH3': NH3,
+        'H2S': H2S,
+        'K0input': K0in,
+        'K1input': K1in,
+        'K2input': K2in,
+        'pK1input': pK1in,
+        'pK2input': pK2in,
+        'KWinput': KWin,
+        'KBinput': KBin,
+        'KFinput': KFin,
+        'KSinput': KSin,
+        'KP1input': KP1in,
+        'KP2input': KP2in,
+        'KP3input': KP3in,
+        'KSiinput': KSiin,
+        'KNH3input': KNH3in,
+        'KH2Sinput': KH2Sin,
+        'K0output': K0out,
+        'K1output': K1out,
+        'K2output': K2out,
+        'pK1output': pK1out,
+        'pK2output': pK2out,
+        'KWoutput': KWout,
+        'KBoutput': KBout,
+        'KFoutput': KFout,
+        'KSoutput': KSout,
+        'KP1output': KP1out,
+        'KP2output': KP2out,
+        'KP3output': KP3out,
+        'KSioutput': KSiout,
+        'KNH3output': KNH3out,
+        'KH2Soutput': KH2Sout,
+        'TB': TB*1e6,
+        'TF': TF*1e6,
+        'TS': TS*1e6,
+    }
 
     del F, K2, KP3, Pdbari, Sal, TS, VPFac, ntps
     del FugFac, KB, KS, Pdbaro, TSi, WhichKs, pHScale
@@ -1620,6 +1718,4 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     del K1, KP2, Pbar, RT, TP, TempK, logTempK
     del KNH3, KH2S, TNH3, TH2S
 
-    DICT = {HEADERS[i]: DATA[i] for i in range(len(DATA))}
-
-    return DICT, DATA, HEADERS
+    return DICT

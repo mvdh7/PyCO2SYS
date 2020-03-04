@@ -10,6 +10,8 @@ Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB
 
   * Added functions to enable carbonate ion as an input carbonate system variable.
 
+  * Output is now only the `DICT` variable, not the original `DATA`, `HEADERS` and `NICEHEADERS`.
+
 ## 1.0.1
 
 **Release date:** 28 Feb 2020
