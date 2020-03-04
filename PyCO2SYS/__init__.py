@@ -725,62 +725,61 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
     lnKH2Sfac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
 
     # CorrectKsForPressureHere:
-    K1fac = exp(lnK1fac); K1 = K1*K1fac
-    K2fac = exp(lnK2fac); K2 = K2*K2fac
-    KWfac = exp(lnKWfac); KW = KW*KWfac
-    KBfac = exp(lnKBfac); KB = KB*KBfac
-    KFfac = exp(lnKFfac); KF = KF*KFfac
-    KSfac = exp(lnKSfac); KS = KS*KSfac
-    KP1fac = exp(lnKP1fac); KP1 = KP1*KP1fac
-    KP2fac = exp(lnKP2fac); KP2 = KP2*KP2fac
-    KP3fac = exp(lnKP3fac); KP3 = KP3*KP3fac
-    KSifac = exp(lnKSifac); KSi = KSi*KSifac
-    KNH3fac = exp(lnKNH3fac); KNH3 = KNH3*KNH3fac
-    KH2Sfac = exp(lnKH2Sfac); KH2S = KH2S*KH2Sfac
+    K1 *= exp(lnK1fac)
+    K2 *= exp(lnK2fac)
+    KW *= exp(lnKWfac)
+    KB *= exp(lnKBfac)
+    KF *= exp(lnKFfac)
+    KS *= exp(lnKSfac)
+    KP1 *= exp(lnKP1fac)
+    KP2 *= exp(lnKP2fac)
+    KP3 *= exp(lnKP3fac)
+    KSi *= exp(lnKSifac)
+    KNH3 *= exp(lnKNH3fac)
+    KH2S *= exp(lnKH2Sfac)
 
     # CorrectpHScaleConversionsForPressure:
     # fH has been assumed to be independent of pressure.
-    SWStoTOT  = (1 + TS/KS)/(1 + TS/KS + TF/KF)
-    FREEtoTOT =  1 + TS/KS
+    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
+    FREEtoTOT = convert.free2tot(TS, KS)
 
     #  The values KS and KF are already pressure-corrected, so the pH scale
     #  conversions are now valid at pressure.
 
-    # FindpHScaleConversionFactor:
-    # this is the scale they will be put on
-    pHfactor  = full(ntps, nan)
-    F=(pHScale==1) #Total
+    # Find pH scale conversion factor: this is the scale they will be put on
+    pHfactor = full(ntps, nan)
+    F = pHScale==1 # Total
     pHfactor[F] = SWStoTOT[F]
-    F=(pHScale==2) #SWS, they are all on this now
-    pHfactor[F] = 1
-    F=(pHScale==3) #pHfree
+    F = pHScale==2 # SWS, they are all on this now
+    pHfactor[F] = 1.0
+    F = pHScale==3 # pHfree
     pHfactor[F] = SWStoTOT[F]/FREEtoTOT[F]
-    F=(pHScale==4) #pHNBS
+    F = pHScale==4 # pHNBS
     pHfactor[F] = fH[F]
 
-    # ConvertFromSWSpHScaleToChosenScale:
-    K1  = K1* pHfactor
-    K2  = K2* pHfactor
-    KW  = KW* pHfactor
-    KB  = KB* pHfactor
-    KP1 = KP1*pHfactor
-    KP2 = KP2*pHfactor
-    KP3 = KP3*pHfactor
-    KSi = KSi*pHfactor
+    # Convert from SWS pH scale to chosen scale
+    K1 *= pHfactor
+    K2 *= pHfactor
+    KW *= pHfactor
+    KB *= pHfactor
+    KP1 *= pHfactor
+    KP2 *= pHfactor
+    KP3 *= pHfactor
+    KSi *= pHfactor
 
     # CalculateFugacityConstants:
     # This assumes that the pressure is at one atmosphere, or close to it.
     # Otherwise, the Pres term in the exponent affects the results.
     #       Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     #       Delta and B in cm3/mol
-    FugFac=ones(ntps)
+    FugFac = ones(ntps)
     Delta = (57.7 - 0.118*TempK)
     b = -1636.75 + 12.0408*TempK - 0.0327957*TempK**2 + 3.16528*0.00001*TempK**3
-    # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations);
+    # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
     P1atm = 1.01325 # in bar
     FugFac = exp((b + 2*Delta)*P1atm/RT)
     F=logical_or(WhichKs==6, WhichKs==7) # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
-    FugFac[F] = 1
+    FugFac[F] = 1.0
     # CalculateVPFac:
     # Weiss, R. F., and Price, B. A., Nitrous oxide solubility in water and
     #       seawater, Marine Chemistry 8:347-359, 1980.
@@ -802,7 +801,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
     VPWP = exp(24.4543 - 67.4509*(100/TempK) - 4.8489*log(TempK/100))
     VPCorrWP = exp(-0.000544*Sal)
     VPSWWP = VPWP*VPCorrWP
-    VPFac = 1 - VPSWWP # this assumes 1 atmosphere
+    VPFac = 1.0 - VPSWWP # this assumes 1 atmosphere
     return (K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, TB, TF, TS,
             RGasConstant, RT, K0, fH, FugFac, VPFac, TempK, logTempK, Pbar)
 
