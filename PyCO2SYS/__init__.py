@@ -280,7 +280,7 @@ eq = equilibria
 
 from copy import deepcopy
 from numpy import (array, exp, full, full_like, log, log10, logical_and,
-                   logical_or, nan, size, sqrt, unique, where, zeros)
+                   logical_or, nan, size, sqrt, unique, zeros)
 from numpy import abs as np_abs
 from numpy import any as np_any
 from numpy import min as np_min
@@ -778,7 +778,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     return (K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, RT, fH,
             RGasConstant)
 
-def _Fugacity(ntps, TempK, WhichKs):
+def _Fugacity(ntps, TempK, Sal, WhichKs, RT):
     # CalculateFugacityConstants:
     # This assumes that the pressure is at one atmosphere, or close to it.
     # Otherwise, the Pres term in the exponent affects the results.
@@ -1094,111 +1094,108 @@ def _CalculateCarbfromTCpH(TCx, pHx, K1, K2):
     CARBx = TCx*K1*K2/(H**2 + K1*H + K1*K2)
     return CARBx
 
-def _RevelleFactor(TAi, TCi):
-# global WhichKs;
-# SUB RevelleFactor, version 01.03, 01-07-97, written by Ernie Lewis.
-# Inputs: WhichKs#, TA, TC, K0, K(), T()
-# Outputs: Revelle
-# This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
-# It only makes sense to talk about it at pTot = 1 atm, but it is computed
-#       here at the given K(), which may be at pressure <> 1 atm. Care must
-#       thus be used to see if there is any validity to the number computed.
-    global F, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S
-    global TB, TF, TS, TP, TSi, TNH3, TH2S
+def _RevelleFactor(TAi, TCi, K0,
+        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        TB, TF, TS, TP, TSi, TNH3, TH2S):
+    """Calculate the Revelle Factor from total alkalinity and dissolved
+    inorganic carbon.
+    
+    This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
+    It only makes sense to talk about it at pTot = 1 atm, but it is computed
+    here at the given K(), which may be at pressure <> 1 atm. Care must
+    thus be used to see if there is any validity to the number computed.
+    
+    Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
+    """
     Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
     Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
-    KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
     TC0 = deepcopy(TCi)
-    dTC = 1e-6 # ' 1 umol/kg-SW
-    # ' Find fCO2 at TA, TC + dTC
+    dTC = 1e-6 # 1 umol/kg-SW
+    # Find fCO2 at TA, TC+dTC
     TCi = TC0 + dTC
-    pHc= _CalculatepHfromTATC(TAi[F], TCi[F], *KFs, *TFs)
-    fCO2c= _CalculatefCO2fromTCpH(TCi, pHc, K0, K1, K2)
+    pHc = _CalculatepHfromTATC(TAi, TCi, *Ks, *Ts)
+    fCO2c = _CalculatefCO2fromTCpH(TCi, pHc, K0, K1, K2)
     fCO2plus = deepcopy(fCO2c)
-    # ' Find fCO2 at TA, TC - dTC
+    # Find fCO2 at TA, TC-dTC
     TCi = TC0 - dTC
-    pHc= _CalculatepHfromTATC(TAi[F], TCi[F], *KFs, *TFs)
-    fCO2c= _CalculatefCO2fromTCpH(TCi, pHc, K0, K1, K2)
+    pHc = _CalculatepHfromTATC(TAi, TCi, *Ks, *Ts)
+    fCO2c = _CalculatefCO2fromTCpH(TCi, pHc, K0, K1, K2)
     fCO2minus = deepcopy(fCO2c)
-    # CalculateRevelleFactor:
-    Revelle = (fCO2plus - fCO2minus)/dTC/((fCO2plus + fCO2minus)/TCi);
+    # Calculate Revelle Factor
+    Revelle = (fCO2plus - fCO2minus)/dTC / ((fCO2plus + fCO2minus)/TCi)
     return Revelle
 
-def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
-    global K1, K2, TempK, logTempK, sqrSal, Pbar, RT, WhichKs, ntps
-# global PertK    # Id of perturbed K
-# global Perturb  # perturbation
-# ***********************************************************************
-# SUB CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
-# Inputs: WhichKs#, Sal, TempCi, Pdbari, TCi, pHi, K1, K2
-# Outputs: OmegaCa, OmegaAr
-# This calculates omega, the solubility ratio, for calcite and aragonite.
-# This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
-#       where Ksp is the solubility product (either KCa or KAr).
-# ***********************************************************************
-# These are from:
-# Mucci, Alphonso, The solubility of calcite and aragonite in seawater
-#       at various salinities, temperatures, and one atmosphere total
-#       pressure, American Journal of Science 283:781-799, 1983.
-# Ingle, S. E., Solubility of calcite in the ocean,
-#       Marine Chemistry 3:301-319, 1975,
-# Millero, Frank, The thermodynamics of the carbonate system in seawater,
-#       Geochemica et Cosmochemica Acta 43:1651-1661, 1979.
-# Ingle et al, The solubility of calcite in seawater at atmospheric pressure
-#       and 35#o salinity, Marine Chemistry 1:295-307, 1973.
-# Berner, R. A., The solubility of calcite and aragonite in seawater in
-#       atmospheric pressure and 34.5#o salinity, American Journal of
-#       Science 276:713-730, 1976.
-# Takahashi et al, in GEOSECS Pacific Expedition, v. 3, 1982.
-# Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
-#       boric acid, and the pHi of seawater, Limnology and Oceanography
-#       13:403-417, 1968.
-# '***********************************************************************
-    Ca = full(ntps, nan)
+def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
+    """Calculate calcite and aragonite solubility.
+    
+    This calculates omega, the solubility ratio, for calcite and aragonite.
+    This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
+          where Ksp is the solubility product (either KCa or KAr).
+
+    These are from:
+    Mucci, Alphonso, The solubility of calcite and aragonite in seawater
+          at various salinities, temperatures, and one atmosphere total
+          pressure, American Journal of Science 283:781-799, 1983.
+    Ingle, S. E., Solubility of calcite in the ocean,
+          Marine Chemistry 3:301-319, 1975,
+    Millero, Frank, The thermodynamics of the carbonate system in seawater,
+          Geochemica et Cosmochemica Acta 43:1651-1661, 1979.
+    Ingle et al, The solubility of calcite in seawater at atmospheric pressure
+          and 35#o salinity, Marine Chemistry 1:295-307, 1973.
+    Berner, R. A., The solubility of calcite and aragonite in seawater in
+          atmospheric pressure and 34.5#o salinity, American Journal of
+          Science 276:713-730, 1976.
+    Takahashi et al, in GEOSECS Pacific Expedition, v. 3, 1982.
+    Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
+          boric acid, and the pHi of seawater, Limnology and Oceanography
+          13:403-417, 1968.
+    
+    Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
+    """
+    TempK = TempC + 273.15
+    Pbar = Pdbar/10.0
+    Ca = full_like(Sal, nan)
     # Ar = full(ntps, nan)
-    KCa = full(ntps, nan)
-    KAr = full(ntps, nan)
-    F=logical_and(WhichKs!=6, WhichKs!=7)
-    if any(F):
-    # (below here, F isn't used, since almost always all rows match the above criterium,
-    #  in all other cases the rows will be overwritten later on).
-        # CalculateCa:
-        #       Riley, J. P. and Tongudai, M., Chemical Geology 2:263-269, 1967:
-        #       this is .010285*Sali/35
-        Ca = 0.02128/40.087*(Sal/1.80655)# ' in mol/kg-SW
-        # CalciteSolubility:
-        #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
-        logKCa = -171.9065 - 0.077993*TempK + 2839.319/TempK
-        logKCa = logKCa + 71.595*logTempK/log(10)
-        logKCa = logKCa + (-0.77712 + 0.0028426*TempK + 178.34/TempK)*sqrSal
-        logKCa = logKCa - 0.07711*Sal + 0.0041249*sqrSal*Sal
-        #       sd fit = .01 (for Sal part, not part independent of Sal)
-        KCa = 10.0**(logKCa)# ' this is in (mol/kg-SW)^2
-        # AragoniteSolubility:
-        #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
-        logKAr = -171.945 - 0.077993*TempK + 2903.293/TempK
-        logKAr = logKAr + 71.595*logTempK/log(10)
-        logKAr = logKAr + (-0.068393 + 0.0017276*TempK + 88.135/TempK)*sqrSal
-        logKAr = logKAr - 0.10018*Sal + 0.0059415*sqrSal*Sal
-        #       sd fit = .009 (for Sal part, not part independent of Sal)
-        KAr    = 10.0**(logKAr)# ' this is in (mol/kg-SW)^2
-        # PressureCorrectionForCalcite:
-        #       Ingle, Marine Chemistry 3:301-319, 1975
-        #       same as in Millero, GCA 43:1651-1661, 1979, but Millero, GCA 1995
-        #       has typos (-.5304, -.3692, and 10^3 for Kappa factor)
-        deltaVKCa = -48.76 + 0.5304*TempC
-        KappaKCa  = (-11.76 + 0.3692*TempC)/1000
-        lnKCafac  = (-deltaVKCa + 0.5*KappaKCa*Pbar)*Pbar/RT
-        KCa       = KCa*exp(lnKCafac)
-        # PressureCorrectionForAragonite:
-        #       Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979,
-        #       same as Millero, GCA 1995 except for typos (-.5304, -.3692,
-        #       and 10^3 for Kappa factor)
-        deltaVKAr = deltaVKCa + 2.8
-        KappaKAr  = KappaKCa
-        lnKArfac  = (-deltaVKAr + 0.5*KappaKAr*Pbar)*Pbar/RT
-        KAr       = KAr*exp(lnKArfac)
-    F=logical_or(WhichKs==6, WhichKs==7)
+    KCa = full_like(Sal, nan)
+    KAr = full_like(Sal, nan)
+    # CalculateCa:
+    #       Riley, J. P. and Tongudai, M., Chemical Geology 2:263-269, 1967:
+    #       this is .010285*Sali/35
+    Ca = 0.02128/40.087*(Sal/1.80655)# ' in mol/kg-SW
+    # CalciteSolubility:
+    #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
+    logKCa = -171.9065 - 0.077993*TempK + 2839.319/TempK
+    logKCa = logKCa + 71.595*log(TempK)/log(10)
+    logKCa = logKCa + (-0.77712 + 0.0028426*TempK + 178.34/TempK)*sqrt(Sal)
+    logKCa = logKCa - 0.07711*Sal + 0.0041249*sqrt(Sal)*Sal
+    #       sd fit = .01 (for Sal part, not part independent of Sal)
+    KCa = 10.0**(logKCa)# ' this is in (mol/kg-SW)^2
+    # AragoniteSolubility:
+    #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
+    logKAr = -171.945 - 0.077993*TempK + 2903.293/TempK
+    logKAr = logKAr + 71.595*log(TempK)/log(10)
+    logKAr = logKAr + (-0.068393 + 0.0017276*TempK + 88.135/TempK)*sqrt(Sal)
+    logKAr = logKAr - 0.10018*Sal + 0.0059415*sqrt(Sal)*Sal
+    #       sd fit = .009 (for Sal part, not part independent of Sal)
+    KAr    = 10.0**logKAr # this is in (mol/kg-SW)^2
+    # PressureCorrectionForCalcite:
+    #       Ingle, Marine Chemistry 3:301-319, 1975
+    #       same as in Millero, GCA 43:1651-1661, 1979, but Millero, GCA 1995
+    #       has typos (-.5304, -.3692, and 10^3 for Kappa factor)
+    deltaVKCa = -48.76 + 0.5304*TempC
+    KappaKCa  = (-11.76 + 0.3692*TempC)/1000
+    lnKCafac  = (-deltaVKCa + 0.5*KappaKCa*Pbar)*Pbar/RT
+    KCa       = KCa*exp(lnKCafac)
+    # PressureCorrectionForAragonite:
+    #       Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979,
+    #       same as Millero, GCA 1995 except for typos (-.5304, -.3692,
+    #       and 10^3 for Kappa factor)
+    deltaVKAr = deltaVKCa + 2.8
+    KappaKAr  = KappaKCa
+    lnKArfac  = (-deltaVKAr + 0.5*KappaKAr*Pbar)*Pbar/RT
+    KAr       = KAr*exp(lnKArfac)
+    # Now overwrite GEOSECS values:
+    F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
         #
         # *** CalculateCaforGEOSECS:
@@ -1219,7 +1216,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
         # *** CalculateKArforGEOSECS:
         # Berner, R. A., American Journal of Science 276:713-730, 1976:
         # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
-        KAr[F] = 1.45*KCa[F]# ' this is in (mol/kg-SW)^2
+        KAr[F] = 1.45*KCa[F] # this is in (mol/kg-SW)^2
         # Berner (p. 722) states that he uses 1.48.
         # It appears that 1.45 was used in the GEOSECS calculations
         #
@@ -1231,31 +1228,30 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
         # I can't find them anywhere else.
         KCa[F] = KCa[F]*exp((36   - 0.2 *TempC[F])*Pbar[F]/RT[F])
         KAr[F] = KAr[F]*exp((33.3 - 0.22*TempC[F])*Pbar[F]/RT[F])
-    # CalculateOmegasHere:
-    H = 10.0**(-pH)
-    CO3 = TC*K1*K2/(K1*H + H*H + K1*K2)
+    # Calculate Omegas here:
+    H = 10.0**-pH
+    CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
     return CO3*Ca/KCa, CO3*Ca/KAr # OmegaCa, OmegaAr: both dimensionless
 
-def _FindpHOnAllScales(pH):
-    global pHScale, K, T, TS, KS, TF, KF, fH, ntps
-# SUB FindpHOnAllScales, version 01.02, 01-08-97, written by Ernie Lewis.
-# Inputs: pHScale#, pH, K(), T(), fH
-# Outputs: pHNBS, pHfree, pHTot, pHSWS
-# This takes the pH on the given scale and finds the pH on all scales.
-#  TS = T(3); TF = T(2);
-#  KS = K(6); KF = K(5);# 'these are at the given T, S, P
-    FREEtoTOT = (1 + TS/KS)# ' pH scale conversion factor
-    SWStoTOT  = (1 + TS/KS)/(1 + TS/KS + TF/KF)# ' pH scale conversion factor
-    factor=full(ntps, nan)
-    F=pHScale==1  #'"pHtot"
+def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
+    """Calculate pH on all scales.
+    
+    This takes the pH on the given scale and finds the pH on all scales.
+    
+    Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
+    """
+    FREEtoTOT = convert.free2tot(TS, KS)
+    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
+    factor = full_like(pH, nan)
+    F = pHScale==1 # Total scale
     factor[F] = 0
-    F=pHScale==2 # '"pHsws"
+    F = pHScale==2 # Seawater scale
     factor[F] = -log(SWStoTOT[F])/log(0.1)
-    F=pHScale==3 # '"pHfree"
+    F = pHScale==3 # Free scale
     factor[F] = -log(FREEtoTOT[F])/log(0.1)
-    F=pHScale==4  #'"pHNBS"
+    F = pHScale==4 # NBS scale
     factor[F] = -log(SWStoTOT[F])/log(0.1) + log(fH[F])/log(0.1)
-    pHtot  = pH    - factor;    # ' pH comes into this sub on the given scale
+    pHtot = pH - factor # pH comes into this sub on the given scale
     pHNBS  = pHtot - log(SWStoTOT) /log(0.1) + log(fH)/log(0.1)
     pHfree = pHtot - log(FREEtoTOT)/log(0.1)
     pHsws  = pHtot - log(SWStoTOT) /log(0.1)
@@ -1264,12 +1260,6 @@ def _FindpHOnAllScales(pH):
 def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON):
-    global pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, Pbar
-    global Sal, sqrSal, TempK, logTempK, TempCi, TempCo, Pdbari, Pdbaro
-    global FugFac, VPFac, PengCorrection, ntps, RGasConstant
-    global fH, RT
-    global K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S
-    global TB, TF, TS, TP, TSi, TNH3, TH2S, F
 
     # Input conditioning.
     args = [PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
@@ -1380,7 +1370,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     TempK = TempCi + 273.15
     logTempK = log(TempK)
     Pbar = Pdbari/10.0
-    FugFac, VPFac = _Fugacity(ntps, TempK, WhichKs)
+    FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = logical_or(p1==4, p2==4)
@@ -1488,12 +1478,14 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
     F = full(ntps, True) # i.e., do for all samples:
-    Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc)
-    OmegaCainp, OmegaArinp = _CaSolubility(Sal, TempCi, Pdbari, TCc, PHic)
+    Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0, *Ks, *Ts)
+    OmegaCainp, OmegaArinp = _CaSolubility(Sal, TempCi, Pdbari, TCc, PHic,
+                                           WhichKs, K1, K2, RT)
     xCO2dryinp = PCic/VPFac # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales, too.
-    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic)
+    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, KS, KF,
+                                                    TS, TF, fH)
 
     # Save the Ks at input
     K0in = deepcopy(K0)
@@ -1519,7 +1511,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     TempK = TempCo + 273.15
     logTempK = log(TempK)
     Pbar = Pdbaro/10.0
-    FugFac, VPFac = _Fugacity(ntps, TempK, WhichKs)
+    FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
     F = full(ntps, True) # i.e., do for all samples:
@@ -1531,16 +1523,17 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Calculate Other Stuff At Output Conditions:
     (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
-        Hfreeout, HSO4out, HFout) = _CalculateAlkParts(PHoc, TCc,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, *Ts)
+        Hfreeout, HSO4out, HFout) = _CalculateAlkParts(PHoc, TCc, *Ks, *Ts)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
-    Revelleout = _RevelleFactor(TAc, TCc)
-    OmegaCaout, OmegaArout = _CaSolubility(Sal, TempCo, Pdbaro, TCc, PHoc)
+    Revelleout = _RevelleFactor(TAc, TCc, K0, *Ks, *Ts)
+    OmegaCaout, OmegaArout = _CaSolubility(Sal, TempCo, Pdbaro, TCc, PHoc,
+                                           WhichKs, K1, K2, RT)
     xCO2dryout = PCoc/VPFac # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales, too.
-    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc)
+    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, KS, KF,
+                                                    TS, TF, fH)
 
     # Save the Ks at output
     K0out = deepcopy(K0)
