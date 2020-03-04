@@ -1,3 +1,14 @@
+# NEXT STEPS:
+# - Tidy up _Constants() i/o.
+# - Work out and fix CO3out, pCO2out, etc. discrepancy.
+# - Eliminate all overwriting of variables during switch from input to output
+#   conditions.
+# - Extract CO2 system components from _CalkulateAlkParts()
+# - Extract subfunctions from _CaSolubility() into relevant modules.
+# - Add references from _CaSolubility() to docs.
+# - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
+# - Use assert to check input vector lengths, not an if.
+
 from . import (
     concentrations,
     convert,
@@ -22,245 +33,6 @@ eq = equilibria
 
 #**************************************************************************
 #
-# First   CO2SYS.m version: 1.1 (Sep 2011)
-# MATLAB  CO2SYS.m version: 2.0 (20 Dec 2016)
-#
-# CO2SYS is a MATLAB-version of the original CO2SYS for DOS. 
-# CO2SYS calculates and returns the state of the carbonate system of 
-#    oceanographic water samples, if supplied with enough input.
-# PyCO2SYS has been converted from MATLAB to Python.
-#
-# Please note that this software is intended to be exactly identical to the 
-#    DOS and Excel versions that have been released previously, meaning that
-#    results obtained should be very nearly indentical for identical input.
-# Additionally, several of the dissociation constants K1 and K2 that have 
-#    been published since the original DOS version was written are implemented.
-#    For a complete list of changes since version 1.0, see below.
-#
-# For much more info please have a look at:
-#    Lewis, E., and D. W. R. Wallace. 1998. Program Developed for
-#    CO2 System Calculations. ORNL/CDIAC-105. Carbon Dioxide Information
-#    Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy,
-#    Oak Ridge, Tennessee. 
-#    http://cdiac.ornl.gov/oceans/co2rprt.html
-#
-#**************************************************************************
-#
-# SYNTAX AND EXAMPLES IN THIS SECTION ARE FOR THE MATLAB VERSION ONLY
-#
-#  **** SYNTAX:
-#  [RESULT,HEADERS,NICEHEADERS]=CO2SYS(PAR1,PAR2,PAR1TYPE,PAR2TYPE,...
-#        ...SAL,TEMPIN,TEMPOUT,PRESIN,PRESOUT,SI,PO4,pHSCALEIN,...
-#        ...K1K2CONSTANTS,KSO4CONSTANTS)
-# 
-#  **** SYNTAX EXAMPLES:
-#  [Result]                     = CO2SYS(2400,2200,1,2,35,0,25,4200,0,15,1,1,4,1)
-#  [Result,Headers]             = CO2SYS(2400,   8,1,3,35,0,25,4200,0,15,1,1,4,1)
-#  [Result,Headers,Niceheaders] = CO2SYS( 500,   8,5,3,35,0,25,4200,0,15,1,1,4,1)
-#  [A]                          = CO2SYS(2400,2000:10:2400,1,2,35,0,25,4200,0,15,1,1,4,1)
-#  [A]                          = CO2SYS(2400,2200,1,2,0:1:35,0,25,4200,0,15,1,1,4,1)
-#  [A]                          = CO2SYS(2400,2200,1,2,35,0,25,0:100:4200,0,15,1,1,4,1)
-#  
-#  **** APPLICATION EXAMPLE (copy and paste this into command window):
-#  tmps=0:40; sals=0:40; [X,Y]=meshgrid(tmps,sals);
-#  A = CO2SYS(2300,2100,1,2,Y(:),X(:),nan,0,nan,1,1,1,9,1);
-#  Z=nan(size(X)); Z(:)=A(:,4); figure; contourf(X,Y,Z,20); caxis([0 1200]); colorbar;
-#  ylabel('Salinity [psu]'); xlabel('Temperature [degC]'); title('Dependence of pCO2 [uatm] on T and S')
-# 
-#**************************************************************************
-#
-# INPUT:
-#
-#   PAR1  (some unit) : scalar or vector of size n
-#   PAR2  (some unit) : scalar or vector of size n
-#   PAR1TYPE       () : scalar or vector of size n (*)
-#   PAR2TYPE       () : scalar or vector of size n (*)
-#   SAL            () : scalar or vector of size n
-#   TEMPIN  (degr. C) : scalar or vector of size n 
-#   TEMPOUT (degr. C) : scalar or vector of size n 
-#   PRESIN     (dbar) : scalar or vector of size n 
-#   PRESOUT    (dbar) : scalar or vector of size n
-#   SI    (umol/kgSW) : scalar or vector of size n
-#   PO4   (umol/kgSW) : scalar or vector of size n
-#   pHSCALEIN         : scalar or vector of size n (**)
-#   K1K2CONSTANTS     : scalar or vector of size n (***)
-#   KSO4CONSTANTS     : scalar or vector of size n (****)
-#
-#  (*) Each element must be an integer, 
-#      indicating that PAR1 (or PAR2) is of type: 
-#  1 = Total Alkalinity
-#  2 = DIC
-#  3 = pH
-#  4 = pCO2
-#  5 = fCO2
-# 
-#  (**) Each element must be an integer, 
-#       indicating that the pH-input (PAR1 or PAR2, if any) is at:
-#  1 = Total scale
-#  2 = Seawater scale
-#  3 = Free scale
-#  4 = NBS scale
-# 
-#  (***) Each element must be an integer, 
-#        indicating the K1 K2 dissociation constants that are to be used:
-#   1 = Roy, 1993											T:    0-45  S:  5-45. Total scale. Artificial seawater.
-#   2 = Goyet & Poisson										T:   -1-40  S: 10-50. Seaw. scale. Artificial seawater.
-#   3 = HANSSON              refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
-#   4 = MEHRBACH             refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
-#   5 = HANSSON and MEHRBACH refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
-#   6 = GEOSECS (i.e., original Mehrbach)					T:    2-35  S: 19-43. NBS scale.   Real seawater.
-#   7 = Peng	(i.e., originam Mehrbach but without XXX)	T:    2-35  S: 19-43. NBS scale.   Real seawater.
-#   8 = Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)	T:    0-50  S:     0. 
-#   9 = Cai and Wang, 1998									T:    2-35  S:  0-49. NBS scale.   Real and artificial seawater.
-#  10 = Lueker et al, 2000									T:    2-35  S: 19-43. Total scale. Real seawater.
-#  11 = Mojica Prieto and Millero, 2002.					T:    0-45  S:  5-42. Seaw. scale. Real seawater
-#  12 = Millero et al, 2002									T: -1.6-35  S: 34-37. Seaw. scale. Field measurements.
-#  13 = Millero et al, 2006									T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-#  14 = Millero        2010  								T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-#  15 = Waters, Millero, & Woosley 2014  					T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-# 
-#  (****) Each element must be an integer that 
-#         indicates the KSO4 dissociation constants that are to be used,
-#         in combination with the formulation of the borate-to-salinity ratio to be used.
-#         Having both these choices in a single argument is somewhat awkward, 
-#         but it maintains syntax compatibility with the previous version.
-#  1 = KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (PREFERRED) 
-#  2 = KSO4 of Khoo et al 1977 & TB of Uppstrom 1974
-#  3 = KSO4 of Dickson 1990a   & TB of Lee 2010
-#  4 = KSO4 of Khoo et al 1977 & TB of Lee 2010
-#
-#**************************************************************************#
-#
-# OUTPUT: * an array containing the following parameter values (one column per sample):
-#         *  a cell-array containing crudely formatted headers
-#         *  a cell-array containing nicely formatted headers
-#
-#    POS  PARAMETER        UNIT
-#
-#    01 - TAlk                 (umol/kgSW)
-#    02 - TCO2                 (umol/kgSW)
-#    03 - pHin                 ()
-#    04 - pCO2 input           (uatm)
-#    05 - fCO2 input           (uatm)
-#    06 - HCO3 input           (umol/kgSW)
-#    07 - CO3 input            (umol/kgSW)
-#    08 - CO2 input            (umol/kgSW)
-#    09 - BAlk input           (umol/kgSW)
-#    10 - OH input             (umol/kgSW)
-#    11 - PAlk input           (umol/kgSW)
-#    12 - SiAlk input          (umol/kgSW)
-#    13 - Hfree input          (umol/kgSW)
-#    14 - RevelleFactor input  ()
-#    15 - OmegaCa input        ()
-#    16 - OmegaAr input        ()
-#    17 - xCO2 input           (ppm)
-#    18 - pH output            ()
-#    19 - pCO2 output          (uatm)
-#    20 - fCO2 output          (uatm)
-#    21 - HCO3 output          (umol/kgSW)
-#    22 - CO3 output           (umol/kgSW)
-#    23 - CO2 output           (umol/kgSW)
-#    24 - BAlk output          (umol/kgSW)
-#    25 - OH output            (umol/kgSW)
-#    26 - PAlk output          (umol/kgSW)
-#    27 - SiAlk output         (umol/kgSW)
-#    28 - Hfree output         (umol/kgSW)
-#    29 - RevelleFactor output ()
-#    30 - OmegaCa output       ()
-#    31 - OmegaAr output       ()
-#    32 - xCO2 output          (ppm)
-#    33 - pH input (Total)     ()          
-#    34 - pH input (SWS)       ()          
-#    35 - pH input (Free)      ()          
-#    36 - pH input (NBS)       ()          
-#    37 - pH output (Total)    ()          
-#    38 - pH output (SWS)      ()          
-#    39 - pH output (Free)     ()          
-#    40 - pH output (NBS)      () 
-#    41 - TEMP input           (deg C)     ***    
-#    42 - TEMPOUT              (deg C)     ***
-#    43 - PRES input           (dbar or m) ***
-#    44 - PRESOUT              (dbar or m) ***
-#    45 - PAR1TYPE             (integer)   ***
-#    46 - PAR2TYPE             (integer)   ***
-#    47 - K1K2CONSTANTS        (integer)   ***
-#    48 - KSO4CONSTANTS        (integer)   *** 
-#    49 - pHSCALE of input     (integer)   ***
-#    50 - SAL                  (psu)       ***
-#    51 - PO4                  (umol/kgSW) ***
-#    52 - SI                   (umol/kgSW) ***
-#    53 - K0  input            ()          
-#    54 - K1  input            ()          
-#    55 - K2  input            ()          
-#    56 - pK1 input            ()          
-#    57 - pK2 input            ()          
-#    58 - KW  input            ()          
-#    59 - KB  input            ()          
-#    60 - KF  input            ()          
-#    61 - KS  input            ()          
-#    62 - KP1 input            ()          
-#    63 - KP2 input            ()          
-#    64 - KP3 input            ()          
-#    65 - KSi input            ()              
-#    66 - K0  output           ()          
-#    67 - K1  output           ()          
-#    68 - K2  output           ()          
-#    69 - pK1 output           ()          
-#    70 - pK2 output           ()          
-#    71 - KW  output           ()          
-#    72 - KB  output           ()          
-#    73 - KF  output           ()          
-#    74 - KS  output           ()          
-#    75 - KP1 output           ()          
-#    76 - KP2 output           ()          
-#    77 - KP3 output           ()          
-#    78 - KSi output           ()              
-#    79 - TB                   (umol/kgSW) 
-#    80 - TF                   (umol/kgSW) 
-#    81 - TS                   (umol/kgSW) 
-#    82 - TP                   (umol/kgSW) 
-#    83 - TSi                  (umol/kgSW)
-#
-#    *** SIMPLY RESTATES THE INPUT BY USER 
-#
-# In all the above, the terms "input" and "output" may be understood
-#    to refer to the 2 scenarios for which CO2SYS performs calculations, 
-#    each defined by its own combination of temperature and pressure.
-#    For instance, one may use CO2SYS to calculate, from measured DIC and TAlk,
-#    the pH that that sample will have in the lab (e.g., T=25 degC, P=0 dbar),
-#    and what the in situ pH would have been (e.g., at T=1 degC, P=4500).
-#    A = CO2SYS(2400,2200,1,2,35,25,1,0,4200,1,1,1,4,1)
-#    pH_lab = A(3);  # 7.84
-#    pH_sea = A(18); # 8.05
-# 
-#**************************************************************************
-#
-# This is version 2.0 (uploaded to CDIAC at SEP XXth, 2011):
-#
-# **** Changes since 2.0
-#	- slight changes to allow error propagation
-#	- new option to choose K1 & K2 from Waters et al. (2014): fixes inconsistencies with Millero (2010) identified by Orr et al. (2015)
-#
-# **** Changes since 1.01 (uploaded to CDIAC at June 11th, 2009):
-# - Function cleans up its global variables when done (if you loose variables, this may be the cause -- see around line 570)
-# - Added the outputting of K values
-# - Implementation of constants of Cai and Wang, 1998
-# - Implementation of constants of Lueker et al., 2000
-# - Implementation of constants of Mojica-Prieto and Millero, 2002
-# - Implementation of constants of Millero et al., 2002 (only their eqs. 19, 20, no TCO2 dependency)
-# - Implementation of constants of Millero et al., 2006
-# - Implementation of constants of Millero et al., 2010
-# - Properly listed Sal and Temp limits for the available constants
-# - added switch for using the new Lee et al., (2010) formulation of Total Borate (see KSO4CONSTANTS above)
-# - Minor corrections to the GEOSECS constants (gave NaN for some output in earlier version)
-# - Fixed decimal point error on [H+] (did not get converted to umol/kgSW from mol/kgSW).
-# - Changed 'Hfreein' to 'Hfreeout' in the 'NICEHEADERS'-output (typo)
-#
-# **** Changes since 1.00 (uploaded to CDIAC at May 29th, 2009):
-# - added a note explaining that all known bugs were removed before release of 1.00
-#
-#**************************************************************************
-#
 # CO2SYS originally by Lewis and Wallace 1998
 # Converted to MATLAB by Denis Pierrot at
 # CIMAS, University of Miami, Miami, Florida
@@ -271,11 +43,6 @@ eq = equilibria
 # for Sea Research, Texel, and Utrecht University, the Netherlands.
 # Questions, bug reports et cetera (Python): m.p.humphreys@icloud.com
 #
-#**************************************************************************
-
-
-#**************************************************************************
-# NOTHING BELOW THIS SHOULD REQUIRE EDITING BY USER!
 #**************************************************************************
 
 from copy import deepcopy
@@ -318,26 +85,24 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         ntps, TP, TSi, Sal, TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
+    
+    This finds the Constants of the CO2 system in seawater or freshwater,
+    corrects them for pressure, and reports them on the chosen pH scale.
+    The process is as follows: the Constants (except KS, KF which stay on the
+    free scale - these are only corrected for pressure) are:
+          1) evaluated as they are given in the literature,
+          2) converted to the SWS scale in mol/kg-SW or to the NBS scale,
+          3) corrected for pressure,
+          4) converted to the SWS pH scale in mol/kg-SW,
+          5) converted to the chosen pH scale.
+    
+    Based on Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
-# SUB Constants, version 04.01, 10-13-97, written by Ernie Lewis.
-# Converted from MATLAB to Python 2020-01-29 by Matthew Humphreys.
-# Inputs: pHScale#, WhichKs#, WhoseKSO4#, Sali, TempCi, Pdbar
-# Outputs: K0, K(), T(), fH, FugFac, VPFac
-# This finds the Constants of the CO2 system in seawater or freshwater,
-# corrects them for pressure, and reports them on the chosen pH scale.
-# The process is as follows: the Constants (except KS, KF which stay on the
-# free scale - these are only corrected for pressure) are
-#       1) evaluated as they are given in the literature
-#       2) converted to the SWS scale in mol/kg-SW or to the NBS scale
-#       3) corrected for pressure
-#       4) converted to the SWS pH scale in mol/kg-SW
-#       5) converted to the chosen pH scale
-#
-#       PROGRAMMER'S NOTE: all logs are log base e
-#       PROGRAMMER'S NOTE: all Constants are converted to the pH scale
-#               pHScale# (the chosen one) in units of mol/kg-SW
-#               except KS and KF are on the free scale
-#               and KW is in units of (mol/kg-SW)^2
+    # PROGRAMMER'S NOTE: all logs are log base e
+    # PROGRAMMER'S NOTE: all Constants are converted to the pH scale
+    #     pHScale# (the chosen one) in units of mol/kg-SW
+    #     except KS and KF are on the free scale
+    #     and KW is in units of (mol/kg-SW)^2
     
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
@@ -1491,8 +1256,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     K0in = deepcopy(K0)
     K1in = deepcopy(K1)
     K2in = deepcopy(K2)
-    pK1in = -log10(K1)
-    pK2in = -log10(K2)
+    pK1in = -log10(K1in)
+    pK2in = -log10(K2in)
     KWin = deepcopy(KW)
     KBin = deepcopy(KB)
     KFin = deepcopy(KF)
@@ -1648,12 +1413,5 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'TF': TF*1e6,
         'TS': TS*1e6,
     }
-
-    del F, K2, KP3, Pdbari, Sal, TS, VPFac, ntps
-    del FugFac, KB, KS, Pdbaro, TSi, WhichKs, pHScale
-    del KF, KSi, PengCorrection, TB, TempCi, WhoseKSO4, sqrSal
-    del K0, KP1, KW, RGasConstant, TF, TempCo, fH
-    del K1, KP2, Pbar, RT, TP, TempK, logTempK
-    del KNH3, KH2S, TNH3, TH2S
 
     return DICT
