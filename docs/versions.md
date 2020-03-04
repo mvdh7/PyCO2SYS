@@ -1,8 +1,8 @@
 # Version history
 
-## 1.1.0
+## 2.0.0
 
-Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB version.
+Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB "v1.21".
 
 **Release date:** forthcoming
 
