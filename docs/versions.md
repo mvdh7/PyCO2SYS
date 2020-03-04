@@ -4,6 +4,8 @@
 
 **Release date:** forthcoming
 
+  * Added equilibrium constants for ammonium and hydrogen sulfide.
+
 ## 1.0.1
 
 **Release date:** 28 Feb 2020

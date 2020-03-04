@@ -2,6 +2,8 @@
 
 <span id='C65'>**C65:**</span> Culkin, F. (1965). “The major constituents of sea water,” in *Chemical Oceanography*, eds. J. P. Riley and G. Skirrow (London, UK: Academic Press), 121–161.
 
+<span id='CW95'>**CW95:**</span> Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. *Geochim. Cosmochim. Acta* 59, 2403–2421. <a href='https://doi.org/10.1016/0016-7037(95)00135-2'>doi:10.1016/0016-7037(95)00135-2</a>.
+
 <span id='CW98'>**CW98:**</span> Cai, W.-J., and Wang, Y. (1998). The chemistry, fluxes, and sources of carbon dioxide in the estuarine waters of the Satilla and Altamaha Rivers, Georgia. *Limnol. Oceanogr.* 43, 657–668. [doi:10.4319/lo.1998.43.4.0657](https://doi.org/10.4319/lo.1998.43.4.0657).
 
 <span id='D90a'>**D90a:**</span> Dickson, A. G. (1990). Standard potential of the reaction: AgCl(s) + 0.5 H<sub>2</sub>(g) = Ag(s) + HCl(aq), and the standard acidity constant of the ion HSO<sub>4</sub><sup>−</sup> in synthetic sea water from 273.15 to 318.15 K. *J. Chem. Thermodyn.* 22, 113–127. <a href='https://doi.org/10.1016/0021-9614(90)90074-Z'>doi:10.1016/0021-9614(90)90074-Z</a>.
