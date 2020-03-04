@@ -1070,7 +1070,6 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     Pdbari = PRESIN
     Pdbaro = PRESOUT
     Sal = deepcopy(SAL)
-    sqrSal = sqrt(SAL)
     TP = deepcopy(PO4)
     TSi = deepcopy(SI)
     TNH3 = deepcopy(NH3)
@@ -1133,8 +1132,6 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         RGasConstant) = _Constants(TempCi, Pdbari, *ConstPuts)
     Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
     TempK = TempCi + 273.15
-    logTempK = log(TempK)
-    Pbar = Pdbari/10.0
     FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
 
     # Make sure fCO2 is available for each sample that has pCO2.
@@ -1274,8 +1271,6 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         RGasConstant) = _Constants(TempCo, Pdbaro, *ConstPuts)
     Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
     TempK = TempCo + 273.15
-    logTempK = log(TempK)
-    Pbar = Pdbaro/10.0
     FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
