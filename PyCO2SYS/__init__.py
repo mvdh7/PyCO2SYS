@@ -487,6 +487,19 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_SWS_WMW14(TempK[F], Sal[F])
 
+    # From CO2SYS_v1_21.m: calculate KH2S and KNH3
+    KH2S = full(ntps, nan)
+    KNH3 = full(ntps, nan)
+    F = logical_or.reduce((WhichKs==6, WhichKs==7, WhichKs==8))
+    # Contributions from Ammonium and H2S not included for these options.
+    if any(F):
+        KH2S[F] = 0.0
+        KNH3[F] = 0.0
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+    if any(F):
+        KH2S[F] = eq.kH2S_TOT_YM95(TempK[F], Sal[F])
+        KNH3[F] = eq.kNH3_TOT_CW95(TempK[F], Sal[F])
+        
 #****************************************************************************
 # Correct dissociation constants for pressure
 # Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
@@ -696,17 +709,34 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, ntps, TP, TSi, Sal):
     Kappa  = -2.84/1000
     lnKSifac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
 
+    # CorrectKNH3KH2SForPressure:
+    # The corrections are from Millero, 1995, which are the
+    #       same as Millero, 1983.
+    # PressureEffectsOnKNH3:
+    deltaV = -26.43 + 0.0889*TempC - 0.000905*TempC**2
+    Kappa = (-5.03 + 0.0814*TempC)/1000
+    lnKNH3fac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    # PressureEffectsOnKH2S:
+    # Millero 1995 gives values for deltaV in fresh water instead of SW.
+    # Millero 1995 gives -b0 as -2.89 instead of 2.89
+    # Millero 1983 is correct for both
+    deltaV = -11.07 - 0.009*TempC - 0.000942*TempC**2
+    Kappa = (-2.89 + 0.054*TempC)/1000
+    lnKH2Sfac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+
     # CorrectKsForPressureHere:
-    K1fac  = exp(lnK1fac);  K1  = K1 *K1fac
-    K2fac  = exp(lnK2fac);  K2  = K2 *K2fac
-    KWfac  = exp(lnKWfac);  KW  = KW *KWfac
-    KBfac  = exp(lnKBfac);  KB  = KB *KBfac
-    KFfac  = exp(lnKFfac);  KF  = KF *KFfac
-    KSfac  = exp(lnKSfac);  KS  = KS *KSfac
+    K1fac = exp(lnK1fac); K1 = K1*K1fac
+    K2fac = exp(lnK2fac); K2 = K2*K2fac
+    KWfac = exp(lnKWfac); KW = KW*KWfac
+    KBfac = exp(lnKBfac); KB = KB*KBfac
+    KFfac = exp(lnKFfac); KF = KF*KFfac
+    KSfac = exp(lnKSfac); KS = KS*KSfac
     KP1fac = exp(lnKP1fac); KP1 = KP1*KP1fac
     KP2fac = exp(lnKP2fac); KP2 = KP2*KP2fac
     KP3fac = exp(lnKP3fac); KP3 = KP3*KP3fac
     KSifac = exp(lnKSifac); KSi = KSi*KSifac
+    KNH3fac = exp(lnKNH3fac); KNH3 = KNH3*KNH3fac
+    KH2Sfac = exp(lnKH2Sfac); KH2S = KH2S*KH2Sfac
 
     # CorrectpHScaleConversionsForPressure:
     # fH has been assumed to be independent of pressure.
