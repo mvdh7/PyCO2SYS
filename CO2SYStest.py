@@ -24,20 +24,26 @@ P2 = PARSin[:, 1]
 P1type = PAR12combos[:, 0]
 P2type = PAR12combos[:, 1]
 
-# # Try subbing in a carbonate ion value - works!
-# carb = 200.0
-# P1[P1type == 1] = carb
-# P2[P2type == 1] = carb
-# P1type[P1type == 1] = 6
-# P2type[P2type == 1] = 6
+# Try subbing in a carbonate ion value - works!
+carb = 200.0
+replacevar = 1
+P1[P1type == replacevar] = carb
+P2[P2type == replacevar] = carb
+P1type[P1type == replacevar] = 6
+P2type[P2type == replacevar] = 6
     
 # Run CO2SYS in Python
 go = time()
 co2py = CO2SYS(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
-               si, phos, pHscales, K1K2, KSO4)[0]
+               si, phos, 0, 0, pHscales, K1K2, KSO4)[0]
 print('PyCO2SYS runtime = {} s'.format(time() - go))
 
 # Compare with MATLAB - see results in co2maxdiff
-co2mat = {var: matfile[var][0][0].ravel() for var in co2py.keys()}
-co2diff = {var: co2py[var] - co2mat[var] for var in co2py.keys()}
-co2maxdiff = {var: np.max(np.abs(co2diff[var])) for var in co2py.keys()}
+nomatvars = ['NH3Alkin', 'H2SAlkin', 'NH3Alkout', 'H2SAlkout',
+             'KNH3input', 'KH2Sinput', 'KNH3output', 'KH2Soutput']
+co2mat = {var: matfile[var][0][0].ravel() for var in co2py.keys()
+          if var not in nomatvars}
+co2diff = {var: co2py[var] - co2mat[var] for var in co2py.keys()
+           if var not in nomatvars}
+co2maxdiff = {var: np.max(np.abs(co2diff[var])) for var in co2py.keys()
+              if var not in nomatvars}

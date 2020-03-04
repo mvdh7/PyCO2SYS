@@ -2,9 +2,11 @@
 
 ## 1.1.0
 
+Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB version.
+
 **Release date:** forthcoming
 
-  * Added equilibrium constants for ammonium and hydrogen sulfide.
+  * Added total ammonium and hydrogen sulfide concentrations as inputs to be included in the alkalinity model.
 
   * Added functions to enable carbonate ion as an input carbonate system variable.
 
