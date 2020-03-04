@@ -48,10 +48,17 @@ BSal = only2BSal(KSO4_only)';
 
 %% Run CO2SYS
 tic
+DATA_v2 = CO2SYSv2(P1, P2, P1type, P2type, sal, tempin, tempout, ...
+    presin, presout, si, phos, pHscales, K1K2, KSO4_only);
+toc
+tic
 [DATA, HEADERS] = ...
     CO2SYS_v1_21(P1, P2, P1type, P2type, sal, tempin, tempout, presin, ...
     presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal);
 toc
+
+%% Compare some
+del_pH = DATA(:, 3) - DATA_v2(:, 3);
 
 %% Extract and save outputs
 for V = 1:numel(HEADERS)
