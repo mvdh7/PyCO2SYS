@@ -6,6 +6,8 @@
 
   * Added equilibrium constants for ammonium and hydrogen sulfide.
 
+  * Added functions to enable carbonate ion as an input carbonate system variable.
+
 ## 1.0.1
 
 **Release date:** 28 Feb 2020

@@ -19,10 +19,21 @@ pHscales = matfile['pHSCALEIN'][0][0]
 K1K2 = matfile['K1K2CONSTANTS'][0][0]
 KSO4 = matfile['KSO4CONSTANTS'][0][0]
 
+P1 = PARSin[:, 0]
+P2 = PARSin[:, 1]
+P1type = PAR12combos[:, 0]
+P2type = PAR12combos[:, 1]
+
+# # Try subbing in a carbonate ion value - works!
+# carb = 200.0
+# P1[P1type == 1] = carb
+# P2[P2type == 1] = carb
+# P1type[P1type == 1] = 6
+# P2type[P2type == 1] = 6
+    
 # Run CO2SYS in Python
 go = time()
-co2py = CO2SYS(PARSin[:, 0], PARSin[:, 1], PAR12combos[:, 0],
-               PAR12combos[:, 1], sal, tempin, tempout, presin, presout,
+co2py = CO2SYS(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
                si, phos, pHscales, K1K2, KSO4)[0]
 print('PyCO2SYS runtime = {} s'.format(time() - go))
 
