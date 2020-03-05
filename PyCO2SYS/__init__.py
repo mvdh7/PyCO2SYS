@@ -1019,12 +1019,11 @@ def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
 def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON):
-    """Solve the carbonate system from the input parameters.
+    """Solve the carbonate system using the input parameters.
 
     Based on CO2SYS v1.21 and v2.0.5, both for MATLAB.
     Converted for Python by Matthew Humphreys, NIOZ Royal Netherlands Institute
-    for Sea Research, Department of Ocean Systems (OCS), and Utrecht
-    University, Texel, the Netherlands.
+    for Sea Research, and Utrecht University, Texel, the Netherlands.
     """
 
     # Input conditioning.
