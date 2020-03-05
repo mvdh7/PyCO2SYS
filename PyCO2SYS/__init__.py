@@ -8,6 +8,7 @@
 # - Add references from _CaSolubility() to docs.
 # - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
 # - Use assert to check input vector lengths, not an if.
+# - Add wrapper to allow old-style input options for the new version.
 
 from . import (
     concentrations,
@@ -70,22 +71,22 @@ def _Concentrations(ntps, WhichKs, WhoseTB, Sal):
         TB[F] = conc.borate_C65(Sal[F])
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F): # All other cases
-        FF = logical_and(F, WhoseTB==1) 
+        FF = logical_and(F, WhoseTB==1)
         if any(FF): # If user opted for Uppstrom's values
             TB[FF] = conc.borate_U74(Sal[FF])
-        FF = logical_and(F, WhoseTB==2) 
+        FF = logical_and(F, WhoseTB==2)
         if any(FF): # If user opted for the new Lee values
             TB[FF] = conc.borate_LKB10(Sal[FF])
     # Calculate total fluoride and sulfate
     TF = conc.fluoride_R65(Sal)
-    TS = conc.sulfate_MR66(Sal)    
+    TS = conc.sulfate_MR66(Sal)
     return TB, TF, TS
 
 def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         ntps, TP, TSi, Sal, TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
-    
+
     This finds the Constants of the CO2 system in seawater or freshwater,
     corrects them for pressure, and reports them on the chosen pH scale.
     The process is as follows: the Constants (except KS, KF which stay on the
@@ -95,7 +96,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
           3) corrected for pressure,
           4) converted to the SWS pH scale in mol/kg-SW,
           5) converted to the chosen pH scale.
-    
+
     Based on Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
     # PROGRAMMER'S NOTE: all logs are log base e
@@ -103,7 +104,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     #     pHScale# (the chosen one) in units of mol/kg-SW
     #     except KS and KF are on the free scale
     #     and KW is in units of (mol/kg-SW)^2
-    
+
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
     TempK = TempC + 273.15
@@ -270,7 +271,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         KNH3[F] = eq.kNH3_TOT_CW95(TempK[F], Sal[F])
         KH2S[F] /= SWStoTOT[F] # Convert TOT to SWS
         KNH3[F] /= SWStoTOT[F] # Convert TOT to SWS
-        
+
 #****************************************************************************
 # Correct dissociation constants for pressure
 # Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
@@ -539,7 +540,7 @@ def _Constants(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     KSi *= pHfactor
     KNH3 *= pHfactor
     KH2S *= pHfactor
-    
+
     return (K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, RT, fH,
             RGasConstant)
 
@@ -588,11 +589,11 @@ def _CalculateAlkParts(pHx, TCx,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate the different components of total alkalinity from pH and
     dissolved inorganic carbon.
-    
+
     Although coded for H on the total pH scale, for the pH values occuring in
     seawater (pH > 6) this will be equally valid on any pH scale (i.e. H terms
     are negligible) as long as the K Constants are on that scale.
-    
+
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0**-pHx
@@ -615,14 +616,14 @@ def _CalculatepHfromTATC(TAx, TCx,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and dissolved inorganic carbon.
-    
+
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
     The starting guess is pH = 8.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
-    
+
     Based on CalculatepHfromTATC, version 04.01, 10-13-96, by Ernie Lewis.
     SVH2007: Made this to accept vectors. It will continue iterating until all
     values in the vector are "abs(deltapH) < pHTol".
@@ -656,7 +657,7 @@ def _CalculatepHfromTATC(TAx, TCx,
 
 def _CalculatefCO2fromTCpH(TCx, pHx, K0, K1, K2):
     """Calculate CO2 fugacity from dissolved inorganic carbon and pH.
-    
+
     Based on CalculatefCO2fromTCpH, version 02.02, 12-13-96, by Ernie Lewis.
     """
     H = 10.0**-pHx
@@ -667,12 +668,12 @@ def _CalculateTCfromTApH(TAx, pHx,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
- 
+
     This calculates TC from TA and pH.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
-    
+
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0**-pHx
@@ -689,14 +690,14 @@ def _CalculatepHfromTAfCO2(TAi, fCO2i, K0,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and CO2 fugacity.
-    
+
     This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
     The starting guess is pH = 8.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
-    
+
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
     pHGuess = 8.0 # this is the first guess
@@ -730,12 +731,12 @@ def _CalculateTAfromTCpH(TCi, pHi,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
-    
+
     This calculates TA from TC and pH.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
-    
+
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
@@ -749,11 +750,11 @@ def _CalculateTAfromTCpH(TCi, pHi,
 
 def _CalculatepHfromTCfCO2(TCi, fCO2i, K0, K1, K2):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
-    
+
     This calculates pH from TC and fCO2 using K0, K1, and K2 by solving the
     quadratic in H: fCO2*K0 = TC*H*H/(K1*H + H*H + K1*K2).
     If there is not a real root, then pH is returned as NaN.
-    
+
     Based on CalculatepHfromTCfCO2, version 02.02, 11-12-96, by Ernie Lewis.
     """
     RR = K0*fCO2i/TCi
@@ -765,7 +766,7 @@ def _CalculatepHfromTCfCO2(TCi, fCO2i, K0, K1, K2):
 
 def _CalculateTCfrompHfCO2(pHi, fCO2i, K0, K1, K2):
     """Calculate dissolved inorganic carbon from pH and CO2 fugacity.
-    
+
     Based on CalculateTCfrompHfCO2, version 01.02, 12-13-96, by Ernie Lewis.
     """
     H = 10.0**-pHi
@@ -783,7 +784,7 @@ def _CalculatepHfromTACarb(TAi, CARBi,
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K constants are on that scale.
-    
+
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
     pHGuess = 8.0 # this is the first guess
@@ -813,10 +814,10 @@ def _CalculatepHfromTACarb(TAi, CARBi,
 
 def _CalculatepHfromTCCarb(TCi, Carbi, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
-    
+
     This calculates pH from Carbonate and TC using K1, and K2 by solving the
     quadratic in H: TC * K1 * K2= Carb * (H * H + K1 * H +  K1 * K2).
-    
+
     Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
     Pierrot.
     """
@@ -828,7 +829,7 @@ def _CalculatepHfromTCCarb(TCi, Carbi, K1, K2):
 
 def _CalculatefCO2frompHCarb(pHx, Carbx, K0, K1, K2):
     """Calculate CO2 fugacity from pH and carbonate ion.
-    
+
     Based on CalculatefCO2frompHCarb, version 01.0, 06-12-2019, by Denis
     Pierrot.
     """
@@ -838,10 +839,10 @@ def _CalculatefCO2frompHCarb(pHx, Carbx, K0, K1, K2):
 
 def _CalculatepHfromfCO2Carb(fCO2i, Carbi, K0, K1, K2):
     """Calculate pH from CO2 fugacity and carbonate ion.
-    
+
     This calculates pH from Carbonate and fCO2 using K0, K1, and K2 by solving
     the equation in H: fCO2 * K0 * K1* K2 = Carb * H * H
-    
+
     Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
     Pierrot.
     """
@@ -852,7 +853,7 @@ def _CalculatepHfromfCO2Carb(fCO2i, Carbi, K0, K1, K2):
 
 def _CalculateCarbfromTCpH(TCx, pHx, K1, K2):
     """Calculate carbonate ion from dissolved inorganic carbon and pH.
-    
+
     Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
     """
     H = 10.0**-pHx
@@ -864,12 +865,12 @@ def _RevelleFactor(TAi, TCi, K0,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
     """Calculate the Revelle Factor from total alkalinity and dissolved
     inorganic carbon.
-    
+
     This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
     It only makes sense to talk about it at pTot = 1 atm, but it is computed
     here at the given K(), which may be at pressure <> 1 atm. Care must
     thus be used to see if there is any validity to the number computed.
-    
+
     Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
     """
     Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
@@ -892,7 +893,7 @@ def _RevelleFactor(TAi, TCi, K0,
 
 def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
     """Calculate calcite and aragonite solubility.
-    
+
     This calculates omega, the solubility ratio, for calcite and aragonite.
     This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
           where Ksp is the solubility product (either KCa or KAr).
@@ -914,7 +915,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
     Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
           boric acid, and the pHi of seawater, Limnology and Oceanography
           13:403-417, 1968.
-    
+
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
     TempK = TempC + 273.15
@@ -1000,9 +1001,9 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
 
 def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
     """Calculate pH on all scales.
-    
+
     This takes the pH on the given scale and finds the pH on all scales.
-    
+
     Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
     """
     FREEtoTOT = convert.free2tot(TS, KS)
@@ -1045,7 +1046,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON) = args
-    
+
     # Convert any integer inputs to floats.
     SAL = SAL.astype('float64')
     TEMPIN = TEMPIN.astype('float64')
