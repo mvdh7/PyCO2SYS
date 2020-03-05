@@ -126,3 +126,6 @@ dmypy.json
 
 # MATLAB autosaves
 *.asv
+
+# Documents
+*.docx
