@@ -761,7 +761,7 @@ def _CalculatepHfromTCfCO2(TCi, fCO2i, K0, K1, K2):
     Discr = (K1*RR)**2 + 4*(1 - RR)*K1*K2*RR
     H = 0.5*(K1*RR + sqrt(Discr))/(1 - RR)
     H[H < 0] = nan
-    pHc = log(H)/log(0.1)
+    pHc = -log10(H)
     return pHc
 
 def _CalculateTCfrompHfCO2(pHi, fCO2i, K0, K1, K2):
@@ -824,7 +824,7 @@ def _CalculatepHfromTCCarb(TCi, Carbi, K1, K2):
     RR = 1 - TCi/Carbi
     Discr = K1**2 - 4*K1*K2*RR
     H = (-K1 + sqrt(Discr))/2
-    pHc = log(H)/log(0.1)
+    pHc = -log10(H)
     return pHc
 
 def _CalculatefCO2frompHCarb(pHx, Carbx, K0, K1, K2):
@@ -848,7 +848,7 @@ def _CalculatepHfromfCO2Carb(fCO2i, Carbi, K0, K1, K2):
     """
     RR = K0*K1*K2*fCO2i/Carbi
     H = sqrt(RR)
-    pHc = log(H)/log(0.1)
+    pHc = -log10(H)
     return pHc
 
 def _CalculateCarbfromTCpH(TCx, pHx, K1, K2):
@@ -931,7 +931,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
     # CalciteSolubility:
     #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
     logKCa = -171.9065 - 0.077993*TempK + 2839.319/TempK
-    logKCa = logKCa + 71.595*log(TempK)/log(10)
+    logKCa = logKCa + 71.595*log10(TempK)
     logKCa = logKCa + (-0.77712 + 0.0028426*TempK + 178.34/TempK)*sqrt(Sal)
     logKCa = logKCa - 0.07711*Sal + 0.0041249*sqrt(Sal)*Sal
     #       sd fit = .01 (for Sal part, not part independent of Sal)
@@ -939,7 +939,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
     # AragoniteSolubility:
     #       Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
     logKAr = -171.945 - 0.077993*TempK + 2903.293/TempK
-    logKAr = logKAr + 71.595*log(TempK)/log(10)
+    logKAr = logKAr + 71.595*log10(TempK)
     logKAr = logKAr + (-0.068393 + 0.0017276*TempK + 88.135/TempK)*sqrt(Sal)
     logKAr = logKAr - 0.10018*Sal + 0.0059415*sqrt(Sal)*Sal
     #       sd fit = .009 (for Sal part, not part independent of Sal)
@@ -976,7 +976,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
         # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982
         # but the fit is actually from Ingle, Marine Chemistry 3:301-319, 1975)
         KCa[F] = 0.0000001*(-34.452 - 39.866*Sal[F]**(1/3) +
-            110.21*log(Sal[F])/log(10) - 0.0000075752*TempK[F]**2)
+            110.21*log10(Sal[F]) - 0.0000075752*TempK[F]**2)
         # this is in (mol/kg-SW)^2
         #
         # *** CalculateKArforGEOSECS:
@@ -1012,15 +1012,15 @@ def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
     F = pHScale==1 # Total scale
     factor[F] = 0
     F = pHScale==2 # Seawater scale
-    factor[F] = -log(SWStoTOT[F])/log(0.1)
+    factor[F] = log10(SWStoTOT[F])
     F = pHScale==3 # Free scale
-    factor[F] = -log(FREEtoTOT[F])/log(0.1)
+    factor[F] = log10(FREEtoTOT[F])
     F = pHScale==4 # NBS scale
-    factor[F] = -log(SWStoTOT[F])/log(0.1) + log(fH[F])/log(0.1)
+    factor[F] = log10(SWStoTOT[F]) - log10(fH[F])
     pHtot = pH - factor # pH comes into this sub on the given scale
-    pHNBS  = pHtot - log(SWStoTOT) /log(0.1) + log(fH)/log(0.1)
-    pHfree = pHtot - log(FREEtoTOT)/log(0.1)
-    pHsws  = pHtot - log(SWStoTOT) /log(0.1)
+    pHNBS  = pHtot + log10(SWStoTOT) - log10(fH)
+    pHfree = pHtot + log10(FREEtoTOT)
+    pHsws  = pHtot + log10(SWStoTOT)
     return pHtot, pHsws, pHfree, pHNBS
 
 def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
@@ -1129,15 +1129,16 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # scale!
     ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, ntps, TP, TSi,
                  Sal, TF, TS)
-    (K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, RT, fH,
-        RGasConstant) = _Constants(TempCi, Pdbari, *ConstPuts)
-    Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
-    TempK = TempCi + 273.15
-    FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
+    
+    (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
+        RTi, fHi, RGasConstant) = _Constants(TempCi, Pdbari, *ConstPuts)
+    Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
+    TempKi = TempCi + 273.15
+    FugFaci, VPFaci = _Fugacity(ntps, TempKi, Sal, WhichKs, RTi)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = logical_or(p1==4, p2==4)
-    FC[F] = PC[F]*FugFac[F]
+    FC[F] = PC[F]*FugFaci[F]
 
     # Generate vector for results, and copy the raw input values into them. This
     # copies ~60% NaNs, which will be replaced for calculated values later on.
@@ -1157,161 +1158,141 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # pCO2 will be calculated later on, routines work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         PHic[F] = _CalculatepHfromTATC(TAc[F]-PengCorrection[F], TCc[F],
-                                       *KFs, *TFs)
+                                       *KiFs, *TFs)
         # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F], K0[F], K1[F], K2[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+                                         K0i[F], K1i[F], K2i[F])
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==13 # input TA, pH
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                      *KFs, *TFs)
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F], K0[F], K1[F], K2[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+                                      *KiFs, *TFs)
+        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+                                         K0i[F], K1i[F], K2i[F])
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = logical_or(Icase==14, Icase==15) # input TA, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         PHic[F] = _CalculatepHfromTAfCO2(TAc[F]-PengCorrection[F], FCic[F],
-                                         K0[F], *KFs, *TFs)
+                                         K0i[F], *KiFs, *TFs)
         TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                      *KFs, *TFs)
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+                                      *KiFs, *TFs)
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==16 # input TA, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         PHic[F] = _CalculatepHfromTACarb(TAc[F]-PengCorrection[F], CARBic[F],
-                                         *KFs, *TFs)
+                                         *KiFs, *TFs)
         TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                      *KFs, *TFs)
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F], K0[F], K1[F], K2[F])
+                                      *KiFs, *TFs)
+        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+                                         K0i[F], K1i[F], K2i[F])
     F = Icase==23 # input TC, pH
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F], K0[F], K1[F], K2[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+                                         K0i[F], K1i[F], K2i[F])
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = logical_or(Icase==24, Icase==25) # input TC, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PHic[F] = _CalculatepHfromTCfCO2(TCc[F], FCic[F], K0[F], K1[F], K2[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
+        PHic[F] = _CalculatepHfromTCfCO2(TCc[F], FCic[F],
+                                         K0i[F], K1i[F], K2i[F])
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==26 # input TC, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PHic[F] = _CalculatepHfromTCCarb(TCc[F], CARBic[F], K1[F], K2[F])
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F], K0[F], K1[F], K2[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
+        PHic[F] = _CalculatepHfromTCCarb(TCc[F], CARBic[F], K1i[F], K2i[F])
+        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+                                         K0i[F], K1i[F], K2i[F])
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     F = logical_or(Icase==34, Icase==35) # input pH, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F], K0[F], K1[F], K2[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
+        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+                                        K0i[F], K1i[F], K2i[F])
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1[F], K2[F])
+        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==36 # input pH, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         FCic[F] = _CalculatefCO2frompHCarb(PHic[F], CARBic[F],
-                                           K0[F], K1[F], K2[F])
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F], K0[F], K1[F], K2[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+                                           K0i[F], K1i[F], K2i[F])
+        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+                                        K0i[F], K1i[F], K2i[F])
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     F = logical_or(Icase==46, Icase==56) # input (pCO2 or fCO2), CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
+        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
         PHic[F] = _CalculatepHfromfCO2Carb(FCic[F], CARBic[F],
-                                           K0[F], K1[F], K2[F])
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F], K0[F], K1[F], K2[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KFs, *TFs) +
+                                           K0i[F], K1i[F], K2i[F])
+        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+                                        K0i[F], K1i[F], K2i[F])
+        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 value:
-    PCic = FCic/FugFac
+    PCic = FCic/FugFaci
+    
+    # Calculate the pKs at input
+    pK1i = -log10(K1i)
+    pK2i = -log10(K2i)
 
     # CalculateOtherParamsAtInputConditions:
     (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
-        Hfreeinp, HSO4inp, HFinp) = _CalculateAlkParts(PHic, TCc,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, *Ts)
+        Hfreeinp, HSO4inp, HFinp) = _CalculateAlkParts(PHic, TCc, *Kis, *Ts)
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
-    F = full(ntps, True) # i.e., do for all samples:
-    Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0, *Ks, *Ts)
+    Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
     OmegaCainp, OmegaArinp = _CaSolubility(Sal, TempCi, Pdbari, TCc, PHic,
-                                           WhichKs, K1, K2, RT)
-    xCO2dryinp = PCic/VPFac # this assumes pTot = 1 atm
+                                           WhichKs, K1i, K2i, RTi)
+    xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales, too.
-    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, KS, KF,
-                                                    TS, TF, fH)
-
-    # Save the Ks at input
-    K0in = deepcopy(K0)
-    K1in = deepcopy(K1)
-    K2in = deepcopy(K2)
-    pK1in = -log10(K1in)
-    pK2in = -log10(K2in)
-    KWin = deepcopy(KW)
-    KBin = deepcopy(KB)
-    KFin = deepcopy(KF)
-    KSin = deepcopy(KS)
-    KP1in = deepcopy(KP1)
-    KP2in = deepcopy(KP2)
-    KP3in = deepcopy(KP3)
-    KSiin = deepcopy(KSi)
-    KNH3in = deepcopy(KNH3)
-    KH2Sin = deepcopy(KH2S)
+    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, KSi, KFi,
+                                                    TS, TF, fHi)
 
     # Calculate the constants for all samples at output conditions
-    (K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, RT, fH,
-        RGasConstant) = _Constants(TempCo, Pdbaro, *ConstPuts)
-    Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
-    TempK = TempCo + 273.15
-    FugFac, VPFac = _Fugacity(ntps, TempK, Sal, WhichKs, RT)
+    (K0o, K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So,
+        RTo, fHo, RGasConstant) = _Constants(TempCo, Pdbaro, *ConstPuts)
+    Kos = [K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So]
+    TempKo = TempCo + 273.15
+    FugFaco, VPFaco = _Fugacity(ntps, TempKo, Sal, WhichKs, RTo)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
-    F = full(ntps, True) # i.e., do for all samples:
-    PHoc = _CalculatepHfromTATC(TAc-PengCorrection, TCc, *Ks, *Ts)
+    PHoc = _CalculatepHfromTATC(TAc-PengCorrection, TCc, *Kos, *Ts)
     # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-    FCoc = _CalculatefCO2fromTCpH(TCc, PHoc, K0, K1, K2)
-    CARBoc = _CalculateCarbfromTCpH(TCc, PHoc, K1, K2)
-    PCoc = FCoc/FugFac
+    FCoc = _CalculatefCO2fromTCpH(TCc, PHoc, K0o, K1o, K2o)
+    CARBoc = _CalculateCarbfromTCpH(TCc, PHoc, K1o, K2o)
+    PCoc = FCoc/FugFaco
 
     # Calculate Other Stuff At Output Conditions:
     (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
-        Hfreeout, HSO4out, HFout) = _CalculateAlkParts(PHoc, TCc, *Ks, *Ts)
+        Hfreeout, HSO4out, HFout) = _CalculateAlkParts(PHoc, TCc, *Kos, *Ts)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
-    Revelleout = _RevelleFactor(TAc, TCc, K0, *Ks, *Ts)
+    Revelleout = _RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)
     OmegaCaout, OmegaArout = _CaSolubility(Sal, TempCo, Pdbaro, TCc, PHoc,
-                                           WhichKs, K1, K2, RT)
-    xCO2dryout = PCoc/VPFac # this assumes pTot = 1 atm
+                                           WhichKs, K1o, K2o, RTo)
+    xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales, too.
-    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, KS, KF,
-                                                    TS, TF, fH)
+    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, KSo, KFo,
+                                                    TS, TF, fHo)
 
-    # Save the Ks at output
-    K0out = deepcopy(K0)
-    K1out = deepcopy(K1)
-    K2out = deepcopy(K2)
-    pK1out = -log10(K1)
-    pK2out = -log10(K2)
-    KWout = deepcopy(KW)
-    KBout = deepcopy(KB)
-    KFout = deepcopy(KF)
-    KSout = deepcopy(KS)
-    KP1out = deepcopy(KP1)
-    KP2out = deepcopy(KP2)
-    KP3out = deepcopy(KP3)
-    KSiout = deepcopy(KSi)
-    KNH3out = deepcopy(KNH3)
-    KH2Sout = deepcopy(KH2S)
+    # Calculate the pKs at output
+    pK1o = -log10(K1o)
+    pK2o = -log10(K2o)
 
     # Save data directly as a dict to avoid ordering issues
     DICT = {
@@ -1375,36 +1356,36 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'SI': SI,
         'NH3': NH3,
         'H2S': H2S,
-        'K0input': K0in,
-        'K1input': K1in,
-        'K2input': K2in,
-        'pK1input': pK1in,
-        'pK2input': pK2in,
-        'KWinput': KWin,
-        'KBinput': KBin,
-        'KFinput': KFin,
-        'KSinput': KSin,
-        'KP1input': KP1in,
-        'KP2input': KP2in,
-        'KP3input': KP3in,
-        'KSiinput': KSiin,
-        'KNH3input': KNH3in,
-        'KH2Sinput': KH2Sin,
-        'K0output': K0out,
-        'K1output': K1out,
-        'K2output': K2out,
-        'pK1output': pK1out,
-        'pK2output': pK2out,
-        'KWoutput': KWout,
-        'KBoutput': KBout,
-        'KFoutput': KFout,
-        'KSoutput': KSout,
-        'KP1output': KP1out,
-        'KP2output': KP2out,
-        'KP3output': KP3out,
-        'KSioutput': KSiout,
-        'KNH3output': KNH3out,
-        'KH2Soutput': KH2Sout,
+        'K0input': K0i,
+        'K1input': K1i,
+        'K2input': K2i,
+        'pK1input': pK1i,
+        'pK2input': pK2i,
+        'KWinput': KWi,
+        'KBinput': KBi,
+        'KFinput': KFi,
+        'KSinput': KSi,
+        'KP1input': KP1i,
+        'KP2input': KP2i,
+        'KP3input': KP3i,
+        'KSiinput': KSii,
+        'KNH3input': KNH3i,
+        'KH2Sinput': KH2Si,
+        'K0output': K0o,
+        'K1output': K1o,
+        'K2output': K2o,
+        'pK1output': pK1o,
+        'pK2output': pK2o,
+        'KWoutput': KWo,
+        'KBoutput': KBo,
+        'KFoutput': KFo,
+        'KSoutput': KSo,
+        'KP1output': KP1o,
+        'KP2output': KP2o,
+        'KP3output': KP3o,
+        'KSioutput': KSio,
+        'KNH3output': KNH3o,
+        'KH2Soutput': KH2So,
         'TB': TB*1e6,
         'TF': TF*1e6,
         'TS': TS*1e6,
