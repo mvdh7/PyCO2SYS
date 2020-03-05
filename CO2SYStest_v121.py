@@ -29,7 +29,7 @@ BSal = matfile['BORON'][0][0]
 # Run CO2SYS in Python
 go = time()
 co2py = CO2SYS(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
-                si, phos, nh3, h2s, pHscales, K1K2c, KSO4c, KFc, BSal)
+               si, phos, nh3, h2s, pHscales, K1K2c, KSO4c, KFc, BSal)
 print('PyCO2SYS runtime = {} s'.format(time() - go))
 
 # Compare with MATLAB - see results in co2maxdiff
