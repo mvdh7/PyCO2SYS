@@ -7,7 +7,6 @@
 # - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
 # - Use assert to check input vector lengths, not an if.
 # - Add wrapper to allow old-style input options for the new version.
-# hello
 
 from . import (
     concentrations,
