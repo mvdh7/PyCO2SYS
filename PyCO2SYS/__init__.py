@@ -1,12 +1,13 @@
-# NEXT STEPS:
+# NEXT STEPS in very approximate order of importance:
+# - Work out and fix CO3out, pCO2out, etc. discrepancy vs MATLAB.
+# - Extract pressure correction equations from _Constants() (add to equilibria
+#   module functions?)
+# - Add wrapper to allow old-style input options for the new version.
 # - Tidy up _Constants() i/o.
-# - Work out and fix CO3out, pCO2out, etc. discrepancy.
-# - Extract CO2 system components from _CalkulateAlkParts()?
+# - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
 # - Extract subfunctions from _CaSolubility() into relevant modules.
 # - Add references from _CaSolubility() to docs.
-# - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
 # - Use assert to check input vector lengths, not an if.
-# - Add wrapper to allow old-style input options for the new version.
 
 from . import (
     concentrations,
