@@ -29,10 +29,6 @@ __all__ = [
 __author__ = 'Matthew P. Humphreys'
 __version__ = meta.version
 
-# Shorthand module names
-conc = concentrations
-eq = equilibria
-
 #**************************************************************************
 #
 # CO2SYS originally by Lewis and Wallace 1998

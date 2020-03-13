@@ -26,7 +26,7 @@ def concentrations(Sal, WhichKs, WhoseTB):
     """Estimate total concentrations of borate, fluoride and sulfate from
     salinity.
     
-    Inputs must first be conditioned with PyCO2SYS.assemble.inputs().
+    Inputs must first be conditioned with inputs().
     
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
@@ -59,7 +59,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
     
-    Inputs must first be conditioned with PyCO2SYS.assemble.inputs().
+    Inputs must first be conditioned with inputs().
 
     This finds the Constants of the CO2 system in seawater or freshwater,
     corrects them for pressure, and reports them on the chosen pH scale.
