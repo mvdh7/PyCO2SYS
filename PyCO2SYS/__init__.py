@@ -47,11 +47,8 @@ eq = equilibria
 #
 #**************************************************************************
 
-from copy import deepcopy
-from numpy import (array, exp, full, full_like, log, log10,
-                   logical_or, nan, sqrt, zeros)
-from numpy import abs as np_abs
-from numpy import any as np_any
+from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
+                   sqrt, zeros)
 from numpy import min as np_min
 from numpy import max as np_max
 
@@ -342,7 +339,6 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # scale!
     ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, ntps, TP, TSi,
                  Sal, TF, TS)
-
     (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
         RTi, fHi, RGasConstant) = assemble.equilibria(TempCi, Pdbari,
                                                       *ConstPuts)
@@ -356,12 +352,12 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Generate vector for results, and copy the raw input values into them. This
     # copies ~60% NaNs, which will be replaced for calculated values later on.
-    TAc = deepcopy(TA)
-    TCc = deepcopy(TC)
-    PHic = deepcopy(PH)
-    PCic = deepcopy(PC)
-    FCic = deepcopy(FC)
-    CARBic = deepcopy(CARB)
+    TAc = TA.copy()
+    TCc = TC.copy()
+    PHic = PH.copy()
+    PCic = PC.copy()
+    FCic = FC.copy()
+    CARBic = CARB.copy()
 
     # Generate vector describing the combination of input parameters
     # So, the valid ones are: 12,13,14,15,16,23,24,25,26,34,35,36,46,56
