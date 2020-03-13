@@ -1,10 +1,9 @@
 # NEXT STEPS in very approximate order of importance:
 # - Work out and fix CO3out, pCO2out, etc. discrepancy vs MATLAB.
-# - Extract pressure correction equations from _Constants() (add to equilibria
-#   module functions?)
+# - Extract pressure correction equations from assemble.equilibria() and add
+#   to relevant equilibria module functions.
 # - Add wrapper to allow old-style input options for the new version.
-# - Tidy up _Constants() i/o.
-# - Relocate all _CalculateX()s into a module (e.g. PyCO2SYS.solve).
+# - Tidy up assemble.equilibria() i/o.
 # - Extract subfunctions from _CaSolubility() into relevant modules.
 # - Add references from _CaSolubility() to docs.
 
@@ -15,6 +14,7 @@ from . import (
     equilibria,
     meta,
     original,
+    solve,
 )
 __all__ = [
     'assemble',
@@ -23,6 +23,7 @@ __all__ = [
     'equilibria',
     'meta',
     'original',
+    'solve',
 ]
 
 __author__ = 'Matthew P. Humphreys'
@@ -94,281 +95,6 @@ def _Fugacity(ntps, TempK, Sal, WhichKs, RT):
     VPFac = 1.0 - VPSWWP # this assumes 1 atmosphere
     return FugFac, VPFac
 
-def _CalculateAlkParts(pH, TC,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate the different components of total alkalinity from pH and
-    dissolved inorganic carbon.
-
-    Although coded for H on the total pH scale, for the pH values occuring in
-    seawater (pH > 6) this will be equally valid on any pH scale (i.e. H terms
-    are negligible) as long as the K Constants are on that scale.
-
-    Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
-    """
-    H = 10.0**-pH
-    HCO3 = TC*K1*H/(K1*H + H**2 + K1*K2)
-    CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
-    BAlk = TB*KB/(KB + H)
-    OH = KW/H
-    PAlk = (TP*(KP1*KP2*H + 2*KP1*KP2*KP3 - H**3)/
-            (H**3 + KP1*H**2 + KP1*KP2*H + KP1*KP2*KP3))
-    SiAlk = TSi*KSi/(KSi + H)
-    NH3Alk = TNH3*KNH3/(KNH3 + H)
-    H2SAlk = TH2S*KH2S/(KH2S + H)
-    FREEtoTOT = convert.free2tot(TS, KS)
-    Hfree = H/FREEtoTOT # for H on the Total scale
-    HSO4 = TS/(1 + KS/Hfree) # since KS is on the Free scale
-    HF = TF/(1 + KF/Hfree) # since KF is on the Free scale
-    return HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF
-
-def _CalculatepHfromTATC(TA, TC,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate pH from total alkalinity and dissolved inorganic carbon.
-
-    This calculates pH from TA and TC using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculatepHfromTATC, version 04.01, 10-13-96, by Ernie Lewis.
-    SVH2007: Made this to accept vectors. It will continue iterating until all
-    values in the vector are "abs(deltapH) < pHTol".
-    """
-    pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
-    deltapH = 1 + pHTol
-    ln10 = log(10)
-    while np_any(np_abs(deltapH) > pHTol):
-        HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            _CalculateAlkParts(pH, TC,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
-        CAlk = HCO3 + 2*CO3
-        H = 10.0**-pH
-        Denom = H**2 + K1*H + K1*K2
-        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
-                    Hfree + HSO4 + HF)
-        # Find slope dTA/dpH (this is not exact, but keeps important terms):
-        Slope = ln10*(TC*K1*H*(H**2 + K1*K2 + 4*H*K2)/Denom**2 +
-                      BAlk*H/(KB + H) + OH + H)
-        deltapH = Residual/Slope # this is Newton's method
-        # To keep the jump from being too big:
-        while any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            deltapH[FF] /= 2.0
-        pH += deltapH
-        # ^pH is on the same scale as K1 and K2 were calculated.
-    return pH
-
-def _CalculatefCO2fromTCpH(TC, pH, K0, K1, K2):
-    """Calculate CO2 fugacity from dissolved inorganic carbon and pH.
-
-    Based on CalculatefCO2fromTCpH, version 02.02, 12-13-96, by Ernie Lewis.
-    """
-    H = 10.0**-pH
-    fCO2 = TC*H**2/(H**2 + K1*H + K1*K2)/K0
-    return fCO2
-
-def _CalculateTCfromTApH(TA, pH,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate dissolved inorganic carbon from total alkalinity and pH.
-
-    This calculates TC from TA and pH.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
-    """
-    H = 10.0**-pH
-    HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-        _CalculateAlkParts(pH, 0.0,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-            TB, TF, TS, TP, TSi, TNH3, TH2S)
-    CAlk = (TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 +
-            HF)
-    TC = CAlk*(H**2 + K1*H + K1*K2)/(K1*(H + 2*K2))
-    return TC
-
-def _CalculatepHfromTAfCO2(TA, fCO2, K0,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate pH from total alkalinity and CO2 fugacity.
-
-    This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
-    """
-    pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
-    deltapH = 1 + pHTol
-    ln10 = log(10)
-    while np_any(np_abs(deltapH) > pHTol):
-        H = 10.0**-pH
-        HCO3 = K0*K1*fCO2/H
-        CO3 = K0*K1*K2*fCO2/H**2
-        CAlk = HCO3 + 2*CO3
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            _CalculateAlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
-        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
-                    Hfree + HSO4 + HF)
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10*(HCO3 + 4*CO3 + BAlk*H/(KB + H) + OH + H)
-        deltapH = Residual/Slope # this is Newton's method
-        # To keep the jump from being too big:
-        while np_any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            if any(FF):
-                deltapH[FF] /= 2
-        pH += deltapH
-    return pH
-
-def _CalculateTAfromTCpH(TC, pH,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate total alkalinity from dissolved inorganic carbon and pH.
-
-    This calculates TA from TC and pH.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
-    """
-    HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-        _CalculateAlkParts(pH, TC,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-            TB, TF, TS, TP, TSi, TNH3, TH2S)
-    CAlk = HCO3 + 2*CO3
-    TAc = (CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree -
-           HSO4 - HF)
-    return TAc
-
-def _CalculatepHfromTCfCO2(TC, fCO2, K0, K1, K2):
-    """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
-
-    This calculates pH from TC and fCO2 using K0, K1, and K2 by solving the
-    quadratic in H: fCO2*K0 = TC*H*H/(K1*H + H*H + K1*K2).
-    If there is not a real root, then pH is returned as NaN.
-
-    Based on CalculatepHfromTCfCO2, version 02.02, 11-12-96, by Ernie Lewis.
-    """
-    RR = K0*fCO2/TC
-    Discr = (K1*RR)**2 + 4*(1 - RR)*K1*K2*RR
-    H = 0.5*(K1*RR + sqrt(Discr))/(1 - RR)
-    H[H < 0] = nan
-    pH = -log10(H)
-    return pH
-
-def _CalculateTCfrompHfCO2(pH, fCO2, K0, K1, K2):
-    """Calculate dissolved inorganic carbon from pH and CO2 fugacity.
-
-    Based on CalculateTCfrompHfCO2, version 01.02, 12-13-96, by Ernie Lewis.
-    """
-    H = 10.0**-pH
-    TC = K0*fCO2*(H**2 + K1*H + K1*K2)/H**2
-    return TC
-
-def _CalculatepHfromTACarb(TA, CARB,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate pH from total alkalinity and carbonate ion.
-
-    This calculates pH from TA and Carb using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K constants are on that scale.
-
-    Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
-    """
-    pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
-    deltapH = 1 + pHTol
-    ln10 = log(10)
-    while np_any(np_abs(deltapH) > pHTol):
-        H = 10.0**-pH
-        CAlk = CARB*(H + 2*K2)/K2
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            _CalculateAlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
-        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
-                    H2SAlk + Hfree + HSO4 + HF)
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10*(-CARB*H/K2 + BAlk*H/(KB + H) + OH + H)
-        deltapH = Residual/Slope # this is Newton's method
-        # To keep the jump from being too big:
-        while np_any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            if any(FF):
-                deltapH[FF] /= 2
-        pH += deltapH
-    return pH
-
-def _CalculatepHfromTCCarb(TC, CARB, K1, K2):
-    """Calculate pH from dissolved inorganic carbon and carbonate ion.
-
-    This calculates pH from Carbonate and TC using K1, and K2 by solving the
-    quadratic in H: TC * K1 * K2= Carb * (H * H + K1 * H +  K1 * K2).
-
-    Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
-    Pierrot.
-    """
-    RR = 1 - TC/CARB
-    Discr = K1**2 - 4*K1*K2*RR
-    H = (-K1 + sqrt(Discr))/2
-    pH = -log10(H)
-    return pH
-
-def _CalculatefCO2frompHCarb(pH, CARB, K0, K1, K2):
-    """Calculate CO2 fugacity from pH and carbonate ion.
-
-    Based on CalculatefCO2frompHCarb, version 01.0, 06-12-2019, by Denis
-    Pierrot.
-    """
-    H = 10.0**-pH
-    fCO2 = CARB*H**2/(K0*K1*K2)
-    return fCO2
-
-def _CalculatepHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
-    """Calculate pH from CO2 fugacity and carbonate ion.
-
-    This calculates pH from Carbonate and fCO2 using K0, K1, and K2 by solving
-    the equation in H: fCO2 * K0 * K1* K2 = Carb * H * H
-
-    Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
-    Pierrot.
-    """
-    H = sqrt(K0*K1*K2*fCO2/CARB)
-    pH = -log10(H)
-    return pH
-
-def _CalculateCarbfromTCpH(TC, pH, K1, K2):
-    """Calculate carbonate ion from dissolved inorganic carbon and pH.
-
-    Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
-    """
-    H = 10.0**-pH
-    CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
-    return CARB
-
 def _RevelleFactor(TA, TC, K0,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
@@ -387,12 +113,12 @@ def _RevelleFactor(TA, TC, K0,
     dTC = 1e-6 # 1 umol/kg-SW
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
-    pH_plus = _CalculatepHfromTATC(TA, TC_plus, *Ks, *Ts)
-    fCO2_plus = _CalculatefCO2fromTCpH(TC_plus, pH_plus, K0, K1, K2)
+    pH_plus = solve.pHfromTATC(TA, TC_plus, *Ks, *Ts)
+    fCO2_plus = solve.fCO2fromTCpH(TC_plus, pH_plus, K0, K1, K2)
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
-    pH_minus = _CalculatepHfromTATC(TA, TC_minus, *Ks, *Ts)
-    fCO2_minus = _CalculatefCO2fromTCpH(TC_minus, pH_minus, K0, K1, K2)
+    pH_minus = solve.pHfromTATC(TA, TC_minus, *Ks, *Ts)
+    fCO2_minus = solve.fCO2fromTCpH(TC_minus, pH_minus, K0, K1, K2)
     # Calculate Revelle Factor
     Revelle = (fCO2_plus - fCO2_minus)/dTC / ((fCO2_plus + fCO2_minus)/TC)
     return Revelle
@@ -647,86 +373,86 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     F = Icase==12 # input TA, TC
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromTATC(TAc[F]-PengCorrection[F], TCc[F],
+        PHic[F] = solve.pHfromTATC(TAc[F]-PengCorrection[F], TCc[F],
                                        *KiFs, *TFs)
         # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
                                          K0i[F], K1i[F], K2i[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==13 # input TA, pH
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
+        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
                                       *KiFs, *TFs)
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
                                          K0i[F], K1i[F], K2i[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = logical_or(Icase==14, Icase==15) # input TA, (pCO2 or fCO2)
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromTAfCO2(TAc[F]-PengCorrection[F], FCic[F],
+        PHic[F] = solve.pHfromTAfCO2(TAc[F]-PengCorrection[F], FCic[F],
                                          K0i[F], *KiFs, *TFs)
-        TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
+        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
                                       *KiFs, *TFs)
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==16 # input TA, CARB
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromTACarb(TAc[F]-PengCorrection[F], CARBic[F],
+        PHic[F] = solve.pHfromTACarb(TAc[F]-PengCorrection[F], CARBic[F],
                                          *KiFs, *TFs)
-        TCc[F] = _CalculateTCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
+        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
                                       *KiFs, *TFs)
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
                                          K0i[F], K1i[F], K2i[F])
     F = Icase==23 # input TC, pH
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
                                          K0i[F], K1i[F], K2i[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = logical_or(Icase==24, Icase==25) # input TC, (pCO2 or fCO2)
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromTCfCO2(TCc[F], FCic[F],
+        PHic[F] = solve.pHfromTCfCO2(TCc[F], FCic[F],
                                          K0i[F], K1i[F], K2i[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==26 # input TC, CARB
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromTCCarb(TCc[F], CARBic[F], K1i[F], K2i[F])
-        FCic[F] = _CalculatefCO2fromTCpH(TCc[F], PHic[F],
+        PHic[F] = solve.pHfromTCCarb(TCc[F], CARBic[F], K1i[F], K2i[F])
+        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
                                          K0i[F], K1i[F], K2i[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     F = logical_or(Icase==34, Icase==35) # input pH, (pCO2 or fCO2)
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F],
                                         K0i[F], K1i[F], K2i[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
-        CARBic[F] = _CalculateCarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
+        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
     F = Icase==36 # input pH, CARB
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        FCic[F] = _CalculatefCO2frompHCarb(PHic[F], CARBic[F],
+        FCic[F] = solve.fCO2frompHCarb(PHic[F], CARBic[F],
                                            K0i[F], K1i[F], K2i[F])
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F],
                                         K0i[F], K1i[F], K2i[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     F = logical_or(Icase==46, Icase==56) # input (pCO2 or fCO2), CARB
     if any(F):
         KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = _CalculatepHfromfCO2Carb(FCic[F], CARBic[F],
+        PHic[F] = solve.pHfromfCO2Carb(FCic[F], CARBic[F],
                                            K0i[F], K1i[F], K2i[F])
-        TCc[F] = _CalculateTCfrompHfCO2(PHic[F], FCic[F],
+        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F],
                                         K0i[F], K1i[F], K2i[F])
-        TAc[F] = (_CalculateTAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
+        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
                   PengCorrection[F])
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 value:
@@ -738,7 +464,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # CalculateOtherParamsAtInputConditions:
     (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
-        Hfreeinp, HSO4inp, HFinp) = _CalculateAlkParts(PHic, TCc, *Kis, *Ts)
+        Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, *Kis, *Ts)
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
     Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
@@ -759,15 +485,15 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     FugFaco, VPFaco = _Fugacity(ntps, TempKo, Sal, WhichKs, RTo)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
-    PHoc = _CalculatepHfromTATC(TAc-PengCorrection, TCc, *Kos, *Ts)
+    PHoc = solve.pHfromTATC(TAc-PengCorrection, TCc, *Kos, *Ts)
     # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-    FCoc = _CalculatefCO2fromTCpH(TCc, PHoc, K0o, K1o, K2o)
-    CARBoc = _CalculateCarbfromTCpH(TCc, PHoc, K1o, K2o)
+    FCoc = solve.fCO2fromTCpH(TCc, PHoc, K0o, K1o, K2o)
+    CARBoc = solve.CarbfromTCpH(TCc, PHoc, K1o, K2o)
     PCoc = FCoc/FugFaco
 
     # Calculate Other Stuff At Output Conditions:
     (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
-        Hfreeout, HSO4out, HFout) = _CalculateAlkParts(PHoc, TCc, *Kos, *Ts)
+        Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, *Kos, *Ts)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
     Revelleout = _RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)

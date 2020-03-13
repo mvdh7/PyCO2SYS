@@ -6,6 +6,7 @@ Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB
 
 **Release date:** forthcoming
 
+  * Extracted all functions for solving the CO<sub>2</sub> system into a separate module (`solve`).
   * Added total ammonium and hydrogen sulfide concentrations as inputs to be included in the alkalinity model.
   * Added functions to enable carbonate ion as an input carbonate system variable.
   * Output is now only the `DICT` variable, not the original `DATA`, `HEADERS` and `NICEHEADERS`.
@@ -17,7 +18,7 @@ Adding extra inputs and options for consistency with Pierrot et al.'s new MATLAB
 
 Starting to make things more Pythonic.
 
-  * Extracted all equations for concentrations and equilibrium constants into functions in separate modules.
+  * Extracted all equations for concentrations and equilibrium constants into functions in separate modules (`concentrations` and `equilibria`).
   * Eliminated all global variables from the `_Constants` function.
   * Moved the as-close-as-possible version into module `original`. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
 
