@@ -25,6 +25,7 @@ KSO4c = matfile['KSO4CONSTANT'][0][0]
 # KSO4_only = matfile['KSO4_only'][0][0]
 KFc = matfile['KFCONSTANT'][0][0]
 BSal = matfile['BORON'][0][0]
+# BSal = BSal[:10]
 
 # Run CO2SYS in Python
 go = time()
