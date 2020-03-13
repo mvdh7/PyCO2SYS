@@ -1,18 +1,39 @@
-from numpy import exp, full, logical_and, logical_or, nan
+from numpy import (array, exp, full, full_like, logical_and, logical_or, nan,
+                   size, unique)
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
 
-def concentrations(ntps, WhichKs, WhoseTB, Sal):
+def inputs(input_locals):
+    """Condition inputs for use with CO2SYS (sub)functions."""
+    # Determine and check lengths of input vectors
+    veclengths = array([size(v) for v in input_locals.values()])
+    assert size(unique(veclengths[veclengths != 1])) <= 1, \
+        'CO2SYS function inputs must all be of same length, or of length 1.'
+    # Make vectors of all inputs
+    ntps = max(veclengths)
+    args = {k: full(ntps, v) if size(v)==1 else v.ravel()
+            for k, v in input_locals.items()}
+    # Convert to float where appropriate
+    float_vars = ['SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT', 'SI', 'PO4',
+                  'NH3', 'H2S', 'PAR1', 'PAR2']
+    for k in args.keys():
+        if k in float_vars:
+            args[k] = args[k].astype('float64')
+    return args, ntps
+
+def concentrations(Sal, WhichKs, WhoseTB):
     """Estimate total concentrations of borate, fluoride and sulfate from
     salinity.
+    
+    Inputs must first be conditioned with PyCO2SYS.assemble.inputs().
     
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
     # Generate empty vectors for holding results
-    TB = full(ntps, nan)
-    TF = full(ntps, nan)
-    TS = full(ntps, nan)
+    TB = full_like(Sal, nan)
+    TF = full_like(Sal, nan)
+    TS = full_like(Sal, nan)
     # Calculate total borate
     F = WhichKs==8
     if any(F): # Pure water
@@ -37,6 +58,8 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         ntps, TP, TSi, Sal, TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
+    
+    Inputs must first be conditioned with PyCO2SYS.assemble.inputs().
 
     This finds the Constants of the CO2 system in seawater or freshwater,
     corrects them for pressure, and reports them on the chosen pH scale.

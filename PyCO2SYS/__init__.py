@@ -48,7 +48,7 @@ eq = equilibria
 
 from copy import deepcopy
 from numpy import (array, exp, full, full_like, log, log10,
-                   logical_or, nan, size, sqrt, unique, zeros)
+                   logical_or, nan, sqrt, zeros)
 from numpy import abs as np_abs
 from numpy import any as np_any
 from numpy import min as np_min
@@ -533,58 +533,35 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         KFCONSTANT, BORON):
     """Solve the carbonate system using the input parameters.
 
-    Based on CO2SYS v1.21 and v2.0.5, both for MATLAB.
+    Based on CO2SYS v1.21 and v2.0.5, both for MATLAB, built over many years
+    based on an original program by Ernie Lewis and Doug Wallace, with later
+    contributions from S. van Heuven, J.W.B. Rae, J.C. Orr, J.-M. Epitalon,
+    A.G. Dickson, J.-P. Gattuso, and D. Pierrot.
     
-    Converted for Python by Matthew Humphreys, NIOZ Royal Netherlands Institute
-    for Sea Research, and Utrecht University, Texel, the Netherlands.
+    Most recently converted for Python by Matthew Humphreys, NIOZ Royal
+    Netherlands Institute for Sea Research, Texel, the Netherlands.
     """
 
-    # Input conditioning.
-    args = [PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
-        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
-        KFCONSTANT, BORON]
-
-    # Determine and check lengths of input vectors.
-    veclengths = array([size(arg) for arg in args])
-    assert size(unique(veclengths[veclengths != 1])) <= 1, \
-        'CO2SYS function inputs must all be of same length, or of length 1.'
-
-    # Make row vectors of all inputs.
-    ntps = max(veclengths)
-    args = [full(ntps, arg) if size(arg)==1 else arg.ravel()
-            for arg in args]
-    (PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
-        PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
-        KFCONSTANT, BORON) = args
-
-    # Convert any integer inputs to floats.
-    SAL = SAL.astype('float64')
-    TEMPIN = TEMPIN.astype('float64')
-    TEMPOUT = TEMPOUT.astype('float64')
-    PRESIN = PRESIN.astype('float64')
-    PRESOUT = PRESOUT.astype('float64')
-    SI = SI.astype('float64')
-    PO4 = PO4.astype('float64')
-    NH3 = NH3.astype('float64')
-    H2S = H2S.astype('float64')
-
-    # Assign input to the 'historical' variable names.
-    pHScale = pHSCALEIN
-    WhichKs = K1K2CONSTANTS
-    WhoseKSO4 = KSO4CONSTANT
-    WhoseKF = KFCONSTANT
-    WhoseTB = BORON
-    p1 = PAR1TYPE
-    p2 = PAR2TYPE
-    TempCi = TEMPIN
-    TempCo = TEMPOUT
-    Pdbari = PRESIN
-    Pdbaro = PRESOUT
-    Sal = deepcopy(SAL)
-    TP = deepcopy(PO4)
-    TSi = deepcopy(SI)
-    TNH3 = deepcopy(NH3)
-    TH2S = deepcopy(H2S)
+    # Condition inputs and assign input to the 'historical' variable names.
+    args, ntps = assemble.inputs(locals())
+    PAR1 = args['PAR1']
+    PAR2 = args['PAR2']
+    p1 = args['PAR1TYPE']
+    p2 = args['PAR2TYPE']
+    Sal = args['SAL'].copy()
+    TempCi = args['TEMPIN']
+    TempCo = args['TEMPOUT']
+    Pdbari = args['PRESIN']
+    Pdbaro = args['PRESOUT']
+    TSi = args['SI'].copy()
+    TP = args['PO4'].copy()
+    TNH3 = args['NH3'].copy()
+    TH2S = args['H2S'].copy()
+    pHScale = args['pHSCALEIN']
+    WhichKs = args['K1K2CONSTANTS']
+    WhoseKSO4 = args['KSO4CONSTANT']
+    WhoseKF = args['KFCONSTANT']
+    WhoseTB = args['BORON']
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
@@ -624,7 +601,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     TSi[F] /= 1e6
     TNH3[F] /= 1e6
     TH2S[F] /= 1e6
-    TB, TF, TS = assemble.concentrations(ntps, WhichKs, WhoseTB, Sal)
+    TB, TF, TS = assemble.concentrations(Sal, WhichKs, WhoseTB)
     Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
 
     # The vector 'PengCorrection' is used to modify the value of TA, for those
