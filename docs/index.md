@@ -1,6 +1,6 @@
 # PyCO2SYS v1.1.0-dev
 
-PyCO2SYS is a Python implementation of CO2SYS [[LW98](refs/#LW98), [HPR11](refs/#HPR11), [OEDG18](refs/#OEDG18)], the MATLAB toolbox for marine carbonate system calculations.
+PyCO2SYS is a Python implementation of CO<sub>2</sub>SYS [[LW98](refs/#LW98), [HPR11](refs/#HPR11), [OEDG18](refs/#OEDG18)], the MATLAB toolbox for marine carbonate system calculations.
 
 ## Installation and use
 
@@ -8,16 +8,15 @@ Install from the Python Package Index:
 
     pip install PyCO2SYS
 
-Import and use just like in MATLAB:
+Import and use very much like in MATLAB with:
 
 ```python
 from PyCO2SYS import CO2SYS
-DICT = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
-    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
-    pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
+CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
+    SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
 ```
 
-The entries of `DICT` contain all the variables from the original MATLAB output `DATA`, with the keys corresponding to the MATLAB `HEADERS`.
+See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for more details on the inputs and outputs.
 
 ## Citation
 

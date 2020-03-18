@@ -2,7 +2,6 @@
 # - Work out and fix CO3out, pCO2out, etc. discrepancy vs MATLAB.
 # - Extract pressure correction equations from assemble.equilibria() and add
 #   to relevant equilibria module functions.
-# - Add wrapper to allow old-style input options for the new version.
 # - Tidy up assemble.equilibria() i/o.
 # - Extract subfunctions from _CaSolubility() into relevant modules.
 # - Add references from _CaSolubility() to docs.
@@ -44,7 +43,7 @@ __version__ = meta.version
 #**************************************************************************
 
 from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
-                   sqrt, zeros)
+                   shape, sqrt, zeros)
 from numpy import min as np_min
 from numpy import max as np_max
 
@@ -247,20 +246,10 @@ def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
     pHsws  = pHtot + log10(SWStoTOT)
     return pHtot, pHsws, pHfree, pHNBS
 
-def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
+def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
-        KFCONSTANT, BORON):
-    """Solve the carbonate system using the input parameters.
-
-    Based on CO2SYS v1.21 and v2.0.5, both for MATLAB, built over many years
-    based on an original program by Ernie Lewis and Doug Wallace, with later
-    contributions from S. van Heuven, J.W.B. Rae, J.C. Orr, J.-M. Epitalon,
-    A.G. Dickson, J.-P. Gattuso, and D. Pierrot.
+        KFCONSTANT, BORON, KSO4CONSTANTS=0):
     
-    Most recently converted for Python by Matthew Humphreys, NIOZ Royal
-    Netherlands Institute for Sea Research, Texel, the Netherlands.
-    """
-
     # Condition inputs and assign input to the 'historical' variable names.
     args, ntps = assemble.inputs(locals())
     PAR1 = args['PAR1']
@@ -502,7 +491,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     pK2o = -log10(K2o)
 
     # Save data directly as a dict to avoid ordering issues
-    DICT = {
+    CO2dict = {
         'TAlk': TAc*1e6,
         'TCO2': TCc*1e6,
         'pHin': PHic,
@@ -554,6 +543,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'PAR1TYPE': PAR1TYPE,
         'PAR2TYPE': PAR2TYPE,
         'K1K2CONSTANTS': K1K2CONSTANTS,
+        'KSO4CONSTANTS': KSO4CONSTANTS,
         'KSO4CONSTANT': KSO4CONSTANT,
         'KFCONSTANT': KFCONSTANT,
         'BORON': BORON,
@@ -597,5 +587,28 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'TF': TF*1e6,
         'TS': TS*1e6,
     }
+    return CO2dict
 
-    return DICT
+def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
+        PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
+        NH3=0.0, H2S=0.0, KFCONSTANT=1):
+    """Solve the carbonate system using the input parameters.
+
+    Based on CO2SYS v1.21 and v2.0.5, both for MATLAB, built over many years
+    based on an original program by Ernie Lewis and Doug Wallace, with later
+    contributions from S. van Heuven, J.W.B. Rae, J.C. Orr, J.-M. Epitalon,
+    A.G. Dickson, J.-P. Gattuso, and D. Pierrot.
+    
+    Most recently converted for Python by Matthew Humphreys, NIOZ Royal
+    Netherlands Institute for Sea Research, Texel, the Netherlands.
+    """
+    # Convert traditional inputs to new format before running CO2SYS
+    if shape(KSO4CONSTANTS) == ():
+        KSO4CONSTANTS = array([KSO4CONSTANTS])
+    only2KSO4  = {1: 1, 2: 2, 3: 1, 4: 2,}
+    only2BORON = {1: 1, 2: 1, 3: 2, 4: 2,}
+    KSO4CONSTANT = array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
+    BORON = array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
+    return _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+        PRESIN, PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS,
+        KSO4CONSTANT, KFCONSTANT, BORON, KSO4CONSTANTS=KSO4CONSTANTS)

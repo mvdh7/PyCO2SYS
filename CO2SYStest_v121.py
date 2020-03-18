@@ -22,7 +22,7 @@ h2s = matfile['H2S'][0][0]
 pHscales = matfile['pHSCALEIN'][0][0]
 K1K2c = matfile['K1K2CONSTANTS'][0][0]
 KSO4c = matfile['KSO4CONSTANT'][0][0]
-# KSO4_only = matfile['KSO4_only'][0][0]
+KSO4_only = matfile['KSO4_only'][0][0]
 KFc = matfile['KFCONSTANT'][0][0]
 BSal = matfile['BORON'][0][0]
 # BSal = BSal[:10]
@@ -30,7 +30,7 @@ BSal = matfile['BORON'][0][0]
 # Run CO2SYS in Python
 go = time()
 co2py = CO2SYS(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
-               si, phos, nh3, h2s, pHscales, K1K2c, KSO4c, KFc, BSal)
+               si, phos, pHscales, K1K2c, KSO4_only, nh3, h2s, KFc)
 print('PyCO2SYS runtime = {} s'.format(time() - go))
 
 # Compare with MATLAB - see results in co2maxdiff

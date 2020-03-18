@@ -1,4 +1,4 @@
-# PyCO2SYS v1.1.0-dev
+# PyCO2SYS
 
 **PyCO2SYS** is a Python implementation of CO<sub>2</sub>SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for tentatively forthcoming MATLAB v1.21. This software calculates the full marine carbonate system from values of any two of its variables.
 
@@ -16,63 +16,51 @@ Usage has been kept as close to the MATLAB version as possible, although the fir
 
 ```python
 from PyCO2SYS import CO2SYS
-DICT = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
-    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
-    pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)[0]
+CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
+    SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
 ```
 
-To get all the MATLAB outputs (noting that `DATA` and `DICT` contain the exact same information, [just in a different format](#outputs)):
+Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`. The keys to the dict come from the original MATLAB output `HEADERS`.
 
-```python
-DICT, DATA, HEADERS, NICEHEADERS = CO2SYS(
-    PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL,
-    TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
-    pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)
-```
+Vector inputs should be provided as Numpy arrays. Everything gets flattened with `ravel`. Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
-Vector inputs should be provided as Numpy arrays (either row or column, makes no difference which).
-
-See also the example scripts in the repo.
+See also the example scripts here in the repo.
 
 ## Inputs
 
-Taken directly from the MATLAB version:
+### Required inputs
 
-```matlab
-% INPUT:
-%
-%   PAR1  (some unit) : scalar or vector of size n
-%   PAR2  (some unit) : scalar or vector of size n
-%   PAR1TYPE       () : scalar or vector of size n (*)
-%   PAR2TYPE       () : scalar or vector of size n (*)
-%   SAL            () : scalar or vector of size n
-%   TEMPIN  (degr. C) : scalar or vector of size n
-%   TEMPOUT (degr. C) : scalar or vector of size n
-%   PRESIN     (dbar) : scalar or vector of size n
-%   PRESOUT    (dbar) : scalar or vector of size n
-%   SI    (umol/kgSW) : scalar or vector of size n
-%   PO4   (umol/kgSW) : scalar or vector of size n
-%   pHSCALEIN         : scalar or vector of size n (**)
-%   K1K2CONSTANTS     : scalar or vector of size n (***)
-%   KSO4CONSTANTS     : scalar or vector of size n (****)
-%
-%  (*) Each element must be an integer,
-%      indicating that PAR1 (or PAR2) is of type:
-%  1 = Total Alkalinity
-%  2 = DIC
-%  3 = pH
-%  4 = pCO2
-%  5 = fCO2
-%
-%  (**) Each element must be an integer,
-%       indicating that the pH-input (PAR1 or PAR2, if any) is at:
-%  1 = Total scale
-%  2 = Seawater scale
-%  3 = Free scale
-%  4 = NBS scale
-%
-%  (***) Each element must be an integer,
-%        indicating the K1 K2 dissociation constants that are to be used:
+The required inputs are identical to [the MATLAB version](https://github.com/jamesorr/CO2SYS-MATLAB):
+
+  * `PAR1` - first known carbonate system parameter value.
+  * `PAR2` - second known carbonate system parameter value.
+  * `PAR1TYPE` - integer identifying which parameters `PAR1` are.
+  * `PAR2TYPE` - integer identifying which parameters `PAR2` are.
+
+The possible known carbonate system parameters are `1`: total alkalinity in μmol·kg<sup>−1</sup>, `2`: dissolved inorganic carbon in μmol·kg<sup>−1</sup>, `3`: pH (dimensionless), `4`: dissolved CO<sub>2</sub> partial pressure in μatm, `5`: dissolved CO<sub>2</sub> fugacity in μatm, and `6`: carbonate ion concentration in μmol·kg<sup>−1</sup>.
+
+  * `SAL` - practical salinity.
+  * `TEMPIN` - temperature of input carbonate system parameters.
+  * `TEMPOUT` - temperature at which to calculate outputs.
+  * `PRESIN` - pressure of input carbonate system parameters.
+  * `PRESOUT` - pressure at which to calculate outputs.
+
+All temperatures are in °C and pressures are in dbar. Pressure is within the water column as typically measured by a CTD sensor, i.e. not including atmospheric pressure. The 'input' conditions could represent conditions in the laboratory during a measurement, while the 'output' conditions could be those observed in situ during sample collection.
+
+  * `SI` - total silicate concentration.
+  * `PO4` - total phosphate concentration.
+
+Nutrient concentrations are all in μmol·kg<sup>−1</sup>.
+
+  * `pHSCALEIN` - pH scale(s) that pH values in `PAR1` or `PAR2` are on.
+
+The options are `1`: Total scale, `2`: Seawater scale, `3`: Free scale, and `4`: NBS scale, as defined by [ZW01](https://pyco2sys.readthedocs.io/en/latest/refs/#ZW01).
+
+  * `K1K2CONSTANTS` - which set of constants to use for carbonic acid dissociation.
+
+The options are integers from `1` to `15` inclusive. From the original MATLAB documentation:
+
+  ```matlab
 %   1 = Roy, 1993                                         T:    0-45  S:  5-45. Total scale. Artificial seawater.
 %   2 = Goyet & Poisson                                   T:   -1-40  S: 10-50. Seaw. scale. Artificial seawater.
 %   3 = HANSSON              refit BY DICKSON AND MILLERO T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
@@ -88,116 +76,135 @@ Taken directly from the MATLAB version:
 %  13 = Millero et al, 2006                               T:    0-50  S:  1-50. Seaw. scale. Real seawater.
 %  14 = Millero        2010                               T:    0-50  S:  1-50. Seaw. scale. Real seawater.
 %  15 = Waters, Millero, & Woosley 2014                   T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-%
-%  (****) Each element must be an integer that
-%         indicates the KSO4 dissociation constants that are to be used,
-%         in combination with the formulation of the borate-to-salinity ratio to be used.
-%         Having both these choices in a single argument is somewhat awkward,
-%         but it maintains syntax compatibility with the previous version.
+```
+
+  * `KSO4CONSTANTS` - which sets of constants to use for bisulfate dissociation and borate:chlorinity ratio.
+
+The options are integers from `1` to `4` inclusive. From the original MATLAB documentation:
+
+```matlab
 %  1 = KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (PREFERRED)
 %  2 = KSO4 of Khoo et al 1977 & TB of Uppstrom 1974
-%  3 = KSO4 of Dickson 1990a   & TB of Lee 2010
-%  4 = KSO4 of Khoo et al 1977 & TB of Lee 2010
+%  3 = KSO4 of Dickson 1990a   & TB of Lee et al. 2010
+%  4 = KSO4 of Khoo et al 1977 & TB of Lee et al. 2010
 ```
+
+### Optional inputs
+
+There are also some optional keyword inputs for consistency with a tentatively forthcoming new MATLAB version:
+
+  * `NH3` - total ammonia concentration.
+  * `H2S` - total hydrogen sulfide concentration.
+
+As for all other concentrations, these are in μmol·kg<sup>−1</sup>. If no values are provided, these default to zero (i.e. consistent with [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB)).
+
+  * `KFCONSTANT` - which constant to use for hydrogen fluoride dissociation.
+
+The options are `1`: [DR79](https://pyco2sys.readthedocs.io/en/latest/refs/#DR79), and `2`: [PF87](https://pyco2sys.readthedocs.io/en/latest/refs/#PF87). If nothing is provided, the default in `1` for consistency with [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
 
 ## Outputs
 
-The keys of the output `DICT`, and rows of `DATA`, correspond to the  variables in the list below. For example, to access the bicarbonate ion concentrations under the input conditions, we could use either of the following options:
+The keys of the output `DICT` correspond to the variables in the lists below.
 
-```python
-bicarb_in = DICT['HCO3in']
-bicarb_in = DATA[5]
-```
+### Outputs also in [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB)
 
-The other outputs (`DATA`, `HEADERS` and `NICEHEADERS`) are ~the same as in the MATLAB (except as noted [here](#differences-from-the-matlab-original)).
+  * `TAlk` - total alkalinity (μmol·kg<sup>−1</sup>).
+  * `TCO2` - dissolved inorganic carbon (μmol·kg<sup>−1</sup>).
+  * `pHin` - pH on the input scale and conditions.
+  * `pCO2in` - seawater CO<sub>2</sub> partial pressure, input conditions (μatm).
+  * `fCO2in` - seawater CO<sub>2</sub> fugacity, input conditions (μatm).
+  * `HCO3in` - bicarbonate ion concentration, input conditions (μmol·kg<sup>−1</sup>).
+  * `CO3in` - carbonate ion concentration, input conditions (μmol·kg<sup>−1</sup>).
+  * `CO2in` - dissolved CO<sub>2</sub> concentration, input conditions (μmol·kg<sup>−1</sup>).
+  * `BAlkin` - borate alkalinity, input conditions (μmol·kg<sup>−1</sup>).
+  * `OHin` - hydroxide ion concentration, input conditions (μmol·kg<sup>−1</sup>).
+  * `PAlkin` - phosphate alkalinity, input conditions (μmol·kg<sup>−1</sup>).
+  * `SiAlkin` - silicate alkalinity, input conditions (μmol·kg<sup>−1</sup>).
+  * `Hfreein` - "free" hydrogen ion concentration, input conditions (μmol·kg<sup>−1</sup>).
+  * `RFin` - Revelle Factor, input conditions.
+  * `OmegaCAin` - calcite saturation state, input conditions.
+  * `OmegaARin` - aragonite saturation state, input conditions.
+  * `xCO2in` - CO<sub>2</sub> mole fraction, input conditions (ppm).
+  * `pHout` - pH on the output scale and conditions.
+  * `pCO2out` - seawater CO<sub>2</sub> partial pressure, output conditions (μatm).
+  * `fCO2out` - seawater CO<sub>2</sub> fugacity, output conditions (μatm).
+  * `HCO3out` - bicarbonate ion concentration, output conditions (μmol·kg<sup>−1</sup>).
+  * `CO3out` - carbonate ion concentration, output conditions (μmol·kg<sup>−1</sup>).
+  * `CO2out` - dissolved CO<sub>2</sub> concentration, output conditions (μmol·kg<sup>−1</sup>).
+  * `BAlkout` - borate alkalinity, output conditions (μmol·kg<sup>−1</sup>).
+  * `OHout` - hydroxide ion concentration, output conditions (μmol·kg<sup>−1</sup>).
+  * `PAlkout` - phosphate alkalinity, output conditions (μmol·kg<sup>−1</sup>).
+  * `SiAlkout` - silicate alkalinity, output conditions (μmol·kg<sup>−1</sup>).
+  * `Hfreeout` - "free" hydrogen ion concentration, output conditions (μmol·kg<sup>−1</sup>).
+  * `RFout` - Revelle Factor, output conditions.
+  * `OmegaCAout` - calcite saturation state, output conditions.
+  * `OmegaARout` - aragonite saturation state, output conditions.
+  * `xCO2out` - CO<sub>2</sub> mole fraction, output conditions (ppm).
+  * `pHinTOTAL` - Total scale pH, input conditions.
+  * `pHinSWS` - Seawater scale pH, input conditions.
+  * `pHinFREE` - Free scale pH, input conditions.
+  * `pHinNBS` - NBS scale pH, input conditions.
+  * `pHoutTOTAL` - Total scale pH, output conditions.
+  * `pHoutSWS` - Seawater scale pH, output conditions.
+  * `pHoutFREE` - Free scale pH, output conditions.
+  * `pHoutNBS` - NBS scale pH, output conditions.
+  * `TEMPIN` - input temperature (deg C).
+  * `TEMPOUT` - output temperature (deg C).
+  * `PRESIN` - input pressure (dbar or m).
+  * `PRESOUT` - output pressure (dbar or m).
+  * `PAR1TYPE` - input parameter 1 type (integer).
+  * `PAR2TYPE` - input parameter 2 type (integer).
+  * `K1K2CONSTANTS` - carbonic acid constants option (integer).
+  * `KSO4CONSTANT` - bisulfate dissociation and borate:chlorinity option (integer).
+  * `pHSCALEIN` - input pH scale (integer).
+  * `SAL` - practical salinity.
+  * `PO4` - phosphate concentration (μmol·kg<sup>−1</sup>).
+  * `SI` - silicate concentration (μmol·kg<sup>−1</sup>).
+  * `K0input` - Henry's constant for CO<sub>2</sub>, input conditions.
+  * `K1input` - first carbonic acid dissociation constant, input conditions.
+  * `K2input` - second carbonic acid dissociation constant, input conditions.
+  * `pK1input` - -log<sub>10</sub>(`K1input`).
+  * `pK2input` - -log<sub>10</sub>(`K2input`).
+  * `KWinput` - water dissociation constant, input conditions.
+  * `KBinput` - boric acid dissociation constant, input conditions.
+  * `KFinput` - hydrogen fluoride dissociation constant, input conditions.
+  * `KSinput` - bisulfate dissociation constant, input conditions.
+  * `KP1input` - first phosphoric acid dissociation constant, input conditions.
+  * `KP2input` - second phosphoric acid dissociation constant, input conditions.
+  * `KP3input` - third phosphoric acid dissociation constant, input conditions.
+  * `KSiinput` - silica acid dissociation constant, input conditions.
+  * `K0output` - Henry's constant for CO<sub>2</sub>, output conditions.
+  * `K1output` - first carbonic acid dissociation constant, output conditions.
+  * `K2output` - second carbonic acid dissociation constant, output conditions.
+  * `pK1output` - -log<sub>10</sub>(`K1output`).
+  * `pK2output` - -log<sub>10</sub>(`K2output`).
+  * `KWoutput` - water dissociation constant, output conditions.
+  * `KBoutput` - boric acid dissociation constant, output conditions.
+  * `KFoutput` - hydrogen fluoride dissociation constant, output conditions.
+  * `KSoutput` - bisulfate dissociation constant, output conditions.
+  * `KP1output` - first phosphoric acid dissociation constant, output conditions.
+  * `KP2output` - second phosphoric acid dissociation constant, output conditions.
+  * `KP3output` - third phosphoric acid dissociation constant, output conditions.
+  * `KSioutput` - silica acid dissociation constant, output conditions.
+  * `TB` - total borate concentration (μmol·kg<sup>−1</sup>).
+  * `TF` - total fluoride concentration (μmol·kg<sup>−1</sup>).
+  * `TS` - total sulfate concentration (μmol·kg<sup>−1</sup>).
 
-  * 0 - `TAlk` - total alkalinity (umol/kgSW)
-  * 1 - `TCO2` - dissolved inorganic carbon (umol/kgSW)
-  * 2 - `pHin` - pH on the input scale and conditions ()
-  * 3 - `pCO2in` - seawater CO<sub>2</sub> partial pressure, input conditions (uatm)
-  * 4 - `fCO2in` - seawater CO<sub>2</sub> fugacity, input conditions (uatm)
-  * 5 - `HCO3in` - bicarbonate ion concentration, input conditions (umol/kgSW)
-  * 6 - `CO3in` - carbonate ion concentration, input conditions (umol/kgSW)
-  * 7 - `CO2in` - dissolved CO<sub>2</sub> concentration, input conditions (umol/kgSW)
-  * 8 - `BAlkin` - borate alkalinity, input conditions (umol/kgSW)
-  * 9 - `OHin` - hydroxide ion concentration, input conditions (umol/kgSW)
-  * 10 - `PAlkin` - phosphate alkalinity, input conditions (umol/kgSW)
-  * 11 - `SiAlkin` - silicate alkalinity, input conditions (umol/kgSW)
-  * 12 - `Hfreein` - "free" hydrogen ion concentration, input conditions (umol/kgSW)
-  * 13 - `RFin` - Revelle Factor, input conditions ()
-  * 14 - `OmegaCAin` - calcite saturation state, input conditions ()
-  * 15 - `OmegaARin` - aragonite saturation state, input conditions ()
-  * 16 - `xCO2in` - CO<sub>2</sub> mole fraction, input conditions (ppm)
-  * 17 - `pHout` - pH on the output scale and conditions ()
-  * 18 - `pCO2out` - seawater CO<sub>2</sub> partial pressure, output conditions (uatm)
-  * 19 - `fCO2out` - seawater CO<sub>2</sub> fugacity, output conditions (uatm)
-  * 20 - `HCO3out` - bicarbonate ion concentration, output conditions (umol/kgSW)
-  * 21 - `CO3out` - carbonate ion concentration, output conditions (umol/kgSW)
-  * 22 - `CO2out` - dissolved CO<sub>2</sub> concentration, output conditions (umol/kgSW)
-  * 23 - `BAlkout` - borate alkalinity, output conditions (umol/kgSW)
-  * 24 - `OHout` - hydroxide ion concentration, output conditions (umol/kgSW)
-  * 25 - `PAlkout` - phosphate alkalinity, output conditions (umol/kgSW)
-  * 26 - `SiAlkout` - silicate alkalinity, output conditions (umol/kgSW)
-  * 27 - `Hfreeout` - "free" hydrogen ion concentration, output conditions (umol/kgSW)
-  * 28 - `RFout` - Revelle Factor, output conditions ()
-  * 29 - `OmegaCAout` - calcite saturation state, output conditions ()
-  * 30 - `OmegaARout` - aragonite saturation state, output conditions ()
-  * 31 - `xCO2out` - CO<sub>2</sub> mole fraction, output conditions (ppm)
-  * 32 - `pHinTOTAL` - Total scale pH, input conditions ()
-  * 33 - `pHinSWS` - Seawater scale pH, input conditions ()
-  * 34 - `pHinFREE` - Free scale pH, input conditions ()
-  * 35 - `pHinNBS` - NBS scale pH, input conditions ()
-  * 36 - `pHoutTOTAL` - Total scale pH, output conditions ()
-  * 37 - `pHoutSWS` - Seawater scale pH, output conditions ()
-  * 38 - `pHoutFREE` - Free scale pH, output conditions ()
-  * 39 - `pHoutNBS` - NBS scale pH, output conditions ()
-  * 40 - `TEMPIN` - input temperature (deg C)
-  * 41 - `TEMPOUT` - output temperature (deg C)
-  * 42 - `PRESIN` - input pressure (dbar or m)
-  * 43 - `PRESOUT` - output pressure (dbar or m)
-  * 44 - `PAR1TYPE` - input parameter 1 type (integer)
-  * 45 - `PAR2TYPE` - input parameter 2 type (integer)
-  * 46 - `K1K2CONSTANTS` - carbonic acid constants option (integer)
-  * 47 - `KSO4CONSTANTS` - bisulfate dissociation option(integer)
-  * 48 - `pHSCALEIN` - input pH scale (integer)
-  * 49 - `SAL` - salinity(psu)
-  * 50 - `PO4` - phosphate concentration (umol/kgSW)
-  * 51 - `SI` - silicate concentration (umol/kgSW)
-  * 52 - `K0input` - Henry's constant for CO2, input conditions ()
-  * 53 - `K1input` - first carbonic acid dissociation constant, input conditions ()
-  * 54 - `K2input` - second carbonic acid dissociation constant, input conditions ()
-  * 55 - `pK1input` - -log<sub>10</sub>(`K1input`) ()
-  * 56 - `pK2input` - -log<sub>10</sub>(`K2input`) ()
-  * 57 - `KWinput` - water dissociation constant, input conditions ()
-  * 58 - `KBinput` - boric acid dissociation constant, input conditions ()
-  * 59 - `KFinput` - hydrogen fluoride dissociation constant, input conditions ()
-  * 60 - `KSinput` - bisulfate dissociation constant, input conditions ()
-  * 61 - `KP1input` - first phosphoric acid dissociation constant, input conditions ()
-  * 62 - `KP2input` - second phosphoric acid dissociation constant, input conditions ()
-  * 63 - `KP3input` - third phosphoric acid dissociation constant, input conditions ()
-  * 64 - `KSiinput` - silica acid dissociation constant, input conditions ()    
-  * 65 - `K0output` - Henry's constant for CO2, output conditions ()
-  * 66 - `K1output` - first carbonic acid dissociation constant, output conditions ()
-  * 67 - `K2output` - second carbonic acid dissociation constant, output conditions ()
-  * 68 - `pK1output` - -log<sub>10</sub>(`K1output`) ()
-  * 69 - `pK2output` - -log<sub>10</sub>(`K2output`) ()
-  * 70 - `KWoutput` - water dissociation constant, output conditions ()
-  * 71 - `KBoutput` - boric acid dissociation constant, output conditions ()
-  * 72 - `KFoutput` - hydrogen fluoride dissociation constant, output conditions ()
-  * 73 - `KSoutput` - bisulfate dissociation constant, output conditions ()
-  * 74 - `KP1output` - first phosphoric acid dissociation constant, output conditions ()
-  * 75 - `KP2output` - second phosphoric acid dissociation constant, output conditions ()
-  * 76 - `KP3output` - third phosphoric acid dissociation constant, output conditions ()
-  * 77 - `KSioutput` - silica acid dissociation constant, output conditions ()   
-  * 78 - `TB` - total borate concentration (umol/kgSW)
-  * 79 - `TF` - total fluoride concentration (umol/kgSW)
-  * 80 - `TS` - total sulfate concentration (umol/kgSW)
+### New outputs
 
-## Differences from the MATLAB original
-
-  * Inputs are the same as in the MATLAB version, with vectors of input values provided as Numpy arrays.
-  * Outputs are also the same, with the exception that an extra output `DICT` comes before the MATLAB three (`DATA`, `HEADERS` and `NICEHEADERS`) - this contains the numerical results in `DATA` but in a dict with the names in `HEADERS` as the keys.
-  * `DATA` in the Python version is the transpose of the same variable in the MATLAB version. Note that the row number for each variable in `DATA` is offset by 1 from the corresponding column of the equivalent MATLAB variable because of Python's zero-indexing.
+  * `KSO4CONSTANT` - bisulfate dissociation option (integer).
+  * `KFCONSTANT` - hydrogen sulfide dissociation option (integer).  
+  * `BORON` - boron:chlorinity option (integer).
+  * `NH3` - total ammonium concentration (μmol·kg<sup>−1</sup>).
+  * `H2S` - total sulfide concentration (μmol·kg<sup>−1</sup>).
+  * `NH3Alkin` - ammonia alkalinity, input conditions (μmol·kg<sup>−1</sup>).
+  * `H2SAlkin` - hydrogen sulfide alkalinity, input conditions (μmol·kg<sup>−1</sup>).
+  * `NH3Alkout` - ammonia alkalinity, output conditions (μmol·kg<sup>−1</sup>).
+  * `H2SAlkout` - hydrogen sulfide alkalinity, output conditions (μmol·kg<sup>−1</sup>).
+  * `KNH3input`: ammonium equilibrium constant, input conditions.
+  * `KH2Sinput`: hydrogen sulfide equilibrium constant, input conditions.
+  * `KNH3output`: ammonium equilibrium constant, output conditions.
+  * `KH2Soutput`: hydrogen sulfide equilibrium constant, output conditions.
 
 ## Citation
 
