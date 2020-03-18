@@ -54,6 +54,15 @@ def concentrations(Sal, WhichKs, WhoseTB):
     TS = conc.sulfate_MR66(Sal)
     return TB, TF, TS
 
+def units(TempC, Pdbar):
+    """Convert temperature and pressure units."""
+    RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
+    # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
+    TempK = TempC + 273.15
+    RT = RGasConstant*TempK
+    Pbar = Pdbar/10.0
+    return TempK, Pbar, RT
+    
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         ntps, TP, TSi, Sal, TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
@@ -79,11 +88,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     #     except KS and KF are on the free scale
     #     and KW is in units of (mol/kg-SW)^2
 
-    RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
-    # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
-    TempK = TempC + 273.15
-    RT = RGasConstant*TempK
-    Pbar = Pdbar/10.0
+    TempK, Pbar, RT = units(TempC, Pdbar)
 
     # Calculate K0 (Henry's constant for CO2)
     K0 = eq.kCO2_W74(TempK, Sal)
@@ -515,5 +520,4 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     KNH3 *= pHfactor
     KH2S *= pHfactor
 
-    return (K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, RT, fH,
-            RGasConstant)
+    return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH

@@ -47,12 +47,13 @@ from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
 from numpy import min as np_min
 from numpy import max as np_max
 
-def _Fugacity(ntps, TempK, Sal, WhichKs, RT):
+def _Fugacity(TempC, Sal, WhichKs):
     # CalculateFugacityConstants:
     # This assumes that the pressure is at one atmosphere, or close to it.
     # Otherwise, the Pres term in the exponent affects the results.
     #       Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     #       Delta and B in cm3/mol
+    TempK, _, RT = assemble.units(TempC, 0.0)
     Delta = (57.7 - 0.118*TempK)
     b = (-1636.75 + 12.0408*TempK - 0.0327957*TempK**2 +
          3.16528*0.00001*TempK**3)
@@ -115,7 +116,7 @@ def _RevelleFactor(TA, TC, K0,
     Revelle = (fCO2_plus - fCO2_minus)/dTC / ((fCO2_plus + fCO2_minus)/TC)
     return Revelle
 
-def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
+def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2):
     """Calculate calcite and aragonite solubility.
 
     This calculates omega, the solubility ratio, for calcite and aragonite.
@@ -142,8 +143,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2, RT):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    TempK = TempC + 273.15
-    Pbar = Pdbar/10.0
+    TempK, Pbar, RT = assemble.units(TempC, Pdbar)
     Ca = full_like(Sal, nan)
     KCa = full_like(Sal, nan)
     KAr = full_like(Sal, nan)
@@ -325,11 +325,10 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, ntps, TP, TSi,
                  Sal, TF, TS)
     (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
-        RTi, fHi, RGasConstant) = assemble.equilibria(TempCi, Pdbari,
+        fHi) = assemble.equilibria(TempCi, Pdbari,
                                                       *ConstPuts)
     Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
-    TempKi = TempCi + 273.15
-    FugFaci, VPFaci = _Fugacity(ntps, TempKi, Sal, WhichKs, RTi)
+    FugFaci, VPFaci = _Fugacity(TempCi, Sal, WhichKs)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = logical_or(p1==4, p2==4)
@@ -450,7 +449,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     CO2inp = TCc - CO3inp - HCO3inp
     Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
     OmegaCainp, OmegaArinp = _CaSolubility(Sal, TempCi, Pdbari, TCc, PHic,
-                                           WhichKs, K1i, K2i, RTi)
+                                           WhichKs, K1i, K2i)
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales, too.
@@ -459,11 +458,10 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Calculate the constants for all samples at output conditions
     (K0o, K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So,
-        RTo, fHo, RGasConstant) = assemble.equilibria(TempCo, Pdbaro,
+        fHo) = assemble.equilibria(TempCo, Pdbaro,
                                                       *ConstPuts)
     Kos = [K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So]
-    TempKo = TempCo + 273.15
-    FugFaco, VPFaco = _Fugacity(ntps, TempKo, Sal, WhichKs, RTo)
+    FugFaco, VPFaco = _Fugacity(TempCo, Sal, WhichKs)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2 and pCO2
     PHoc = solve.pHfromTATC(TAc-PengCorrection, TCc, *Kos, *Ts)
@@ -479,7 +477,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     CO2out = TCc - CO3out - HCO3out
     Revelleout = _RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)
     OmegaCaout, OmegaArout = _CaSolubility(Sal, TempCo, Pdbaro, TCc, PHoc,
-                                           WhichKs, K1o, K2o, RTo)
+                                           WhichKs, K1o, K2o)
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales, too.
