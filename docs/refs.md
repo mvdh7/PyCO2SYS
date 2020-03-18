@@ -73,3 +73,5 @@
 <span id='WMW14'>**WMW14:**</span> Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Mar. Chem.* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).
 
 <span id='YM95'>**YM95:**</span> Yao, W., and Millero, F. J. (1995). The chemistry of the anoxic waters in the Framvaren Fjord, Norway. *Aquat. Geochem.* 1, 53–88. [doi:10.1007/BF01025231](https://doi.org/10.1007/BF01025231).
+
+<span id='ZW01'>**ZW01:**</span> Zeebe, R. E., and Wolf-Gladrow, D. (2001). <i>CO<sub>2</sub> in Seawater: Equilibrium, Kinetics, Isotopes.</i> Elsevier B.V., Amsterdam, the Netherlands.
