@@ -49,7 +49,7 @@ def pHfromTATC(TA, TC,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
+    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -121,7 +121,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
+    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -208,7 +208,7 @@ def pHfromTACarb(TA, CARB,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-5 # tolerance for ending iterations
+    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
