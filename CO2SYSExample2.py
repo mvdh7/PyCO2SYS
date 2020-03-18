@@ -25,11 +25,11 @@ k1k2c   =    4    # Choice of H2CO3 and HCO3- dissociation constants K1 and K2 (
 kso4c   =    1    # Choice of HSO4- dissociation constants KSO4 ("1" means "Dickson")
 
 # Do the calculation. See CO2SYS's help for syntax and output format
-DICT = CO2SYS(par1, par2, par1type, par2type, sal, tempin, tempout, presin,
-              presout, sil, po4, pHscale, k1k2c, kso4c)[0]
+CO2dict = CO2SYS(par1, par2, par1type, par2type, sal, tempin, tempout, presin,
+                 presout, sil, po4, pHscale, k1k2c, kso4c)
 
 print("The answer:") # It is the 38th element of the output of CO2SYS (pHoutSWS)
-print(DICT['pHoutSWS'][0])
+print(CO2dict['pHoutSWS'][0])
 print(" ")
 print("See CO2SystemExample2.jl to see what the syntax for this calculation was.")
 print(" ")

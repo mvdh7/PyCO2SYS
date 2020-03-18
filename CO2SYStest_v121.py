@@ -39,9 +39,5 @@ co2mat = {var: matfile[var][0][0].ravel() for var in co2py.keys()
           if var not in nomat}
 co2diff = {var: co2py[var] - co2mat[var] for var in co2py.keys()
            if var not in nomat}
-# co2diff_pct = {var: co2diff[var]*100/co2mat[var] for var in co2py.keys()
-#                if var not in nomat}
 co2maxdiff = {var: np.max(np.abs(co2diff[var])) for var in co2py.keys()
               if var not in nomat}
-# co2maxdiff_pct = {var: np.max(np.abs(co2diff_pct[var]))
-#                   for var in co2py.keys() if var not in nomat}

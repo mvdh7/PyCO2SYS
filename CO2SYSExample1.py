@@ -37,20 +37,20 @@ k1k2c    =    4 # Choice of H2CO3 and HCO3- dissociation constants K1 and K2 ("4
 kso4c    =    1 # Choice of HSO4- dissociation constants KSO4 ("1" means "Dickson")
 
 # Do the calculation. See CO2SYS's help for syntax and output format
-DICT = CO2SYS(par1, par2, par1type, par2type, sal, tempin, tempout, presin, 
-              presout, sil, po4, pHscale, k1k2c, kso4c)[0]
+CO2dict = CO2SYS(par1, par2, par1type, par2type, sal, tempin, tempout, presin, 
+                 presout, sil, po4, pHscale, k1k2c, kso4c)
 
 # Draw the figure
 fig, ax = plt.subplots(2, 1, figsize=(6, 10))
 
 # The calculated pCO2's are in the field 'pCO2in' of the output DICT of CO2SYS
-ax[0].plot(par2, DICT['pCO2in'], c='r', marker='o')
+ax[0].plot(par2, CO2dict['pCO2in'], c='r', marker='o')
     # marker=(:circle, stroke(:red)))
 ax[0].set_xlabel("DIC")
 ax[0].set_ylabel("pCO2 [uatm]")
 
 # The calculated pH's are in the field 'pHin' of the output DICT of CO2SYS
-ax[1].plot(par2, DICT['pHin'], c='r', marker='o')
+ax[1].plot(par2, CO2dict['pHin'], c='r', marker='o')
 ax[1].set_xlabel("DIC")
 ax[1].set_ylabel("pH")
 
