@@ -470,3 +470,44 @@ def kH2CO3_SWS_WMW14(TempK, Sal):
     pK2 = pK20 + A2 + B2/TempK + C2*log(TempK)
     K2 = 10.0**-pK2
     return K1, K2
+
+def kH2S_TOT_YM95(TempK, Sal):
+    """Hydrogen sulfide dissociation constant following YM95."""
+    # === CO2SYS_v1_21.m comments: =======
+    # H2S  Millero et. al.( 1988)  Limnol. Oceanogr. 33,269-274.
+    # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995. Total Scale.
+    # Yao Millero say equations have been refitted to SWS scale but not true as
+    # they agree with Millero 1988 which are on Total Scale.
+    # Also, calculations agree at high H2S with AquaEnv when assuming it is on
+    # Total Scale.
+    lnkH2S = (225.838 - 13275.3/TempK - 34.6435*log(TempK) + 0.3449*sqrt(Sal) -
+              0.0274*Sal)
+    return exp(lnkH2S)
+
+def kNH3_SWS_YM95(TempK, Sal):
+    """Ammonium association constant following YM95."""
+    # === CO2SYS_v1_21.m comments: =======
+    # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995   SWS
+    lnkNH3 = (-6285.33/TempK + 0.0001635*TempK - 0.25444 +
+              (0.46532 - 123.7184/TempK)*sqrt(Sal) +
+              (-0.01992 + 3.17556/TempK)*Sal)
+    return exp(lnkNH3)
+
+def kNH3_TOT_CW95(TempK, Sal):
+    """Ammonium association constant following CW95."""
+    # === CO2SYS_v1_21.m comments: =======
+    # Clegg Whitfield 1995
+    # Geochimica et Cosmochimica Acta, Vol. 59, No. 12. pp. 2403-2421 
+    # eq (18)  Total scale   t=[-2 to 40 oC]  S=[0 to 40 ppt]   pK=+-0.00015
+    PKNH3expCW = 9.244605 - 2729.33*(1/298.15 - 1/TempK)
+    PKNH3expCW += (0.04203362 - 11.24742/TempK)*Sal**0.25
+    PKNH3expCW += (-13.6416 + 1.176949*TempK**0.5 - 0.02860785*TempK +
+                   545.4834/TempK)*Sal**0.5
+    PKNH3expCW += (-0.1462507 + 0.0090226468*TempK**0.5 -
+                   0.0001471361*TempK + 10.5425/TempK)*Sal**1.5
+    PKNH3expCW += (0.004669309 - 0.0001691742*TempK**0.5 -
+                   0.5677934/TempK)*Sal**2
+    PKNH3expCW += (-2.354039e-05 + 0.009698623/TempK)*Sal**2.5
+    KNH3 = 10.0**-PKNH3expCW # this is on the total pH scale in mol/kg-H2O
+    KNH3 = KNH3*(1 - 0.001005*Sal) # convert to mol/kg-SW
+    return KNH3

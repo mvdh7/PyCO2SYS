@@ -2,6 +2,8 @@
 
 <span id='C65'>**C65:**</span> Culkin, F. (1965). “The major constituents of sea water,” in *Chemical Oceanography*, eds. J. P. Riley and G. Skirrow (London, UK: Academic Press), 121–161.
 
+<span id='CW95'>**CW95:**</span> Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. *Geochim. Cosmochim. Acta* 59, 2403–2421. <a href='https://doi.org/10.1016/0016-7037(95)00135-2'>doi:10.1016/0016-7037(95)00135-2</a>.
+
 <span id='CW98'>**CW98:**</span> Cai, W.-J., and Wang, Y. (1998). The chemistry, fluxes, and sources of carbon dioxide in the estuarine waters of the Satilla and Altamaha Rivers, Georgia. *Limnol. Oceanogr.* 43, 657–668. [doi:10.4319/lo.1998.43.4.0657](https://doi.org/10.4319/lo.1998.43.4.0657).
 
 <span id='D90a'>**D90a:**</span> Dickson, A. G. (1990). Standard potential of the reaction: AgCl(s) + 0.5 H<sub>2</sub>(g) = Ag(s) + HCl(aq), and the standard acidity constant of the ion HSO<sub>4</sub><sup>−</sup> in synthetic sea water from 273.15 to 318.15 K. *J. Chem. Thermodyn.* 22, 113–127. <a href='https://doi.org/10.1016/0021-9614(90)90074-Z'>doi:10.1016/0021-9614(90)90074-Z</a>.
@@ -71,3 +73,5 @@
 <span id='WMW14'>**WMW14:**</span> Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Mar. Chem.* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).
 
 <span id='YM95'>**YM95:**</span> Yao, W., and Millero, F. J. (1995). The chemistry of the anoxic waters in the Framvaren Fjord, Norway. *Aquat. Geochem.* 1, 53–88. [doi:10.1007/BF01025231](https://doi.org/10.1007/BF01025231).
+
+<span id='ZW01'>**ZW01:**</span> Zeebe, R. E., and Wolf-Gladrow, D. (2001). <i>CO<sub>2</sub> in Seawater: Equilibrium, Kinetics, Isotopes.</i> Elsevier B.V., Amsterdam, the Netherlands.

@@ -4,15 +4,15 @@
 # MATLAB  CO2SYS.m version: 2.0 (20 Dec 2016)
 # Current PyCO2SYS version: 1.0.0 (3 Feb 2020)
 #
-# CO2SYS is a MATLAB-version of the original CO2SYS for DOS. 
-# CO2SYS calculates and returns the state of the carbonate system of 
+# CO2SYS is a MATLAB-version of the original CO2SYS for DOS.
+# CO2SYS calculates and returns the state of the carbonate system of
 #    oceanographic water samples, if supplied with enough input.
 # PyCO2SYS has been converted from the MATLAB to Python.
 #
-# Please note that this software is intended to be exactly identical to the 
+# Please note that this software is intended to be exactly identical to the
 #    DOS and Excel versions that have been released previously, meaning that
 #    results obtained should be very nearly indentical for identical input.
-# Additionally, several of the dissociation constants K1 and K2 that have 
+# Additionally, several of the dissociation constants K1 and K2 that have
 #    been published since the original DOS version was written are implemented.
 #    For a complete list of changes since version 1.0, see below.
 #
@@ -20,7 +20,7 @@
 #    Lewis, E., and D. W. R. Wallace. 1998. Program Developed for
 #    CO2 System Calculations. ORNL/CDIAC-105. Carbon Dioxide Information
 #    Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy,
-#    Oak Ridge, Tennessee. 
+#    Oak Ridge, Tennessee.
 #    http://cdiac.ornl.gov/oceans/co2rprt.html
 #
 #**************************************************************************
@@ -31,7 +31,7 @@
 #  [RESULT,HEADERS,NICEHEADERS]=CO2SYS(PAR1,PAR2,PAR1TYPE,PAR2TYPE,...
 #        ...SAL,TEMPIN,TEMPOUT,PRESIN,PRESOUT,SI,PO4,pHSCALEIN,...
 #        ...K1K2CONSTANTS,KSO4CONSTANTS)
-# 
+#
 #  **** SYNTAX EXAMPLES:
 #  [Result]                     = CO2SYS(2400,2200,1,2,35,0,25,4200,0,15,1,1,4,1)
 #  [Result,Headers]             = CO2SYS(2400,   8,1,3,35,0,25,4200,0,15,1,1,4,1)
@@ -39,13 +39,13 @@
 #  [A]                          = CO2SYS(2400,2000:10:2400,1,2,35,0,25,4200,0,15,1,1,4,1)
 #  [A]                          = CO2SYS(2400,2200,1,2,0:1:35,0,25,4200,0,15,1,1,4,1)
 #  [A]                          = CO2SYS(2400,2200,1,2,35,0,25,0:100:4200,0,15,1,1,4,1)
-#  
+#
 #  **** APPLICATION EXAMPLE (copy and paste this into command window):
 #  tmps=0:40; sals=0:40; [X,Y]=meshgrid(tmps,sals);
 #  A = CO2SYS(2300,2100,1,2,Y(:),X(:),nan,0,nan,1,1,1,9,1);
 #  Z=nan(size(X)); Z(:)=A(:,4); figure; contourf(X,Y,Z,20); caxis([0 1200]); colorbar;
 #  ylabel('Salinity [psu]'); xlabel('Temperature [degC]'); title('Dependence of pCO2 [uatm] on T and S')
-# 
+#
 #**************************************************************************
 #
 # INPUT:
@@ -55,9 +55,9 @@
 #   PAR1TYPE       () : scalar or vector of size n (*)
 #   PAR2TYPE       () : scalar or vector of size n (*)
 #   SAL            () : scalar or vector of size n
-#   TEMPIN  (degr. C) : scalar or vector of size n 
-#   TEMPOUT (degr. C) : scalar or vector of size n 
-#   PRESIN     (dbar) : scalar or vector of size n 
+#   TEMPIN  (degr. C) : scalar or vector of size n
+#   TEMPOUT (degr. C) : scalar or vector of size n
+#   PRESIN     (dbar) : scalar or vector of size n
 #   PRESOUT    (dbar) : scalar or vector of size n
 #   SI    (umol/kgSW) : scalar or vector of size n
 #   PO4   (umol/kgSW) : scalar or vector of size n
@@ -65,22 +65,22 @@
 #   K1K2CONSTANTS     : scalar or vector of size n (***)
 #   KSO4CONSTANTS     : scalar or vector of size n (****)
 #
-#  (*) Each element must be an integer, 
-#      indicating that PAR1 (or PAR2) is of type: 
+#  (*) Each element must be an integer,
+#      indicating that PAR1 (or PAR2) is of type:
 #  1 = Total Alkalinity
 #  2 = DIC
 #  3 = pH
 #  4 = pCO2
 #  5 = fCO2
-# 
-#  (**) Each element must be an integer, 
+#
+#  (**) Each element must be an integer,
 #       indicating that the pH-input (PAR1 or PAR2, if any) is at:
 #  1 = Total scale
 #  2 = Seawater scale
 #  3 = Free scale
 #  4 = NBS scale
-# 
-#  (***) Each element must be an integer, 
+#
+#  (***) Each element must be an integer,
 #        indicating the K1 K2 dissociation constants that are to be used:
 #   1 = Roy, 1993											T:    0-45  S:  5-45. Total scale. Artificial seawater.
 #   2 = Goyet & Poisson										T:   -1-40  S: 10-50. Seaw. scale. Artificial seawater.
@@ -89,7 +89,7 @@
 #   5 = HANSSON and MEHRBACH refit BY DICKSON AND MILLERO	T:    2-35  S: 20-40. Seaw. scale. Artificial seawater.
 #   6 = GEOSECS (i.e., original Mehrbach)					T:    2-35  S: 19-43. NBS scale.   Real seawater.
 #   7 = Peng	(i.e., originam Mehrbach but without XXX)	T:    2-35  S: 19-43. NBS scale.   Real seawater.
-#   8 = Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)	T:    0-50  S:     0. 
+#   8 = Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)	T:    0-50  S:     0.
 #   9 = Cai and Wang, 1998									T:    2-35  S:  0-49. NBS scale.   Real and artificial seawater.
 #  10 = Lueker et al, 2000									T:    2-35  S: 19-43. Total scale. Real seawater.
 #  11 = Mojica Prieto and Millero, 2002.					T:    0-45  S:  5-42. Seaw. scale. Real seawater
@@ -97,13 +97,13 @@
 #  13 = Millero et al, 2006									T:    0-50  S:  1-50. Seaw. scale. Real seawater.
 #  14 = Millero        2010  									T:    0-50  S:  1-50. Seaw. scale. Real seawater.
 #  15 = Waters, Millero, & Woosley 2014  							T:    0-50  S:  1-50. Seaw. scale. Real seawater.
-# 
-#  (****) Each element must be an integer that 
+#
+#  (****) Each element must be an integer that
 #         indicates the KSO4 dissociation constants that are to be used,
 #         in combination with the formulation of the borate-to-salinity ratio to be used.
-#         Having both these choices in a single argument is somewhat awkward, 
+#         Having both these choices in a single argument is somewhat awkward,
 #         but it maintains syntax compatibility with the previous version.
-#  1 = KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (PREFERRED) 
+#  1 = KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (PREFERRED)
 #  2 = KSO4 of Khoo et al 1977 & TB of Uppstrom 1974
 #  3 = KSO4 of Dickson 1990a   & TB of Lee 2010
 #  4 = KSO4 of Khoo et al 1977 & TB of Lee 2010
@@ -148,62 +148,62 @@
 #    30 - OmegaCa output       ()
 #    31 - OmegaAr output       ()
 #    32 - xCO2 output          (ppm)
-#    33 - pH input (Total)     ()          
-#    34 - pH input (SWS)       ()          
-#    35 - pH input (Free)      ()          
-#    36 - pH input (NBS)       ()          
-#    37 - pH output (Total)    ()          
-#    38 - pH output (SWS)      ()          
-#    39 - pH output (Free)     ()          
-#    40 - pH output (NBS)      () 
-#    41 - TEMP input           (deg C)     ***    
+#    33 - pH input (Total)     ()
+#    34 - pH input (SWS)       ()
+#    35 - pH input (Free)      ()
+#    36 - pH input (NBS)       ()
+#    37 - pH output (Total)    ()
+#    38 - pH output (SWS)      ()
+#    39 - pH output (Free)     ()
+#    40 - pH output (NBS)      ()
+#    41 - TEMP input           (deg C)     ***
 #    42 - TEMPOUT              (deg C)     ***
 #    43 - PRES input           (dbar or m) ***
 #    44 - PRESOUT              (dbar or m) ***
 #    45 - PAR1TYPE             (integer)   ***
 #    46 - PAR2TYPE             (integer)   ***
 #    47 - K1K2CONSTANTS        (integer)   ***
-#    48 - KSO4CONSTANTS        (integer)   *** 
+#    48 - KSO4CONSTANTS        (integer)   ***
 #    49 - pHSCALE of input     (integer)   ***
 #    50 - SAL                  (psu)       ***
 #    51 - PO4                  (umol/kgSW) ***
 #    52 - SI                   (umol/kgSW) ***
-#    53 - K0  input            ()          
-#    54 - K1  input            ()          
-#    55 - K2  input            ()          
-#    56 - pK1 input            ()          
-#    57 - pK2 input            ()          
-#    58 - KW  input            ()          
-#    59 - KB  input            ()          
-#    60 - KF  input            ()          
-#    61 - KS  input            ()          
-#    62 - KP1 input            ()          
-#    63 - KP2 input            ()          
-#    64 - KP3 input            ()          
-#    65 - KSi input            ()              
-#    66 - K0  output           ()          
-#    67 - K1  output           ()          
-#    68 - K2  output           ()          
-#    69 - pK1 output           ()          
-#    70 - pK2 output           ()          
-#    71 - KW  output           ()          
-#    72 - KB  output           ()          
-#    73 - KF  output           ()          
-#    74 - KS  output           ()          
-#    75 - KP1 output           ()          
-#    76 - KP2 output           ()          
-#    77 - KP3 output           ()          
-#    78 - KSi output           ()              
-#    79 - TB                   (umol/kgSW) 
-#    80 - TF                   (umol/kgSW) 
-#    81 - TS                   (umol/kgSW) 
-#    82 - TP                   (umol/kgSW) 
+#    53 - K0  input            ()
+#    54 - K1  input            ()
+#    55 - K2  input            ()
+#    56 - pK1 input            ()
+#    57 - pK2 input            ()
+#    58 - KW  input            ()
+#    59 - KB  input            ()
+#    60 - KF  input            ()
+#    61 - KS  input            ()
+#    62 - KP1 input            ()
+#    63 - KP2 input            ()
+#    64 - KP3 input            ()
+#    65 - KSi input            ()
+#    66 - K0  output           ()
+#    67 - K1  output           ()
+#    68 - K2  output           ()
+#    69 - pK1 output           ()
+#    70 - pK2 output           ()
+#    71 - KW  output           ()
+#    72 - KB  output           ()
+#    73 - KF  output           ()
+#    74 - KS  output           ()
+#    75 - KP1 output           ()
+#    76 - KP2 output           ()
+#    77 - KP3 output           ()
+#    78 - KSi output           ()
+#    79 - TB                   (umol/kgSW)
+#    80 - TF                   (umol/kgSW)
+#    81 - TS                   (umol/kgSW)
+#    82 - TP                   (umol/kgSW)
 #    83 - TSi                  (umol/kgSW)
 #
-#    *** SIMPLY RESTATES THE INPUT BY USER 
+#    *** SIMPLY RESTATES THE INPUT BY USER
 #
 # In all the above, the terms "input" and "output" may be understood
-#    to refer to the 2 scenarios for which CO2SYS performs calculations, 
+#    to refer to the 2 scenarios for which CO2SYS performs calculations,
 #    each defined by its own combination of temperature and pressure.
 #    For instance, one may use CO2SYS to calculate, from measured DIC and TAlk,
 #    the pH that that sample will have in the lab (e.g., T=25 degC, P=0 dbar),
@@ -211,7 +211,7 @@
 #    A = CO2SYS(2400,2200,1,2,35,25,1,0,4200,1,1,1,4,1)
 #    pH_lab = A(3);  # 7.84
 #    pH_sea = A(18); # 8.05
-# 
+#
 #**************************************************************************
 #
 # This is version 2.0 (uploaded to CDIAC at SEP XXth, 2011):
@@ -289,7 +289,7 @@ def _Constants(TempC, Pdbar):
     global K0, fH, FugFac, VPFac, ntps, TempK, logTempK
     global K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi
     global TB, TF, TS, TP, TSi, RGasConstant, Sal
-    
+
     RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
     # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
 
@@ -1301,20 +1301,22 @@ def _RevelleFactor(TAi, TCi):
     # ' It only makes sense to talk about it at pTot = 1 atm, but it is computed
     # '       here at the given K(), which may be at pressure <> 1 atm. Care must
     # '       thus be used to see if there is any validity to the number computed.
-    TC0 = deepcopy(TCi)
+    TC0 = TCi.copy()
     dTC = 0.000001 # ' 1 umol/kg-SW
     # ' Find fCO2 at TA, TC + dTC
     TCi = TC0 + dTC
     pHc= _CalculatepHfromTATC(TAi, TCi)
     fCO2c= _CalculatefCO2fromTCpH(TCi, pHc)
-    fCO2plus = deepcopy(fCO2c)
+    fCO2plus = fCO2c.copy()
     # ' Find fCO2 at TA, TC - dTC
     TCi = TC0 - dTC
     pHc= _CalculatepHfromTATC(TAi, TCi)
     fCO2c= _CalculatefCO2fromTCpH(TCi, pHc)
-    fCO2minus = deepcopy(fCO2c)
+    fCO2minus = fCO2c.copy()
     # CalculateRevelleFactor:
-    Revelle = (fCO2plus - fCO2minus)/dTC/((fCO2plus + fCO2minus)/TCi);
+    Revelle = (fCO2plus - fCO2minus)/dTC/((fCO2plus + fCO2minus)/TCi)
+    # Note that the TCi used for the final evaluation is now TC0 - dTC, but
+    # perhaps it should actually be the actual TCi function input? // MPH
     return Revelle
 
 def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
@@ -1500,8 +1502,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     Pdbaro       = PRESOUT
     Sal          = SAL
     sqrSal       = sqrt(SAL)
-    TP           = PO4
-    TSi          = SI
+    TP           = PO4.copy()
+    TSi          = SI.copy()
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
