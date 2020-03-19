@@ -23,7 +23,7 @@ phos = 1;
 %% Run CO2SYS
 tic
 [DATA, HEADERS] = ...
-    CO2SYSv2(PARSin(:, 1), PARSin(:, 2), PAR12combos(:, 1), ...
+    CO2SYSv2_0_5(PARSin(:, 1), PARSin(:, 2), PAR12combos(:, 1), ...
     PAR12combos(:, 2), sal, tempin, tempout, presin, presout, ...
     si, phos, pHscales, K1K2, KSO4);
 toc
@@ -34,4 +34,4 @@ for V = 1:numel(HEADERS)
 end % for V
 co2s.PARSin = PARSin;
 co2s.PAR12combos = PAR12combos;
-save('testing/CO2SYStest.mat', 'co2s')
+save('compare/MATLAB_CO2SYSv2_0_5.mat', 'co2s')
