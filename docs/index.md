@@ -27,6 +27,13 @@ See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for mo
   * If you use errors.m or derivnum.m, please cite Orr et al. (2018) [[OEDG18](refs/#OEDG18)].
   * If you use PyCO2SYS, please mention it with a link to the Github repository: [github.com/mvdh7/PyCO2SYS](https://github.com/mvdh7/PyCO2SYS), but check back here first to see if a proper citation is available.
 
+Please mention which version of PyCO2SYS you used. You can find this in Python with:
+
+```python
+from PyCO2SYS.meta import version
+print('This is PyCO2SYS v{}'.format(version))
+```
+
 ## About
 
 PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz) at NIOZ Royal Netherlands Institute for Sea Research, Department of Ocean Systems (OCS), and Utrecht University, Texel, the Netherlands.
