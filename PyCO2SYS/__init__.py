@@ -1,9 +1,16 @@
-# NEXT STEPS:
+# NEXT STEPS (in no particular order):
 # - Extract pressure correction equations from assemble.equilibria() and add
 #   to relevant equilibria module functions (maybe?)
 # - Add pressure correction references to docs
 # - Extract subfunctions from _CaSolubility() into relevant modules.
 # - Add references from _CaSolubility() to docs.
+# - Calculate Egleston et al. buffer factors.
+# - Calculate isocapnic quotient.
+# - Implement generalised buffer factor equations of Middelburg/Hagens.
+# - Calculate Revelle factor directly, not by differences.
+# - Account for all species in pH solver loops.
+# - Calculate high-Mg calcite solubility.
+# - Move these steps as issues in the Github repo instead of a list here...!
 
 from . import (
     assemble,
@@ -249,7 +256,7 @@ def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
 def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON, KSO4CONSTANTS=0):
-    
+
     # Condition inputs and assign input to the 'historical' variable names.
     args, ntps = assemble.inputs(locals())
     PAR1 = args['PAR1']
@@ -589,7 +596,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     based on an original program by Ernie Lewis and Doug Wallace, with later
     contributions from S. van Heuven, J.W.B. Rae, J.C. Orr, J.-M. Epitalon,
     A.G. Dickson, J.-P. Gattuso, and D. Pierrot.
-    
+
     Most recently converted for Python by Matthew Humphreys, NIOZ Royal
     Netherlands Institute for Sea Research, Texel, the Netherlands.
     """
