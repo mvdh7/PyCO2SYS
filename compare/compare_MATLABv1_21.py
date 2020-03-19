@@ -5,7 +5,7 @@ from time import time
 
 # Import input conditions: "MATLAB_CO2SYSv1_21.mat" was generated in MATLAB
 # using the script "compare_MATLABv1_21.m".
-matfile = loadmat('compare/MATLAB_CO2SYSv1_21.mat')['co2s']
+matfile = loadmat('data/MATLAB_CO2SYSv1_21.mat')['co2s']
 (P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout, phos, si,
     pHscales, K1K2, KSO4, KF, nh3, h2s) = [matfile[var][0][0] for var in
     ['PAR1', 'PAR2', 'PAR1TYPE', 'PAR2TYPE', 'SAL', 'TEMPIN', 'TEMPOUT',
