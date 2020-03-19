@@ -16,7 +16,17 @@ presout = 1647;
 si = 10;
 phos = 1;
 
-%% Run CO2SYS
+% Run CO2SYS
+% xrow = 1 + 210; % just do one row, or...
+xrow = 1:numel(P1); % ... do all rows (do this for saving output file)
+P1 = P1(xrow);
+P2 = P2(xrow);
+P1type = P1type(xrow);
+P2type = P2type(xrow);
+sal = sal(xrow);
+pHscales = pHscales(xrow);
+K1K2 = K1K2(xrow);
+KSO4_only = KSO4_only(xrow);
 tic
 [DATA, HEADERS] = ...
     CO2SYSv2_0_5(P1, P2, P1type, P2type, sal, tempin, tempout, presin, ...
