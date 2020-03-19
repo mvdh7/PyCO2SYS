@@ -2,22 +2,22 @@
 
 ## 1.1.0
 
-Adding extra inputs and options for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21".
+Adding extra optional inputs for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21". Continuing to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
 
-**Release date:** forthcoming
+**Release date:** 19 March 2020
 
   * Updated pH-solving iterative functions so that iteration stops separately for each row once it reaches the tolerance threshold.
   * Extracted all functions for solving the CO<sub>2</sub> system into a separate module (`solve`).
   * Extracted other key subfunctions into module `assemble`.
-  * Added total ammonium and hydrogen sulfide concentrations as optional inputs to be included in the alkalinity model.
-  * Added optional input to choose between different equations for hydrogen fluoride dissociation constants.
+  * Added total ammonium (`NH3`) and hydrogen sulfide (`H2S`) concentrations as optional inputs to be included in the alkalinity model.
+  * Added optional input to choose between different equations for hydrogen fluoride dissociation constant (`KFCONSTANT`).
   * Added functions to enable carbonate ion as an input carbonate system variable.
   * Output is now only the `CO2dict` dict, not the original `DATA`, `HEADERS` and `NICEHEADERS`.
   * Eliminated all global variables throughout the entire program.
 
 ## 1.0.1
 
-**Release date:** 28 Feb 2020
+**Release date:** 28 February 2020
 
 Starting to make things more Pythonic.
 
@@ -27,7 +27,7 @@ Starting to make things more Pythonic.
 
 ## 1.0.0
 
-**Release date:** 3 Feb 2020
+**Release date:** 3 February 2020
 
 An as-close-as-possible clone of MATLAB CO2SYS v2.0.5, obtained from [github.com/jamesorr/CO2SYS-MATLAB](https://github.com/jamesorr/CO2SYS-MATLAB).
 
