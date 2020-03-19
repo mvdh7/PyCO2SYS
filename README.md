@@ -220,8 +220,8 @@ The keys of the output `DICT` correspond to the variables in the lists below.
 
 See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
 
-  * If you use any CO<sub2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98)].
-  * If you use CO2SYS.m, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11)].
+  * If you use any CO<sub2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
+  * If you use CO2SYS.m, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
   * If you use errors.m or derivnum.m, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
   * If you use PyCO2SYS, please mention it somewhere with a link to this repository, but check back here first to see if a proper citation is available.
 
