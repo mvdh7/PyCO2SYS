@@ -20,7 +20,7 @@ phos = 1;
 tic
 [DATA, HEADERS] = ...
     CO2SYSv2_0_5(P1, P2, P1type, P2type, sal, tempin, tempout, presin, ...
-    presout, si, phos, pHscales, K1K2, KSO4);
+    presout, si, phos, pHscales, K1K2, KSO4_only);
 toc
 
 %% Extract and save outputs
