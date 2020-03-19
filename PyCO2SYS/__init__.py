@@ -1,7 +1,7 @@
-# NEXT STEPS in very approximate order of importance:
+# NEXT STEPS:
 # - Extract pressure correction equations from assemble.equilibria() and add
-#   to relevant equilibria module functions.
-# - Tidy up assemble.equilibria() i/o.
+#   to relevant equilibria module functions (maybe?)
+# - Add pressure correction references to docs
 # - Extract subfunctions from _CaSolubility() into relevant modules.
 # - Add references from _CaSolubility() to docs.
 
