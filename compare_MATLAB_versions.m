@@ -78,3 +78,9 @@ for V = 1:numel(cvars)
     vdiff.(cvars{V}) = v2.(cvars{V}) - v121.(cvars{V});
 end % for V
 vdiff = struct2table(vdiff);
+vmaxdiff_raw = max(vdiff{:, :});
+clear vmaxdiff
+for V = 1:numel(cvars)
+    vmaxdiff.(cvars{V}) = vmaxdiff_raw(V);
+end % for V
+vmaxdiff = struct2table(vmaxdiff);
