@@ -1301,20 +1301,22 @@ def _RevelleFactor(TAi, TCi):
     # ' It only makes sense to talk about it at pTot = 1 atm, but it is computed
     # '       here at the given K(), which may be at pressure <> 1 atm. Care must
     # '       thus be used to see if there is any validity to the number computed.
-    TC0 = deepcopy(TCi)
+    TC0 = TCi.copy()
     dTC = 0.000001 # ' 1 umol/kg-SW
     # ' Find fCO2 at TA, TC + dTC
     TCi = TC0 + dTC
     pHc= _CalculatepHfromTATC(TAi, TCi)
     fCO2c= _CalculatefCO2fromTCpH(TCi, pHc)
-    fCO2plus = deepcopy(fCO2c)
+    fCO2plus = fCO2c.copy()
     # ' Find fCO2 at TA, TC - dTC
     TCi = TC0 - dTC
     pHc= _CalculatepHfromTATC(TAi, TCi)
     fCO2c= _CalculatefCO2fromTCpH(TCi, pHc)
-    fCO2minus = deepcopy(fCO2c)
+    fCO2minus = fCO2c.copy()
     # CalculateRevelleFactor:
-    Revelle = (fCO2plus - fCO2minus)/dTC/((fCO2plus + fCO2minus)/TCi);
+    Revelle = (fCO2plus - fCO2minus)/dTC/((fCO2plus + fCO2minus)/TCi)
+    # Note that the TCi used for the final evaluation is now TC0 - dTC, but
+    # perhaps it should actually be the actual TCi function input? // MPH
     return Revelle
 
 def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
@@ -1500,8 +1502,8 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     Pdbaro       = PRESOUT
     Sal          = SAL
     sqrSal       = sqrt(SAL)
-    TP           = PO4
-    TSi          = SI
+    TP           = PO4.copy()
+    TSi          = SI.copy()
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk

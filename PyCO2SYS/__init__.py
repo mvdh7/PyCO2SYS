@@ -113,7 +113,8 @@ def _RevelleFactor(TA, TC, K0,
     pH_minus = solve.pHfromTATC(TA, TC_minus, *Ks, *Ts)
     fCO2_minus = solve.fCO2fromTCpH(TC_minus, pH_minus, K0, K1, K2)
     # Calculate Revelle Factor
-    Revelle = (fCO2_plus - fCO2_minus)/dTC / ((fCO2_plus + fCO2_minus)/TC)
+    Revelle = ((fCO2_plus - fCO2_minus)/dTC /
+               ((fCO2_plus + fCO2_minus)/TC_minus))
     return Revelle
 
 def _CaSolubility(Sal, TempC, Pdbar, TC, pH, WhichKs, K1, K2):

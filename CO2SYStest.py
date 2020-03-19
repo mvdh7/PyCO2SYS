@@ -7,25 +7,18 @@ from time import time
 # Import input conditions: CO2SYStest.mat was generated in MATLAB using the
 # script CO2SYStest.m.
 matfile = loadmat('testing/CO2SYStest.mat')['co2s']
-PARSin = matfile['PARSin'][0][0]
-PAR12combos = matfile['PAR12combos'][0][0]
-sal = matfile['SAL'][0][0]
-tempin = matfile['TEMPIN'][0][0]
-tempout = matfile['TEMPOUT'][0][0]
-presin = matfile['PRESIN'][0][0]
-presout = matfile['PRESOUT'][0][0]
-phos = matfile['PO4'][0][0]
-si = matfile['SI'][0][0]
-pHscales = matfile['pHSCALEIN'][0][0]
-K1K2 = matfile['K1K2CONSTANTS'][0][0]
-KSO4 = matfile['KSO4CONSTANTS'][0][0]
+(PARSin, PAR12combos, sal, tempin, tempout, presin, presout, phos, si,
+    pHscales, K1K2, KSO4) = [matfile[var][0][0] for var in ['PARSin',
+    'PAR12combos', 'SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT', 'PO4',
+    'SI', 'pHSCALEIN', 'K1K2CONSTANTS', 'KSO4CONSTANTS']]
 P1 = PARSin[:, 0]
 P2 = PARSin[:, 1]
 P1type = PAR12combos[:, 0]
 P2type = PAR12combos[:, 1]
-    
 co2inputs = [P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
              si, phos, pHscales, K1K2, KSO4]
+# # Just do one row (optional, breaks MATLAB comparison)
+# co2inputs = [inp[0] for inp in co2inputs]
 
 # Run CO2SYS in Python
 go = time()
@@ -37,7 +30,6 @@ if np.shape(co2py) == (4,):
 # Also test the 'original' CO2SYS conversion
 co2pyo = CO2SYSo(*co2inputs)[0]
 
-
 # Compare with MATLAB - see results in co2maxdiff
 pyvars = ['NH3Alkin', 'NH3Alkout', 'H2SAlkin', 'H2SAlkout', 'KSO4CONSTANT',
           'KFCONSTANT', 'BORON', 'NH3', 'H2S', 'KNH3input', 'KNH3output',
@@ -48,3 +40,5 @@ co2diff = {var: co2py[var] - co2mat[var] for var in co2mat.keys()}
 co2diffo = {var: co2pyo[var] - co2mat[var] for var in co2mat.keys()}
 co2maxdiff = {var: np.max(np.abs(co2diff[var])) for var in co2mat.keys()}
 co2maxdiffo = {var: np.max(np.abs(co2diffo[var])) for var in co2mat.keys()}
+pyco2diff = {var: co2py[var] - co2pyo[var] for var in co2mat.keys()}
+pco2maxdiff = {var: np.max(np.abs(pyco2diff[var])) for var in co2mat.keys()}
