@@ -10,11 +10,17 @@ Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sy
 
 ## Installation
 
+Install from the Python Package Index:
+
     pip install PyCO2SYS
 
-## Usage
+Update an existing installation:
 
-Usage has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. Recommended usage is therefore:
+    pip install PyCO2SYS --upgrade --no-cache-dir    
+
+## Use
+
+The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. Recommended usage is therefore:
 
 ```python
 from PyCO2SYS import CO2SYS

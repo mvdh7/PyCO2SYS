@@ -10,6 +10,10 @@ Install from the Python Package Index:
 
     pip install PyCO2SYS
 
+Update an existing installation:
+
+    pip install PyCO2SYS --upgrade --no-cache-dir
+
 Import and use very much like in MATLAB with:
 
 ```python
