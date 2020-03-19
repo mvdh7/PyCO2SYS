@@ -24,6 +24,7 @@ tic
 toc
 
 %% Extract and save outputs
+clear co2s
 for V = 1:numel(HEADERS)
     co2s.(HEADERS{V}) = DATA(:, V);
 end % for V
