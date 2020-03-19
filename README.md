@@ -39,6 +39,8 @@ The required inputs are identical to [the MATLAB version](https://github.com/jam
 
 The possible known carbonate system parameters are `1`: total alkalinity in μmol·kg<sup>−1</sup>, `2`: dissolved inorganic carbon in μmol·kg<sup>−1</sup>, `3`: pH (dimensionless), `4`: dissolved CO<sub>2</sub> partial pressure in μatm, `5`: dissolved CO<sub>2</sub> fugacity in μatm, and `6`: carbonate ion concentration in μmol·kg<sup>−1</sup>.
 
+Here and throughout the inputs and outputs, "kg<sup>−1</sup>" refers to the total mass of seawater (solvent + solutes), not just the mass of H<sub>2</sub>O.
+
   * `SAL` - practical salinity.
   * `TEMPIN` - temperature of input carbonate system parameters.
   * `TEMPOUT` - temperature at which to calculate outputs.
@@ -100,7 +102,7 @@ As for all other concentrations, these are in μmol·kg<sup>−1</sup>. If no va
 
   * `KFCONSTANT` - which constant to use for hydrogen fluoride dissociation.
 
-The options are `1`: [DR79](https://pyco2sys.readthedocs.io/en/latest/refs/#DR79), and `2`: [PF87](https://pyco2sys.readthedocs.io/en/latest/refs/#PF87). If nothing is provided, the default in `1` for consistency with [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
+The options are `1`: [DR79](https://pyco2sys.readthedocs.io/en/latest/refs/#DR79), and `2`: [PF87](https://pyco2sys.readthedocs.io/en/latest/refs/#PF87). If nothing is provided, the default is `1` for consistency with [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
 
 ## Outputs
 

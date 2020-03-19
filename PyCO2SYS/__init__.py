@@ -1,5 +1,4 @@
 # NEXT STEPS in very approximate order of importance:
-# - Work out and fix CO3out, pCO2out, etc. discrepancy vs MATLAB.
 # - Extract pressure correction equations from assemble.equilibria() and add
 #   to relevant equilibria module functions.
 # - Tidy up assemble.equilibria() i/o.
@@ -323,11 +322,10 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
-    ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, ntps, TP, TSi,
+    ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, TP, TSi,
                  Sal, TF, TS)
     (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
-        fHi) = assemble.equilibria(TempCi, Pdbari,
-                                                      *ConstPuts)
+        fHi) = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
     Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
     FugFaci, VPFaci = _Fugacity(TempCi, Sal, WhichKs)
 

@@ -64,7 +64,7 @@ def units(TempC, Pdbar):
     return TempK, Pbar, RT
     
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
-        ntps, TP, TSi, Sal, TF, TS):
+        TP, TSi, Sal, TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
     
@@ -94,7 +94,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     K0 = eq.kCO2_W74(TempK, Sal)
 
     # Calculate KS (bisulfate ion dissociation constant)
-    KS = full(ntps, nan)
+    KS = full_like(TempK, nan)
     F = WhoseKSO4==1
     if any(F):
         KS[F] = eq.kHSO4_FREE_D90a(TempK[F], Sal[F])
@@ -103,7 +103,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         KS[F] = eq.kHSO4_FREE_KRCB77(TempK[F], Sal[F])
 
     # Calculate KF (hydrogen fluoride dissociation constant)
-    KF = full(ntps, nan)
+    KF = full_like(TempC, nan)
     F = WhoseKF==1
     if any(F):
         KF[F] = eq.kHF_FREE_DR79(TempK[F], Sal[F])
@@ -114,7 +114,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     # Calculate pH scale conversion factors - these are NOT pressure-corrected
     SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
     # Calculate fH
-    fH = full(ntps, nan)
+    fH = full_like(TempC, nan)
     # Use GEOSECS's value for cases 1-6 to convert pH scales
     F = WhichKs==8
     if any(F):
@@ -127,7 +127,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         fH[F] = convert.fH_TWB82(TempK[F], Sal[F])
 
     # Calculate boric acid dissociation constant (KB)
-    KB = full(ntps, nan)
+    KB = full_like(TempC, nan)
     F = WhichKs==8 # Pure water case
     if any(F):
         KB[F] = 0.0
@@ -141,7 +141,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         KB[F] /= SWStoTOT[F] # Convert TOT to SWS
 
     # Calculate water dissociation constant (KW)
-    KW = full(ntps, nan)
+    KW = full_like(TempC, nan)
     F = WhichKs==7
     if any(F):
         KW[F] = eq.kH2O_SWS_M79(TempK[F], Sal[F])
@@ -157,10 +157,10 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         KW[F] = 0 # GEOSECS doesn't include OH effects
 
     # Calculate phosphate and silicate dissociation constants
-    KP1 = full(ntps, nan)
-    KP2 = full(ntps, nan)
-    KP3 = full(ntps, nan)
-    KSi = full(ntps, nan)
+    KP1 = full_like(TempC, nan)
+    KP2 = full_like(TempC, nan)
+    KP3 = full_like(TempC, nan)
+    KSi = full_like(TempC, nan)
     F = WhichKs==7
     if any(F):
         KP1[F], KP2[F], KP3[F] = eq.kH3PO4_NBS_KP67(TempK[F], Sal[F])
@@ -183,8 +183,8 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         KSi[F] = eq.kSi_SWS_YM95(TempK[F], Sal[F])
 
     # Calculate carbonic acid dissociation constants (K1 and K2)
-    K1 = full(ntps, nan)
-    K2 = full(ntps, nan)
+    K1 = full_like(TempC, nan)
+    K2 = full_like(TempC, nan)
     F = WhichKs==1
     if any(F):
         K1[F], K2[F] = eq.kH2CO3_TOT_RRV93(TempK[F], Sal[F])
@@ -237,8 +237,8 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         K1[F], K2[F] = eq.kH2CO3_SWS_WMW14(TempK[F], Sal[F])
 
     # From CO2SYS_v1_21.m: calculate KH2S and KNH3
-    KH2S = full(ntps, nan)
-    KNH3 = full(ntps, nan)
+    KH2S = full_like(TempC, nan)
+    KNH3 = full_like(TempC, nan)
     F = logical_or.reduce((WhichKs==6, WhichKs==7, WhichKs==8))
     # Contributions from NH3 and H2S not included for these options.
     if any(F):
@@ -322,11 +322,11 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
 #****************************************************************************
 
     # Correct K1, K2 and KB for pressure:
-    deltaV = full(ntps, nan)
-    Kappa = full(ntps, nan)
-    lnK1fac = full(ntps, nan)
-    lnK2fac = full(ntps, nan)
-    lnKBfac = full(ntps, nan)
+    deltaV = full_like(TempC, nan)
+    Kappa = full_like(TempC, nan)
+    lnK1fac = full_like(TempC, nan)
+    lnK2fac = full_like(TempC, nan)
+    lnKBfac = full_like(TempC, nan)
     F = WhichKs==8
     if any(F):
         # Pressure effects on K1 in freshwater: this is from Millero, 1983.
@@ -395,7 +395,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
         lnKBfac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
 
     # CorrectKWForPressure:
-    lnKWfac = full(ntps, nan)
+    lnKWfac = full_like(TempC, nan)
     F=(WhichKs==8)
     if any(F):
         # PressureEffectsOnKWinFreshWater:
@@ -498,7 +498,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
     #  conversions are now valid at pressure.
 
     # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor = full(ntps, nan)
+    pHfactor = full_like(TempC, nan)
     F = pHScale==1 # Total
     pHfactor[F] = SWStoTOT[F]
     F = pHScale==2 # SWS, they are all on this now

@@ -73,8 +73,8 @@ def pHfromTATC(TA, TC,
             deltapH[FF] /= 2.0
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold, as in MATLAB.
-        # This approach avoids the MATLAB problem of reaching a different
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
         F = np_abs(deltapH) > pHTol
@@ -152,8 +152,8 @@ def pHfromTAfCO2(TA, fCO2, K0,
                 deltapH[FF] /= 2
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold, as in MATLAB.
-        # This approach avoids the MATLAB problem of reaching a different
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
         F = np_abs(deltapH) > pHTol
@@ -243,8 +243,8 @@ def pHfromTACarb(TA, CARB,
                 deltapH[FF] /= 2
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold, as in MATLAB.
-        # This approach avoids the MATLAB problem of reaching a different
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
         F = np_abs(deltapH) > pHTol
