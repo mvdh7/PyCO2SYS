@@ -6,6 +6,7 @@ Adding extra inputs and options for consistency with Pierrot et al.'s tentativel
 
 **Release date:** forthcoming
 
+  * Updated pH-solving iterative functions so that iteration stops separately for each row once it reaches the tolerance threshold.
   * Extracted all functions for solving the CO<sub>2</sub> system into a separate module (`solve`).
   * Extracted other key subfunctions into module `assemble`.
   * Added total ammonium and hydrogen sulfide concentrations as optional inputs to be included in the alkalinity model.

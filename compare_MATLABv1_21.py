@@ -13,13 +13,15 @@ matfile = loadmat('compare/MATLAB_CO2SYSv1_21.mat')['co2s']
      'KSO4CONSTANTS', 'KFCONSTANT', 'NH3', 'H2S']]
 co2inputs = [P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
              si, phos, pHscales, K1K2, KSO4]
-# # Just do one row (for Python vs Python, breaks MATLAB comparison)
-# co2inputs = [inp[0] for inp in co2inputs]
+# xrow = 210 # just do one row, or...
+xrow = range(len(P1)) # ... do all rows
+co2inputs = [inp[xrow] for inp in co2inputs]
 
 # Run CO2SYS in Python
 go = time()
-co2py = CO2SYS(*co2inputs, NH3=nh3, H2S=h2s, KFCONSTANT=KF)
+co2py = CO2SYS(*co2inputs, NH3=nh3[xrow], H2S=h2s[xrow], KFCONSTANT=KF[xrow])
 print('PyCO2SYS runtime = {:.6f} s'.format(time() - go))
+# Extract dict output if PyCO2SYS.original was used
 if np.shape(co2py) == (4,):
     co2py = co2py[0]
 
@@ -27,7 +29,7 @@ if np.shape(co2py) == (4,):
 pyvars = ['NH3Alkin', 'NH3Alkout', 'H2SAlkin', 'H2SAlkout', 'KSO4CONSTANT',
           'KFCONSTANT', 'BORON', 'NH3', 'H2S', 'KNH3input', 'KNH3output',
           'KH2Sinput', 'KH2Soutput']
-co2mat = {var: matfile[var][0][0].ravel() for var in co2py.keys()
+co2mat = {var: matfile[var][0][0].ravel()[xrow] for var in co2py.keys()
           if var not in pyvars}
 # Differences between PyCO2SYS and MATLAB v1.21
 co2diff = {var: co2py[var] - co2mat[var] for var in co2mat.keys()}

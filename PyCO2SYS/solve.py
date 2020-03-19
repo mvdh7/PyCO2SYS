@@ -3,6 +3,8 @@ from numpy import abs as np_abs
 from numpy import any as np_any
 from . import convert
 
+pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
+
 def AlkParts(pH, TC,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TS, TP, TSi, TNH3, TH2S):
@@ -49,7 +51,6 @@ def pHfromTATC(TA, TC,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -70,7 +71,14 @@ def pHfromTATC(TA, TC,
         while any(np_abs(deltapH) > 1):
             FF = np_abs(deltapH) > 1
             deltapH[FF] /= 2.0
-        pH += deltapH
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold, as in MATLAB.
+        # This approach avoids the MATLAB problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        F = np_abs(deltapH) > pHTol
+        pH[F] += deltapH[F]
         # ^pH is on the same scale as K1 and K2 were calculated.
     return pH
 
@@ -121,7 +129,6 @@ def pHfromTAfCO2(TA, fCO2, K0,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -143,7 +150,14 @@ def pHfromTAfCO2(TA, fCO2, K0,
             FF = np_abs(deltapH) > 1
             if any(FF):
                 deltapH[FF] /= 2
-        pH += deltapH
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold, as in MATLAB.
+        # This approach avoids the MATLAB problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        F = np_abs(deltapH) > pHTol
+        pH[F] += deltapH[F]
     return pH
 
 def TAfromTCpH(TC, pH,
@@ -208,7 +222,6 @@ def pHfromTACarb(TA, CARB,
     """
     pHGuess = 8.0 # this is the first guess
     pH = full_like(TA, pHGuess) # first guess for all samples
-    pHTol = 1e-4 # tolerance for ending iterations
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -228,7 +241,14 @@ def pHfromTACarb(TA, CARB,
             FF = np_abs(deltapH) > 1
             if any(FF):
                 deltapH[FF] /= 2
-        pH += deltapH
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold, as in MATLAB.
+        # This approach avoids the MATLAB problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        F = np_abs(deltapH) > pHTol
+        pH[F] += deltapH[F]
     return pH
 
 def pHfromTCCarb(TC, CARB, K1, K2):
