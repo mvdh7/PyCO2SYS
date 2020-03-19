@@ -7,14 +7,10 @@ from time import time
 # Import input conditions: "MATLAB_CO2SYSv2_0_5.mat" was generated in MATLAB
 # using the script "compare_MATLABv2.0.5.m".
 matfile = loadmat('compare/MATLAB_CO2SYSv2_0_5.mat')['co2s']
-(PARSin, PAR12combos, sal, tempin, tempout, presin, presout, phos, si,
-    pHscales, K1K2, KSO4) = [matfile[var][0][0] for var in ['PARSin',
-    'PAR12combos', 'SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT', 'PO4',
-    'SI', 'pHSCALEIN', 'K1K2CONSTANTS', 'KSO4CONSTANTS']]
-P1 = PARSin[:, 0]
-P2 = PARSin[:, 1]
-P1type = PAR12combos[:, 0]
-P2type = PAR12combos[:, 1]
+(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout, phos, si,
+    pHscales, K1K2, KSO4) = [matfile[var][0][0] for var in ['PAR1', 'PAR2',
+    'PAR1TYPE', 'PAR2TYPE', 'SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT',
+    'PO4', 'SI', 'pHSCALEIN', 'K1K2CONSTANTS', 'KSO4CONSTANTS']]
 co2inputs = [P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
              si, phos, pHscales, K1K2, KSO4]
 # # Just do one row (for Python vs Python, breaks MATLAB comparison)
@@ -45,4 +41,4 @@ co2diffo = {var: co2pyo[var] - co2mat[var] for var in co2mat.keys()}
 co2maxdiffo = {var: np.max(np.abs(co2diffo[var])) for var in co2mat.keys()}
 # Differences between PyCO2SYS and PyCO2SYS.original
 pyco2diff = {var: co2py[var] - co2pyo[var] for var in co2mat.keys()}
-pco2maxdiff = {var: np.max(np.abs(pyco2diff[var])) for var in co2mat.keys()}
+pyco2maxdiff = {var: np.max(np.abs(pyco2diff[var])) for var in co2mat.keys()}
