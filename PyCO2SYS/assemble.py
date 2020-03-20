@@ -25,9 +25,9 @@ def inputs(input_locals):
 def concentrations(Sal, WhichKs, WhoseTB):
     """Estimate total concentrations of borate, fluoride and sulfate from
     salinity.
-    
+
     Inputs must first be conditioned with inputs().
-    
+
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
     # Generate empty vectors for holding results
@@ -62,12 +62,12 @@ def units(TempC, Pdbar):
     RT = RGasConstant*TempK
     Pbar = Pdbar/10.0
     return TempK, Pbar, RT
-    
-def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB,
-        TP, TSi, Sal, TF, TS):
+
+def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
+        TF, TS):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
-    
+
     Inputs must first be conditioned with inputs().
 
     This finds the Constants of the CO2 system in seawater or freshwater,

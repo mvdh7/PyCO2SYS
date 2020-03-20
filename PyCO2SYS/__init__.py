@@ -329,8 +329,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
-    ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, WhoseTB, TP, TSi,
-                 Sal, TF, TS)
+    ConstPuts = (pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)
     (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
         fHi) = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
     Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
@@ -458,8 +457,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Calculate the constants for all samples at output conditions
     (K0o, K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So,
-        fHo) = assemble.equilibria(TempCo, Pdbaro,
-                                                      *ConstPuts)
+        fHo) = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
     Kos = [K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So]
     FugFaco, VPFaco = _Fugacity(TempCo, Sal, WhichKs)
 
