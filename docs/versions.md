@@ -14,6 +14,8 @@ from PyCO2SYS import CO2SYS
 
 **However, the structure of the underlying modules and their functions is not yet stable and, for now, may change in any version increment.** Such changes will be described in the release notes below.
 
+---
+
 ## 1.1
 
 Adding extra optional inputs for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21". Continuing to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
@@ -37,7 +39,11 @@ Adding extra optional inputs for consistency with Pierrot et al.'s tentatively f
   * Output is now only the `CO2dict` dict, not the original `DATA`, `HEADERS` and `NICEHEADERS`.
   * Eliminated all global variables throughout the entire program.
 
-## 1.0.1
+---
+
+## 1.0
+
+### 1.0.1
 
 **Release date:** 28 February 2020
 
@@ -47,7 +53,7 @@ Starting to make things more Pythonic.
   * Eliminated all global variables from the `_Constants` function.
   * Moved the as-close-as-possible version into module `original`. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
 
-## 1.0.0
+### 1.0.0
 
 **Release date:** 3 February 2020
 
