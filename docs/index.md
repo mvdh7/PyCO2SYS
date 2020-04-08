@@ -1,6 +1,6 @@
 # PyCO2SYS
 
-[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
+[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS) [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
 
 PyCO2SYS is a Python implementation of CO<sub>2</sub>SYS [[LW98](refs/#LW98), [HPR11](refs/#HPR11), [OEDG18](refs/#OEDG18)], the MATLAB toolbox for marine carbonate system calculations.
 
@@ -31,14 +31,18 @@ See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for mo
   * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by Lewis and Wallace (1998) [[LW98](refs/#LW98)].
   * If you use CO2SYS.m, please cite van Heuven et al. (2011) [[HPR11](refs/#HPR11)].
   * If you use errors.m or derivnum.m, please cite Orr et al. (2018) [[OEDG18](refs/#OEDG18)].
-  * If you use PyCO2SYS, please mention it with a link to the Github repository: [github.com/mvdh7/PyCO2SYS](https://github.com/mvdh7/PyCO2SYS), but check back here first to see if a proper citation is available.
+  * If you use PyCO2SYS, please mention it somewhere along with the DOI: [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
 
-Please mention which version of PyCO2SYS you used. You can find this in Python with:
+Please mention which version of PyCO2SYS you used. **Note that each version has a different DOI - please use the correct one!**
+
+You can find the current version that you are using in Python with:
 
 ```python
 from PyCO2SYS.meta import version
 print('This is PyCO2SYS v{}'.format(version))
 ```
+
+The DOIs for each version (starting at v1.2.0) are listed in the [documentation of the version history](versions).
 
 ## About
 
