@@ -16,6 +16,22 @@ from PyCO2SYS import CO2SYS
 
 ---
 
+## 1.2
+
+Adding additional calculations not included in CO2SYS for MATLAB. New releases henceforth assigned DOIs from Zenodo.
+
+### 1.2.0
+
+**Release date:** 8 April 2020
+
+[doi:](https://doi.org/)
+
+  * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
+    * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#ESM10), corrected for the typos noted by [RAH18](../refs/#RAH18).
+  * Added all functions in `extra` to the `CO2dict` output of the main `CO2SYS` function.
+
+---
+
 ## 1.1
 
 Adding extra optional inputs for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21". Continuing to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
