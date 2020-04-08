@@ -32,7 +32,7 @@ Each field in the output `CO2dict` corresponds to a column in the original MATLA
 
 Vector inputs should be provided as Numpy arrays. Everything gets flattened with `ravel`. Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
-See also the example scripts here in the repo.
+See also the [example scripts](examples) here in the repo.
 
 ## Inputs
 
