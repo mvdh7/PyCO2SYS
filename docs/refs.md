@@ -16,15 +16,19 @@
 
 <span id='DR79'>**DR79:**</span> Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. II. The dissociation of phosphoric acid. *Mar. Chem.* 7, 101–109. <a href='https://doi.org/10.1016/0304-4203(79)90002-1'>doi:10.1016/0304-4203(79)90002-1</a>.
 
-<span id='GP89'>**GP89:**</a> Goyet, C., and Poisson, A. (1989). New determination of carbonic acid dissociation constants in seawater as a function of temperature and salinity. *Deep-Sea Res. Pt A* 36, 1635–1654. <a href='https://doi.org/10.1016/0198-0149(89)90064-2'>doi:10.1016/0198-0149(89)90064-2</a>.
+<span id='ESM10'>**ESM10:**</span> Egleston, E. S., Sabine, C. L., and Morel, F. M. M. (2010). Revelle revisited: Buffer factors that quantify the response of ocean chemistry to changes in DIC and alkalinity. *Global Biogeochem. Cy.* 24, GB1002. [doi:10.1029/2008GB003407](https://doi.org/10.1029/2008GB003407).
 
-<span id='H73a'>**H73a:**</a> Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. *Deep-Sea Res.* 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.
+<span id='GP89'>**GP89:**</span> Goyet, C., and Poisson, A. (1989). New determination of carbonic acid dissociation constants in seawater as a function of temperature and salinity. *Deep-Sea Res. Pt A* 36, 1635–1654. <a href='https://doi.org/10.1016/0198-0149(89)90064-2'>doi:10.1016/0198-0149(89)90064-2</a>.
 
-<span id='H73b'>**H73b:**</a> Hansson, I. (1973b). The Determination of Dissociation Constants of Carbonic Acid in Synthetic Sea Water in the Salinity Range of 20–40 ‰ and Temperature Range of 5–30°C. *Acta Chem. Scand.* 27, 931–944. [doi:10.3891/acta.chem.scand.27-0931](https://doi.org/10.3891/acta.chem.scand.27-0931).
+<span id='H73a'>**H73a:**</span> Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. *Deep-Sea Res.* 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.
+
+<span id='H73b'>**H73b:**</span> Hansson, I. (1973b). The Determination of Dissociation Constants of Carbonic Acid in Synthetic Sea Water in the Salinity Range of 20–40 ‰ and Temperature Range of 5–30°C. *Acta Chem. Scand.* 27, 931–944. [doi:10.3891/acta.chem.scand.27-0931](https://doi.org/10.3891/acta.chem.scand.27-0931).
+
+<span id='HDW18'>**HDW18:**</span> Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Mar. Chem.* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
 <span id='HPR11'>**HPR11:**</span> van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO2 system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
 
-<span id='KP67'>**KP67:**</a>Kester, D. R., and Pytkowicz, R. M. (1967). Determination of the Apparent Dissociation Constants of Phosphoric Acid in Seawater. *Limnol. Oceanogr.* 12, 243–252. [doi:10.4319/lo.1967.12.2.0243](https://doi.org/10.4319/lo.1967.12.2.0243).
+<span id='KP67'>**KP67:**</span>Kester, D. R., and Pytkowicz, R. M. (1967). Determination of the Apparent Dissociation Constants of Phosphoric Acid in Seawater. *Limnol. Oceanogr.* 12, 243–252. [doi:10.4319/lo.1967.12.2.0243](https://doi.org/10.4319/lo.1967.12.2.0243).
 
 <span id='KRCB77'>**KRCB77:**</span> Khoo, K. H., Ramette, R. W., Culberson, C. H., and Bates, R. G. (1977). Determination of hydrogen ion concentrations in seawater from 5 to 40C: standard potentials at salinities from 20 to 45 per mille. *Anal. Chem.* 49, 29–34. [doi:10.1021/ac50009a016](https://doi.org/10.1021/ac50009a016).
 
@@ -59,6 +63,8 @@
 <span id='PTBO87'>**PTBO87:**</span> Peng, T.-H., Takahashi, T., Broecker, W. S., and Olafsson, J. (1987). Seasonal variability of carbon dioxide, nutrients and oxygen in the northern North Atlantic surface water: observations and a model. *Tellus B* 39, 439–458. [doi:10.3402/tellusb.v39i5.15361](https://doi.org/10.3402/tellusb.v39i5.15361).
 
 <span id='R65'>**R65:**</span> Riley, J. P. (1965). The occurrence of anomalously high fluoride concentrations in the North Atlantic. *Deep-Sea Res.* 12, 219–220. <a href='https://doi.org/10.1016/0011-7471(65)90027-6'>doi:10.1016/0011-7471(65)90027-6</a>.
+
+<span id='RAH18'>**RAH18:**</span> Richier, S., Achterberg, E. P., Humphreys, M. P., Poulton, A. J., Suggett, D. J., Tyrrell, T., et al. (2018). Geographical CO<sub>2</sub> sensitivity of phytoplankton correlates with ocean buffer capacity. *Glob. Change Biol.* 24, 4438–4452. [doi:10.1111/gcb.14324](https://doi.org/10.1111/gcb.14324).
 
 <span id='RRV93'>**RRV93:**</span> Roy, R. N., Roy, L. N., Vogel, K. M., Porter-Moore, C., Pearson, T., Good, C. E., et al. (1993). The dissociation constants of carbonic acid in seawater at salinities 5 to 45 and temperatures 0 to 45°C. *Mar. Chem.* 44, 249–267. <a href='https://doi.org/10.1016/0304-4203(93)90207-5'>doi:10.1016/0304-4203(93)90207-5</a>.
 
