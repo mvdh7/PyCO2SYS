@@ -18,6 +18,8 @@
 
 <span id='ESM10'>**ESM10:**</span> Egleston, E. S., Sabine, C. L., and Morel, F. M. M. (2010). Revelle revisited: Buffer factors that quantify the response of ocean chemistry to changes in DIC and alkalinity. *Global Biogeochem. Cy.* 24, GB1002. [doi:10.1029/2008GB003407](https://doi.org/10.1029/2008GB003407).
 
+<span id='FCG94'>**FCG94:**</span> Frankignoulle, M., Canon, C., and Gattuso, J.-P. (1994). Marine calcification as a source of carbon dioxide: Positive feedback of increasing atmospheric CO<sub>2</sub>. *Limnol. Oceanogr.* 39, 458–462. [doi:10.4319/lo.1994.39.2.0458](https://doi.org/10.4319/lo.1994.39.2.0458).
+
 <span id='GP89'>**GP89:**</span> Goyet, C., and Poisson, A. (1989). New determination of carbonic acid dissociation constants in seawater as a function of temperature and salinity. *Deep-Sea Res. Pt A* 36, 1635–1654. <a href='https://doi.org/10.1016/0198-0149(89)90064-2'>doi:10.1016/0198-0149(89)90064-2</a>.
 
 <span id='H73a'>**H73a:**</span> Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. *Deep-Sea Res.* 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.
