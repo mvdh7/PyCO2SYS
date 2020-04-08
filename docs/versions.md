@@ -16,6 +16,25 @@ from PyCO2SYS import CO2SYS
 
 ---
 
+## 1.2
+
+Adding additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB. New releases henceforth assigned DOIs from Zenodo.
+
+### 1.2.0
+
+**Release date:** 8 April 2020
+
+[doi:](https://doi.org/)
+
+  * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
+    * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#ESM10), corrected for the typos noted by [RAH18](../refs/#RAH18).
+    * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 8.
+    * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 7.
+    * `psi` calculates the $\psi$ factor of [FCG94](../refs/#FCG94).
+  * Added all functions in `extra` to the `CO2dict` output of the main `CO2SYS` function, and documented in the [Github repo README](https://github.com/mvdh7/PyCO2SYS#pyco2sys).
+
+---
+
 ## 1.1
 
 Adding extra optional inputs for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21". Continuing to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.

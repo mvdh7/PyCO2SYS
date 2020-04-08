@@ -32,7 +32,7 @@ Each field in the output `CO2dict` corresponds to a column in the original MATLA
 
 Vector inputs should be provided as Numpy arrays. Everything gets flattened with `ravel`. Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
-See also the example scripts here in the repo.
+See also the [example scripts](examples) here in the repo.
 
 ## Inputs
 
@@ -215,19 +215,41 @@ The keys of the output `DICT` correspond to the variables in the lists below.
   * `KH2Sinput`: hydrogen sulfide equilibrium constant, input conditions.
   * `KNH3output`: ammonium equilibrium constant, output conditions.
   * `KH2Soutput`: hydrogen sulfide equilibrium constant, output conditions.
+  * `gammaTCin`: buffer factor *γ*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `betaTCin`: buffer factor *β*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `omegaTCin`: buffer factor *ω*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), input conditions.
+  * `gammaTAin`: buffer factor *γ*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `betaTAin`: buffer factor *β*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `omegaTAin`: buffer factor *ω*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), input conditions.
+  * `gammaTCout`: buffer factor *γ*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `betaTCout`: buffer factor *β*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `omegaTCout`: buffer factor *ω*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), output conditions.
+  * `gammaTAout`: buffer factor *γ*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `betaTAout`: buffer factor *β*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `omegaTAout`: buffer factor *ω*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), output conditions.
+  * `isoQin`: isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 8, input conditions.
+  * `isoQout`: isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 8, output conditions.
+  * `isoQapprox_in`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, input conditions.
+  * `isoQapprox_out`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, output conditions.
+  * `psi_in`: *ψ* of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), input conditions.
+  * `psi_out`: *ψ* of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), output conditions.
 
 ## Citation
 
 See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
 
-  * If you use any CO<sub2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
-  * If you use CO2SYS.m, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
-  * If you use errors.m or derivnum.m, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
-  * If you use PyCO2SYS, please mention it somewhere with a link to this repository, but check back here first to see if a proper citation is available.
+  * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
+  * If you use PyCO2SYS, please mention it somewhere with the DOI:
 
-Please mention which version of PyCO2SYS you used. You can find this in Python with:
+Please mention which version of PyCO2SYS you used. **Note that each version has a different DOI - please use the correct one!**
+
+You can find the current version that you are using in Python with:
 
 ```python
 from PyCO2SYS.meta import version
 print('This is PyCO2SYS v{}'.format(version))
 ```
+
+The DOIs for each version (starting at v1.2.0) are listed in the [documentation of the version history](https://pyco2sys.readthedocs.io/en/latest/versions/).
