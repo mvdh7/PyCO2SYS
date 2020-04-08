@@ -231,8 +231,8 @@ The keys of the output `DICT` correspond to the variables in the lists below.
   * `isoQout`: isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 8, output conditions.
   * `isoQapprox_in`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, input conditions.
   * `isoQapprox_out`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, output conditions.
-  * `psi_in`: $\psi$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), input conditions.
-  * `psi_out`: $\psi$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), output conditions.
+  * `psi_in`: $ψ$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), input conditions.
+  * `psi_out`: $ψ$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), output conditions.
 
 ## Citation
 
