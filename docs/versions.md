@@ -24,7 +24,7 @@ Adding additional buffer factor calculations that are not currently included in 
 
 **Release date:** 8 April 2020
 
-[doi:](https://doi.org/)
+[doi:10.5281/zenodo.3744276](https://doi.org/10.5281/zenodo.3744276)
 
   * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
     * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#ESM10), corrected for the typos noted by [RAH18](../refs/#RAH18).
