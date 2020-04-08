@@ -215,6 +215,18 @@ The keys of the output `DICT` correspond to the variables in the lists below.
   * `KH2Sinput`: hydrogen sulfide equilibrium constant, input conditions.
   * `KNH3output`: ammonium equilibrium constant, output conditions.
   * `KH2Soutput`: hydrogen sulfide equilibrium constant, output conditions.
+  * `gammaTCin`: buffer factor *γ*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `betaTCin`: buffer factor *β*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `omegaTCin`: buffer factor *ω*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), input conditions.
+  * `gammaTAin`: buffer factor *γ*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `betaTAin`: buffer factor *β*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), input conditions.
+  * `omegaTAin`: buffer factor *ω*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), input conditions.
+  * `gammaTCout`: buffer factor *γ*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `betaTCout`: buffer factor *β*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `omegaTCout`: buffer factor *ω*<sub>DIC</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), output conditions.
+  * `gammaTAout`: buffer factor *γ*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `betaTAout`: buffer factor *β*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
+  * `omegaTAout`: buffer factor *ω*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), output conditions.
 
 ## Citation
 
