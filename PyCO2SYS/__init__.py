@@ -487,6 +487,14 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the pKs at output
     pK1o = -log10(K1o)
     pK2o = -log10(K2o)
+    
+    # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
+    gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
+        extra.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, Hfreeinp, OHinp,
+                            BAlkinp, KBi)
+    gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
+        extra.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, Hfreeout, OHout,
+                            BAlkout, KBo)
 
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
@@ -584,6 +592,19 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'TB': TB*1e6,
         'TF': TF*1e6,
         'TS': TS*1e6,
+        # Added in v1.2.0:
+        'gammaTCin': gammaTCi,
+        'betaTCin': betaTCi,
+        'omegaTCin': omegaTCi,
+        'gammaTAin': gammaTAi,
+        'betaTAin': betaTAi,
+        'omegaTAin': omegaTAi,
+        'gammaTCout': gammaTCo,
+        'betaTCout': betaTCo,
+        'omegaTCout': omegaTCo,
+        'gammaTAout': gammaTAo,
+        'betaTAout': betaTAo,
+        'omegaTAout': omegaTAo,
     }
     return CO2dict
 
