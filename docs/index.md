@@ -28,7 +28,7 @@ See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for mor
 
 See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
 
-  * If you use any CO2SYS-related software, please cite the original work by Lewis and Wallace (1998) [[LW98](refs/#LW98)].
+  * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by Lewis and Wallace (1998) [[LW98](refs/#LW98)].
   * If you use CO2SYS.m, please cite van Heuven et al. (2011) [[HPR11](refs/#HPR11)].
   * If you use errors.m or derivnum.m, please cite Orr et al. (2018) [[OEDG18](refs/#OEDG18)].
   * If you use PyCO2SYS, please mention it with a link to the Github repository: [github.com/mvdh7/PyCO2SYS](https://github.com/mvdh7/PyCO2SYS), but check back here first to see if a proper citation is available.
