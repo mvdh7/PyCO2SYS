@@ -243,7 +243,7 @@ See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for mo
   * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
   * If you use PyCO2SYS, please mention it somewhere with the DOI:
 
-Please mention which version of PyCO2SYS you used. Note that each version has a different DOI - please use the correct one!
+Please mention which version of PyCO2SYS you used. **Note that each version has a different DOI - please use the correct one!**
 
 You can find the current version that you are using in Python with:
 
