@@ -227,6 +227,12 @@ The keys of the output `DICT` correspond to the variables in the lists below.
   * `gammaTAout`: buffer factor *γ*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
   * `betaTAout`: buffer factor *β*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10), output conditions.
   * `omegaTAout`: buffer factor *ω*<sub>TA</sub> of [ESM10](https://pyco2sys.readthedocs.io/en/latest/refs/#ESM10) corrected following [RAH18](https://pyco2sys.readthedocs.io/en/latest/refs/#RAH18), output conditions.
+  * `isoQin`: isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 8, input conditions.
+  * `isoQout`: isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 8, output conditions.
+  * `isoQapprox_in`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, input conditions.
+  * `isoQapprox_out`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, output conditions.
+  * `psi_in`: $\psi$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), input conditions.
+  * `psi_out`: $\psi$ of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), output conditions.
 
 ## Citation
 
