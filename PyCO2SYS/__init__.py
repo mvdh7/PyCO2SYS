@@ -490,10 +490,10 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
-        extra.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, Hfreeinp, OHinp,
+        extra.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
                             BAlkinp, KBi)
     gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
-        extra.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, Hfreeout, OHout,
+        extra.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
                             BAlkout, KBo)
 
     # Save data directly as a dict to avoid ordering issues
