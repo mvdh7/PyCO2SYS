@@ -1,7 +1,8 @@
-def buffers_ESM10(TC, TA, CO2, HCO3, CO3, H, OH, BAlk, KB):
+def buffers_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     """Buffer factors from ESM10 with corrections for typographical errors
     described in the supp. info. to RAH18.
     """
+    H = 10.0**-pH
     # Evaluate ESM10 subfunctions (from their Table 1)
     S = HCO3 + 4*CO3 + H*BAlk/(KB + H) + H - OH
     P = 2*CO2 + HCO3
