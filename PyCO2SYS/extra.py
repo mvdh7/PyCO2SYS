@@ -20,16 +20,16 @@ def buffers_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     return gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA
 
 def bgc_isocap(CO2, pH, K1, K2, KB, KW, TB):
-    """Isocapnic quotient of HDW18."""
+    """Isocapnic quotient of HDW18, Eq. 8."""
     h = 10.0**-pH
     return ((K1*CO2*h + 4*K1*K2*CO2 + KW*h + h**3)*(KB + h)**2 +
         KB*TB*h**3)/(K1*CO2*(2*K2 + h)*(KB + h)**2)
 
 def bgc_isocap_approx(TC, pCO2, K0, K1, K2):
-    """Approximate isocapnic quotient of HDW18."""
+    """Approximate isocapnic quotient of HDW18, Eq. 7."""
     return 1 + 2*(K2/(K0*K1))*TC/pCO2
 
 def psi(CO2, pH, K1, K2, KB, KW, TB):
-    """Psi of F94."""
+    """Psi of FCG94."""
     Q = bgc_isocap(CO2, pH, K1, K2, KB, KW, TB)
     return -1 + 2/Q
