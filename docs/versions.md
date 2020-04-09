@@ -20,6 +20,12 @@ from PyCO2SYS import CO2SYS
 
 Adding additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB. New releases henceforth assigned DOIs from Zenodo.
 
+### 1.2.1
+
+**Release date:** 9 April 2020
+
+  * Fixed typo in [ESM10](../refs/#ESM10) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
+
 ### 1.2.0
 
 **Release date:** 8 April 2020 [[doi:10.5281/zenodo.3744276](https://doi.org/10.5281/zenodo.3744276)]
