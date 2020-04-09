@@ -4,7 +4,8 @@ def buffers_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     """
     H = 10.0**-pH
     # Evaluate ESM10 subfunctions (from their Table 1)
-    S = HCO3 + 4*CO3 + H*BAlk/(KB + H) + H - OH
+    S = HCO3 + 4*CO3 + H*BAlk/(KB + H) + H + OH # -OH => +OH in v1.2.1
+    # Typo in ESM10 carried through here, spotted by Jim Orr, following OEDG18
     P = 2*CO2 + HCO3
     Q = HCO3 - H*BAlk/(KB + H) - H - OH # see RAH18
     AC = HCO3 + 2*CO3
