@@ -22,7 +22,7 @@ Adding additional buffer factor calculations that are not currently included in 
 
 ### 1.2.1
 
-**Release date:** 9 April 2020
+**Release date:** 9 April 2020 [[doi:10.5281/zenodo.3746347](https://doi.org/10.5281/zenodo.3746347)]
 
   * Fixed typo in [ESM10](../refs/#ESM10) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
 
