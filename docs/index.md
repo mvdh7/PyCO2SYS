@@ -26,24 +26,23 @@ See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for mor
 
 ## Citation
 
-See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
+The citation for PyCO2SYS alone is:
 
-  * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by Lewis and Wallace (1998) [[LW98](refs/#LW98)].
-  * If you use CO2SYS.m, please cite van Heuven et al. (2011) [[HPR11](refs/#HPR11)].
-  * If you use errors.m or derivnum.m, please cite Orr et al. (2018) [[OEDG18](refs/#OEDG18)].
-  * If you use PyCO2SYS, please mention it somewhere along with the DOI: [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
+> Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., & Wallace, D. W. R. (2020). PyCO2SYS v1.3.0: marine carbonate system calculations in Python. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
 
-Please mention which version of PyCO2SYS you used. **Note that each version has a different DOI - please use the correct one!**
-
-You can find the current version that you are using in Python with:
+The DOI above refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
 
 ```python
 from PyCO2SYS.meta import version
-print('This is PyCO2SYS v{}'.format(version))
 ```
 
-The DOIs for each version (starting at v1.2.0) are listed in the [documentation of the version history](versions).
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](refs/#LW98).
+
+Additionally, for the MATLAB programs:
+
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](refs/#HPR11).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](refs/#OEDG18).
 
 ## About
 
-PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz) at NIOZ Royal Netherlands Institute for Sea Research, Department of Ocean Systems (OCS), and Utrecht University, Texel, the Netherlands.
+PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz/) at NIOZ Royal Netherlands Institute for Sea Research, Department of Ocean Systems (OCS), and Utrecht University, Texel, the Netherlands.
