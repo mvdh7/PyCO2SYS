@@ -41,10 +41,10 @@ __all__ = [
 __author__ = meta.authors
 __version__ = meta.version
 
-from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
-                   shape, sqrt, zeros)
-from numpy import min as np_min
-from numpy import max as np_max
+from autograd.numpy import (array, exp, full, full_like, log, log10,
+                            nan, shape, sqrt, zeros)
+from autograd.numpy import min as np_min
+from autograd.numpy import max as np_max
 
 def _Fugacity(TempC, Sal, WhichKs):
     # CalculateFugacityConstants:
@@ -60,7 +60,7 @@ def _Fugacity(TempC, Sal, WhichKs):
     P1atm = 1.01325 # in bar
     FugFac = exp((b + 2*Delta)*P1atm/RT)
     # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
-    F = logical_or(WhichKs==6, WhichKs==7)
+    F = (WhichKs==6) | (WhichKs==7)
     if any(F):
         FugFac[F] = 1.0
     # CalculateVPFac:
@@ -163,7 +163,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     F = WhichKs==8
     Sal[F] = 0.0
     # GEOSECS and Pure Water:
-    F = logical_or(WhichKs==8, WhichKs==6)
+    F = (WhichKs==6) | (WhichKs==8)
     TP[F] = 0.0
     TSi[F] = 0.0
     TNH3[F] = 0.0
@@ -194,7 +194,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     FugFaci, VPFaci = _Fugacity(TempCi, Sal, WhichKs)
 
     # Make sure fCO2 is available for each sample that has pCO2.
-    F = logical_or(p1==4, p2==4)
+    F = (p1==4) | (p2==4)
     FC[F] = PC[F]*FugFaci[F]
 
     # Generate vector for results, and copy the raw input values into them. This
@@ -206,94 +206,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     FCic = FC.copy()
     CARBic = CARB.copy()
 
-    # Generate vector describing the combination of input parameters
-    # So, the valid ones are: 12,13,14,15,16,23,24,25,26,34,35,36,46,56
-    Icase = (10*np_min(array([p1, p2]), axis=0) +
-        np_max(array([p1, p2]), axis=0))
-
-    # Calculate missing values for AT, CT, PH, FC:
-    # pCO2 will be calculated later on, routines work with fCO2.
-    F = Icase==12 # input TA, TC
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromTATC(TAc[F]-PengCorrection[F], TCc[F],
-                                   *KiFs, *TFs)
-        # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F], K0i[F], K1i[F], K2i[F])
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = Icase==13 # input TA, pH
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                  *KiFs, *TFs)
-        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
-                                     K0i[F], K1i[F], K2i[F])
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = logical_or(Icase==14, Icase==15) # input TA, (pCO2 or fCO2)
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromTAfCO2(TAc[F]-PengCorrection[F], FCic[F],
-                                     K0i[F], *KiFs, *TFs)
-        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                  *KiFs, *TFs)
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = Icase==16 # input TA, CARB
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromTACarb(TAc[F]-PengCorrection[F], CARBic[F],
-                                     *KiFs, *TFs)
-        TCc[F] = solve.TCfromTApH(TAc[F]-PengCorrection[F], PHic[F],
-                                      *KiFs, *TFs)
-        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F], K0i[F], K1i[F], K2i[F])
-    F = Icase==23 # input TC, pH
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
-                                     K0i[F], K1i[F], K2i[F])
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = logical_or(Icase==24, Icase==25) # input TC, (pCO2 or fCO2)
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromTCfCO2(TCc[F], FCic[F], K0i[F], K1i[F], K2i[F])
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = Icase==26 # input TC, CARB
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromTCCarb(TCc[F], CARBic[F], K1i[F], K2i[F])
-        FCic[F] = solve.fCO2fromTCpH(TCc[F], PHic[F],
-                                     K0i[F], K1i[F], K2i[F])
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-    F = logical_or(Icase==34, Icase==35) # input pH, (pCO2 or fCO2)
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F], K0i[F], K1i[F], K2i[F])
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-        CARBic[F] = solve.CarbfromTCpH(TCc[F], PHic[F], K1i[F], K2i[F])
-    F = Icase==36 # input pH, CARB
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        FCic[F] = solve.fCO2frompHCarb(PHic[F], CARBic[F], K0i[F], K1i[F],
-                                       K2i[F])
-        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F], K0i[F], K1i[F], K2i[F])
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-    F = logical_or(Icase==46, Icase==56) # input (pCO2 or fCO2), CARB
-    if any(F):
-        KiFs, TFs = [[X[F] for X in Xs] for Xs in [Kis, Ts]]
-        PHic[F] = solve.pHfromfCO2Carb(FCic[F], CARBic[F],
-                                       K0i[F], K1i[F], K2i[F])
-        TCc[F] = solve.TCfrompHfCO2(PHic[F], FCic[F], K0i[F], K1i[F], K2i[F])
-        TAc[F] = (solve.TAfromTCpH(TCc[F], PHic[F], *KiFs, *TFs) +
-                  PengCorrection[F])
-    # By now, an fCO2 value is available for each sample.
-    # Generate the associated pCO2 value:
-    PCic = FCic/FugFaci
+    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i, Kis, Ts,
+        TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci)
 
     # Calculate the pKs at input
     pK1i = -log10(K1i)
