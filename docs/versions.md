@@ -1,6 +1,6 @@
 # Version history
 
-Version numbering follows [semantic versioning](https://semver.org/). Therefore:
+Version numbering aims to follow [semantic versioning](https://semver.org/). Therefore:
 
   * New patch versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
   * New minor versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code. They will not alter the results of calculations with default settings.
@@ -20,12 +20,12 @@ from PyCO2SYS import CO2SYS
 
 ### 1.3.0
 
-**Release date:** forthcoming [doi:](https://doi.org/)
+**Release date:** forthcoming [[doi:](https://doi.org/)]
 
   * Rename module `extra` to `buffers`.
   * All functions in `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
-  * Relocated `_CaSolubility` function from root into new module `solubility`.
-  * Relocated `_RevelleFactor` function from root into module `buffers`.
+  * Relocated `_CaSolubility` function from root into new module `solubility` and removed leading `_`.
+  * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
 
 ---
 

@@ -1,6 +1,10 @@
 # References
 
+<span id='B76'>**B76:**</span> Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. *Am. J. Sci.* 276, 713–730. [doi:10.2475/ajs.276.6.713](https://doi.org/10.2475/ajs.276.6.713).
+
 <span id='C65'>**C65:**</span> Culkin, F. (1965). “The major constituents of sea water,” in *Chemical Oceanography*, eds. J. P. Riley and G. Skirrow (London, UK: Academic Press), 121–161.
+
+<span id='CP68'>**CP68:**</span> Culberson, C., and Pytkowicz, R. M. (1968). Effect of pressure on carbonic acid, boric acid, and the <i>p</i>H in seawater. *Limnol. Oceanogr.* 13, 403–417. [doi:10.4319/lo.1968.13.3.0403](https://doi.org/10.4319/lo.1968.13.3.0403).
 
 <span id='CW95'>**CW95:**</span> Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. *Geochim. Cosmochim. Acta* 59, 2403–2421. <a href='https://doi.org/10.1016/0016-7037(95)00135-2'>doi:10.1016/0016-7037(95)00135-2</a>.
 
@@ -30,7 +34,11 @@
 
 <span id='HPR11'>**HPR11:**</span> van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
 
-<span id='KP67'>**KP67:**</span>Kester, D. R., and Pytkowicz, R. M. (1967). Determination of the Apparent Dissociation Constants of Phosphoric Acid in Seawater. *Limnol. Oceanogr.* 12, 243–252. [doi:10.4319/lo.1967.12.2.0243](https://doi.org/10.4319/lo.1967.12.2.0243).
+<span id='I75'>**I75:**</span> Ingle, S. E. (1975). Solubility of calcite in the ocean. *Mar. Chem.* 3, 301–319. <a href='https://doi.org/10.1016/0304-4203(75)90010-9'>doi:10.1016/0304-4203(75)90010-9</a>.
+
+<span id='ICHP73'>**ICHP73:**</span> Ingle, S. E., Culberson, C. H., Hawley, J. E., and Pytkowicz, R. M. (1973). The solubility of calcite in seawater at atmospheric pressure and 35‰ salinity. *Mar. Chem.* 1, 295–307. <a href='https://doi.org/10.1016/0304-4203(73)90019-4'>doi:10.1016/0304-4203(73)90019-4</a>.
+
+<span id='KP67'>**KP67:**</span> Kester, D. R., and Pytkowicz, R. M. (1967). Determination of the Apparent Dissociation Constants of Phosphoric Acid in Seawater. *Limnol. Oceanogr.* 12, 243–252. [doi:10.4319/lo.1967.12.2.0243](https://doi.org/10.4319/lo.1967.12.2.0243).
 
 <span id='KRCB77'>**KRCB77:**</span> Khoo, K. H., Ramette, R. W., Culberson, C. H., and Bates, R. G. (1977). Determination of hydrogen ion concentrations in seawater from 5 to 40C: standard potentials at salinities from 20 to 45 per mille. *Anal. Chem.* 49, 29–34. [doi:10.1021/ac50009a016](https://doi.org/10.1021/ac50009a016).
 
@@ -45,6 +53,8 @@
 <span id='M10'>**M10:**</span> Millero, F. J. (2010). Carbonate constants for estuarine waters. *Mar. Freshwater Res.* 61, 139–142. [doi:10.1071/MF09254](https://doi.org/10.1071/MF09254).
 
 <span id='M79'>**M79:**</span> Millero, F. J. (1979). The thermodynamics of the carbonate system in seawater. *Geochim. Cosmochim. Acta* 43, 1651–1661. <a href='https://doi.org/10.1016/0016-7037(79)90184-4'>doi:10.1016/0016-7037(79)90184-4</a>.
+
+<span id='M83'>**M83:**</span> Mucci, A. (1983). The solubility of calcite and aragonite in seawater at various salinities, temperatures, and one atmosphere total pressure. *Am. J. Sci.* 283, 780–799. [doi:10.2475/ajs.283.7.780](doi:10.2475/ajs.283.7.780).
 
 <span id='M95'>**M95:**</span> Millero, F. J. (1995). Thermodynamics of the carbon dioxide system in the oceans. *Geochim. Cosmochim. Acta* 59, 661–677. <a href='https://doi.org/10.1016/0016-7037(94)00354-O'>doi:10.1016/0016-7037(94)00354-O</a>.
 
@@ -69,6 +79,8 @@
 <span id='RAH18'>**RAH18:**</span> Richier, S., Achterberg, E. P., Humphreys, M. P., Poulton, A. J., Suggett, D. J., Tyrrell, T., et al. (2018). Geographical CO<sub>2</sub> sensitivity of phytoplankton correlates with ocean buffer capacity. *Glob. Change Biol.* 24, 4438–4452. [doi:10.1111/gcb.14324](https://doi.org/10.1111/gcb.14324).
 
 <span id='RRV93'>**RRV93:**</span> Roy, R. N., Roy, L. N., Vogel, K. M., Porter-Moore, C., Pearson, T., Good, C. E., et al. (1993). The dissociation constants of carbonic acid in seawater at salinities 5 to 45 and temperatures 0 to 45°C. *Mar. Chem.* 44, 249–267. <a href='https://doi.org/10.1016/0304-4203(93)90207-5'>doi:10.1016/0304-4203(93)90207-5</a>.
+
+<span id='RT67'>**RT67:**</span> Riley, J. P., and Tongudai, M. (1967). The major cation/chlorinity ratios in sea water. *Chem. Geol.* 2, 263–269. <a href='https://doi.org/10.1016/0009-2541(67)90026-5'>doi:10.1016/0009-2541(67)90026-5</a>.
 
 <span id='SMB64'>**SMB64:**</span> Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.
 
