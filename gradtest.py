@@ -41,7 +41,7 @@ TSi = onp.full(npts, 5e-6)
 TNH3 = onp.full(npts, 0.1e-6)
 TH2S = onp.full(npts, 0.01e-6)
 TA = onp.full(npts, 2300e-6)
-TC = onp.full(npts, 2150e-6)
+TC = onp.full(npts, 2000e-6)
 
 TB, TF, TS = pyco2.assemble.concentrations(Sal, WhichKs, WhoseTB)
 K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH = \
@@ -60,5 +60,11 @@ phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
     K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
     TB, TF, TS, TP, TSi, TNH3, TH2S), TA, dx=1e-9)
 
-co2d = CO2SYS(TA, TC, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi, TP,
-              3, 10, 3, NH3=TNH3, H2S=TH2S, KFCONSTANT=1)
+co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi*1e6,
+              TP*1e6, 3, 7, 3, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
+print(co2d['OmegaCAin'][0])
+print(co2d['OmegaARin'][0])
+
+
+clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
+clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)

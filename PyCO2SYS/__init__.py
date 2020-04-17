@@ -17,6 +17,7 @@ from . import (
     assemble,
     buffers,
     concentrations,
+    constants,
     convert,
     equilibria,
     meta,
@@ -28,6 +29,7 @@ __all__ = [
     'assemble',
     'buffers',
     'concentrations',
+    'constants',
     'convert',
     'equilibria',
     'meta',
@@ -303,8 +305,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
     Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
-    OmegaCainp, OmegaArinp = solubility.CaSolubility(Sal, TempCi, Pdbari, TCc,
-                                                     PHic, WhichKs, K1i, K2i)
+    OmegaCainp, OmegaArinp = solubility.CaCO3(Sal, TempCi, Pdbari, TCc, PHic,
+                                              WhichKs, K1i, K2i)
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales
@@ -331,8 +333,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
     Revelleout = buffers.RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)
-    OmegaCaout, OmegaArout = solubility.CaSolubility(Sal, TempCo, Pdbaro, TCc,
-                                                     PHoc, WhichKs, K1o, K2o)
+    OmegaCaout, OmegaArout = solubility.CaCO3(Sal, TempCo, Pdbaro, TCc, PHoc,
+                                              WhichKs, K1o, K2o)
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales

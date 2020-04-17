@@ -5,6 +5,7 @@ from numpy import (array, exp, full, full_like, logical_and, logical_or, nan,
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
+from .constants import RGasConstant, Tzero
 
 def inputs(input_locals):
     """Condition inputs for use with CO2SYS (sub)functions."""
@@ -58,11 +59,9 @@ def concentrations(Sal, WhichKs, WhoseTB):
 
 def units(TempC, Pdbar):
     """Convert temperature and pressure units."""
-    RGasConstant = 83.1451 # ml bar-1 K-1 mol-1, DOEv2
-    # RGasConstant = 83.14472 # # ml bar-1 K-1 mol-1, DOEv3
-    TempK = TempC + 273.15
-    RT = RGasConstant*TempK
+    TempK = convert.TempC2K(TempC)
     Pbar = Pdbar/10.0
+    RT = RGasConstant*TempK
     return TempK, Pbar, RT
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
