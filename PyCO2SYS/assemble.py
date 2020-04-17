@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-from autograd.numpy import (array, exp, full, full_like, nan, size, unique, where)
+from autograd.numpy import array, exp, full, full_like, nan, size, unique, where
 from numpy import logical_and, logical_or
 from . import concentrations as conc
 from . import convert
@@ -122,6 +122,32 @@ def eq_KP(TempK, Sal, WhichKs, fH):
         KP3 = where(F, KP3_YM95, KP3)
     return KP1, KP2, KP3
 
+def eq_KSi(TempK, Sal, WhichKs, fH):
+    """Calculate silicate dissociation constant for the given options."""
+    KSi = where(WhichKs==7,
+        eq.kSi_NBS_SMB64(TempK, Sal)/fH, nan) # convert NBS to SWS
+    # Neither the GEOSECS choice nor the freshwater choice
+    # include contributions from phosphate or silicate.
+    KSi = where((WhichKs==6) | (WhichKs==8), 0.0, KSi)
+    KSi = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
+        eq.kSi_SWS_YM95(TempK, Sal), KSi)
+    return KSi
+
+def eq_KH2S(TempK, Sal, WhichKs, SWStoTOT):
+    """Calculate hydrogen disulfide dissociation constant for the given
+    options.
+    """
+    KH2S = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0, nan)
+    KH2S = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
+        eq.kH2S_TOT_YM95(TempK, Sal)/SWStoTOT, KH2S) # convert TOT to SWS
+    return KH2S
+
+def eq_KNH3(TempK, Sal, WhichKs, SWStoTOT):
+    """Calculate ammonium dissociation constant for the given options."""
+    KNH3 = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0, nan)
+    KNH3 = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
+        eq.kNH3_TOT_CW95(TempK, Sal)/SWStoTOT, KNH3) # convert TOT to SWS
+    return KNH3
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         TF, TS):
@@ -158,21 +184,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     KB = eq_KB(TempK, Sal, WhichKs, fH, SWStoTOT)
     KW = eq_KW(TempK, Sal, WhichKs)
     KP1, KP2, KP3 = eq_KP(TempK, Sal, WhichKs, fH)
-
-    # Calculate silicate dissociation constants
-    KSi = full_like(TempC, nan)
-    F = WhichKs==7
-    if any(F):
-        KSi[F] = eq.kSi_NBS_SMB64(TempK[F], Sal[F])
-        KSi[F] /= fH[F] # Convert NBS to SWS
-    F = logical_or(WhichKs==6, WhichKs==8)
-    if any(F):
-        # Neither the GEOSECS choice nor the freshwater choice
-        # include contributions from phosphate or silicate.
-        KSi[F] = 0.0
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F):
-        KSi[F] = eq.kSi_SWS_YM95(TempK[F], Sal[F])
+    KSi = eq_KSi(TempK, Sal, WhichKs, fH)
 
     # Calculate carbonic acid dissociation constants (K1 and K2)
     K1 = full_like(TempC, nan)
@@ -229,19 +241,8 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         K1[F], K2[F] = eq.kH2CO3_SWS_WMW14(TempK[F], Sal[F])
 
     # From CO2SYS_v1_21.m: calculate KH2S and KNH3
-    KH2S = full_like(TempC, nan)
-    KNH3 = full_like(TempC, nan)
-    F = logical_or.reduce((WhichKs==6, WhichKs==7, WhichKs==8))
-    # Contributions from NH3 and H2S not included for these options.
-    if any(F):
-        KH2S[F] = 0.0
-        KNH3[F] = 0.0
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F):
-        KH2S[F] = eq.kH2S_TOT_YM95(TempK[F], Sal[F])
-        KNH3[F] = eq.kNH3_TOT_CW95(TempK[F], Sal[F])
-        KH2S[F] /= SWStoTOT[F] # Convert TOT to SWS
-        KNH3[F] /= SWStoTOT[F] # Convert TOT to SWS
+    KH2S = eq_KH2S(TempK, Sal, WhichKs, SWStoTOT)
+    KNH3 = eq_KNH3(TempK, Sal, WhichKs, SWStoTOT)
 
 #****************************************************************************
 # Correct dissociation constants for pressure
