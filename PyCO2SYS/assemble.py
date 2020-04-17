@@ -1,7 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-from numpy import (array, exp, full, full_like, logical_and, logical_or, nan,
-                   size, unique)
+from autograd.numpy import (array, exp, full, full_like, nan, size, unique, where)
+from numpy import logical_and, logical_or
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
@@ -24,6 +24,34 @@ def inputs(input_locals):
         if k in float_vars:
             args[k] = args[k].astype('float64')
     return args, ntps
+
+def concs_TB(Sal, WhichKs, WhoseTB):
+    """Calculate total borate from salinity using the given options."""
+    TB = where(WhichKs==8, 0.0, nan) # pure water
+    TB = where((WhichKs==6) | (WhichKs==7), conc.borate_C65(Sal), TB)
+    F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
+    TB = where(F & (WhoseTB==1), conc.borate_U74(Sal), TB)
+    TB = where(F & (WhoseTB==2), conc.borate_LKB10(Sal), TB)
+    return TB
+
+def concs_TB_original(Sal, WhichKs, WhoseTB):
+    TB = full_like(Sal, nan)
+    # Calculate total borate
+    F = WhichKs==8
+    if any(F): # Pure water
+        TB[F] = 0.0
+    F = logical_or(WhichKs==6, WhichKs==7)
+    if any(F):
+        TB[F] = conc.borate_C65(Sal[F])
+    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
+    if any(F): # All other cases
+        FF = logical_and(F, WhoseTB==1)
+        if any(FF): # If user opted for Uppstrom's values
+            TB[FF] = conc.borate_U74(Sal[FF])
+        FF = logical_and(F, WhoseTB==2)
+        if any(FF): # If user opted for the new Lee values
+            TB[FF] = conc.borate_LKB10(Sal[FF])
+    return TB
 
 def concentrations(Sal, WhichKs, WhoseTB):
     """Estimate total concentrations of borate, fluoride and sulfate from

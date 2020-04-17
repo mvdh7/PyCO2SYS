@@ -301,7 +301,7 @@ def from2to6(p1, p2, K0, Ks, Ts, TA, TC, PH, PC, FC, CARB, PengCorrection,
     # So, the valid ones are: 12,13,14,15,16,23,24,25,26,34,35,36,46,56
     Icase = (10*np_min(array([p1, p2]), axis=0) +
         np_max(array([p1, p2]), axis=0))
-    # Calculate missing values for AT, CT, PH, FC:
+    # Calculate missing values for AT, CT, PH, FC, CARB:
     # pCO2 will be calculated later on, routines work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):

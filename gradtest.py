@@ -67,4 +67,19 @@ co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi*1e6,
 clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
-# From 2 to 6
+# # From 2 to 6
+# TA, TC, PH, PC, FC, CARB = pyco2.solve.from2to6(p1, p2, K0, Ks, Ts, TA, TC, PH,
+#     PC, FC, CARB, PengCorrection, FugFac)
+
+# Assemble concentrations
+conc = lambda Sal: pyco2.assemble.concs_TB(Sal, WhichKs, WhoseTB)
+conco = lambda Sal: pyco2.assemble.concs_TB_original(Sal, WhichKs, WhoseTB)
+print(pyco2.assemble.concs_TB_original(Sal, WhichKs, WhoseTB)[0]*1e6)
+print(derivative(conco, Sal, dx=1e-5)[0])
+print(conc(Sal)[0]*1e6)
+print(egrad(conc)(Sal)[0])
+
+# Assemble equilibria
+# eq = lambda TempC: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
+#     WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
+# print(egrad(eq)(TempC)[0])

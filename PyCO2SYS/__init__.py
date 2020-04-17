@@ -42,7 +42,7 @@ __author__ = meta.authors
 __version__ = meta.version
 
 from autograd.numpy import (array, exp, full, full_like, log, log10,
-                            nan, shape, sqrt, zeros)
+                            nan, shape, sqrt, where, zeros)
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 
@@ -180,9 +180,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # The vector 'PengCorrection' is used to modify the value of TA, for those
     # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where WhichKs is not 7
-    PengCorrection = zeros(ntps)
-    F = WhichKs==7
-    PengCorrection[F] = TP[F]
+    PengCorrection = where(WhichKs==7, TP, 0.0)
 
     # Calculate the constants for all samples at input conditions
     # The constants calculated for each sample will be on the appropriate pH
