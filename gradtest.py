@@ -62,8 +62,8 @@ phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
 
 co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi*1e6,
               TP*1e6, 3, 7, 3, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
-# print(co2d['OmegaCAin'][0])
-# print(co2d['OmegaARin'][0])
+print(co2d['OmegaCAin'][0])
+print(co2d['OmegaARin'][0])
 clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
@@ -73,11 +73,8 @@ clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1,
 
 # Assemble concentrations
 conc = lambda Sal: pyco2.assemble.concs_TB(Sal, WhichKs, WhoseTB)
-conco = lambda Sal: pyco2.assemble.concs_TB_original(Sal, WhichKs, WhoseTB)
-print(pyco2.assemble.concs_TB_original(Sal, WhichKs, WhoseTB)[0]*1e6)
-print(derivative(conco, Sal, dx=1e-5)[0])
-print(conc(Sal)[0]*1e6)
-print(egrad(conc)(Sal)[0])
+# print(conc(Sal)[0]*1e6)
+# print(egrad(conc)(Sal)[0])
 
 # Assemble equilibria
 # eq = lambda TempC: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,

@@ -26,31 +26,12 @@ def inputs(input_locals):
     return args, ntps
 
 def concs_TB(Sal, WhichKs, WhoseTB):
-    """Calculate total borate from salinity using the given options."""
+    """Calculate total borate from salinity for the given options."""
     TB = where(WhichKs==8, 0.0, nan) # pure water
     TB = where((WhichKs==6) | (WhichKs==7), conc.borate_C65(Sal), TB)
     F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
     TB = where(F & (WhoseTB==1), conc.borate_U74(Sal), TB)
     TB = where(F & (WhoseTB==2), conc.borate_LKB10(Sal), TB)
-    return TB
-
-def concs_TB_original(Sal, WhichKs, WhoseTB):
-    TB = full_like(Sal, nan)
-    # Calculate total borate
-    F = WhichKs==8
-    if any(F): # Pure water
-        TB[F] = 0.0
-    F = logical_or(WhichKs==6, WhichKs==7)
-    if any(F):
-        TB[F] = conc.borate_C65(Sal[F])
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F): # All other cases
-        FF = logical_and(F, WhoseTB==1)
-        if any(FF): # If user opted for Uppstrom's values
-            TB[FF] = conc.borate_U74(Sal[FF])
-        FF = logical_and(F, WhoseTB==2)
-        if any(FF): # If user opted for the new Lee values
-            TB[FF] = conc.borate_LKB10(Sal[FF])
     return TB
 
 def concentrations(Sal, WhichKs, WhoseTB):
@@ -61,26 +42,7 @@ def concentrations(Sal, WhichKs, WhoseTB):
 
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    # Generate empty vectors for holding results
-    TB = full_like(Sal, nan)
-    TF = full_like(Sal, nan)
-    TS = full_like(Sal, nan)
-    # Calculate total borate
-    F = WhichKs==8
-    if any(F): # Pure water
-        TB[F] = 0.0
-    F = logical_or(WhichKs==6, WhichKs==7)
-    if any(F):
-        TB[F] = conc.borate_C65(Sal[F])
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F): # All other cases
-        FF = logical_and(F, WhoseTB==1)
-        if any(FF): # If user opted for Uppstrom's values
-            TB[FF] = conc.borate_U74(Sal[FF])
-        FF = logical_and(F, WhoseTB==2)
-        if any(FF): # If user opted for the new Lee values
-            TB[FF] = conc.borate_LKB10(Sal[FF])
-    # Calculate total fluoride and sulfate
+    TB = concs_TB(Sal, WhichKs, WhoseTB)
     TF = conc.fluoride_R65(Sal)
     TS = conc.sulfate_MR66(Sal)
     return TB, TF, TS
@@ -91,6 +53,75 @@ def units(TempC, Pdbar):
     Pbar = Pdbar/10.0
     RT = RGasConstant*TempK
     return TempK, Pbar, RT
+
+def eq_KS(TempK, Sal, WhoseKSO4):
+    """Calculate bisulfate ion dissociation constant for the given options."""
+    KS = where(WhoseKSO4==1, eq.kHSO4_FREE_D90a(TempK, Sal), nan)
+    KS = where(WhoseKSO4==2, eq.kHSO4_FREE_KRCB77(TempK, Sal), KS)
+    return KS
+
+def eq_KF(TempK, Sal, WhoseKF):
+    """Calculate HF dissociation constant for the given options."""
+    KF = where(WhoseKF==1, eq.kHF_FREE_DR79(TempK, Sal), nan)
+    KF = where(WhoseKF==2, eq.kHF_FREE_PF87(TempK, Sal), KF)
+    return KF
+
+def eq_fH(TempK, Sal, WhichKs):
+    """Calculate NBS to Seawater pH scale conversion factor for the given
+    options.
+    """
+    fH = where(WhichKs==8, 1.0, nan)
+    fH = where(WhichKs==7, convert.fH_PTBO87(TempK, Sal), fH)
+    # Use GEOSECS's value for all other cases
+    fH = where((WhichKs!=7) & (WhichKs!=8), convert.fH_TWB82(TempK, Sal), fH)
+    return fH
+
+def eq_KB(TempK, Sal, WhichKs, fH, SWStoTOT):
+    """Calculate boric acid dissociation constant for the given options."""
+    KB = where(WhichKs==8, 0.0, nan) # pure water case
+    KB = where((WhichKs==6) | (WhichKs==7),
+        eq.kBOH3_NBS_LTB69(TempK, Sal)/fH, KB) # convert NBS to SWS
+    KB = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
+        eq.kBOH3_TOT_D90b(TempK, Sal)/SWStoTOT, KB) # convert TOT to SWS
+    return KB
+
+def eq_KW(TempK, Sal, WhichKs):
+    """Calculate water dissociation constant for the given options."""
+    KW = where(WhichKs==7, eq.kH2O_SWS_M79(TempK, Sal), nan)
+    KW = where(WhichKs==8, eq.kH2O_SWS_HO58_M79(TempK, Sal), KW)
+    KW = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
+        eq.kH2O_SWS_M95(TempK, Sal), KW)
+    KW = where(WhichKs==6, 0.0, KW) # GEOSECS doesn't include OH effects
+    return KW
+
+def eq_KP(TempK, Sal, WhichKs, fH):
+    """Calculate phosphoric acid dissociation constants for the given
+    options.
+    """
+    KP1 = full(size(TempK), nan)
+    KP2 = full(size(TempK), nan)
+    KP3 = full(size(TempK), nan)
+    F = WhichKs==7
+    if any(F):
+        KP1_KP67, KP2_KP67, KP3_KP67 = eq.kH3PO4_NBS_KP67(TempK, Sal)
+        KP1 = where(F, KP1_KP67, KP1) # already on SWS!
+        KP2 = where(F, KP2_KP67/fH, KP2) # convert NBS to SWS
+        KP3 = where(F, KP3_KP67/fH, KP3) # convert NBS to SWS
+    F = (WhichKs==6) | (WhichKs==8)
+    if any(F):
+        # Neither the GEOSECS choice nor the freshwater choice
+        # include contributions from phosphate or silicate.
+        KP1 = where(F, 0.0, KP1)
+        KP2 = where(F, 0.0, KP2)
+        KP2 = where(F, 0.0, KP2)
+    F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
+    if any(F):
+        KP1_YM95, KP2_YM95, KP3_YM95 = eq.kH3PO4_SWS_YM95(TempK, Sal)
+        KP1 = where(F, KP1_YM95, KP1)
+        KP2 = where(F, KP2_YM95, KP2)
+        KP3 = where(F, KP3_YM95, KP3)
+    return KP1, KP2, KP3
+
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         TF, TS):
@@ -116,99 +147,31 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     #     pHScale# (the chosen one) in units of mol/kg-SW
     #     except KS and KF are on the free scale
     #     and KW is in units of (mol/kg-SW)^2
-
     TempK, Pbar, RT = units(TempC, Pdbar)
-
-    # Calculate K0 (Henry's constant for CO2)
     K0 = eq.kCO2_W74(TempK, Sal)
-
-    # Calculate KS (bisulfate ion dissociation constant)
-    KS = full_like(TempK, nan)
-    F = WhoseKSO4==1
-    if any(F):
-        KS[F] = eq.kHSO4_FREE_D90a(TempK[F], Sal[F])
-    F = WhoseKSO4==2
-    if any(F):
-        KS[F] = eq.kHSO4_FREE_KRCB77(TempK[F], Sal[F])
-
-    # Calculate KF (hydrogen fluoride dissociation constant)
-    KF = full_like(TempC, nan)
-    F = WhoseKF==1
-    if any(F):
-        KF[F] = eq.kHF_FREE_DR79(TempK[F], Sal[F])
-    F = WhoseKF==2
-    if any(F):
-        KF[F] = eq.kHF_FREE_PF87(TempK[F], Sal[F])
-
+    KS = eq_KS(TempK, Sal, WhoseKSO4)
+    KF = eq_KF(TempK, Sal, WhoseKF)
     # Calculate pH scale conversion factors - these are NOT pressure-corrected
+    fH = eq_fH(TempK, Sal, WhichKs)
     SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
-    # Calculate fH
-    fH = full_like(TempC, nan)
-    # Use GEOSECS's value for cases 1-6 to convert pH scales
-    F = WhichKs==8
-    if any(F):
-        fH[F] = 1.0 # this shouldn't occur in the program for this case
-    F = WhichKs==7
-    if any(F):
-        fH[F] = convert.fH_PTBO87(TempK[F], Sal[F])
-    F = logical_and(WhichKs!=7, WhichKs!=8)
-    if any(F):
-        fH[F] = convert.fH_TWB82(TempK[F], Sal[F])
+    # Calculate other dissociation constants
+    KB = eq_KB(TempK, Sal, WhichKs, fH, SWStoTOT)
+    KW = eq_KW(TempK, Sal, WhichKs)
+    KP1, KP2, KP3 = eq_KP(TempK, Sal, WhichKs, fH)
 
-    # Calculate boric acid dissociation constant (KB)
-    KB = full_like(TempC, nan)
-    F = WhichKs==8 # Pure water case
-    if any(F):
-        KB[F] = 0.0
-    F = logical_or(WhichKs==6, WhichKs==7)
-    if any(F):
-        KB[F] = eq.kBOH3_NBS_LTB69(TempK[F], Sal[F])
-        KB[F] /= fH[F] # Convert NBS to SWS
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F):
-        KB[F] = eq.kBOH3_TOT_D90b(TempK[F], Sal[F])
-        KB[F] /= SWStoTOT[F] # Convert TOT to SWS
-
-    # Calculate water dissociation constant (KW)
-    KW = full_like(TempC, nan)
-    F = WhichKs==7
-    if any(F):
-        KW[F] = eq.kH2O_SWS_M79(TempK[F], Sal[F])
-    F = WhichKs==8
-    if any(F):
-        KW[F] = eq.kH2O_SWS_HO58_M79(TempK[F], Sal[F])
-    F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F):
-        KW[F] = eq.kH2O_SWS_M95(TempK[F], Sal[F])
-    # KW is on the SWS pH scale in (mol/kg-SW)**2
-    F = WhichKs==6
-    if any(F):
-        KW[F] = 0 # GEOSECS doesn't include OH effects
-
-    # Calculate phosphate and silicate dissociation constants
-    KP1 = full_like(TempC, nan)
-    KP2 = full_like(TempC, nan)
-    KP3 = full_like(TempC, nan)
+    # Calculate silicate dissociation constants
     KSi = full_like(TempC, nan)
     F = WhichKs==7
     if any(F):
-        KP1[F], KP2[F], KP3[F] = eq.kH3PO4_NBS_KP67(TempK[F], Sal[F])
-        # KP1 is already on SWS!
-        KP2[F] /= fH[F] # Convert NBS to SWS
-        KP3[F] /= fH[F] # Convert NBS to SWS
         KSi[F] = eq.kSi_NBS_SMB64(TempK[F], Sal[F])
         KSi[F] /= fH[F] # Convert NBS to SWS
     F = logical_or(WhichKs==6, WhichKs==8)
     if any(F):
         # Neither the GEOSECS choice nor the freshwater choice
         # include contributions from phosphate or silicate.
-        KP1[F] = 0.0
-        KP2[F] = 0.0
-        KP3[F] = 0.0
         KSi[F] = 0.0
     F = logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
-        KP1[F], KP2[F], KP3[F] = eq.kH3PO4_SWS_YM95(TempK[F], Sal[F])
         KSi[F] = eq.kSi_SWS_YM95(TempK[F], Sal[F])
 
     # Calculate carbonic acid dissociation constants (K1 and K2)
