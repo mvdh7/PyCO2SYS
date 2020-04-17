@@ -1,8 +1,8 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-from numpy import full_like, log, log10, nan, sqrt
-from numpy import abs as np_abs
-from numpy import any as np_any
+from autograd.numpy import full, full_like, log, log10, nan, size, sqrt, where
+from autograd.numpy import abs as np_abs
+from autograd.numpy import any as np_any
 from . import convert
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
@@ -52,8 +52,8 @@ def pHfromTATC(TA, TC,
     values in the vector are "abs(deltapH) < pHTol".
     """
     pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
+    pH = full(size(TA), pHGuess) # first guess for all samples
+    deltapH = 1.0 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
@@ -70,17 +70,14 @@ def pHfromTATC(TA, TC,
                       BAlk*H/(KB + H) + OH + H)
         deltapH = Residual/Slope # this is Newton's method
         # To keep the jump from being too big:
-        while any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            deltapH[FF] /= 2.0
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
         # to update ALL rows until they all meet the threshold.
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        F = np_abs(deltapH) > pHTol
-        pH[F] += deltapH[F]
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
         # ^pH is on the same scale as K1 and K2 were calculated.
     return pH
 
@@ -148,18 +145,14 @@ def pHfromTAfCO2(TA, fCO2, K0,
         Slope = ln10*(HCO3 + 4*CO3 + BAlk*H/(KB + H) + OH + H)
         deltapH = Residual/Slope # this is Newton's method
         # To keep the jump from being too big:
-        while np_any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            if any(FF):
-                deltapH[FF] /= 2
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
         # to update ALL rows until they all meet the threshold.
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        F = np_abs(deltapH) > pHTol
-        pH[F] += deltapH[F]
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
     return pH
 
 def TAfromTCpH(TC, pH,
@@ -239,18 +232,14 @@ def pHfromTACarb(TA, CARB,
         Slope = ln10*(-CARB*H/K2 + BAlk*H/(KB + H) + OH + H)
         deltapH = Residual/Slope # this is Newton's method
         # To keep the jump from being too big:
-        while np_any(np_abs(deltapH) > 1):
-            FF = np_abs(deltapH) > 1
-            if any(FF):
-                deltapH[FF] /= 2
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
         # The following logical means that each row stops updating once its
         # deltapH value is beneath the pHTol threshold, instead of continuing
         # to update ALL rows until they all meet the threshold.
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        F = np_abs(deltapH) > pHTol
-        pH[F] += deltapH[F]
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
     return pH
 
 def pHfromTCCarb(TC, CARB, K1, K2):
