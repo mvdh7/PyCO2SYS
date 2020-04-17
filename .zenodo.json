@@ -1,0 +1,26 @@
+{
+  "title": "PyCO2SYS",
+  "creators": [
+    {
+      "name": "Humphreys, Matthew P.",
+      "affiliation": "NIOZ Royal Netherlands Institute for Sea Research and Utrecht University, Texel, the Netherlands",
+      "orcid": "0000-0002-9371-7128"},
+    }, {
+      "name": "Denis Pierrot",
+      "affiliation": "University of Miami, Florida, USA",
+      "orcid": "0000-0002-0374-3825",
+    }, {
+      "name": "Steven M. A. C. van Heuven",
+      "affiliation": "University of Groningen, the Netherlands",
+      "orcid": "0000-0003-2001-8710",
+    }, {
+      "name": "Ernie Lewis",
+      "affiliation": "Brookhaven National Laboratory, New York, USA",
+      "orcid": "0000-0002-2023-7406",
+    }, {
+      "name": "Douglas W. R. Wallace",
+      "affiliation": "Dalhousie University, Halifax, Nova Scotia, Canada",
+    }
+  ],
+  "access_right": "open",
+}
