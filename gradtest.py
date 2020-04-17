@@ -59,9 +59,6 @@ phag = egrad(pyco2.solve.pHfromTATC, argnum=0)(*phargs)
 phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
     K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
     TB, TF, TS, TP, TSi, TNH3, TH2S), TA, dx=1e-9)
-print(ph[0])
-print(phag)
-print(phdg)
 
 co2d = CO2SYS(TA, TC, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi, TP,
               3, 10, 3, NH3=TNH3, H2S=TH2S, KFCONSTANT=1)

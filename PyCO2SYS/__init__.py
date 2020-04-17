@@ -91,35 +91,6 @@ def _Fugacity(TempC, Sal, WhichKs):
     VPFac = 1.0 - VPSWWP # this assumes 1 atmosphere
     return FugFac, VPFac
 
-def _RevelleFactor(TA, TC, K0,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
-    """Calculate the Revelle Factor from total alkalinity and dissolved
-    inorganic carbon.
-
-    This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
-    It only makes sense to talk about it at pTot = 1 atm, but it is computed
-    here at the given K(), which may be at pressure <> 1 atm. Care must
-    thus be used to see if there is any validity to the number computed.
-
-    Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
-    """
-    Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
-    Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
-    dTC = 1e-6 # 1 umol/kg-SW
-    # Find fCO2 at TA, TC+dTC
-    TC_plus = TC + dTC
-    pH_plus = solve.pHfromTATC(TA, TC_plus, *Ks, *Ts)
-    fCO2_plus = solve.fCO2fromTCpH(TC_plus, pH_plus, K0, K1, K2)
-    # Find fCO2 at TA, TC-dTC
-    TC_minus = TC - dTC
-    pH_minus = solve.pHfromTATC(TA, TC_minus, *Ks, *Ts)
-    fCO2_minus = solve.fCO2fromTCpH(TC_minus, pH_minus, K0, K1, K2)
-    # Calculate Revelle Factor
-    Revelle = ((fCO2_plus - fCO2_minus)/dTC /
-               ((fCO2_plus + fCO2_minus)/TC_minus))
-    return Revelle
-
 def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
     """Calculate pH on all scales.
 
@@ -337,7 +308,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, *Kis, *Ts)
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
-    Revelleinp = _RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
+    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis, *Ts)
     OmegaCainp, OmegaArinp = solubility.CaSolubility(Sal, TempCi, Pdbari, TCc,
                                                      PHic, WhichKs, K1i, K2i)
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
@@ -365,7 +336,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, *Kos, *Ts)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
-    Revelleout = _RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)
+    Revelleout = buffers.RevelleFactor(TAc, TCc, K0o, *Kos, *Ts)
     OmegaCaout, OmegaArout = solubility.CaSolubility(Sal, TempCo, Pdbaro, TCc,
                                                      PHoc, WhichKs, K1o, K2o)
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm

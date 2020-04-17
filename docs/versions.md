@@ -25,6 +25,7 @@ from PyCO2SYS import CO2SYS
   * Rename module `extra` to `buffers`.
   * All functions in `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
   * Relocated `_CaSolubility` function from root into new module `solubility`.
+  * Relocated `_RevelleFactor` function from root into module `buffers`.
 
 ---
 

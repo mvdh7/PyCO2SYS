@@ -1,5 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+from . import solve
+
 def buffers_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     """Buffer factors from ESM10 with corrections for typographical errors
     described in the supp. info. to RAH18.
@@ -36,3 +38,32 @@ def psi(CO2, pH, K1, K2, KB, KW, TB):
     """Psi of FCG94."""
     Q = bgc_isocap(CO2, pH, K1, K2, KB, KW, TB)
     return -1 + 2/Q
+
+def RevelleFactor(TA, TC, K0,
+        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        TB, TF, TS, TP, TSi, TNH3, TH2S):
+    """Calculate the Revelle Factor from total alkalinity and dissolved
+    inorganic carbon.
+
+    This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
+    It only makes sense to talk about it at pTot = 1 atm, but it is computed
+    here at the given K(), which may be at pressure <> 1 atm. Care must
+    thus be used to see if there is any validity to the number computed.
+
+    Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
+    """
+    Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
+    Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
+    dTC = 1e-6 # 1 umol/kg-SW
+    # Find fCO2 at TA, TC+dTC
+    TC_plus = TC + dTC
+    pH_plus = solve.pHfromTATC(TA, TC_plus, *Ks, *Ts)
+    fCO2_plus = solve.fCO2fromTCpH(TC_plus, pH_plus, K0, K1, K2)
+    # Find fCO2 at TA, TC-dTC
+    TC_minus = TC - dTC
+    pH_minus = solve.pHfromTATC(TA, TC_minus, *Ks, *Ts)
+    fCO2_minus = solve.fCO2fromTCpH(TC_minus, pH_minus, K0, K1, K2)
+    # Calculate Revelle Factor
+    Revelle = ((fCO2_plus - fCO2_minus)/dTC /
+               ((fCO2_plus + fCO2_minus)/TC_minus))
+    return Revelle
