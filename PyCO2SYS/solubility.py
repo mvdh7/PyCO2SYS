@@ -1,5 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+"Calculate saturation states of soluble solids."
+
 from . import assemble
 from autograd.numpy import exp, full, log10, nan, size, sqrt
 
