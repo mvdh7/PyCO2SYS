@@ -36,13 +36,7 @@ __all__ = [
     'solve',
 ]
 
-__author__ = ' and '.join([
-    'Humphreys, Matthew P.',
-    'Pierrot, Denis',
-    'van Heuven, Steven M. A. C.',
-    'Lewis, Ernie',
-    'Wallace, Douglas W. R.',
-])
+__author__ = meta.authors
 __version__ = meta.version
 
 from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
