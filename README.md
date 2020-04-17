@@ -39,7 +39,7 @@ Update an existing installation:
 
 ## Use
 
-The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. Recommended usage is therefore:
+The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. If you want the MATLAB-like experience, recommended usage is therefore:
 
 ```python
 from PyCO2SYS import CO2SYS
@@ -52,6 +52,12 @@ Each field in the output `CO2dict` corresponds to a column in the original MATLA
 Vector inputs should be provided as Numpy arrays. Everything gets flattened with `ravel`. Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
 See also the [example scripts](examples) here in the repo.
+
+For a more Pythonic experience, the import convention is:
+
+```python
+import PyCO2SYS as pyco2
+```
 
 ## Inputs
 

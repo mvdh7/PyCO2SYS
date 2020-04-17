@@ -22,6 +22,12 @@ CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, P
     SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
 ```
 
+For a more Pythonic experience, the import convention is:
+
+```python
+import PyCO2SYS as pyco2
+```
+
 See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for more details on the inputs and outputs.
 
 ## Citation
