@@ -16,6 +16,16 @@ from PyCO2SYS import CO2SYS
 
 ---
 
+## 1.3
+
+### 1.3.0
+
+**Release date:** forthcoming [doi:](https://doi.org/)
+
+
+
+---
+
 ## 1.2
 
 Adding additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB. New releases henceforth assigned DOIs from Zenodo.
