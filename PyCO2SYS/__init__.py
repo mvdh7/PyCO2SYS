@@ -1,17 +1,3 @@
-# NEXT STEPS (in no particular order):
-# - Extract pressure correction equations from assemble.equilibria() and add
-#   to relevant equilibria module functions (maybe?)
-# - Add pressure correction references to docs
-# - Extract subfunctions from _CaSolubility() into relevant modules.
-# - Add references from _CaSolubility() to docs.
-# - Calculate Egleston et al. buffer factors.
-# - Calculate isocapnic quotient.
-# - Implement generalised buffer factor equations of Middelburg/Hagens.
-# - Calculate Revelle factor directly, not by differences.
-# - Account for all species in pH solver loops.
-# - Calculate high-Mg calcite solubility.
-# - Move these steps as issues in the Github repo instead of a list here...!
-
 from . import (
     assemble,
     concentrations,
@@ -487,7 +473,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate the pKs at output
     pK1o = -log10(K1o)
     pK2o = -log10(K2o)
-    
+
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
         extra.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
@@ -495,7 +481,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
         extra.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
                             BAlkout, KBo)
-        
+
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
     # [added v1.2.0]
     isoQi = extra.bgc_isocap(CO2inp, PHic, K1i, K2i, KBi, KWi, TB)
