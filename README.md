@@ -8,6 +8,25 @@ Every combination of input parameters has been tested, with differences in the r
 
 Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
 
+## Citation
+
+The citation for PyCO2SYS alone is:
+
+> Humphreys, M., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., & Wallace, D. W. R. (2020). PyCO2SYS v1.3.0: marine carbonate system calculations in Python. Zenodo. [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+
+The DOI above refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
+
+```python
+from PyCO2SYS.meta import version
+```
+
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
+
+Additionally, for the MATLAB programs:
+
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
+
 ## Installation
 
 Install from the Python Package Index:
@@ -233,23 +252,3 @@ The keys of the output `DICT` correspond to the variables in the lists below.
   * `isoQapprox_out`: approximate isocapnic quotient *Q* of [HDW18](https://pyco2sys.readthedocs.io/en/latest/refs/#HDW18) Eq. 7, output conditions.
   * `psi_in`: *ψ* of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), input conditions.
   * `psi_out`: *ψ* of [FCG94](https://pyco2sys.readthedocs.io/en/latest/refs/#FCG94), output conditions.
-
-## Citation
-
-See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
-
-  * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
-  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
-  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
-  * If you use PyCO2SYS, please mention it somewhere with the DOI: [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
-
-Please mention which version of PyCO2SYS you used. **Note that each version has a different DOI - please use the correct one!**
-
-You can find the current version that you are using in Python with:
-
-```python
-from PyCO2SYS.meta import version
-print('This is PyCO2SYS v{}'.format(version))
-```
-
-The DOIs for each version (starting at v1.2.0) are listed in the [documentation of the version history](https://pyco2sys.readthedocs.io/en/latest/versions/).
