@@ -4,6 +4,7 @@ import numpy as onp
 from jax import numpy as np
 from jax import grad, vmap
 import PyCO2SYS as pyco2
+from PyCO2SYS import CO2SYS
 from scipy.misc import derivative
 
 def whoop(varin):
@@ -61,3 +62,6 @@ phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
 print(ph[0])
 print(phag)
 print(phdg)
+
+co2d = CO2SYS(TA, TC, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi, TP,
+              3, 10, 3, NH3=TNH3, H2S=TH2S, KFCONSTANT=1)
