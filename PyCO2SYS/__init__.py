@@ -43,20 +43,6 @@ __author__ = ' and '.join([
 ])
 __version__ = meta.version
 
-#**************************************************************************
-#
-# CO2SYS originally by Lewis and Wallace 1998
-# Converted to MATLAB by Denis Pierrot at
-# CIMAS, University of Miami, Miami, Florida
-# Vectorization, internal refinements and speed improvements by
-# Steven van Heuven, University of Groningen, The Netherlands.
-# Questions, bug reports et cetera (MATLAB): svheuven@gmail.com
-# Conversion to Python by Matthew Humphreys, NIOZ Royal Netherlands Institute
-# for Sea Research, Texel, and Utrecht University, the Netherlands.
-# Questions, bug reports et cetera (Python): m.p.humphreys@icloud.com
-#
-#**************************************************************************
-
 from numpy import (array, exp, full, full_like, log, log10, logical_or, nan,
                    shape, sqrt, zeros)
 from numpy import min as np_min
