@@ -23,6 +23,7 @@ from PyCO2SYS import CO2SYS
 **Release date:** forthcoming [doi:](https://doi.org/)
 
   * Rename module `extra` to `buffers`.
+  * All functions in `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
 
 ---
 
