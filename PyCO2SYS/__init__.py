@@ -35,7 +35,13 @@ __all__ = [
     'solve',
 ]
 
-__author__ = 'Matthew P. Humphreys'
+__author__ = ' and '.join([
+    'Humphreys, Matthew P.',
+    'Pierrot, Denis',
+    'van Heuven, Steven M. A. C.',
+    'Lewis, Ernie',
+    'Wallace, Douglas W. R.',
+])
 __version__ = meta.version
 
 #**************************************************************************
