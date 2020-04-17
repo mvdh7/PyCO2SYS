@@ -13,23 +13,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 from . import (
     assemble,
+    buffers,
     concentrations,
     convert,
     equilibria,
-    extra,
     meta,
     original,
     solve,
 )
 __all__ = [
     'assemble',
+    'buffers',
     'concentrations',
     'convert',
     'equilibria',
-    'extra',
     'meta',
     'original',
     'solve',
@@ -498,20 +497,20 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
-        extra.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
-                            BAlkinp, KBi)
+        buffers.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
+                              BAlkinp, KBi)
     gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
-        extra.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
-                            BAlkout, KBo)
+        buffers.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
+                              BAlkout, KBo)
 
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
     # [added v1.2.0]
-    isoQi = extra.bgc_isocap(CO2inp, PHic, K1i, K2i, KBi, KWi, TB)
-    isoQxi = extra.bgc_isocap_approx(TCc, PCic, K0i, K1i, K2i)
-    psii = extra.psi(CO2inp, PHic, K1i, K2i, KBi, KWi, TB)
-    isoQo = extra.bgc_isocap(CO2out, PHoc, K1o, K2o, KBo, KWo, TB)
-    isoQxo = extra.bgc_isocap_approx(TCc, PCoc, K0o, K1o, K2o)
-    psio = extra.psi(CO2out, PHoc, K1o, K2o, KBo, KWo, TB)
+    isoQi = buffers.bgc_isocap(CO2inp, PHic, K1i, K2i, KBi, KWi, TB)
+    isoQxi = buffers.bgc_isocap_approx(TCc, PCic, K0i, K1i, K2i)
+    psii = buffers.psi(CO2inp, PHic, K1i, K2i, KBi, KWi, TB)
+    isoQo = buffers.bgc_isocap(CO2out, PHoc, K1o, K2o, KBo, KWo, TB)
+    isoQxo = buffers.bgc_isocap_approx(TCc, PCoc, K0o, K1o, K2o)
+    psio = buffers.psi(CO2out, PHoc, K1o, K2o, KBo, KWo, TB)
 
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {

@@ -22,7 +22,7 @@ from PyCO2SYS import CO2SYS
 
 **Release date:** forthcoming [doi:](https://doi.org/)
 
-
+  * Rename module `extra` to `buffers`.
 
 ---
 
