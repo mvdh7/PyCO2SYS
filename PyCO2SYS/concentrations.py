@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 def ionstr_DOE94(Sal):
     """Ionic strength following DOE94."""
     # === CO2SYS.m comments: =======

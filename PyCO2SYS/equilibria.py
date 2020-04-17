@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from numpy import exp, log, log10, sqrt
 from . import concentrations as conc
 
@@ -10,7 +12,7 @@ def kCO2_W74(TempK, Sal):
     lnK0 = (-60.2409 + 93.4517/TempK100 + 23.3585*log(TempK100) +
             Sal*(0.023517 - 0.023656*TempK100 + 0.0047036*TempK100 **2))
     return exp(lnK0)
-    
+
 def kHSO4_FREE_D90a(TempK, Sal):
     """Bisulfate dissociation constant following D90a."""
     # === CO2SYS.m comments: =======
@@ -56,7 +58,7 @@ def kHF_FREE_DR79(TempK, Sal):
     IonS = conc.ionstr_DOE94(Sal)
     lnKF = 1590.2/TempK - 12.641 + 1.525*IonS**0.5
     return exp(lnKF)*(1 - 0.001005*Sal)
-    
+
 def kHF_FREE_PF87(TempK, Sal):
     """Hydrogen fluoride dissociation constant following PF87."""
     # Note that this is not currently used or an option in CO2SYS,
@@ -109,7 +111,7 @@ def kH2O_SWS_HO58_M79(TempK, Sal):
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
     return exp(148.9802 - 13847.26/TempK - 23.6521*log(TempK))
-    
+
 def kH2O_SWS_M95(TempK, Sal):
     """Water dissociation constant following M95."""
     # === CO2SYS.m comments: =======
@@ -118,7 +120,7 @@ def kH2O_SWS_M95(TempK, Sal):
     return exp(148.9802 - 13847.26/TempK - 23.6521*log(TempK) +
         (-5.977 + 118.67/TempK + 1.0495*log(TempK))*
         sqrt(Sal) - 0.01615*Sal)
-    
+
 def kH3PO4_NBS_KP67(TempK, Sal):
     """Phosphate dissociation constants following KP67."""
     # === CO2SYS.m comments: =======
@@ -361,11 +363,11 @@ def kH2CO3_TOT_LDK00(TempK, Sal):
     pK1 = (3633.86/TempK - 61.2172 + 9.6777*log(TempK) - 0.011555*Sal +
            0.0001152*Sal**2)
     K1 = 10.0**-pK1 # this is on the Total pH scale in mol/kg-SW
-    pK2 = (471.78/TempK + 25.929 - 3.16967*log(TempK) - 0.01781 * Sal + 
+    pK2 = (471.78/TempK + 25.929 - 3.16967*log(TempK) - 0.01781 * Sal +
            0.0001122*Sal**2)
     K2 = 10.0**-pK2 # this is on the Total pH scale in mol/kg-SW
     return K1, K2
-        
+
 def kH2CO3_SWS_MM02(TempK, Sal):
     """Carbonic acid dissociation constants following MM02."""
     # === CO2SYS.m comments: =======
@@ -497,7 +499,7 @@ def kNH3_TOT_CW95(TempK, Sal):
     """Ammonium association constant following CW95."""
     # === CO2SYS_v1_21.m comments: =======
     # Clegg Whitfield 1995
-    # Geochimica et Cosmochimica Acta, Vol. 59, No. 12. pp. 2403-2421 
+    # Geochimica et Cosmochimica Acta, Vol. 59, No. 12. pp. 2403-2421
     # eq (18)  Total scale   t=[-2 to 40 oC]  S=[0 to 40 ppt]   pK=+-0.00015
     PKNH3expCW = 9.244605 - 2729.33*(1/298.15 - 1/TempK)
     PKNH3expCW += (0.04203362 - 11.24742/TempK)*Sal**0.25

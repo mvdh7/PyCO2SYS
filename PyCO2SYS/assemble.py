@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from numpy import (array, exp, full, full_like, logical_and, logical_or, nan,
                    size, unique)
 from . import concentrations as conc

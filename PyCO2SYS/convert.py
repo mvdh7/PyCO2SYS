@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 def sws2tot(TS, KS, TF, KF):
     """Seawater to Total pH scale conversion factor."""
     return (1.0 + TS/KS)/(1.0 + TS/KS + TF/KF)
@@ -14,7 +16,7 @@ def fH_PTBO87(TempK, Sal):
     # given there off so that it is about .008 (1#) lower. It
     # doesn't agree with the check value they give on p. 456.
     return 1.29 - 0.00204*TempK + (0.00046 - 0.00000148*TempK)*Sal**2
-        
+
 def fH_TWB82(TempK, Sal):
     """fH following TWB82."""
     # === CO2SYS.m comments: =======

@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from numpy import full_like, log, log10, nan, sqrt
 from numpy import abs as np_abs
 from numpy import any as np_any
