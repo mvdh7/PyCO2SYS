@@ -24,11 +24,11 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
     * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
-    * **p[H<sup>+</sup>]** (type `3`) on the Total, Seawater, Free or NBS scale[^1]. Which scale is given by the input `pHSCALEIN`.
-    * **Partial pressure** (type `4`) or **fugacity of CO<sub>2</sub>** (type `5`) in μatm.
+    * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1]. Which scale is given by the input `pHSCALEIN`.
+    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm.
     * **Carbonate ion concentration** (type `6`) in μmol·kg<sup>−1</sup>
 
-    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
     ---
 
@@ -56,7 +56,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
     * `NH3`: total ammonia in μmol·kg<sup>−1</sup>.
     * `H2S`: total hydrogen sulfide in μmol·kg<sup>−1</sup>.
 
-    Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+    Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
     ---
 
