@@ -2,9 +2,9 @@
 
 [![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS) [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
 
-PyCO2SYS is a Python implementation of CO<sub>2</sub>SYS [[LW98](refs/#LW98), [HPR11](refs/#HPR11), [OEDG18](refs/#OEDG18)], the MATLAB toolbox for marine carbonate system calculations.
+PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties. Its core is a Python implementation of CO<sub>2</sub>SYS for MATLAB [[LW98](refs/#l), [HPR11](refs/#h), [OEDG18](refs/#o)].
 
-## Installation and use
+## Installation
 
 Install from the Python Package Index:
 
@@ -14,18 +14,20 @@ Update an existing installation:
 
     pip install PyCO2SYS --upgrade --no-cache-dir
 
+## Basic use
+
 Import and use very much like in MATLAB with:
 
     :::python
     from PyCO2SYS import CO2SYS
-    CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
-        SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
+    CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+        PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
+        NH3=0.0, H2S=0.0, KFCONSTANT=1)
 
-For a more Pythonic experience, the import convention is:
+Or, for a more Pythonic experience, the import convention is:
 
     :::python
     import PyCO2SYS as pyco2
-
 
 See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for more details on the inputs and outputs.
 
@@ -48,4 +50,4 @@ Additionally, for the MATLAB programs:
 
 ## About
 
-PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz/) at NIOZ Royal Netherlands Institute for Sea Research, Department of Ocean Systems (OCS), and Utrecht University, Texel, the Netherlands.
+PyCO2SYS is maintained by [Dr Matthew P. Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
