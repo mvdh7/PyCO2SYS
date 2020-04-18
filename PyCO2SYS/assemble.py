@@ -137,17 +137,91 @@ def eq_KH2S(TempK, Sal, WhichKs, SWStoTOT):
     """Calculate hydrogen disulfide dissociation constant for the given
     options.
     """
-    KH2S = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0, nan)
-    KH2S = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
-        eq.kH2S_TOT_YM95(TempK, Sal)/SWStoTOT, KH2S) # convert TOT to SWS
+    KH2S = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0,
+        eq.kH2S_TOT_YM95(TempK, Sal)/SWStoTOT) # convert TOT to SWS
     return KH2S
 
 def eq_KNH3(TempK, Sal, WhichKs, SWStoTOT):
     """Calculate ammonium dissociation constant for the given options."""
-    KNH3 = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0, nan)
-    KNH3 = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
-        eq.kNH3_TOT_CW95(TempK, Sal)/SWStoTOT, KNH3) # convert TOT to SWS
+    KNH3 = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0,
+        eq.kNH3_TOT_CW95(TempK, Sal)/SWStoTOT) # convert TOT to SWS
     return KNH3
+
+def eq_KC(TempK, Sal, WhichKs, fH, SWStoTOT):
+    """Calculate carbonic acid dissociation constants for the given options."""
+    K1 = full_like(TempC, nan)
+    K2 = full_like(TempC, nan)
+    F = WhichKs==1
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_TOT_RRV93(TempK, Sal)
+        K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
+        K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
+    F = WhichKs==2
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_GP89(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==3
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_H73_DM87(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==4
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_MCHP73_DM87(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==5
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_HM_DM87(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = logical_or(WhichKs==6, WhichKs==7)
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_NBS_MCHP73(TempK, Sal)
+        K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
+        K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
+    F = WhichKs==8
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_M79(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==9
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_NBS_CW98(TempK, Sal)
+        K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
+        K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
+    F = WhichKs==10
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_TOT_LDK00(TempK, Sal)
+        K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
+        K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
+    F = WhichKs==11
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_MM02(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==12
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_MPL02(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==13
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_MGH06(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==14
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_M10(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    F = WhichKs==15
+    if any(F):
+        K1_F, K2_F = eq.kH2CO3_SWS_WMW14(TempK, Sal)
+        K1 = where(F, K1_F, K1)
+        K2 = where(F, K2_F, K2)
+    return K1, K2
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         TF, TS):
