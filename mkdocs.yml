@@ -12,7 +12,7 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 # Navigation
 nav:
   - Overview: index.md
-  - Calculate everything: co2sys.md
+  - Calculate everything!: co2sys.md
   - References: refs.md
   - Version history: versions.md
 
@@ -37,3 +37,6 @@ markdown_extensions:
   - toc:
       permalink: true
   - footnotes
+  - pymdownx.arithmatex
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML
