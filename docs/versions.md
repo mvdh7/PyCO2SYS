@@ -6,15 +6,13 @@ Version numbering aims to follow [semantic versioning](https://semver.org/). The
   * New minor versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code. They will not alter the results of calculations with default settings.
   * New major versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things. They may alter the results of calculations with default settings.
 
-*Will (not) break your code* refers **only** to how you use the main `CO2SYS` function as imported with:
 
-```python
-from PyCO2SYS import CO2SYS
-```
-
-**However, the structure of the underlying modules and their functions is not yet stable and, for now, may change in any version increment.** Such changes will be described in the release notes below.
-
----
+!!! warning
+    *Will (not) break your code* refers **only** to how you use the main `CO2SYS` function as imported with:
+    ```python
+    from PyCO2SYS import CO2SYS
+    ```
+    However, the structure of the underlying modules and their functions is not yet stable and, for now, may change in any version increment. Such changes will be described in the release notes below.
 
 ## 1.3
 
@@ -28,8 +26,6 @@ from PyCO2SYS import CO2SYS
     * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
   * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
   * Added module `constants` for storing values of universal physical constants.
-
----
 
 ## 1.2
 
@@ -51,8 +47,6 @@ Adding additional buffer factor calculations that are not currently included in 
     * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 7.
     * `psi` calculates the $\psi$ factor of [FCG94](../refs/#FCG94).
   * Added all functions in `extra` to the `CO2dict` output of the main `CO2SYS` function, and documented in the [Github repo README](https://github.com/mvdh7/PyCO2SYS#pyco2sys).
-
----
 
 ## 1.1
 
@@ -77,8 +71,6 @@ Adding extra optional inputs for consistency with Pierrot et al.'s tentatively f
   * Output is now only the `CO2dict` dict, not the original `DATA`, `HEADERS` and `NICEHEADERS`.
   * Eliminated all global variables throughout the entire program.
 
----
-
 ## 1.0
 
 ### 1.0.1
@@ -95,7 +87,7 @@ Starting to make things more Pythonic.
 
 **Release date:** 3 February 2020
 
-An as-close-as-possible clone of MATLAB CO2SYS v2.0.5, obtained from [github.com/jamesorr/CO2SYS-MATLAB](https://github.com/jamesorr/CO2SYS-MATLAB).
+An as-close-as-possible clone of [MATLAB CO2SYS v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
 
   * The first output `DICT` is new: a dict containing a separate entry for each variable in the original output `DATA`, with the keys named following the original output `HEADERS`.
   * The output `DATA` is transposed relative to the MATLAB version because Numpy is row-major while MATLAB is column-major.
