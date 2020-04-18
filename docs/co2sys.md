@@ -10,9 +10,62 @@ The simplest way to use PyCO2SYS is to follow the approach of previous versions 
 
 Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here. Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.
 
-!!! info "`pyco2.CO2SYS` inputs"
+!!! info "`PyCO2SYS.CO2SYS` inputs"
+    ***Carbonate system parameters***
+
     * `PAR1` and `PAR2`: values of two different carbonate system parameters.
+    * `PAR1TYPE` and `PAR2TYPE`: which types of parameter `PAR1` and `PAR2` are.
 
-    These
+    These can be any pair of:
 
-    * `PAR1TYPE` and `PAR2TYPE`: the types
+    * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
+    * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
+    * **p[H<sup>+</sup>]** (type `3`) on the Total, Seawater, Free or NBS scale[^1]. Which scale is given by the input `pHSCALEIN`.
+    * **Partial pressure** (type `4`) or **fugacity of CO<sub>2</sub>** (type `5`) in μatm.
+    * **Carbonate ion concentration** (type `6`) in μmol·kg<sup>−1</sup>
+
+    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+
+    ---
+
+    ***Hydrographic conditions***
+
+    * `SAL`: practical salinity (dimensionless).
+    * `TEMPIN`: temperature at which `PAR1` and `PAR2` inputs are provided in °C.
+    * `TEMPOUT`: temperature at which output results will be calculated in °C.
+    * `PRESIN`: pressure at which `PAR1` and `PAR2` inputs are provided in dbar.
+    * `PRESOUT`: pressure at which output results will be calculated in dbar.
+
+    For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `TEMPIN = 25`, `TEMPOUT = 2.5`, `PRESIN = 0`, and `PRESIN = 1000`.
+
+    ---
+
+    ***Nutrients***
+
+    *Required:*
+
+    * `SI`: total silicate in μmol·kg<sup>−1</sup>.
+    * `PO4`: total phosphate in μmol·kg<sup>−1</sup>.
+
+    *Optional (these default to zero if not specified):*
+
+    * `NH3`: total ammonia in μmol·kg<sup>−1</sup>.
+    * `H2S`: total hydrogen sulfide in μmol·kg<sup>−1</sup>.
+
+    Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+
+    ---
+
+    ***Settings***
+
+    *Required:*
+
+    * `pHSCALEIN`: which pH scale was used for any pH entries in `PAR1` or `PAR2`.
+    * `K1K2CONSTANTS`: which set of equilibrium constants to use to model carbonic acid dissociation.
+    * `KSO4CONSTANTS`: which equilibrium constant to use to model bisulfate ion dissociation **and** which boron:salinity relationship to use to estimate total borate.
+
+    *Optional:*
+
+    * `KFCONSTANT`: which equilibrium constant to use for hydrogen fluoride dissociation.
+
+[^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
