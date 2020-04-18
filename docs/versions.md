@@ -17,7 +17,7 @@
 
 ## 1.3
 
-Continues to reorganise code structure behind the scenes. Makes all functions [Autograd](https://github.com/HIPS/autograd)-able.
+Continues to reorganise code structure behind the scenes. Makes all functions [Autograd](https://github.com/HIPS/autograd)-able. Adds documentation and workflow examples.
 
 ### 1.3.0 (forthcoming)
 
@@ -50,7 +50,7 @@ Adds additional buffer factor calculations that are not currently included in CO
 
 ## 1.1
 
-Adds extra optional inputs for consistency with Pierrot et al.'s tentatively forthcoming MATLAB "v1.21". Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
+Adds extra optional inputs for consistency with Pierrot et al.'s forthcoming MATLAB "v1.21". Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
 
 ### 1.1.1 (20 Mar 2020)
 

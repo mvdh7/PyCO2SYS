@@ -11,9 +11,9 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 
 # Navigation
 nav:
-  - Overview and installation: index.md
-  - Version history: versions.md
+  - Overview: index.md
   - References: refs.md
+  - Version history: versions.md
 
 # Appearance
 theme:
@@ -35,3 +35,4 @@ markdown_extensions:
       guess_lang: false
   - toc:
       permalink: true
+  - footnotes
