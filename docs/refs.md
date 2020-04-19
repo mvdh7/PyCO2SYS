@@ -59,7 +59,7 @@ Click on each reference to see more details.
     Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. *Deep-Sea Research* 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.
 
 ??? note "H73b: Hansson (1973) *Acta Chem. Scand.*"
-    Hansson, I. (1973b). The Determination of Dissociation Constants of Carbonic Acid in Synthetic Sea Water in the Salinity Range of 20–40 ‰ and Temperature Range of 5–30°C. *Acta Chemica Scandinavica* 27, 931–944. [doi:10.3891/acta.chem.scand.27-0931](https://doi.org/10.3891/acta.chem.scand.27-0931).
+    Hansson, I. (1973). The Determination of Dissociation Constants of Carbonic Acid in Synthetic Sea Water in the Salinity Range of 20–40 ‰ and Temperature Range of 5–30°C. *Acta Chemica Scandinavica* 27, 931–944. [doi:10.3891/acta.chem.scand.27-0931](https://doi.org/10.3891/acta.chem.scand.27-0931).
 
 ??? note "HDW18: Humphreys et al. (2018) *Mar. Chem.*"
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).

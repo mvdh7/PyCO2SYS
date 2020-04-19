@@ -34,7 +34,7 @@ The modules and functions contained within are documented in more detail here.
             PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
             NH3=0.0, H2S=0.0, KFCONSTANT=1)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables. Its keys are named following the `HEADERS` output from the original MATLAB program. See the [Github repo README](https://github.com/mvdh7/pyco2sys#pyco2sys) for more details on the inputs and outputs.
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables. Its keys are named following the `HEADERS` output from the original MATLAB program. See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
 
 ## Citation
 
