@@ -5,10 +5,16 @@
 The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO<sub>2</sub>SYS and calculate every possible variable of interest at once. We can do this using the top-level `CO2SYS` function:
 
     :::python
+    # Import the function
     from PyCO2SYS import CO2SYS
+
+    # Run CO2SYS
     CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
         NH3=0.0, H2S=0.0, KFCONSTANT=1)
+
+    # Get (e.g.) aragonite saturation state, output conditions
+    OmegaARout = CO2dict['OmegaARout']
 
 Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables. These are described in detail in the following sections.
 
@@ -36,11 +42,11 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     ***Hydrographic conditions***
 
-    * `SAL`: practical salinity (dimensionless).
-    * `TEMPIN`: temperature at which `PAR1` and `PAR2` inputs are provided in °C.
-    * `TEMPOUT`: temperature at which output results will be calculated in °C.
-    * `PRESIN`: pressure at which `PAR1` and `PAR2` inputs are provided in dbar.
-    * `PRESOUT`: pressure at which output results will be calculated in dbar.
+    * `SAL`: **practical salinity** (dimensionless).
+    * `TEMPIN`: **temperature** at which `PAR1` and `PAR2` inputs are provided in °C.
+    * `TEMPOUT`: **temperature** at which output results will be calculated in °C.
+    * `PRESIN`: **pressure** at which `PAR1` and `PAR2` inputs are provided in dbar.
+    * `PRESOUT`: **pressure** at which output results will be calculated in dbar.
 
     For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `TEMPIN = 25`, `TEMPOUT = 2.5`, `PRESIN = 0`, and `PRESIN = 1000`.
 
@@ -50,13 +56,13 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     *Required:*
 
-    * `SI`: total silicate in μmol·kg<sup>−1</sup>.
-    * `PO4`: total phosphate in μmol·kg<sup>−1</sup>.
+    * `SI`: **total silicate** in μmol·kg<sup>−1</sup>.
+    * `PO4`: **total phosphate** in μmol·kg<sup>−1</sup>.
 
     *Optional (these default to zero if not specified):*
 
-    * `NH3`: total ammonia in μmol·kg<sup>−1</sup>.
-    * `H2S`: total hydrogen sulfide in μmol·kg<sup>−1</sup>.
+    * `NH3`: **total ammonia** in μmol·kg<sup>−1</sup>.
+    * `H2S`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
 
     Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
@@ -66,13 +72,13 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     *Required:*
 
-    * `pHSCALEIN`: which pH scale was used for any pH entries in `PAR1` or `PAR2`, as defined by [ZW01](../refs/#z):
+    * `pHSCALEIN`: which **pH scale** was used for any pH entries in `PAR1` or `PAR2`, as defined by [ZW01](../refs/#z):
         * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$.
         * `2`: Seawater, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])$.
         * `3`: Free, i.e. $\mathrm{pH} = -\log_{10} [\mathrm{H}^+]$.
         * `4`: NBS, i.e. relative to [NBS/NIST](https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist) reference standards.
 
-    * `K1K2CONSTANTS`: which set of equilibrium constants to use to model carbonic acid dissociation:
+    * `K1K2CONSTANTS`: which set of equilibrium constants to use to model **carbonic acid dissociation:**
         * `1`: [RRV93](../refs/#r) (0 < *T* < 45 °C, 5 < *S* < 45, Total scale, artificial seawater).
         * `2`: [GP89](../refs/#g) (-1 < *T* < 40 °C, 10 < *S* < 50, Seawater scale, artificial seawater).
         * `3`: [H73a](../refs/#h) and [H73b](../refs/#h) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
@@ -91,7 +97,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
-    * `KSO4CONSTANTS`: which equilibrium constant to use to model bisulfate ion dissociation **and** which boron:salinity relationship to use to estimate total borate:
+    * `KSO4CONSTANTS`: (1) which equilibrium constant to use to model **bisulfate ion dissociation** and (2) which **boron:salinity** relationship to use to estimate total borate:
 
         * `1`: [D90a](../refs/#d) for bisulfate dissociation and [U74](../refs/#u) for borate:salinity.
         * `2`: [KRCB77](../refs/#k) for bisulfate dissociation and [U74](../refs/#u) for borate:salinity.
@@ -102,18 +108,13 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     *Optional:*
 
-    * `KFCONSTANT`: which equilibrium constant to use for hydrogen fluoride dissociation.
+    * `KFCONSTANT`: which equilibrium constant to use for **hydrogen fluoride dissociation:**
         * `1`: [DR79](../refs/#d) (default, consistent with CO<sub>2</sub>SYS for MATLAB).
         * `2`: [PF87](../refs/#p).
 
 ## Outputs
 
 The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries). The keys to the dict are the same as the entries in the output `HEADERS` in CO<sub>2</sub>SYS for MATLAB and are listed in the section below.
-
-As an example, to find the saturation state of aragonite under the output conditions (i.e. at `TEMPOUT` and `PRESOUT`):
-
-    :::python
-    OmegaARout = CO2dict['OmegaARout']
 
 !!! abstract "`PyCO2SYS.CO2SYS` outputs"
     The only output is a dict. Its keys are as follows:
