@@ -17,7 +17,7 @@
 
 ## 1.3
 
-Continues to reorganise code structure behind the scenes. Makes all functions [Autograd](https://github.com/HIPS/autograd)-able. Adds documentation and workflow examples.
+Continues to reorganise code structure behind the scenes. Makes all functions [Autograd](https://github.com/HIPS/autograd)-able.
 
 ### 1.3.0 (forthcoming)
 
@@ -28,6 +28,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
     * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
     * Added module `constants` for storing values of universal physical constants.
+    * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
 
 ## 1.2
 
