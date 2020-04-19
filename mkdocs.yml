@@ -13,6 +13,16 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 nav:
   - Overview: index.md
   - Calculate everything!: co2sys.md
+  # - Module reference:
+  #   - <code>buffers</code>: modules/buffers.md
+  #   - <code>concentrations</code>: modules/concentrations.md
+  #   - <code>constants</code>: modules/constants.md
+  #   - <code>convert</code>: modules/convert.md
+  #   - <code>equilibria</code>: modules/equilibria.md
+  #   - <code>meta</code>: modules/meta.md
+  #   - <code>original</code>: modules/original.md
+  #   - <code>solubility</code>: modules/solubility.md
+  #   - <code>solve</code>: modules/solve.md
   - References: refs.md
   - Version history: versions.md
 
