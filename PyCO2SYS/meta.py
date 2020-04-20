@@ -3,10 +3,11 @@
 "Define metadata about the PyCO2SYS package."
 
 version = '1.3.0'
-authors = ' and '.join([
+authorlist = [
     'Humphreys, Matthew P.',
     'Pierrot, Denis',
     'van Heuven, Steven M. A. C.',
     'Lewis, Ernie',
     'Wallace, Douglas W. R.',
-])
+]
+authors = ' and '.join(authorlist)
