@@ -7,7 +7,6 @@
       * New minor versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code. They will not alter the results of calculations with default settings.
       * New major versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things. They may alter the results of calculations with default settings.
 
-
 !!! warning
     *Will (not) break your code* refers **only** to how you use the main `CO2SYS` function as imported with:
     ```python
@@ -24,13 +23,15 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
 !!! example "Changes in v1.3.0"
     * Entire package updated to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Renamed module `extra` as `buffers`.
-    * Relocated `_CaSolubility` function from root into new module `solubility` and renamed as `CaCO3`.
+    * Added module `solubility` for mineral solubility calculations.
+    * Relocated `_CaSolubility` function from root to `solubility.CaCO3`.
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
-    * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
+    * Relocated `_RevelleFactor` function from root to `buffers.RevelleFactor`.
+    * Relocated `_FindpHOnAllScales` function from root to `convert.pH2allscales`.
     * Added module `constants` for storing values of universal physical constants.
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
     * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
-    * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for better safety.
+    * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for safety.
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
 
 ## 1.2

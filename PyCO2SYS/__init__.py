@@ -48,26 +48,6 @@ from autograd.numpy import (array, exp, full, log, log10, nan, shape, size,
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 
-def _FindpHOnAllScales(pH, pHScale, KSO4, KF, TSO4, TF, fH):
-    """Calculate pH on all scales.
-
-    This takes the pH on the given scale and finds the pH on all scales.
-
-    Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
-    """
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    SWStoTOT = convert.sws2tot(TSO4, KSO4, TF, KF)
-    factor = full(size(pH), nan)
-    factor = where(pHScale==1, 0.0, factor) # Total scale
-    factor = where(pHScale==2, log10(SWStoTOT), factor) # Seawater scale
-    factor = where(pHScale==3, log10(FREEtoTOT), factor) # Free scale
-    factor = where(pHScale==4, log10(SWStoTOT/fH), factor) # NBS scale
-    pHtot = pH - factor # pH comes into this function on the given scale
-    pHNBS = pHtot + log10(SWStoTOT/fH)
-    pHfree = pHtot + log10(FREEtoTOT)
-    pHsws = pHtot + log10(SWStoTOT)
-    return pHtot, pHsws, pHfree, pHNBS
-
 def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON, KSO4CONSTANTS=0):
@@ -177,8 +157,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales
-    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, Kis['KSO4'],
-        Kis['KF'], totals['TSO4'], totals['TF'], fHi)
+    pHicT, pHicS, pHicF, pHicN = convert.pH2allscales(PHic, pHScale,
+        Kis['KSO4'], Kis['KF'], totals['TSO4'], totals['TF'], fHi)
 
     # Calculate the constants for all samples at output conditions
     K0o, fHo, Kos = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
@@ -205,8 +185,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales
-    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, Kos['KSO4'],
-        Kos['KF'], totals['TSO4'], totals['TF'], fHo)
+    pHocT, pHocS, pHocF, pHocN = convert.pH2allscales(PHoc, pHScale,
+        Kos['KSO4'], Kos['KF'], totals['TSO4'], totals['TF'], fHo)
 
     # Calculate the pKs at output
     pK1o = -log10(Kos['K1'])

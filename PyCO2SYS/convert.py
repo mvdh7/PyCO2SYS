@@ -2,6 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Convert units and calculate conversion factors."""
 
+from autograd.numpy import full, log10, nan, size, where
 from .constants import Tzero
 
 def sws2tot(TSO4, KSO4, TF, KF):
@@ -35,3 +36,23 @@ def TempC2K(TempC):
 def TempK2C(TempK):
     """Convert temperature from K to degC."""
     return TempK - Tzero
+
+def pH2allscales(pH, pHScale, KSO4, KF, TSO4, TF, fH):
+    """Calculate pH on all scales.
+
+    This takes the pH on the given scale and finds the pH on all scales.
+
+    Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
+    """
+    FREEtoTOT = free2tot(TSO4, KSO4)
+    SWStoTOT = sws2tot(TSO4, KSO4, TF, KF)
+    factor = full(size(pH), nan)
+    factor = where(pHScale==1, 0.0, factor) # Total scale
+    factor = where(pHScale==2, log10(SWStoTOT), factor) # Seawater scale
+    factor = where(pHScale==3, log10(FREEtoTOT), factor) # Free scale
+    factor = where(pHScale==4, log10(SWStoTOT/fH), factor) # NBS scale
+    pHtot = pH - factor # pH comes into this function on the given scale
+    pHNBS = pHtot + log10(SWStoTOT/fH)
+    pHfree = pHtot + log10(FREEtoTOT)
+    pHsws = pHtot + log10(SWStoTOT)
+    return pHtot, pHsws, pHfree, pHNBS
