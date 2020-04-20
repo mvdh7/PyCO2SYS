@@ -73,6 +73,15 @@ print(co2e['TAlk'][0])
 # clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 # clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
+tmpo = 26.0
+
+def gtest(tmpo):
+    return CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, 15.0, tmpo, 0.0, Pdbar, TSi*1e6,
+              TP*1e6, 3, 10, 3)['pHoutSWS'][0]
+
+omg = egrad(gtest)(26.0)
+print(omg)
+
 # # From 2 to 6
 # TA, TC, PH, PC, FC, CARB = pyco2.solve.from2to6(p1, p2, K0, Ks, Ts, TA, TC, PH,
 #     PC, FC, CARB, PengCorrection, FugFac)
@@ -86,3 +95,20 @@ print(co2e['TAlk'][0])
 # eq = lambda TS: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
 #     WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
 # print(egrad(eq)(TS)[0])
+
+# why nan?
+aa = anp.array
+test = egrad(lambda *args: pyco2.assemble.eq_KC(*args)[0], argnum=0)(
+    aa([298.15]), aa([35.0]), aa([10.0]), aa([6]), aa([1.0]), aa([1.0]))
+print(' ')
+print(test)
+
+test2 = egrad(lambda TempK, Sal: pyco2.equilibria.kH2CO3_NBS_MCHP73(TempK, Sal)[0],
+              argnum=0)(aa([298.15]), aa([35.0]))
+print(test2)
+
+pcxargs = (aa([298.15]), aa([10.0]), aa([6]))
+test3 = egrad(pyco2.assemble._pcxK1)(*pcxargs)
+test4 = pyco2.assemble._pcxK1(*pcxargs)
+print(test4)
+print(test3)

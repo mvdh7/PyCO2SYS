@@ -4,13 +4,13 @@
 
 from .constants import Tzero
 
-def sws2tot(TS, KS, TF, KF):
+def sws2tot(TSO4, KSO4, TF, KF):
     """Seawater to Total pH scale conversion factor."""
-    return (1.0 + TS/KS)/(1.0 + TS/KS + TF/KF)
+    return (1.0 + TSO4/KSO4)/(1.0 + TSO4/KSO4 + TF/KF)
 
-def free2tot(TS, KS):
+def free2tot(TSO4, KSO4):
     """Free to Total pH scale conversion factor."""
-    return 1.0 + TS/KS
+    return 1.0 + TSO4/KSO4
 
 def fH_PTBO87(TempK, Sal):
     """fH following PTBO87."""

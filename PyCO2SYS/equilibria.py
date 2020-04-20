@@ -13,7 +13,7 @@ def kCO2_W74(TempK, Sal):
     # This is in mol/kg-SW/atm.
     TempK100 = TempK/100
     lnK0 = (-60.2409 + 93.4517/TempK100 + 23.3585*log(TempK100) +
-            Sal*(0.023517 - 0.023656*TempK100 + 0.0047036*TempK100 **2))
+            Sal*(0.023517 - 0.023656*TempK100 + 0.0047036*TempK100**2))
     return exp(lnK0)
 
 def kHSO4_FREE_D90a(TempK, Sal):
@@ -27,11 +27,11 @@ def kHSO4_FREE_D90a(TempK, Sal):
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
     logTempK = log(TempK)
     IonS = conc.ionstr_DOE94(Sal)
-    lnKS = (-4276.1/TempK + 141.328 - 23.093*logTempK +
-      (-13856/TempK + 324.57 - 47.986*logTempK)*sqrt(IonS) +
-      (35474/TempK - 771.54 + 114.723*logTempK)*IonS +
-      (-2698/TempK)*sqrt(IonS)*IonS + (1776/TempK)*IonS**2)
-    return exp(lnKS)*(1 - 0.001005*Sal)
+    lnKSO4 = (-4276.1/TempK + 141.328 - 23.093*logTempK +
+        (-13856/TempK + 324.57 - 47.986*logTempK)*sqrt(IonS) +
+        (35474/TempK - 771.54 + 114.723*logTempK)*IonS +
+        (-2698/TempK)*sqrt(IonS)*IonS + (1776/TempK)*IonS**2)
+    return exp(lnKSO4)*(1 - 0.001005*Sal)
 
 def kHSO4_FREE_KRCB77(TempK, Sal):
     """Bisulfate dissociation constant following KRCB77."""
@@ -50,8 +50,8 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
     IonS = conc.ionstr_DOE94(Sal)
-    pKS = 647.59/TempK - 6.3451 + 0.019085*TempK - 0.5208*sqrt(IonS)
-    return 10.0**-pKS*(1 - 0.001005*Sal)
+    pKSO4 = 647.59/TempK - 6.3451 + 0.019085*TempK - 0.5208*sqrt(IonS)
+    return 10.0**-pKSO4*(1 - 0.001005*Sal)
 
 def kHF_FREE_DR79(TempK, Sal):
     """Hydrogen fluoride dissociation constant following DR79."""
@@ -302,12 +302,12 @@ def kH2CO3_NBS_MCHP73(TempK, Sal):
     # The 2s precision in pK2 is .008, or 2% in K2.
     pK1 = (- 13.7201 + 0.031334*TempK + 3235.76/TempK
         + 1.3e-5*Sal*TempK - 0.1032*Sal**0.5)
-    K1 = 10.0**(-pK1)         # this is on the NBS scale
+    K1 = 10.0**-pK1 # this is on the NBS scale
     pK2 = (5371.9645 + 1.671221*TempK + 0.22913*Sal + 18.3802*log10(Sal)
              - 128375.28/TempK - 2194.3055*log10(TempK) - 8.0944e-4*Sal*TempK
              - 5617.11*log10(Sal)/TempK + 2.136*Sal/TempK)
     # pK2 is not defined for Sal=0, since log10(0)=-inf
-    K2 = 10.0**(-pK2) # this is on the NBS scale
+    K2 = 10.0**-pK2 # this is on the NBS scale
     return K1, K2
 
 def kH2CO3_SWS_M79(TempK, Sal):

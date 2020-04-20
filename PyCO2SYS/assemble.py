@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-from autograd.numpy import array, exp, full, full_like, nan, size, unique, where
+from autograd.numpy import array, exp, full, nan, size, unique, where
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
@@ -119,14 +119,11 @@ def eq_fH(TempK, Sal, WhichKs):
 def _pcxKB(TempK, Pbar, WhichKs):
     """Calculate pressure correction factor for KB."""
     TempC = convert.TempK2C(TempK)
-    deltaV = full(size(TempK), nan)
-    Kappa = full(size(TempK), nan)
     KBfac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
     F = WhichKs==8 # freshwater
     if any(F):
         # this doesn't matter since TB = 0 for this case
-        deltaV = where(F, 0.0, deltaV)
-        Kappa = where(F, 0.0, Kappa)
+        KBfac = where(F, 1.0, KBfac)
     F = (WhichKs==6) | (WhichKs==7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -143,7 +140,7 @@ def _pcxKB(TempK, Pbar, WhichKs):
     if any(F):
         # This is from Millero, 1979.
         # It is from data of Culberson and Pytkowicz, 1968.
-        deltaV = where(F, -29.48 + 0.1622*TempC - 0.002608*TempC**2, deltaV)
+        deltaV = -29.48 + 0.1622*TempC - 0.002608*TempC**2
         # Millero, 1983 has:
         #   deltaV = -28.56 + .1211*TempCi - .000321*TempCi*TempCi
         # Millero, 1992 has:
@@ -151,14 +148,12 @@ def _pcxKB(TempK, Pbar, WhichKs):
         # Millero, 1995 has:
         #   deltaV = -29.48 - .1622*TempCi - .002608*TempCi*TempCi
         #   deltaV = deltaV + .295*(Sali - 34.8) # Millero, 1979
-        Kappa = where(F, -2.84/1000, Kappa) # Millero, 1979
+        Kappa = -2.84/1000 # Millero, 1979
         # Millero, 1992 and Millero, 1995 also have this.
         #   Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
         # Millero, 1983 has:
         #   Kappa = (-3 + .0427*TempCi)/1000
-    # Now get final KBfac
-    F = (WhichKs==6) | (WhichKs==7)
-    KBfac = where(F, KBfac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+        KBfac = where(F, _pcxKfac(deltaV, Kappa, Pbar, TempK), KBfac)
     return KBfac
 
 def eq_KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
@@ -343,14 +338,13 @@ def eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
 def _pcxK1(TempK, Pbar, WhichKs):
     """Calculate pressure correction factor for K1."""
     TempC = convert.TempK2C(TempK)
-    deltaV = full(size(TempK), nan)
-    Kappa = full(size(TempK), nan)
     K1fac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
     F = WhichKs==8 # freshwater
     if any(F):
         # Pressure effects on K1 in freshwater: this is from Millero, 1983.
-        deltaV = where(F, -30.54 + 0.1849*TempC - 0.0023366*TempC**2, deltaV)
-        Kappa = where(F, (-6.22 + 0.1368*TempC - 0.001233*TempC**2)/1000, Kappa)
+        deltaV = -30.54 + 0.1849*TempC - 0.0023366*TempC**2
+        Kappa = (-6.22 + 0.1368*TempC - 0.001233*TempC**2)/1000
+        K1fac = where(F, _pcxKfac(deltaV, Kappa, Pbar, TempK), K1fac)
     F = (WhichKs==6) | (WhichKs==7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -368,27 +362,24 @@ def _pcxK1(TempK, Pbar, WhichKs):
         # These are from Millero, 1995.
         # They are the same as Millero, 1979 and Millero, 1992.
         # They are from data of Culberson and Pytkowicz, 1968.
-        deltaV = where(F, -25.5 + 0.1271*TempC, deltaV)
+        deltaV = -25.5 + 0.1271*TempC
         # deltaV = deltaV - .151*(Sali - 34.8) # Millero, 1979
-        Kappa = where(F, (-3.08 + 0.0877*TempC)/1000, Kappa)
+        Kappa = (-3.08 + 0.0877*TempC)/1000
         # Kappa = Kappa - .578*(Sali - 34.8)/1000 # Millero, 1979
         # The fits given in Millero, 1983 are somewhat different.
-    # Now get final K1fac
-    F = (WhichKs==6) | (WhichKs==7)
-    K1fac = where(F, K1fac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+        K1fac = where(F, _pcxKfac(deltaV, Kappa, Pbar, TempK), K1fac)
     return K1fac
 
 def _pcxK2(TempK, Pbar, WhichKs):
     """Calculate pressure correction factor for K2."""
     TempC = convert.TempK2C(TempK)
-    deltaV = full(size(TempK), nan)
-    Kappa = full(size(TempK), nan)
     K2fac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
     F = WhichKs==8 # freshwater
     if any(F):
         # Pressure effects on K2 in freshwater: this is from Millero, 1983.
-        deltaV = where(F, -29.81 + 0.115*TempC - 0.001816*TempC**2, deltaV)
-        Kappa = where(F, (-5.74 + 0.093*TempC - 0.001896*TempC**2)/1000, Kappa)
+        deltaV = -29.81 + 0.115*TempC - 0.001816*TempC**2
+        Kappa = (-5.74 + 0.093*TempC - 0.001896*TempC**2)/1000
+        K2fac = where(F, _pcxKfac(deltaV, Kappa, Pbar, TempK), K2fac)
     F = (WhichKs==6) | (WhichKs==7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -408,21 +399,19 @@ def _pcxK2(TempK, Pbar, WhichKs):
         # These are from Millero, 1995.
         # They are the same as Millero, 1979 and Millero, 1992.
         # They are from data of Culberson and Pytkowicz, 1968.
-        deltaV = where(F, -15.82 - 0.0219*TempC, deltaV)
+        deltaV = -15.82 - 0.0219*TempC
         # deltaV = deltaV + .321*(Sali - 34.8) # Millero, 1979
-        Kappa = where(F, (1.13 - 0.1475*TempC)/1000, Kappa)
+        Kappa = (1.13 - 0.1475*TempC)/1000
         # Kappa = Kappa - .314*(Sali - 34.8)/1000 # Millero, 1979
         # The fit given in Millero, 1983 is different.
         # Not by a lot for deltaV, but by much for Kappa.
-    # Now get final K2fac
-    F = (WhichKs==6) | (WhichKs==7)
-    K2fac = where(F, K2fac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+        K2fac = where(F, _pcxKfac(deltaV, Kappa, Pbar, TempK), K2fac)
     return K2fac
 
-def _get_eqKC(F, Kfunc, pHcx, K1, K2, TS):
+def _get_eqKC(F, Kfunc, pHcx, K1, K2, ts):
     """Convenience function for getting and setting K1 and K2 values."""
     if any(F):
-        K1_F, K2_F = Kfunc(*TS)
+        K1_F, K2_F = Kfunc(*ts)
         K1 = where(F, K1_F/pHcx, K1)
         K2 = where(F, K2_F/pHcx, K2)
     return K1, K2
@@ -432,22 +421,22 @@ def eq_KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
     # Evaluate at atmospheric pressure
     K1 = full(size(TempK), nan)
     K2 = full(size(TempK), nan)
-    TS = (TempK, Sal) # for convenience
-    K1, K2 = _get_eqKC(WhichKs==1, eq.kH2CO3_TOT_RRV93, SWStoTOT0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==2, eq.kH2CO3_SWS_GP89, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==3, eq.kH2CO3_SWS_H73_DM87, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==4, eq.kH2CO3_SWS_MCHP73_DM87, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==5, eq.kH2CO3_SWS_HM_DM87, 1.0, K1, K2, TS)
+    ts = (TempK, Sal) # for convenience
+    K1, K2 = _get_eqKC(WhichKs==1, eq.kH2CO3_TOT_RRV93, SWStoTOT0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==2, eq.kH2CO3_SWS_GP89, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==3, eq.kH2CO3_SWS_H73_DM87, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==4, eq.kH2CO3_SWS_MCHP73_DM87, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==5, eq.kH2CO3_SWS_HM_DM87, 1.0, K1, K2, ts)
     K1, K2 = _get_eqKC((WhichKs==6) | (WhichKs==7), eq.kH2CO3_NBS_MCHP73, fH,
-                       K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==8, eq.kH2CO3_SWS_M79, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==9, eq.kH2CO3_NBS_CW98, fH, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==10, eq.kH2CO3_TOT_LDK00, SWStoTOT0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==11, eq.kH2CO3_SWS_MM02, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==12, eq.kH2CO3_SWS_MPL02, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==13, eq.kH2CO3_SWS_MGH06, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==14, eq.kH2CO3_SWS_M10, 1.0, K1, K2, TS)
-    K1, K2 = _get_eqKC(WhichKs==15, eq.kH2CO3_SWS_WMW14, 1.0, K1, K2, TS)
+                       K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==8, eq.kH2CO3_SWS_M79, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==9, eq.kH2CO3_NBS_CW98, fH, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==10, eq.kH2CO3_TOT_LDK00, SWStoTOT0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==11, eq.kH2CO3_SWS_MM02, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==12, eq.kH2CO3_SWS_MPL02, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==13, eq.kH2CO3_SWS_MGH06, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==14, eq.kH2CO3_SWS_M10, 1.0, K1, K2, ts)
+    K1, K2 = _get_eqKC(WhichKs==15, eq.kH2CO3_SWS_WMW14, 1.0, K1, K2, ts)
     # Now correct for seawater pressure
     K1 = K1*_pcxK1(TempK, Pbar, WhichKs)
     K2 = K2*_pcxK2(TempK, Pbar, WhichKs)

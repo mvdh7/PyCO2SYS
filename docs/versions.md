@@ -22,14 +22,14 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
 ### 1.3.0 (forthcoming)
 
 !!! example "Changes in v1.3.0"
-    * Rename module `extra` to `buffers`.
-    * All functions in modules `assemble` and `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
+    * Entire package updated to be [Autograd](https://github.com/HIPS/autograd)-able.
+    * Renamed module `extra` as `buffers`.
     * Relocated `_CaSolubility` function from root into new module `solubility` and renamed as `CaCO3`.
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
     * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
     * Added module `constants` for storing values of universal physical constants.
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
-    * Added missing "Peng correction" to Revelle factor calculation at output conditions. **Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!**
+    * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
     * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for better safety.
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
 

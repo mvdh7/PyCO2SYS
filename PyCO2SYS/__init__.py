@@ -43,59 +43,79 @@ __all__ = [
 __author__ = meta.authors
 __version__ = meta.version
 
-from autograd.numpy import (array, exp, full, full_like, log, log10,
-                            nan, shape, sqrt, where, zeros)
+from autograd.numpy import (array, exp, full, log, log10, nan, shape, size,
+                            sqrt, where, zeros)
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 
-def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
+def _FindpHOnAllScales(pH, pHScale, KSO4, KF, TSO4, TF, fH):
     """Calculate pH on all scales.
 
     This takes the pH on the given scale and finds the pH on all scales.
 
     Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
     """
-    FREEtoTOT = convert.free2tot(TS, KS)
-    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
-    factor = full_like(pH, nan)
-    F = pHScale==1 # Total scale
-    factor[F] = 0
-    F = pHScale==2 # Seawater scale
-    factor[F] = log10(SWStoTOT[F])
-    F = pHScale==3 # Free scale
-    factor[F] = log10(FREEtoTOT[F])
-    F = pHScale==4 # NBS scale
-    factor[F] = log10(SWStoTOT[F]) - log10(fH[F])
-    pHtot = pH - factor # pH comes into this sub on the given scale
-    pHNBS  = pHtot + log10(SWStoTOT) - log10(fH)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    SWStoTOT = convert.sws2tot(TSO4, KSO4, TF, KF)
+    factor = full(size(pH), nan)
+    factor = where(pHScale==1, 0.0, factor) # Total scale
+    factor = where(pHScale==2, log10(SWStoTOT), factor) # Seawater scale
+    factor = where(pHScale==3, log10(FREEtoTOT), factor) # Free scale
+    factor = where(pHScale==4, log10(SWStoTOT/fH), factor) # NBS scale
+    pHtot = pH - factor # pH comes into this function on the given scale
+    pHNBS = pHtot + log10(SWStoTOT/fH)
     pHfree = pHtot + log10(FREEtoTOT)
-    pHsws  = pHtot + log10(SWStoTOT)
+    pHsws = pHtot + log10(SWStoTOT)
     return pHtot, pHsws, pHfree, pHNBS
 
 def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON, KSO4CONSTANTS=0):
-
     # Condition inputs and assign input to the 'historical' variable names.
     args, ntps = assemble.inputs(locals())
     PAR1 = args['PAR1']
     PAR2 = args['PAR2']
     p1 = args['PAR1TYPE']
     p2 = args['PAR2TYPE']
-    Sal = args['SAL'].copy()
+    Sal = args['SAL']*1
     TempCi = args['TEMPIN']
     TempCo = args['TEMPOUT']
     Pdbari = args['PRESIN']
     Pdbaro = args['PRESOUT']
-    TSi = args['SI'].copy()
-    TP = args['PO4'].copy()
-    TNH3 = args['NH3'].copy()
-    TH2S = args['H2S'].copy()
+    TSi = args['SI']*1
+    TP = args['PO4']*1
+    TNH3 = args['NH3']*1
+    TH2S = args['H2S']*1
     pHScale = args['pHSCALEIN']
     WhichKs = args['K1K2CONSTANTS']
     WhoseKSO4 = args['KSO4CONSTANT']
     WhoseKF = args['KFCONSTANT']
     WhoseTB = args['BORON']
+
+    # Generate the columns holding Si, Phos and Sal.
+    # Pure Water case:
+    Sal = where(WhichKs==8, 0.0, Sal)
+    # GEOSECS and Pure Water:
+    F = (WhichKs==6) | (WhichKs==8)
+    TP = where(F, 0.0, TP)
+    TSi = where(F, 0.0, TSi)
+    TNH3 = where(F, 0.0, TNH3)
+    TH2S = where(F, 0.0, TH2S)
+    # Convert micromol to mol
+    TP = TP*1e-6
+    TSi = TSi*1e-6
+    TNH3 = TNH3*1e-6
+    TH2S = TH2S*1e-6
+    totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
+    # Add user inputs to `totals` dict
+    totals['TPO4'] = TP
+    totals['TSi'] = TSi
+    totals['TNH3'] = TNH3
+    totals['TH2S'] = TH2S
+    # The vector `PengCorrection` is used to modify the value of TA, for those
+    # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
+    # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
+    PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
 
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
@@ -104,53 +124,19 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PC = full(ntps, nan) # pCO2
     FC = full(ntps, nan) # fCO2
     CARB = full(ntps, nan) # CO3 ions
-
-    # Assign values to empty vectors.
-    F = p1==1; TA[F] = PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
-    F = p1==2; TC[F] = PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
-    F = p1==3; PH[F] = PAR1[F]
-    F = p1==4; PC[F] = PAR1[F]/1e6 # Convert from microatm. to atm.
-    F = p1==5; FC[F] = PAR1[F]/1e6 # Convert from microatm. to atm.
-    F = p1==6; CARB[F] = PAR1[F]/1e6 # Convert from micromol/kg to mol/kg
-    F = p2==1; TA[F] = PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
-    F = p2==2; TC[F] = PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
-    F = p2==3; PH[F] = PAR2[F]
-    F = p2==4; PC[F] = PAR2[F]/1e6 # Convert from microatm. to atm.
-    F = p2==5; FC[F] = PAR2[F]/1e6 # Convert from microatm. to atm.
-    F = p2==6; CARB[F] = PAR2[F]/1e6 # Convert from micromol/kg to mol/kg
-
-    # Generate the columns holding Si, Phos and Sal.
-    # Pure Water case:
-    F = WhichKs==8
-    Sal[F] = 0.0
-    # GEOSECS and Pure Water:
-    F = (WhichKs==6) | (WhichKs==8)
-    TP[F] = 0.0
-    TSi[F] = 0.0
-    TNH3[F] = 0.0
-    TH2S[F] = 0.0
-    # All other cases
-    F = ~F
-    TP[F] /= 1e6
-    TSi[F] /= 1e6
-    TNH3[F] /= 1e6
-    TH2S[F] /= 1e6
-    totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
-    # Add user inputs to `totals` dict
-    totals['TPO4'] = TP
-    totals['TSi'] = TSi
-    totals['TNH3'] = TNH3
-    totals['TH2S'] = TH2S
-    # # temp to keep it working
-    # TB = totals['TB']
-    # TF = totals['TF']
-    # TS = totals['TSO4']
-    # Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
-
-    # The vector 'PengCorrection' is used to modify the value of TA, for those
-    # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
-    # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
-    PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
+    # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
+    TA = where(p1==1, PAR1*1e-6, TA)
+    TC = where(p1==2, PAR1*1e-6, TC)
+    PH = where(p1==3, PAR1, PH)
+    PC = where(p1==4, PAR1*1e-6, PC)
+    FC = where(p1==5, PAR1*1e-6, FC)
+    CARB = where(p1==6, PAR1*1e-6, CARB)
+    TA = where(p2==1, PAR2*1e-6, TA)
+    TC = where(p2==2, PAR2*1e-6, TC)
+    PH = where(p2==3, PAR2, PH)
+    PC = where(p2==4, PAR2*1e-6, PC)
+    FC = where(p2==5, PAR2*1e-6, FC)
+    CARB = where(p2==6, PAR2*1e-6, CARB)
 
     # Calculate the constants for all samples at input conditions.
     # The constants calculated for each sample will be on the appropriate pH
@@ -165,12 +151,12 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
 
     # Generate vector for results, and copy the raw input values into them. This
     # copies ~60% NaNs, which will be replaced for calculated values later on.
-    TAc = TA.copy()
-    TCc = TC.copy()
-    PHic = PH.copy()
-    PCic = PC.copy()
-    FCic = FC.copy()
-    CARBic = CARB.copy()
+    TAc = TA*1
+    TCc = TC*1
+    PHic = PH*1
+    PCic = PC*1
+    FCic = FC*1
+    CARBic = CARB*1
 
     TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i,
         TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci, Kis, totals)
