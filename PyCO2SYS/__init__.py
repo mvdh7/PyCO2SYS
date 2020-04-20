@@ -48,47 +48,6 @@ from autograd.numpy import (array, exp, full, full_like, log, log10,
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 
-def _Fugacity(TempC, Sal, WhichKs):
-    # CalculateFugacityConstants:
-    # This assumes that the pressure is at one atmosphere, or close to it.
-    # Otherwise, the Pres term in the exponent affects the results.
-    #       Weiss, R. F., Marine Chemistry 2:203-215, 1974.
-    #       Delta and B in cm3/mol
-    TempK, _, RT = assemble.units(TempC, 0.0)
-    Delta = (57.7 - 0.118*TempK)
-    b = (-1636.75 + 12.0408*TempK - 0.0327957*TempK**2 +
-         3.16528*0.00001*TempK**3)
-    # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
-    P1atm = 1.01325 # in bar
-    FugFac = exp((b + 2*Delta)*P1atm/RT)
-    # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
-    F = (WhichKs==6) | (WhichKs==7)
-    if any(F):
-        FugFac[F] = 1.0
-    # CalculateVPFac:
-    # Weiss, R. F., and Price, B. A., Nitrous oxide solubility in water and
-    #       seawater, Marine Chemistry 8:347-359, 1980.
-    # They fit the data of Goff and Gratch (1946) with the vapor pressure
-    #       lowering by sea salt as given by Robinson (1954).
-    # This fits the more complicated Goff and Gratch, and Robinson equations
-    #       from 273 to 313 deg K and 0 to 40 Sali with a standard error
-    #       of .015#, about 5 uatm over this range.
-    # This may be on IPTS-29 since they didn't mention the temperature scale,
-    #       and the data of Goff and Gratch came before IPTS-48.
-    # The references are:
-    # Goff, J. A. and Gratch, S., Low pressure properties of water from -160 deg
-    #       to 212 deg F, Transactions of the American Society of Heating and
-    #       Ventilating Engineers 52:95-122, 1946.
-    # Robinson, Journal of the Marine Biological Association of the U. K.
-    #       33:449-455, 1954.
-    #       This is eq. 10 on p. 350.
-    #       This is in atmospheres.
-    VPWP = exp(24.4543 - 67.4509*(100/TempK) - 4.8489*log(TempK/100))
-    VPCorrWP = exp(-0.000544*Sal)
-    VPSWWP = VPWP*VPCorrWP
-    VPFac = 1.0 - VPSWWP # this assumes 1 atmosphere
-    return FugFac, VPFac
-
 def _FindpHOnAllScales(pH, pHScale, KS, KF, TS, TF, fH):
     """Calculate pH on all scales.
 
@@ -191,7 +150,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
         fHi) = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
     Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
-    FugFaci, VPFaci = _Fugacity(TempCi, Sal, WhichKs)
+    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
+    VPFaci = gas.vpfactor(TempCi, Sal)
 
     # Make sure fCO2 is available for each sample that has pCO2.
     F = (p1==4) | (p2==4)
@@ -231,7 +191,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     (K0o, K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So,
         fHo) = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
     Kos = [K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So]
-    FugFaco, VPFaco = _Fugacity(TempCo, Sal, WhichKs)
+    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
+    VPFaco = gas.vpfactor(TempCo, Sal)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2
     # and pCO2

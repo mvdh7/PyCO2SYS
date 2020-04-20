@@ -53,6 +53,9 @@ Click on each reference to see more details.
 
 ### G
 
+??? note "GG46: Goff & Gratch (1946) *Trans. Am. Heat. Vent. Eng.*"
+    Goff, J. A., and Gratch, S. (1946). Low-pressure properties of water from -160 to 212 °F. *Transactions of the American Society of Heating and Ventilating Engineers* 52, 95–122.
+
 ??? note "GP89: Goyet & Poisson (1989) *Deep-Sea Res. Pt. A*"
     Goyet, C., and Poisson, A. (1989). New determination of carbonic acid dissociation constants in seawater as a function of temperature and salinity. *Deep-Sea Research Part A* 36, 1635–1654. <a href='https://doi.org/10.1016/0198-0149(89)90064-2'>doi:10.1016/0198-0149(89)90064-2</a>.
 
@@ -150,6 +153,9 @@ Click on each reference to see more details.
 
 ### R
 
+??? note "R54: Robinson (1954) *J. Mar. Biol. Ass. U.K.*"
+    Robinson, R. A. (1954). The vapour pressure and osmotic equivalence of sea water. *Journal of the Marine Biological Association of the United Kingdom* 33, 449–455. [doi:10.1017/S0025315400008468](https://doi.org/10.1017/S0025315400008468).
+
 ??? note "R65: Riley (1965) *Deep-Sea Res.*"
     Riley, J. P. (1965). The occurrence of anomalously high fluoride concentrations in the North Atlantic. *Deep-Sea Research* 12, 219–220. <a href='https://doi.org/10.1016/0011-7471(65)90027-6'>doi:10.1016/0011-7471(65)90027-6</a>.
 
@@ -184,6 +190,9 @@ Click on each reference to see more details.
 
 ??? note "WMW14: Waters et al. (2014) *Mar. Chem.*"
     Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Marine Chemistry* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).
+
+??? note "WP80: Weiss & Price (1980) *Mar. Chem.*"
+    Weiss, R. F., and Price, B. A. (1980). Nitrous oxide solubility in water and seawater. *Marine Chemistry* 8, 347–359. <a href='https://doi.org/10.1016/0304-4203(80)90024-9'>doi:10.1016/0304-4203(80)90024-9</a>.
 
 ### Y
 
