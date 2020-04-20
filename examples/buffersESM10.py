@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from PyCO2SYS import CO2SYS
 
 # Define input conditions
-dic = np.linspace(1600, 3200, 1000)
+dic = np.linspace(1600, 3200, 1601)
 ta = 2250
 tmp = 25
 sal = 35
@@ -32,3 +32,14 @@ ax.set_title('Buffer factors at Alk = {} mM'.format(ta*1e-3))
 ax.set_xlabel('DIC (mM)')
 ax.set_ylabel('buffer factor (mM)')
 ax.grid(alpha=0.4)
+
+#%% Compare with MATLAB
+from scipy.io import loadmat
+mvers = loadmat('../../oceancarb-constants/ESM10_test_202004120.mat')
+d_dic = cdict['TCO2'] - mvers['dic'].ravel()
+d_gDIC = cdict['gammaTCin']*1e6 - mvers['gDIC'].ravel()
+d_bDIC = cdict['betaTCin']*1e6 - mvers['bDIC'].ravel()
+d_oDIC = cdict['omegaTCin']*1e6 - mvers['oDIC'].ravel()
+d_gAlk = cdict['gammaTAin']*1e6 - mvers['gALK'].ravel()
+d_bAlk = cdict['betaTAin']*1e6 - mvers['bALK'].ravel()
+d_oAlk = cdict['omegaTAin']*1e6 - mvers['oALK'].ravel()

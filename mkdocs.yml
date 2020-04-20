@@ -1,14 +1,52 @@
+# Site info
 site_name: PyCO2SYS
 site_author: Matthew P. Humphreys
-site_description: Python implementation of CO2SYS
-copyright: Copyright &copy; 2020 Matthew P. Humphreys (GNU GPLv3).
-
+site_description: Marine carbonate system calculations in Python
 site_url: https://pyco2sys.readthedocs.io/
+copyright: Copyright &copy; 2020 Matthew P. Humphreys (GNU GPLv3)
+
+# Github repo info
+repo_name: mvdh7/PyCO2SYS
 repo_url: https://github.com/mvdh7/PyCO2SYS
 
-theme: readthedocs
-
+# Navigation
 nav:
-  - Overview and installation: index.md
-  - Version history: versions.md
+  - Overview: index.md
+  - Calculate everything!: co2sys.md
+  # - Module reference:
+  #   - <code>buffers</code>: modules/buffers.md
+  #   - <code>concentrations</code>: modules/concentrations.md
+  #   - <code>constants</code>: modules/constants.md
+  #   - <code>convert</code>: modules/convert.md
+  #   - <code>equilibria</code>: modules/equilibria.md
+  #   - <code>meta</code>: modules/meta.md
+  #   - <code>original</code>: modules/original.md
+  #   - <code>solubility</code>: modules/solubility.md
+  #   - <code>solve</code>: modules/solve.md
   - References: refs.md
+  - Version history: versions.md
+
+# Appearance
+theme:
+  name: material
+  language: en
+  palette:
+    primary: white
+    accent: deep orange
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+  - footnotes
+  - pymdownx.arithmatex
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML

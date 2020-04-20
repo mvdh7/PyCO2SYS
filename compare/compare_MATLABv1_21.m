@@ -47,4 +47,4 @@ co2s.PAR2 = P2;
 co2s.PAR1TYPE = P1type;
 co2s.PAR2TYPE = P2type;
 co2s.KSO4CONSTANTS = KSO4_only;
-save('data/MATLAB_CO2SYSv1_21.mat', 'co2s')
+##save('data/MATLAB_CO2SYSv1_21.mat', 'co2s')

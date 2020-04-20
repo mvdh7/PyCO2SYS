@@ -1,3 +1,5 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 def ionstr_DOE94(Sal):
     """Ionic strength following DOE94."""
     # === CO2SYS.m comments: =======
@@ -28,6 +30,22 @@ def borate_LKB10(Sal):
     # Geochimica Et Cosmochimica Acta 74 (6): 1801-1811.
     # Output in mol/kg-SW.
     return 0.0004326*Sal/35
+
+def calcium_C65(Sal):
+    """Calcium in mol/kg-sw following C65."""
+    # === CO2SYS.m comments: =======
+    # *** CalculateCaforGEOSECS:
+    # Culkin, F, in Chemical Oceanography, ed. Riley and Skirrow, 1965:
+    # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
+    # Culkin gives Ca = (.0213/40.078)*(Sal/1.80655) in mol/kg-SW
+    # which corresponds to Ca = .01030*Sal/35.
+    return 0.01026*Sal/35
+
+def calcium_RT67(Sal):
+    """Calcium in mol/kg-sw following RT67."""
+    # === CO2SYS.m comments: =======
+    # This is .010285*Sal/35
+    return 0.02128/40.087*Sal/1.80655
 
 def fluoride_R65(Sal):
     """Total fluoride in mol/kg-sw following R65."""

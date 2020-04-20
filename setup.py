@@ -12,7 +12,8 @@ setuptools.setup(
     url = 'https://github.com/mvdh7/PyCO2SYS',
     packages = setuptools.find_packages(),
     install_requires = [
-        'numpy>=1.15',
+        'numpy>=1.12',
+        'autograd==1.3',
     ],
     long_description = long_description,
     long_description_content_type = 'text/markdown',
@@ -20,6 +21,7 @@ setuptools.setup(
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Natural Language :: English',
