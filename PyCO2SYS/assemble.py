@@ -467,11 +467,9 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
 
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    # PROGRAMMER'S NOTE: all logs are log base e
-    # PROGRAMMER'S NOTE: all Constants are converted to the pH scale
-    #     pHScale# (the chosen one) in units of mol/kg-SW
-    #     except KS and KF are on the free scale
-    #     and KW is in units of (mol/kg-SW)^2
+    # All constants are converted to the pH scale `pHScale` (the chosen one) in
+    # units of mol/kg-sw, except KS and KF are on the Free scale, and KW is in
+    # units of (mol/kg-sw)**2.
     TempK, Pbar, RT = units(TempC, Pdbar)
     K0 = eq.kCO2_W74(TempK, Sal)
     KS = eq_KS(TempK, Sal, Pbar, WhoseKSO4)
@@ -490,7 +488,34 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     # From CO2SYS_v1_21.m: calculate KH2S and KNH3
     KH2S = eq_KH2S(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
     KNH3 = eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
-    # Original notes from CO2SYS-MATLAB regarding pressure corrections:
+    # Correct pH scale conversions for pressure.
+    # fH has been assumed to be independent of pressure.
+    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
+    FREEtoTOT = convert.free2tot(TS, KS)
+    # The values KS and KF are already now pressure-corrected, so the pH scale
+    # conversions are now valid at pressure.
+    # Find pH scale conversion factor: this is the scale they will be put on
+    pHfactor = full(size(TempC), nan)
+    pHfactor = where(pHScale==1, SWStoTOT, pHfactor) # Total
+    pHfactor = where(pHScale==2, 1.0, pHfactor) # Seawater (already on this)
+    pHfactor = where(pHScale==3, SWStoTOT/FREEtoTOT, pHfactor) # Free
+    pHfactor = where(pHScale==4, fH, pHfactor) # NBS
+    # Convert from SWS pH scale to chosen scale
+    K1 = K1*pHfactor
+    K2 = K2*pHfactor
+    KW = KW*pHfactor
+    KB = KB*pHfactor
+    KP1 = KP1*pHfactor
+    KP2 = KP2*pHfactor
+    KP3 = KP3*pHfactor
+    KSi = KSi*pHfactor
+    KNH3 = KNH3*pHfactor
+    KH2S = KH2S*pHfactor
+    return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
+
+# Original notes from CO2SYS-MATLAB regarding pressure corrections (now in
+# function `equilibria` above):
+#
 #****************************************************************************
 # Correct dissociation constants for pressure
 # Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
@@ -560,27 +585,3 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
 #       deltaVs are in cm3/mole
 #       Kappas are in cm3/mole/bar
 #****************************************************************************
-    # Correct pH scale conversions for pressure.
-    # fH has been assumed to be independent of pressure.
-    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
-    FREEtoTOT = convert.free2tot(TS, KS)
-    # The values KS and KF are already now pressure-corrected, so the pH scale
-    # conversions are now valid at pressure.
-    # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor = full(size(TempC), nan)
-    pHfactor = where(pHScale==1, SWStoTOT, pHfactor) # Total
-    pHfactor = where(pHScale==2, 1.0, pHfactor) # Seawater (already on this)
-    pHfactor = where(pHScale==3, SWStoTOT/FREEtoTOT, pHfactor) # Free
-    pHfactor = where(pHScale==4, fH, pHfactor) # NBS
-    # Convert from SWS pH scale to chosen scale
-    K1 = K1*pHfactor
-    K2 = K2*pHfactor
-    KW = KW*pHfactor
-    KB = KB*pHfactor
-    KP1 = KP1*pHfactor
-    KP2 = KP2*pHfactor
-    KP3 = KP3*pHfactor
-    KSi = KSi*pHfactor
-    KNH3 = KNH3*pHfactor
-    KH2S = KH2S*pHfactor
-    return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
