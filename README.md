@@ -236,6 +236,11 @@ The keys of the output `DICT` correspond to the variables in the lists below.
 
 ## Citation
 
+If you use PyCO2SYS in your work, please cite it as:
+
+!!! note "PyCO2SYS citation"
+    Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+
 See [the original MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB) for more detailed information on versions and citation.
 
   * If you use any CO<sub>2</sub>SYS-related software, please cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
