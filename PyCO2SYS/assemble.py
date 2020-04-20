@@ -5,7 +5,7 @@ from numpy import logical_and, logical_or
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
-from .constants import RGasConstant, Tzero
+from .constants import RGasConstant
 
 def inputs(input_locals):
     """Condition inputs for use with CO2SYS (sub)functions."""
@@ -149,79 +149,84 @@ def eq_KNH3(TempK, Sal, WhichKs, SWStoTOT):
 
 def eq_KC(TempK, Sal, WhichKs, fH, SWStoTOT):
     """Calculate carbonic acid dissociation constants for the given options."""
-    K1 = full_like(TempC, nan)
-    K2 = full_like(TempC, nan)
+    K1 = full(size(TempK), nan)
+    K2 = full(size(TempK), nan)
+    TSP = (TempK, Sal)
     F = WhichKs==1
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_TOT_RRV93(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_TOT_RRV93(*TSP)
         K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
         K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
     F = WhichKs==2
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_GP89(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_GP89(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==3
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_H73_DM87(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_H73_DM87(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==4
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MCHP73_DM87(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_MCHP73_DM87(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==5
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_HM_DM87(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_HM_DM87(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = logical_or(WhichKs==6, WhichKs==7)
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_NBS_MCHP73(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_NBS_MCHP73(*TSP)
         K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
         K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
     F = WhichKs==8
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_M79(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_M79(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==9
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_NBS_CW98(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_NBS_CW98(*TSP)
         K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
         K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
     F = WhichKs==10
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_TOT_LDK00(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_TOT_LDK00(*TSP)
         K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
         K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
     F = WhichKs==11
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MM02(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_MM02(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==12
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MPL02(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_MPL02(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==13
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MGH06(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_MGH06(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==14
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_M10(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_M10(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     F = WhichKs==15
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_WMW14(TempK, Sal)
+        K1_F, K2_F = eq.kH2CO3_SWS_WMW14(*TSP)
         K1 = where(F, K1_F, K1)
         K2 = where(F, K2_F, K2)
     return K1, K2
+
+def lnKfac(deltaV, Kappa, Pbar, TempK):
+    """Calculate pressure correction factor for equilibrium constants."""
+    return (-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK)
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         TF, TS):
@@ -259,61 +264,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     KW = eq_KW(TempK, Sal, WhichKs)
     KP1, KP2, KP3 = eq_KP(TempK, Sal, WhichKs, fH)
     KSi = eq_KSi(TempK, Sal, WhichKs, fH)
-
-    # Calculate carbonic acid dissociation constants (K1 and K2)
-    K1 = full_like(TempC, nan)
-    K2 = full_like(TempC, nan)
-    F = WhichKs==1
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_TOT_RRV93(TempK[F], Sal[F])
-        K1[F] /= SWStoTOT[F] # Convert TOT to SWS
-        K2[F] /= SWStoTOT[F] # Convert TOT to SWS
-    F = WhichKs==2
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_GP89(TempK[F], Sal[F])
-    F = WhichKs==3
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_H73_DM87(TempK[F], Sal[F])
-    F = WhichKs==4
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_MCHP73_DM87(TempK[F], Sal[F])
-    F = WhichKs==5
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_HM_DM87(TempK[F], Sal[F])
-    F = logical_or(WhichKs==6, WhichKs==7)
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_NBS_MCHP73(TempK[F], Sal[F])
-        K1[F] /= fH[F] # Convert NBS to SWS
-        K2[F] /= fH[F] # Convert NBS to SWS
-    F = WhichKs==8
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_M79(TempK[F], Sal[F])
-    F = WhichKs==9
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_NBS_CW98(TempK[F], Sal[F])
-        K1[F] /= fH[F] # Convert NBS to SWS
-        K2[F] /= fH[F] # Convert NBS to SWS
-    F = WhichKs==10
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_TOT_LDK00(TempK[F], Sal[F])
-        K1[F] /= SWStoTOT[F] # Convert TOT to SWS
-        K2[F] /= SWStoTOT[F] # Convert TOT to SWS
-    F = WhichKs==11
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_MM02(TempK[F], Sal[F])
-    F = WhichKs==12
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_MPL02(TempK[F], Sal[F])
-    F = WhichKs==13
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_MGH06(TempK[F], Sal[F])
-    F = WhichKs==14
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_M10(TempK[F], Sal[F])
-    F = WhichKs==15
-    if any(F):
-        K1[F], K2[F] = eq.kH2CO3_SWS_WMW14(TempK[F], Sal[F])
-
+    K1, K2 = eq_KC(TempK, Sal, WhichKs, fH, SWStoTOT)
     # From CO2SYS_v1_21.m: calculate KH2S and KNH3
     KH2S = eq_KH2S(TempK, Sal, WhichKs, SWStoTOT)
     KNH3 = eq_KNH3(TempK, Sal, WhichKs, SWStoTOT)
@@ -415,33 +366,33 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         # who in turn quote Li, personal communication
         lnK1fac[F] = (24.2 - 0.085*TempC[F])*Pbar[F]/RT[F]
         lnK2fac[F] = (16.4 - 0.04 *TempC[F])*Pbar[F]/RT[F]
-        #               Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
-        #               and matches the GEOSECS results
+        # Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
+        # and matches the GEOSECS results
         lnKBfac[F] = (27.5 - 0.095*TempC[F])*Pbar[F]/RT[F]
     F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
     if any(F):
         #***PressureEffectsOnK1:
-        #               These are from Millero, 1995.
-        #               They are the same as Millero, 1979 and Millero, 1992.
-        #               They are from data of Culberson and Pytkowicz, 1968.
+        # These are from Millero, 1995.
+        # They are the same as Millero, 1979 and Millero, 1992.
+        # They are from data of Culberson and Pytkowicz, 1968.
         deltaV[F]  = -25.5 + 0.1271*TempC[F]
-        #                 'deltaV = deltaV - .151*(Sali - 34.8); # Millero, 1979
+        # deltaV = deltaV - .151*(Sali - 34.8); # Millero, 1979
         Kappa[F]   = (-3.08 + 0.0877*TempC[F])/1000
-        #                 'Kappa = Kappa  - .578*(Sali - 34.8)/1000.; # Millero, 1979
-        lnK1fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
-        #               The fits given in Millero, 1983 are somewhat different.
+        #  Kappa = Kappa  - .578*(Sali - 34.8)/1000.; # Millero, 1979
+        lnK1fac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
+        # The fits given in Millero, 1983 are somewhat different.
 
         #***PressureEffectsOnK2:
-        #               These are from Millero, 1995.
-        #               They are the same as Millero, 1979 and Millero, 1992.
-        #               They are from data of Culberson and Pytkowicz, 1968.
+        # These are from Millero, 1995.
+        # They are the same as Millero, 1979 and Millero, 1992.
+        # They are from data of Culberson and Pytkowicz, 1968.
         deltaV[F]  = -15.82 - 0.0219*TempC[F]
-        #                  'deltaV = deltaV + .321*(Sali - 34.8); # Millero, 1979
+        # deltaV = deltaV + .321*(Sali - 34.8); # Millero, 1979
         Kappa[F]   = (1.13 - 0.1475*TempC[F])/1000
-        #                 'Kappa = Kappa - .314*(Sali - 34.8)/1000: # Millero, 1979
-        lnK2fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
-        #               The fit given in Millero, 1983 is different.
-        #               Not by a lot for deltaV, but by much for Kappa. #
+        # Kappa = Kappa - .314*(Sali - 34.8)/1000: # Millero, 1979
+        lnK2fac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
+        # The fit given in Millero, 1983 is different.
+        # Not by a lot for deltaV, but by much for Kappa. #
 
         #***PressureEffectsOnKB:
         #               This is from Millero, 1979.
@@ -459,7 +410,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         #                 'Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
         #               Millero, 1983 has:
         #                 'Kappa = (-3 + .0427*TempCi)/1000
-        lnKBfac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
+        lnKBfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
 
     # CorrectKWForPressure:
     lnKWfac = full_like(TempC, nan)
@@ -469,7 +420,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         #               This is from Millero, 1983.
         deltaV[F]  =  -25.6 + 0.2324*TempC[F] - 0.0036246*TempC[F]**2
         Kappa[F]   = (-7.33 + 0.1368*TempC[F] - 0.001233 *TempC[F]**2)/1000
-        lnKWfac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
+        lnKWfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
 
         #               NOTE the temperature dependence of KappaK1 and KappaKW
         #               for fresh water in Millero, 1983 are the same.
@@ -484,7 +435,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         #               Millero, 1992 and Millero, 1995 have:
         Kappa[F]   = (-5.13 + 0.0794*TempC[F])/1000 # Millero, 1983
         #               Millero, 1995 has this too, but Millero, 1992 is different.
-        lnKWfac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
+        lnKWfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
         #               Millero, 1979 does not list values for these.
 
     # PressureEffectsOnKF:
@@ -492,13 +443,13 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     #       It is assumed that KF is on the free pH scale.
     deltaV = -9.78 - 0.009*TempC - 0.000942*TempC**2
     Kappa = (-3.91 + 0.054*TempC)/1000
-    lnKFfac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKFfac = lnKfac(deltaV, Kappa, Pbar, TempK)
     # PressureEffectsOnKS:
     #       This is from Millero, 1995, which is the same as Millero, 1983.
     #       It is assumed that KS is on the free pH scale.
     deltaV = -18.03 + 0.0466*TempC + 0.000316*TempC**2
     Kappa = (-4.53 + 0.09*TempC)/1000
-    lnKSfac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKSfac = lnKfac(deltaV, Kappa, Pbar, TempK)
 
     # CorrectKP1KP2KP3KSiForPressure:
     # These corrections don't matter for the GEOSECS choice (WhichKs# = 6) and
@@ -509,15 +460,15 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     # PressureEffectsOnKP1:
     deltaV = -14.51 + 0.1211*TempC - 0.000321*TempC**2
     Kappa  = (-2.67 + 0.0427*TempC)/1000
-    lnKP1fac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKP1fac = lnKfac(deltaV, Kappa, Pbar, TempK)
     # PressureEffectsOnKP2:
     deltaV = -23.12 + 0.1758*TempC - 0.002647*TempC**2
     Kappa  = (-5.15 + 0.09  *TempC)/1000
-    lnKP2fac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKP2fac = lnKfac(deltaV, Kappa, Pbar, TempK)
     # PressureEffectsOnKP3:
     deltaV = -26.57 + 0.202 *TempC - 0.003042*TempC**2
     Kappa  = (-4.08 + 0.0714*TempC)/1000
-    lnKP3fac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKP3fac = lnKfac(deltaV, Kappa, Pbar, TempK)
     # PressureEffectsOnKSi:
     #  The only mention of this is Millero, 1995 where it is stated that the
     #    values have been estimated from the values of boric acid. HOWEVER,
@@ -525,7 +476,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     #    I used the values for boric acid from above.
     deltaV = -29.48 + 0.1622*TempC - 0.002608*TempC**2
     Kappa  = -2.84/1000
-    lnKSifac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKSifac = lnKfac(deltaV, Kappa, Pbar, TempK)
 
     # CorrectKNH3KH2SForPressure:
     # The corrections are from Millero, 1995, which are the
@@ -533,14 +484,14 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     # PressureEffectsOnKNH3:
     deltaV = -26.43 + 0.0889*TempC - 0.000905*TempC**2
     Kappa = (-5.03 + 0.0814*TempC)/1000
-    lnKNH3fac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKNH3fac = lnKfac(deltaV, Kappa, Pbar, TempK)
     # PressureEffectsOnKH2S:
     # Millero 1995 gives values for deltaV in fresh water instead of SW.
     # Millero 1995 gives -b0 as -2.89 instead of 2.89
     # Millero 1983 is correct for both
     deltaV = -11.07 - 0.009*TempC - 0.000942*TempC**2
     Kappa = (-2.89 + 0.054*TempC)/1000
-    lnKH2Sfac = (-deltaV + 0.5*Kappa*Pbar)*Pbar/RT
+    lnKH2Sfac = lnKfac(deltaV, Kappa, Pbar, TempK)
 
     # CorrectKsForPressureHere:
     K1 *= exp(lnK1fac)
