@@ -184,14 +184,14 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, **Kis, **totals)
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
-    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, **Kis,
-                                       **totals)
+    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, Kis,
+                                       totals)
     OmegaCainp, OmegaArinp = solubility.CaCO3(Sal, TempCi, Pdbari, TCc, PHic,
                                               WhichKs, Kis['K1'], Kis['K2'])
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales
-    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, Kis['KS'],
+    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, Kis['KSO4'],
         Kis['KF'], totals['TSO4'], totals['TF'], fHi)
 
     # Calculate the constants for all samples at output conditions
@@ -212,14 +212,14 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, **Kos, **totals)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
-    Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, **Kos,
-                                       **totals)
+    Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, Kos,
+                                       totals)
     OmegaCaout, OmegaArout = solubility.CaCO3(Sal, TempCo, Pdbaro, TCc, PHoc,
                                               WhichKs, Kos['K1'], Kos['K2'])
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales
-    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, Kos['KS'],
+    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, Kos['KSO4'],
         Kos['KF'], totals['TSO4'], totals['TF'], fHo)
 
     # Calculate the pKs at output
@@ -318,7 +318,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'KWinput': Kis['KW'],
         'KBinput': Kis['KB'],
         'KFinput': Kis['KF'],
-        'KSinput': Kis['KS'],
+        'KSinput': Kis['KSO4'],
         'KP1input': Kis['KP1'],
         'KP2input': Kis['KP2'],
         'KP3input': Kis['KP3'],
@@ -333,7 +333,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'KWoutput': Kos['KW'],
         'KBoutput': Kos['KB'],
         'KFoutput': Kos['KF'],
-        'KSoutput': Kos['KS'],
+        'KSoutput': Kos['KSO4'],
         'KP1output': Kos['KP1'],
         'KP2output': Kos['KP2'],
         'KP3output': Kos['KP3'],

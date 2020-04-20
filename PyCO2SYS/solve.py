@@ -13,7 +13,7 @@ from . import convert
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
 def AlkParts(pH, TC,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate the different components of total alkalinity from pH and
     dissolved inorganic carbon.
@@ -34,14 +34,14 @@ def AlkParts(pH, TC,
     SiAlk = TSi*KSi/(KSi + H)
     NH3Alk = TNH3*KNH3/(KNH3 + H)
     H2SAlk = TH2S*KH2S/(KH2S + H)
-    FREEtoTOT = convert.free2tot(TSO4, KS)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
     Hfree = H/FREEtoTOT # for H on the Total scale
-    HSO4 = TSO4/(1 + KS/Hfree) # since KS is on the Free scale
+    HSO4 = TSO4/(1 + KSO4/Hfree) # since KSO4 is on the Free scale
     HF = TF/(1 + KF/Hfree) # since KF is on the Free scale
     return HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF
 
 def pHfromTATC(TA, TC,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and dissolved inorganic carbon.
 
@@ -63,7 +63,7 @@ def pHfromTATC(TA, TC,
     while np_any(np_abs(deltapH) > pHTol):
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, TC,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
                 TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         CAlk = HCO3 + 2*CO3
         H = 10.0**-pH
@@ -96,7 +96,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
     return fCO2
 
 def TCfromTApH(TA, pH,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
@@ -110,7 +110,7 @@ def TCfromTApH(TA, pH,
     H = 10.0**-pH
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(pH, 0.0,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+            K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
             TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
     CAlk = (TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 +
             HF)
@@ -118,7 +118,7 @@ def TCfromTApH(TA, pH,
     return TC
 
 def pHfromTAfCO2(TA, fCO2, K0,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and CO2 fugacity.
 
@@ -142,7 +142,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
         CAlk = HCO3 + 2*CO3
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
                 TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
                     Hfree + HSO4 + HF)
@@ -161,7 +161,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
     return pH
 
 def TAfromTCpH(TC, pH,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
@@ -174,7 +174,7 @@ def TAfromTCpH(TC, pH,
     """
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(pH, TC,
-            K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+            K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
             TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
     CAlk = HCO3 + 2*CO3
     TAc = (CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree -
@@ -207,7 +207,7 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
     return TC
 
 def pHfromTACarb(TA, CARB,
-        K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and carbonate ion.
 
@@ -229,7 +229,7 @@ def pHfromTACarb(TA, CARB,
         CAlk = CARB*(H + 2*K2)/K2
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
                 TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
                     H2SAlk + Hfree + HSO4 + HF)

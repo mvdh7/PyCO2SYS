@@ -66,8 +66,8 @@ def _pcxKfac(deltaV, Kappa, Pbar, TempK):
     """Calculate pressure correction factor for equilibrium constants."""
     return exp((-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK))
 
-def _pcxKS(TempK, Pbar):
-    """Calculate pressure correction factor for KS."""
+def _pcxKSO4(TempK, Pbar):
+    """Calculate pressure correction factor for KSO4."""
     # === CO2SYS.m comments: =======
     # This is from Millero, 1995, which is the same as Millero, 1983.
     # It is assumed that KS is on the free pH scale.
@@ -76,15 +76,15 @@ def _pcxKS(TempK, Pbar):
     Kappa = (-4.53 + 0.09*TempC)/1000
     return _pcxKfac(deltaV, Kappa, Pbar, TempK)
 
-def eq_KS(TempK, Sal, Pbar, WhoseKSO4):
+def eq_KSO4(TempK, Sal, Pbar, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KS = full(size(TempK), nan)
-    KS = where(WhoseKSO4==1, eq.kHSO4_FREE_D90a(TempK, Sal), KS)
-    KS = where(WhoseKSO4==2, eq.kHSO4_FREE_KRCB77(TempK, Sal), KS)
+    KSO4 = full(size(TempK), nan)
+    KSO4 = where(WhoseKSO4==1, eq.kHSO4_FREE_D90a(TempK, Sal), KSO4)
+    KSO4 = where(WhoseKSO4==2, eq.kHSO4_FREE_KRCB77(TempK, Sal), KSO4)
     # Now correct for seawater pressure
-    KS = KS*_pcxKS(TempK, Pbar)
-    return KS
+    KSO4 = KSO4*_pcxKSO4(TempK, Pbar)
+    return KSO4
 
 def _pcxKF(TempK, Pbar):
     """Calculate pressure correction factor for KF."""
@@ -476,13 +476,13 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     # units of (mol/kg-sw)**2.
     TempK, Pbar, RT = units(TempC, Pdbar)
     K0 = eq.kCO2_W74(TempK, Sal)
-    KS = eq_KS(TempK, Sal, Pbar, WhoseKSO4)
+    KSO4 = eq_KSO4(TempK, Sal, Pbar, WhoseKSO4)
     KF = eq_KF(TempK, Sal, Pbar, WhoseKF)
     # Calculate pH scale conversion factors - these are NOT pressure-corrected
-    KS0 = eq_KS(TempK, Sal, 0.0, WhoseKSO4)
+    KSO40 = eq_KSO4(TempK, Sal, 0.0, WhoseKSO4)
     KF0 = eq_KF(TempK, Sal, 0.0, WhoseKF)
     fH = eq_fH(TempK, Sal, WhichKs)
-    SWStoTOT0 = convert.sws2tot(totals['TSO4'], KS0, totals['TF'], KF0)
+    SWStoTOT0 = convert.sws2tot(totals['TSO4'], KSO40, totals['TF'], KF0)
     # Calculate other dissociation constants
     KB = eq_KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0)
     KW = eq_KW(TempK, Sal, Pbar, WhichKs)
@@ -494,8 +494,8 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KNH3 = eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
     # Correct pH scale conversions for pressure.
     # fH has been assumed to be independent of pressure.
-    SWStoTOT = convert.sws2tot(totals['TSO4'], KS, totals['TF'], KF)
-    FREEtoTOT = convert.free2tot(totals['TSO4'], KS)
+    SWStoTOT = convert.sws2tot(totals['TSO4'], KSO4, totals['TF'], KF)
+    FREEtoTOT = convert.free2tot(totals['TSO4'], KSO4)
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
@@ -515,7 +515,6 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KSi = KSi*pHfactor
     KNH3 = KNH3*pHfactor
     KH2S = KH2S*pHfactor
-    # return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
     # Return solution equilibrium constants as a dict
     return K0, fH, {
         'K1': K1,
@@ -523,7 +522,7 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
         'KW': KW,
         'KB': KB,
         'KF': KF,
-        'KS': KS,
+        'KSO4': KSO4,
         'KP1': KP1,
         'KP2': KP2,
         'KP3': KP3,

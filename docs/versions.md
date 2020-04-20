@@ -30,6 +30,8 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Added module `constants` for storing values of universal physical constants.
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
     * Added missing "Peng correction" to Revelle factor calculation at output conditions.
+    * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for better safety.
+    * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
 
 ## 1.2
 
