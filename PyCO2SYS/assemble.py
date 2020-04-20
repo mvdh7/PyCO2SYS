@@ -515,24 +515,22 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KSi = KSi*pHfactor
     KNH3 = KNH3*pHfactor
     KH2S = KH2S*pHfactor
-    return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
-    # # Return results as a dict
-    # return {
-    #     'K0': K0,
-    #     'K1': K1,
-    #     'K2': K2,
-    #     'KW': KW,
-    #     'KB': KB,
-    #     'KF': KF,
-    #     'KS': KS,
-    #     'KP1': KP1,
-    #     'KP2': KP2,
-    #     'KP3': KP3,
-    #     'KSi': KSi,
-    #     'KNH3': KNH3,
-    #     'KH2S': KH2S,
-    #     'fH': fH,
-    # }
+    # return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
+    # Return solution equilibrium constants as a dict
+    return K0, fH, {
+        'K1': K1,
+        'K2': K2,
+        'KW': KW,
+        'KB': KB,
+        'KF': KF,
+        'KS': KS,
+        'KP1': KP1,
+        'KP2': KP2,
+        'KP3': KP3,
+        'KSi': KSi,
+        'KNH3': KNH3,
+        'KH2S': KH2S,
+    }
 
 # Original notes from CO2SYS-MATLAB regarding pressure corrections (now in
 # function `equilibria` above):

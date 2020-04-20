@@ -156,9 +156,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
     ConstPuts = (Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
-    (K0i, K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si,
-        fHi) = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
-    Kis = [K1i, K2i, KWi, KBi, KFi, KSi, KP1i, KP2i, KP3i, KSii, KNH3i, KH2Si]
+    K0i, fHi, Kis = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
     FugFaci = gas.fugacityfactor(TempCi, WhichKs)
     VPFaci = gas.vpfactor(TempCi, Sal)
 
@@ -174,78 +172,80 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     FCic = FC.copy()
     CARBic = CARB.copy()
 
-    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i, Kis,
-        TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci, **totals)
+    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i,
+        TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci, Kis, totals)
 
     # Calculate the pKs at input
-    pK1i = -log10(K1i)
-    pK2i = -log10(K2i)
+    pK1i = -log10(Kis['K1'])
+    pK2i = -log10(Kis['K2'])
 
     # CalculateOtherParamsAtInputConditions:
     (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
-        Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, *Kis, **totals)
+        Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, **Kis, **totals)
     PAlkinp += PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
-    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, *Kis,
+    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, **Kis,
                                        **totals)
     OmegaCainp, OmegaArinp = solubility.CaCO3(Sal, TempCi, Pdbari, TCc, PHic,
-                                              WhichKs, K1i, K2i)
+                                              WhichKs, Kis['K1'], Kis['K2'])
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales
-    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, KSi, KFi,
-        totals['TSO4'], totals['TF'], fHi)
+    pHicT, pHicS, pHicF, pHicN = _FindpHOnAllScales(PHic, pHScale, Kis['KS'],
+        Kis['KF'], totals['TSO4'], totals['TF'], fHi)
 
     # Calculate the constants for all samples at output conditions
-    (K0o, K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So,
-        fHo) = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
-    Kos = [K1o, K2o, KWo, KBo, KFo, KSo, KP1o, KP2o, KP3o, KSio, KNH3o, KH2So]
+    K0o, fHo, Kos = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
     FugFaco = gas.fugacityfactor(TempCo, WhichKs)
     VPFaco = gas.vpfactor(TempCo, Sal)
 
     # Calculate, for output conditions, using conservative TA and TC, pH, fCO2
     # and pCO2
-    PHoc = solve.pHfromTATC(TAc-PengCorrection, TCc, *Kos, **totals)
+    PHoc = solve.pHfromTATC(TAc-PengCorrection, TCc, **Kos, **totals)
     # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-    FCoc = solve.fCO2fromTCpH(TCc, PHoc, K0o, K1o, K2o)
-    CARBoc = solve.CarbfromTCpH(TCc, PHoc, K1o, K2o)
+    FCoc = solve.fCO2fromTCpH(TCc, PHoc, K0o, Kos['K1'], Kos['K2'])
+    CARBoc = solve.CarbfromTCpH(TCc, PHoc, Kos['K1'], Kos['K2'])
     PCoc = FCoc/FugFaco
 
     # Calculate other stuff at output conditions:
     (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
-        Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, *Kos, **totals)
+        Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, **Kos, **totals)
     PAlkout += PengCorrection
     CO2out = TCc - CO3out - HCO3out
-    Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, *Kos,
+    Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, **Kos,
                                        **totals)
     OmegaCaout, OmegaArout = solubility.CaCO3(Sal, TempCo, Pdbaro, TCc, PHoc,
-                                              WhichKs, K1o, K2o)
+                                              WhichKs, Kos['K1'], Kos['K2'])
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales
-    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, KSo, KFo,
-        totals['TSO4'], totals['TF'], fHo)
+    pHocT, pHocS, pHocF, pHocN = _FindpHOnAllScales(PHoc, pHScale, Kos['KS'],
+        Kos['KF'], totals['TSO4'], totals['TF'], fHo)
 
     # Calculate the pKs at output
-    pK1o = -log10(K1o)
-    pK2o = -log10(K2o)
+    pK1o = -log10(Kos['K1'])
+    pK2o = -log10(Kos['K2'])
 
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
         buffers.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
-                              BAlkinp, KBi)
+                              BAlkinp, Kis['KB'])
     gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
         buffers.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
-                              BAlkout, KBo)
+                              BAlkout, Kos['KB'])
 
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
     # [added v1.2.0]
-    isoQi = buffers.bgc_isocap(CO2inp, PHic, K1i, K2i, KBi, KWi, totals['TB'])
-    isoQxi = buffers.bgc_isocap_approx(TCc, PCic, K0i, K1i, K2i)
-    psii = buffers.psi(CO2inp, PHic, K1i, K2i, KBi, KWi, totals['TB'])
-    isoQo = buffers.bgc_isocap(CO2out, PHoc, K1o, K2o, KBo, KWo, totals['TB'])
-    isoQxo = buffers.bgc_isocap_approx(TCc, PCoc, K0o, K1o, K2o)
-    psio = buffers.psi(CO2out, PHoc, K1o, K2o, KBo, KWo, totals['TB'])
+    isoQi = buffers.bgc_isocap(CO2inp, PHic, Kis['K1'], Kis['K2'], Kis['KB'],
+        Kis['KW'], totals['TB'])
+    isoQxi = buffers.bgc_isocap_approx(TCc, PCic, K0i, Kis['K1'], Kis['K2'])
+    psii = buffers.psi(CO2inp, PHic, Kis['K1'], Kis['K2'], Kis['KB'], Kis['KW'],
+        totals['TB'])
+    isoQo = buffers.bgc_isocap(CO2out, PHoc, Kos['K1'], Kos['K2'], Kos['KB'],
+        Kos['KW'], totals['TB'])
+    isoQxo = buffers.bgc_isocap_approx(TCc, PCoc, K0o, Kos['K1'], Kos['K2'])
+    psio = buffers.psi(CO2out, PHoc, Kos['K1'], Kos['K2'], Kos['KB'], Kos['KW'],
+        totals['TB'])
 
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
@@ -311,35 +311,35 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'NH3': args['NH3'],
         'H2S': args['H2S'],
         'K0input': K0i,
-        'K1input': K1i,
-        'K2input': K2i,
+        'K1input': Kis['K1'],
+        'K2input': Kis['K2'],
         'pK1input': pK1i,
         'pK2input': pK2i,
-        'KWinput': KWi,
-        'KBinput': KBi,
-        'KFinput': KFi,
-        'KSinput': KSi,
-        'KP1input': KP1i,
-        'KP2input': KP2i,
-        'KP3input': KP3i,
-        'KSiinput': KSii,
-        'KNH3input': KNH3i,
-        'KH2Sinput': KH2Si,
+        'KWinput': Kis['KW'],
+        'KBinput': Kis['KB'],
+        'KFinput': Kis['KF'],
+        'KSinput': Kis['KS'],
+        'KP1input': Kis['KP1'],
+        'KP2input': Kis['KP2'],
+        'KP3input': Kis['KP3'],
+        'KSiinput': Kis['KSi'],
+        'KNH3input': Kis['KNH3'],
+        'KH2Sinput': Kis['KH2S'],
         'K0output': K0o,
-        'K1output': K1o,
-        'K2output': K2o,
+        'K1output': Kos['K1'],
+        'K2output': Kos['K2'],
         'pK1output': pK1o,
         'pK2output': pK2o,
-        'KWoutput': KWo,
-        'KBoutput': KBo,
-        'KFoutput': KFo,
-        'KSoutput': KSo,
-        'KP1output': KP1o,
-        'KP2output': KP2o,
-        'KP3output': KP3o,
-        'KSioutput': KSio,
-        'KNH3output': KNH3o,
-        'KH2Soutput': KH2So,
+        'KWoutput': Kos['KW'],
+        'KBoutput': Kos['KB'],
+        'KFoutput': Kos['KF'],
+        'KSoutput': Kos['KS'],
+        'KP1output': Kos['KP1'],
+        'KP2output': Kos['KP2'],
+        'KP3output': Kos['KP3'],
+        'KSioutput': Kos['KSi'],
+        'KNH3output': Kos['KNH3'],
+        'KH2Soutput': Kos['KH2S'],
         'TB': totals['TB']*1e6,
         'TF': totals['TF']*1e6,
         'TS': totals['TSO4']*1e6,

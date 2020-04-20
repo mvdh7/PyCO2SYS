@@ -294,80 +294,72 @@ def CarbfromTCpH(TC, pH, K1, K2):
     CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
     return CARB
 
-def from2to6(p1, p2, K0, Ks, TA, TC,
-        PH, PC, FC, CARB, PengCorrection, FugFac,
-        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
+def from2to6(p1, p2, K0, TA, TC,
+        PH, PC, FC, CARB, PengCorrection, FugFac, Ks, totals):
     """Solve the marine carbonate system from any valid pair of inputs."""
-    K1 = Ks[0]
-    K2 = Ks[1]
-    Ts = [TB, TF, TSO4, TPO4, TSi, TNH3, TH2S]
-    # Generate vector describing the combination of input parameters
-    # So, the valid ones are: 12,13,14,15,16,23,24,25,26,34,35,36,46,56
+    # Generate vector describing the combination of input parameters.
     Icase = (10*np_min(array([p1, p2]), axis=0) +
         np_max(array([p1, p2]), axis=0))
-    # Calculate missing values for AT, CT, PH, FC, CARB:
-    # pCO2 will be calculated later on, routines work with fCO2.
+    # Noting that the pCO2 and fCO2 pair is not allowed, the valid ones are:
+    # 12, 13, 14, 15, 16,
+    #     23, 24, 25, 26,
+    #         34, 35, 36,
+    #                 46,
+    #                 56
+    # Calculate missing values for AT, CT, PH, FC and CARB:
+    # pCO2 will be calculated later on, the functions here work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromTATC(TA[F]-PengCorrection[F], TC[F], *KFs, *TFs)
-        # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-        FC[F] = fCO2fromTCpH(TC[F], PH[F], K0[F], K1[F], K2[F])
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        PH = where(F, pHfromTATC(TA-PengCorrection, TC, **Ks, **totals), PH)
+        # ^pH is returned on the scale requested in `pHscale`
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==13 # input TA, pH
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        TC[F] = TCfromTApH(TA[F]-PengCorrection[F], PH[F], *KFs, *TFs)
-        FC[F] = fCO2fromTCpH(TC[F], PH[F], K0[F], K1[F], K2[F])
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = (Icase==14) | (Icase==15) # input TA, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromTAfCO2(TA[F]-PengCorrection[F], FC[F], K0[F], *KFs, *TFs)
-        TC[F] = TCfromTApH(TA[F]-PengCorrection[F], PH[F], *KFs, *TFs)
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        PH = where(F,
+            pHfromTAfCO2(TA-PengCorrection, FC, K0, **Ks, **totals), PH)
+        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==16 # input TA, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromTACarb(TA[F]-PengCorrection[F], CARB[F], *KFs, *TFs)
-        TC[F] = TCfromTApH(TA[F]-PengCorrection[F], PH[F], *KFs, *TFs)
-        FC[F] = fCO2fromTCpH(TC[F], PH[F], K0[F], K1[F], K2[F])
+        PH = where(F, pHfromTACarb(TA-PengCorrection, CARB, **Ks, **totals), PH)
+        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
     F = Icase==23 # input TC, pH
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
-        FC[F] = fCO2fromTCpH(TC[F], PH[F], K0[F], K1[F], K2[F])
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = (Icase==24) | (Icase==25) # input TC, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromTCfCO2(TC[F], FC[F], K0[F], K1[F], K2[F])
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        PH = where(F, pHfromTCfCO2(TC, FC, K0, Ks['K1'], Ks['K2']), PH)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==26 # input TC, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromTCCarb(TC[F], CARB[F], K1[F], K2[F])
-        FC[F] = fCO2fromTCpH(TC[F], PH[F], K0[F], K1[F], K2[F])
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
+        PH = where(F, pHfromTCCarb(TC, CARB, Ks['K1'], Ks['K2']), PH)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
     F = (Icase==34) | (Icase==35) # input pH, (pCO2 or fCO2)
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        TC[F] = TCfrompHfCO2(PH[F], FC[F], K0[F], K1[F], K2[F])
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
-        CARB[F] = CarbfromTCpH(TC[F], PH[F], K1[F], K2[F])
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==36 # input pH, CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        FC[F] = fCO2frompHCarb(PH[F], CARB[F], K0[F], K1[F], K2[F])
-        TC[F] = TCfrompHfCO2(PH[F], FC[F], K0[F], K1[F], K2[F])
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
+        FC = where(F, fCO2frompHCarb(PH, CARB, K0, Ks['K1'], Ks['K2']), FC)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
     F = (Icase==46) | (Icase==56) # input (pCO2 or fCO2), CARB
     if any(F):
-        KFs, TFs = [[X[F] for X in Xs] for Xs in [Ks, Ts]]
-        PH[F] = pHfromfCO2Carb(FC[F], CARB[F], K0[F], K1[F], K2[F])
-        TC[F] = TCfrompHfCO2(PH[F], FC[F], K0[F], K1[F], K2[F])
-        TA[F] = TAfromTCpH(TC[F], PH[F], *KFs, *TFs) + PengCorrection[F]
+        PH = where(F, pHfromfCO2Carb(FC, CARB, K0, Ks['K1'], Ks['K2']), PH)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 value:
     PC = FC/FugFac

@@ -38,8 +38,8 @@ WhoseKSO4 = onp.full(npts, 1)
 WhoseKF = onp.full(npts,  1)
 TP = onp.full(npts, 0.5e-6)
 TSi = onp.full(npts, 5e-6)
-TNH3 = onp.full(npts, 0.1e-6)
-TH2S = onp.full(npts, 0.01e-6)
+TNH3 = onp.full(npts, 1e-6)
+TH2S = onp.full(npts, 1e-6)
 TA = onp.full(npts, 2300e-6)
 TC = onp.full(npts, 2000e-6)
 
@@ -62,11 +62,14 @@ TC = onp.full(npts, 2000e-6)
 
 # from PyCO2SYS.original import CO2SYS
 co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, 15, 26, 0, Pdbar, TSi*1e6,
-              TP*1e6, 3, 7, 3)#, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
+              TP*1e6, 3, 7, 3, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
 print(co2d['pHinSWS'][0])
 print(co2d['pHoutSWS'][0])
 print(co2d['RFin'][0])
 print(co2d['RFout'][0])
+co2e = CO2SYS(co2d['fCO2in'][0], co2d['CO3in'][0], 5, 6, Sal, 15, 26, 0, Pdbar, TSi*1e6,
+              TP*1e6, 2, 7, 3, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
+print(co2e['TAlk'][0])
 # clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 # clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
