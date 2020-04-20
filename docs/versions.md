@@ -29,7 +29,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
     * Added module `constants` for storing values of universal physical constants.
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
-    * Added missing "Peng correction" to Revelle factor calculation at output conditions.
+    * Added missing "Peng correction" to Revelle factor calculation at output conditions. **Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!**
     * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for better safety.
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
 
