@@ -96,56 +96,32 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
     PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
-
-    # Generate empty vectors for...
-    TA = full(ntps, nan) # Talk
-    TC = full(ntps, nan) # DIC
-    PH = full(ntps, nan) # pH
-    PC = full(ntps, nan) # pCO2
-    FC = full(ntps, nan) # fCO2
-    CARB = full(ntps, nan) # CO3 ions
-    # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
-    TA = where(p1==1, PAR1*1e-6, TA)
-    TC = where(p1==2, PAR1*1e-6, TC)
-    PH = where(p1==3, PAR1, PH)
-    PC = where(p1==4, PAR1*1e-6, PC)
-    FC = where(p1==5, PAR1*1e-6, FC)
-    CARB = where(p1==6, PAR1*1e-6, CARB)
-    TA = where(p2==1, PAR2*1e-6, TA)
-    TC = where(p2==2, PAR2*1e-6, TC)
-    PH = where(p2==3, PAR2, PH)
-    PC = where(p2==4, PAR2*1e-6, PC)
-    FC = where(p2==5, PAR2*1e-6, FC)
-    CARB = where(p2==6, PAR2*1e-6, CARB)
-
+    # Expand input `PAR1` and `PAR2` into one array per core MCS variable
+    TA, TC, PH, PC, FC, CARB = solve.pars2mcs(PAR1, PAR2, p1, p2, ntps)
     # Calculate the constants for all samples at input conditions.
     # The constants calculated for each sample will be on the appropriate pH
     # scale!
     ConstPuts = (Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
     K0i, fHi, Kis = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
+    # Calculate the pKs at input
+    pK1i = -log10(Kis['K1'])
+    pK2i = -log10(Kis['K2'])
+    # Make sure fCO2 is available for each sample that has pCO2.
     FugFaci = gas.fugacityfactor(TempCi, WhichKs)
     VPFaci = gas.vpfactor(TempCi, Sal)
-
-    # Make sure fCO2 is available for each sample that has pCO2.
     FC = where((p1==4) | (p2==4), PC*FugFaci, FC)
-
     # Generate vector for results, and copy the raw input values into them. This
     # copies ~60% NaNs, which will be replaced for calculated values later on.
+    # Note that numpy.ndarray.copy() is not good for Autograd!
     TAc = TA*1
     TCc = TC*1
     PHic = PH*1
     PCic = PC*1
     FCic = FC*1
     CARBic = CARB*1
-
     TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i,
         TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci, Kis, totals)
-
-    # Calculate the pKs at input
-    pK1i = -log10(Kis['K1'])
-    pK2i = -log10(Kis['K2'])
-
-    # CalculateOtherParamsAtInputConditions:
+    # Calculate other variables at input conditions
     (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
         Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, **Kis, **totals)
     PAlkinp = PAlkinp + PengCorrection

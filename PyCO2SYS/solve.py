@@ -2,8 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Solve the marine carbonate system from any two of its variables."""
 
-from autograd.numpy import (array, full, full_like, log, log10, nan, size, sqrt,
-                            where)
+from autograd.numpy import array, full, log, log10, nan, size, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
@@ -132,7 +131,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
     pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
+    pH = full(size(TA), pHGuess) # first guess for all samples
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -221,7 +220,7 @@ def pHfromTACarb(TA, CARB,
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
     pHGuess = 8.0 # this is the first guess
-    pH = full_like(TA, pHGuess) # first guess for all samples
+    pH = full(size(TA), pHGuess) # first guess for all samples
     deltapH = 1 + pHTol
     ln10 = log(10)
     while np_any(np_abs(deltapH) > pHTol):
@@ -294,9 +293,34 @@ def CarbfromTCpH(TC, pH, K1, K2):
     CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
     return CARB
 
-def from2to6(p1, p2, K0, TA, TC,
-        PH, PC, FC, CARB, PengCorrection, FugFac, Ks, totals):
-    """Solve the marine carbonate system from any valid pair of inputs."""
+def pars2mcs(par1, par2, par1type, par2type, ntps):
+    """Expand `par1` and `par2` inputs into one array per core variable of the
+    marine carbonate system.
+    """
+    # Generate empty vectors for...
+    TA = full(ntps, nan) # Talk
+    TC = full(ntps, nan) # DIC
+    PH = full(ntps, nan) # pH
+    PC = full(ntps, nan) # pCO2
+    FC = full(ntps, nan) # fCO2
+    CARB = full(ntps, nan) # CO3 ions
+    # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
+    TA = where(p1==1, PAR1*1e-6, TA)
+    TC = where(p1==2, PAR1*1e-6, TC)
+    PH = where(p1==3, PAR1, PH)
+    PC = where(p1==4, PAR1*1e-6, PC)
+    FC = where(p1==5, PAR1*1e-6, FC)
+    CARB = where(p1==6, PAR1*1e-6, CARB)
+    TA = where(p2==1, PAR2*1e-6, TA)
+    TC = where(p2==2, PAR2*1e-6, TC)
+    PH = where(p2==3, PAR2, PH)
+    PC = where(p2==4, PAR2*1e-6, PC)
+    FC = where(p2==5, PAR2*1e-6, FC)
+    CARB = where(p2==6, PAR2*1e-6, CARB)
+    return TA, TC, PH, PC, FC, CARB
+
+def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
+    """Solve the core marine carbonate system from any valid pair of inputs."""
     # Generate vector describing the combination of input parameters.
     Icase = (10*np_min(array([p1, p2]), axis=0) +
         np_max(array([p1, p2]), axis=0))
@@ -310,56 +334,55 @@ def from2to6(p1, p2, K0, TA, TC,
     # pCO2 will be calculated later on, the functions here work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):
-        PH = where(F, pHfromTATC(TA-PengCorrection, TC, **Ks, **totals), PH)
+        PH = where(F, pHfromTATC(TA-PengCx, TC, **Ks, **totals), PH)
         # ^pH is returned on the scale requested in `pHscale`
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==13 # input TA, pH
     if any(F):
-        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = (Icase==14) | (Icase==15) # input TA, (pCO2 or fCO2)
     if any(F):
-        PH = where(F,
-            pHfromTAfCO2(TA-PengCorrection, FC, K0, **Ks, **totals), PH)
-        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        PH = where(F, pHfromTAfCO2(TA-PengCx, FC, K0, **Ks, **totals), PH)
+        TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==16 # input TA, CARB
     if any(F):
-        PH = where(F, pHfromTACarb(TA-PengCorrection, CARB, **Ks, **totals), PH)
-        TC = where(F, TCfromTApH(TA-PengCorrection, PH, **Ks, **totals), TC)
+        PH = where(F, pHfromTACarb(TA-PengCx, CARB, **Ks, **totals), PH)
+        TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
     F = Icase==23 # input TC, pH
     if any(F):
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = (Icase==24) | (Icase==25) # input TC, (pCO2 or fCO2)
     if any(F):
         PH = where(F, pHfromTCfCO2(TC, FC, K0, Ks['K1'], Ks['K2']), PH)
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==26 # input TC, CARB
     if any(F):
         PH = where(F, pHfromTCCarb(TC, CARB, Ks['K1'], Ks['K2']), PH)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     F = (Icase==34) | (Icase==35) # input pH, (pCO2 or fCO2)
     if any(F):
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
     F = Icase==36 # input pH, CARB
     if any(F):
         FC = where(F, fCO2frompHCarb(PH, CARB, K0, Ks['K1'], Ks['K2']), FC)
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     F = (Icase==46) | (Icase==56) # input (pCO2 or fCO2), CARB
     if any(F):
         PH = where(F, pHfromfCO2Carb(FC, CARB, K0, Ks['K1'], Ks['K2']), PH)
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
-        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCorrection, TA)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 value:
     PC = FC/FugFac
