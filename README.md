@@ -45,12 +45,12 @@ The DOI refers to all versions of PyCO2SYS. Please be sure to update the version
     :::python
     from PyCO2SYS.meta import version
 
-As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](refs/#l).
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
 
 Additionally, for the MATLAB programs:
 
-  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](refs/#h).
-  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](refs/#o).
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#h).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o).
 
 ## About
 
