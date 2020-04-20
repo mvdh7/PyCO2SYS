@@ -1,7 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from autograd.numpy import array, exp, full, full_like, nan, size, unique, where
-from numpy import logical_and, logical_or
 from . import concentrations as conc
 from . import convert
 from . import equilibria as eq
@@ -54,16 +53,52 @@ def units(TempC, Pdbar):
     RT = RGasConstant*TempK
     return TempK, Pbar, RT
 
-def eq_KS(TempK, Sal, WhoseKSO4):
+def lnKfac(deltaV, Kappa, Pbar, TempK):
+    """Calculate pressure correction factor for equilibrium constants."""
+    return (-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK)
+
+def _pcxKfac(deltaV, Kappa, Pbar, TempK):
+    """Calculate pressure correction factor for equilibrium constants."""
+    return exp((-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK))
+
+def _pcxKS(TempK, Pbar):
+    """Calculate pressure correction factor for KS."""
+    # === CO2SYS.m comments: =======
+    # This is from Millero, 1995, which is the same as Millero, 1983.
+    # It is assumed that KS is on the free pH scale.
+    TempC = convert.TempK2C(TempK)
+    deltaV = -18.03 + 0.0466*TempC + 0.000316*TempC**2
+    Kappa = (-4.53 + 0.09*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KS(TempK, Sal, Pbar, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
-    KS = where(WhoseKSO4==1, eq.kHSO4_FREE_D90a(TempK, Sal), nan)
+    # Evaluate at atmospheric pressure
+    KS = full(size(TempK), nan)
+    KS = where(WhoseKSO4==1, eq.kHSO4_FREE_D90a(TempK, Sal), KS)
     KS = where(WhoseKSO4==2, eq.kHSO4_FREE_KRCB77(TempK, Sal), KS)
+    # Now correct for seawater pressure
+    KS = KS*_pcxKS(TempK, Pbar)
     return KS
 
-def eq_KF(TempK, Sal, WhoseKF):
+def _pcxKF(TempK, Pbar):
+    """Calculate pressure correction factor for KF."""
+    # === CO2SYS.m comments: =======
+    # This is from Millero, 1995, which is the same as Millero, 1983.
+    # It is assumed that KF is on the free pH scale.
+    TempC = convert.TempK2C(TempK)
+    deltaV = -9.78 - 0.009*TempC - 0.000942*TempC**2
+    Kappa = (-3.91 + 0.054*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KF(TempK, Sal, Pbar, WhoseKF):
     """Calculate HF dissociation constant for the given options."""
-    KF = where(WhoseKF==1, eq.kHF_FREE_DR79(TempK, Sal), nan)
+    # Evaluate at atmospheric pressure
+    KF = full(size(TempK), nan)
+    KF = where(WhoseKF==1, eq.kHF_FREE_DR79(TempK, Sal), KF)
     KF = where(WhoseKF==2, eq.kHF_FREE_PF87(TempK, Sal), KF)
+    # Now correct for seawater pressure
+    KF = KF*_pcxKF(TempK, Pbar)
     return KF
 
 def eq_fH(TempK, Sal, WhichKs):
@@ -76,28 +111,128 @@ def eq_fH(TempK, Sal, WhichKs):
     fH = where((WhichKs!=7) & (WhichKs!=8), convert.fH_TWB82(TempK, Sal), fH)
     return fH
 
-def eq_KB(TempK, Sal, WhichKs, fH, SWStoTOT):
+def _pcxKB(TempK, Pbar, WhichKs):
+    """Calculate pressure correction factor for KB."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = full(size(TempK), nan)
+    Kappa = full(size(TempK), nan)
+    KBfac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
+    F = WhichKs==8 # freshwater
+    if any(F):
+        # this doesn't matter since TB = 0 for this case
+        deltaV = where(F, 0.0, deltaV)
+        Kappa = where(F, 0.0, Kappa)
+    F = (WhichKs==6) | (WhichKs==7)
+    if any(F):
+        # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
+        # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
+        # Culberson and Pytkowicz, L and O 13:403-417, 1968:
+        # but the fits are the same as those in
+        # Edmond and Gieskes, GCA, 34:1261-1291, 1970
+        # who in turn quote Li, personal communication
+        KBfac = where(F,
+            exp((27.5 - 0.095*TempC)*Pbar/(RGasConstant*TempK)), KBfac)
+        # This one is handled differently because the equation doesn't fit the
+        # standard deltaV & Kappa form of _pcxKfac.
+    F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
+    if any(F):
+        # This is from Millero, 1979.
+        # It is from data of Culberson and Pytkowicz, 1968.
+        deltaV = where(F, -29.48 + 0.1622*TempC - 0.002608*TempC**2, deltaV)
+        # Millero, 1983 has:
+        #   deltaV = -28.56 + .1211*TempCi - .000321*TempCi*TempCi
+        # Millero, 1992 has:
+        #   deltaV = -29.48 + .1622*TempCi + .295*(Sali - 34.8)
+        # Millero, 1995 has:
+        #   deltaV = -29.48 - .1622*TempCi - .002608*TempCi*TempCi
+        #   deltaV = deltaV + .295*(Sali - 34.8) # Millero, 1979
+        Kappa = where(F, -2.84/1000, Kappa) # Millero, 1979
+        # Millero, 1992 and Millero, 1995 also have this.
+        #   Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
+        # Millero, 1983 has:
+        #   Kappa = (-3 + .0427*TempCi)/1000
+    # Now get final KBfac
+    F = (WhichKs==6) | (WhichKs==7)
+    KBfac = where(F, KBfac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+    return KBfac
+
+def eq_KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
     """Calculate boric acid dissociation constant for the given options."""
-    KB = where(WhichKs==8, 0.0, nan) # pure water case
+    # Evaluate at atmospheric pressure
+    KB = full(size(TempK), nan)
+    KB = where(WhichKs==8, 0.0, KB) # pure water case
     KB = where((WhichKs==6) | (WhichKs==7),
         eq.kBOH3_NBS_LTB69(TempK, Sal)/fH, KB) # convert NBS to SWS
     KB = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
-        eq.kBOH3_TOT_D90b(TempK, Sal)/SWStoTOT, KB) # convert TOT to SWS
+        eq.kBOH3_TOT_D90b(TempK, Sal)/SWStoTOT0, KB) # convert TOT to SWS
+    # Now correct for seawater pressure
+    KB = KB*_pcxKB(TempK, Pbar, WhichKs)
     return KB
 
-def eq_KW(TempK, Sal, WhichKs):
+def _pcxKW(TempK, Pbar, WhichKs):
+    """Calculate pressure correction factor for KW."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = full(size(TempK), nan)
+    Kappa = full(size(TempK), nan)
+    F = WhichKs==8 # freshwater case
+    if any(F):
+        # This is from Millero, 1983.
+        deltaV = where(F, -25.6 + 0.2324*TempC - 0.0036246*TempC**2, deltaV)
+        Kappa = where(F, (-7.33 + 0.1368*TempC - 0.001233*TempC**2)/1000, Kappa)
+        # Note: the temperature dependence of KappaK1 and KappaKW for freshwater
+        # in Millero, 1983 are the same.
+    F = WhichKs!=8
+    if any(F):
+        # GEOSECS doesn't include OH term, so this won't matter.
+        # Peng et al didn't include pressure, but here I assume that the KW
+        # correction is the same as for the other seawater cases.
+        # This is from Millero, 1983 and his programs CO2ROY(T).BAS.
+        deltaV = where(F, -20.02 + 0.1119*TempC - 0.001409*TempC**2, deltaV)
+        # Millero, 1992 and Millero, 1995 have:
+        Kappa = where(F, (-5.13 + 0.0794*TempC)/1000, Kappa) # Millero, 1983
+        # Millero, 1995 has this too, but Millero, 1992 is different.
+        # Millero, 1979 does not list values for these.
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KW(TempK, Sal, Pbar, WhichKs):
     """Calculate water dissociation constant for the given options."""
-    KW = where(WhichKs==7, eq.kH2O_SWS_M79(TempK, Sal), nan)
+    # Evaluate at atmospheric pressure
+    KW = full(size(TempK), nan)
+    KW = where(WhichKs==6, 0.0, KW) # GEOSECS doesn't include OH effects
+    KW = where(WhichKs==7, eq.kH2O_SWS_M79(TempK, Sal), KW)
     KW = where(WhichKs==8, eq.kH2O_SWS_HO58_M79(TempK, Sal), KW)
     KW = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
         eq.kH2O_SWS_M95(TempK, Sal), KW)
-    KW = where(WhichKs==6, 0.0, KW) # GEOSECS doesn't include OH effects
+    # Now correct for seawater pressure
+    KW = KW*_pcxKW(TempK, Pbar, WhichKs)
     return KW
 
-def eq_KP(TempK, Sal, WhichKs, fH):
+def _pcxKP1(TempK, Pbar):
+    """Calculate pressure correction factor for KP1."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = -14.51 + 0.1211*TempC - 0.000321*TempC**2
+    Kappa  = (-2.67 + 0.0427*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def _pcxKP2(TempK, Pbar):
+    """Calculate pressure correction factor for KP2."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = -23.12 + 0.1758*TempC - 0.002647*TempC**2
+    Kappa  = (-5.15 + 0.09  *TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def _pcxKP3(TempK, Pbar):
+    """Calculate pressure correction factor for KP3."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = -26.57 + 0.202 *TempC - 0.003042*TempC**2
+    Kappa  = (-4.08 + 0.0714*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KP(TempK, Sal, Pbar, WhichKs, fH):
     """Calculate phosphoric acid dissociation constants for the given
     options.
     """
+    # Evaluate at atmospheric pressure
     KP1 = full(size(TempK), nan)
     KP2 = full(size(TempK), nan)
     KP3 = full(size(TempK), nan)
@@ -109,8 +244,8 @@ def eq_KP(TempK, Sal, WhichKs, fH):
         KP3 = where(F, KP3_KP67/fH, KP3) # convert NBS to SWS
     F = (WhichKs==6) | (WhichKs==8)
     if any(F):
-        # Neither the GEOSECS choice nor the freshwater choice
-        # include contributions from phosphate or silicate.
+        # Note: neither the GEOSECS choice nor the freshwater choice include
+        # contributions from phosphate or silicate.
         KP1 = where(F, 0.0, KP1)
         KP2 = where(F, 0.0, KP2)
         KP2 = where(F, 0.0, KP2)
@@ -120,113 +255,198 @@ def eq_KP(TempK, Sal, WhichKs, fH):
         KP1 = where(F, KP1_YM95, KP1)
         KP2 = where(F, KP2_YM95, KP2)
         KP3 = where(F, KP3_YM95, KP3)
+    # Now correct for seawater pressure
+    # === CO2SYS.m comments: =======
+    # These corrections don't matter for the GEOSECS choice (WhichKs = 6) and
+    # the freshwater choice (WhichKs = 8). For the Peng choice I assume that
+    # they are the same as for the other choices (WhichKs = 1 to 5).
+    # The corrections for KP1, KP2, and KP3 are from Millero, 1995, which are
+    # the same as Millero, 1983.
+    KP1 = KP1*_pcxKP1(TempK, Pbar)
+    KP2 = KP2*_pcxKP2(TempK, Pbar)
+    KP3 = KP3*_pcxKP3(TempK, Pbar)
     return KP1, KP2, KP3
 
-def eq_KSi(TempK, Sal, WhichKs, fH):
+def _pcxKSi(TempK, Pbar):
+    """Calculate pressure correction factor for KSi."""
+    # === CO2SYS.m comments: =======
+    # The only mention of this is Millero, 1995 where it is stated that the
+    # values have been estimated from the values of boric acid. HOWEVER,
+    # there is no listing of the values in the table.
+    # Here we use the values for boric acid.
+    TempC = convert.TempK2C(TempK)
+    deltaV = -29.48 + 0.1622*TempC - 0.002608*TempC**2
+    Kappa  = -2.84/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KSi(TempK, Sal, Pbar, WhichKs, fH):
     """Calculate silicate dissociation constant for the given options."""
+    # Evaluate at atmospheric pressure
+    KSi = full(size(TempK), nan)
     KSi = where(WhichKs==7,
-        eq.kSi_NBS_SMB64(TempK, Sal)/fH, nan) # convert NBS to SWS
-    # Neither the GEOSECS choice nor the freshwater choice
-    # include contributions from phosphate or silicate.
+        eq.kSi_NBS_SMB64(TempK, Sal)/fH, KSi) # convert NBS to SWS
+    # Note: neither the GEOSECS choice nor the freshwater choice include
+    # contributions from phosphate or silicate.
     KSi = where((WhichKs==6) | (WhichKs==8), 0.0, KSi)
     KSi = where((WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8),
         eq.kSi_SWS_YM95(TempK, Sal), KSi)
+    # Now correct for seawater pressure
+    KSi = KSi*_pcxKSi(TempK, Pbar)
     return KSi
 
-def eq_KH2S(TempK, Sal, WhichKs, SWStoTOT):
+def _pcxKH2S(TempK, Pbar):
+    """Calculate pressure correction factor for KH2S."""
+    # === CO2SYS.m comments: =======
+    # Millero 1995 gives values for deltaV in fresh water instead of SW.
+    # Millero 1995 gives -b0 as -2.89 instead of 2.89.
+    # Millero 1983 is correct for both.
+    TempC = convert.TempK2C(TempK)
+    deltaV = -11.07 - 0.009*TempC - 0.000942*TempC**2
+    Kappa = (-2.89 + 0.054*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KH2S(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
     """Calculate hydrogen disulfide dissociation constant for the given
     options.
     """
+    # Evaluate at atmospheric pressure
     KH2S = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0,
-        eq.kH2S_TOT_YM95(TempK, Sal)/SWStoTOT) # convert TOT to SWS
+        eq.kH2S_TOT_YM95(TempK, Sal)/SWStoTOT0) # convert TOT to SWS
+    # Now correct for seawater pressure
+    KH2S = KH2S*_pcxKH2S(TempK, Pbar)
     return KH2S
 
-def eq_KNH3(TempK, Sal, WhichKs, SWStoTOT):
+def _pcxKNH3(TempK, Pbar):
+    """Calculate pressure correction factor for KNH3."""
+    # === CO2SYS.m comments: =======
+    # The corrections are from Millero, 1995, which are the same as Millero,
+    # 1983.
+    TempC = convert.TempK2C(TempK)
+    deltaV = -26.43 + 0.0889*TempC - 0.000905*TempC**2
+    Kappa = (-5.03 + 0.0814*TempC)/1000
+    return _pcxKfac(deltaV, Kappa, Pbar, TempK)
+
+def eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
     """Calculate ammonium dissociation constant for the given options."""
+    # Evaluate at atmospheric pressure
     KNH3 = where((WhichKs==6) | (WhichKs==7) | (WhichKs==8), 0.0,
-        eq.kNH3_TOT_CW95(TempK, Sal)/SWStoTOT) # convert TOT to SWS
+        eq.kNH3_TOT_CW95(TempK, Sal)/SWStoTOT0) # convert TOT to SWS
+    # Now correct for seawater pressure
+    KNH3 = KNH3*_pcxKNH3(TempK, Pbar)
     return KNH3
 
-def eq_KC(TempK, Sal, WhichKs, fH, SWStoTOT):
-    """Calculate carbonic acid dissociation constants for the given options."""
-    K1 = full(size(TempK), nan)
-    K2 = full(size(TempK), nan)
-    TSP = (TempK, Sal)
-    F = WhichKs==1
+def _pcxK1(TempK, Pbar, WhichKs):
+    """Calculate pressure correction factor for K1."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = full(size(TempK), nan)
+    Kappa = full(size(TempK), nan)
+    K1fac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
+    F = WhichKs==8 # freshwater
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_TOT_RRV93(*TSP)
-        K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
-        K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
-    F = WhichKs==2
+        # Pressure effects on K1 in freshwater: this is from Millero, 1983.
+        deltaV = where(F, -30.54 + 0.1849*TempC - 0.0023366*TempC**2, deltaV)
+        Kappa = where(F, (-6.22 + 0.1368*TempC - 0.001233*TempC**2)/1000, Kappa)
+    F = (WhichKs==6) | (WhichKs==7)
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_GP89(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==3
+        # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
+        # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
+        # Culberson and Pytkowicz, L and O 13:403-417, 1968:
+        # but the fits are the same as those in
+        # Edmond and Gieskes, GCA, 34:1261-1291, 1970
+        # who in turn quote Li, personal communication
+        K1fac = where(F,
+            exp((24.2 - 0.085*TempC)*Pbar/(RGasConstant*TempK)), K1fac)
+        # This one is handled differently because the equation doesn't fit the
+        # standard deltaV & Kappa form of _pcxKfac.
+    F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_H73_DM87(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==4
+        # These are from Millero, 1995.
+        # They are the same as Millero, 1979 and Millero, 1992.
+        # They are from data of Culberson and Pytkowicz, 1968.
+        deltaV = where(F, -25.5 + 0.1271*TempC, deltaV)
+        # deltaV = deltaV - .151*(Sali - 34.8) # Millero, 1979
+        Kappa = where(F, (-3.08 + 0.0877*TempC)/1000, Kappa)
+        # Kappa = Kappa - .578*(Sali - 34.8)/1000 # Millero, 1979
+        # The fits given in Millero, 1983 are somewhat different.
+    # Now get final K1fac
+    F = (WhichKs==6) | (WhichKs==7)
+    K1fac = where(F, K1fac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+    return K1fac
+
+def _pcxK2(TempK, Pbar, WhichKs):
+    """Calculate pressure correction factor for K2."""
+    TempC = convert.TempK2C(TempK)
+    deltaV = full(size(TempK), nan)
+    Kappa = full(size(TempK), nan)
+    K2fac = full(size(TempK), nan) # because GEOSECS doesn't use _pcxKfac eq.
+    F = WhichKs==8 # freshwater
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MCHP73_DM87(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==5
+        # Pressure effects on K2 in freshwater: this is from Millero, 1983.
+        deltaV = where(F, -29.81 + 0.115*TempC - 0.001816*TempC**2, deltaV)
+        Kappa = where(F, (-5.74 + 0.093*TempC - 0.001896*TempC**2)/1000, Kappa)
+    F = (WhichKs==6) | (WhichKs==7)
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_HM_DM87(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = logical_or(WhichKs==6, WhichKs==7)
+        # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
+        # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
+        # Culberson and Pytkowicz, L and O 13:403-417, 1968:
+        # but the fits are the same as those in
+        # Edmond and Gieskes, GCA, 34:1261-1291, 1970
+        # who in turn quote Li, personal communication
+        K2fac = where(F,
+            exp((16.4 - 0.04*TempC)*Pbar/(RGasConstant*TempK)), K2fac)
+        # Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
+        # and matches the GEOSECS results
+        # This one is handled differently because the equation doesn't fit the
+        # standard deltaV & Kappa form of _pcxKfac.
+    F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_NBS_MCHP73(*TSP)
-        K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
-        K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
-    F = WhichKs==8
+        # These are from Millero, 1995.
+        # They are the same as Millero, 1979 and Millero, 1992.
+        # They are from data of Culberson and Pytkowicz, 1968.
+        deltaV = where(F, -15.82 - 0.0219*TempC, deltaV)
+        # deltaV = deltaV + .321*(Sali - 34.8) # Millero, 1979
+        Kappa = where(F, (1.13 - 0.1475*TempC)/1000, Kappa)
+        # Kappa = Kappa - .314*(Sali - 34.8)/1000 # Millero, 1979
+        # The fit given in Millero, 1983 is different.
+        # Not by a lot for deltaV, but by much for Kappa.
+    # Now get final K2fac
+    F = (WhichKs==6) | (WhichKs==7)
+    K2fac = where(F, K2fac, _pcxKfac(deltaV, Kappa, Pbar, TempK))
+    return K2fac
+
+def _get_eqKC(F, Kfunc, pHcx, K1, K2, TS):
+    """Convenience function for getting and setting K1 and K2 values."""
     if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_M79(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==9
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_NBS_CW98(*TSP)
-        K1 = where(F, K1_F/fH, K1) # convert NBS to SWS
-        K2 = where(F, K2_F/fH, K2) # convert NBS to SWS
-    F = WhichKs==10
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_TOT_LDK00(*TSP)
-        K1 = where(F, K1_F/SWStoTOT, K1) # convert TOT to SWS
-        K2 = where(F, K2_F/SWStoTOT, K2) # convert TOT to SWS
-    F = WhichKs==11
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MM02(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==12
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MPL02(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==13
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_MGH06(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==14
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_M10(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
-    F = WhichKs==15
-    if any(F):
-        K1_F, K2_F = eq.kH2CO3_SWS_WMW14(*TSP)
-        K1 = where(F, K1_F, K1)
-        K2 = where(F, K2_F, K2)
+        K1_F, K2_F = Kfunc(*TS)
+        K1 = where(F, K1_F/pHcx, K1)
+        K2 = where(F, K2_F/pHcx, K2)
     return K1, K2
 
-def lnKfac(deltaV, Kappa, Pbar, TempK):
-    """Calculate pressure correction factor for equilibrium constants."""
-    return (-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK)
+def eq_KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
+    """Calculate carbonic acid dissociation constants for the given options."""
+    # Evaluate at atmospheric pressure
+    K1 = full(size(TempK), nan)
+    K2 = full(size(TempK), nan)
+    TS = (TempK, Sal) # for convenience
+    K1, K2 = _get_eqKC(WhichKs==1, eq.kH2CO3_TOT_RRV93, SWStoTOT0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==2, eq.kH2CO3_SWS_GP89, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==3, eq.kH2CO3_SWS_H73_DM87, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==4, eq.kH2CO3_SWS_MCHP73_DM87, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==5, eq.kH2CO3_SWS_HM_DM87, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC((WhichKs==6) | (WhichKs==7), eq.kH2CO3_NBS_MCHP73, fH,
+                       K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==8, eq.kH2CO3_SWS_M79, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==9, eq.kH2CO3_NBS_CW98, fH, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==10, eq.kH2CO3_TOT_LDK00, SWStoTOT0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==11, eq.kH2CO3_SWS_MM02, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==12, eq.kH2CO3_SWS_MPL02, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==13, eq.kH2CO3_SWS_MGH06, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==14, eq.kH2CO3_SWS_M10, 1.0, K1, K2, TS)
+    K1, K2 = _get_eqKC(WhichKs==15, eq.kH2CO3_SWS_WMW14, 1.0, K1, K2, TS)
+    # Now correct for seawater pressure
+    K1 = K1*_pcxK1(TempK, Pbar, WhichKs)
+    K2 = K2*_pcxK2(TempK, Pbar, WhichKs)
+    return K1, K2
 
 def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
         TF, TS):
@@ -254,21 +474,23 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     #     and KW is in units of (mol/kg-SW)^2
     TempK, Pbar, RT = units(TempC, Pdbar)
     K0 = eq.kCO2_W74(TempK, Sal)
-    KS = eq_KS(TempK, Sal, WhoseKSO4)
-    KF = eq_KF(TempK, Sal, WhoseKF)
+    KS = eq_KS(TempK, Sal, Pbar, WhoseKSO4)
+    KF = eq_KF(TempK, Sal, Pbar, WhoseKF)
     # Calculate pH scale conversion factors - these are NOT pressure-corrected
+    KS0 = eq_KS(TempK, Sal, 0.0, WhoseKSO4)
+    KF0 = eq_KF(TempK, Sal, 0.0, WhoseKF)
     fH = eq_fH(TempK, Sal, WhichKs)
-    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
+    SWStoTOT0 = convert.sws2tot(TS, KS0, TF, KF0)
     # Calculate other dissociation constants
-    KB = eq_KB(TempK, Sal, WhichKs, fH, SWStoTOT)
-    KW = eq_KW(TempK, Sal, WhichKs)
-    KP1, KP2, KP3 = eq_KP(TempK, Sal, WhichKs, fH)
-    KSi = eq_KSi(TempK, Sal, WhichKs, fH)
-    K1, K2 = eq_KC(TempK, Sal, WhichKs, fH, SWStoTOT)
+    KB = eq_KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0)
+    KW = eq_KW(TempK, Sal, Pbar, WhichKs)
+    KP1, KP2, KP3 = eq_KP(TempK, Sal, Pbar, WhichKs, fH)
+    KSi = eq_KSi(TempK, Sal, Pbar, WhichKs, fH)
+    K1, K2 = eq_KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0)
     # From CO2SYS_v1_21.m: calculate KH2S and KNH3
-    KH2S = eq_KH2S(TempK, Sal, WhichKs, SWStoTOT)
-    KNH3 = eq_KNH3(TempK, Sal, WhichKs, SWStoTOT)
-
+    KH2S = eq_KH2S(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
+    KNH3 = eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
+    # Original notes from CO2SYS-MATLAB regarding pressure corrections:
 #****************************************************************************
 # Correct dissociation constants for pressure
 # Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
@@ -338,204 +560,27 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
 #       deltaVs are in cm3/mole
 #       Kappas are in cm3/mole/bar
 #****************************************************************************
-
-    # Correct K1, K2 and KB for pressure:
-    deltaV = full_like(TempC, nan)
-    Kappa = full_like(TempC, nan)
-    lnK1fac = full_like(TempC, nan)
-    lnK2fac = full_like(TempC, nan)
-    lnKBfac = full_like(TempC, nan)
-    F = WhichKs==8
-    if any(F):
-        # Pressure effects on K1 in freshwater: this is from Millero, 1983.
-        deltaV[F]  = -30.54 + 0.1849 *TempC[F] - 0.0023366*TempC[F]**2
-        Kappa[F]   = (-6.22 + 0.1368 *TempC[F] - 0.001233 *TempC[F]**2)/1000
-        lnK1fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
-        # Pressure effects on K2 in freshwater: this is from Millero, 1983.
-        deltaV[F]  = -29.81 + 0.115*TempC[F] - 0.001816*TempC[F]**2
-        Kappa[F]   = (-5.74 + 0.093*TempC[F] - 0.001896*TempC[F]**2)/1000
-        lnK2fac[F] = (-deltaV[F] + 0.5*Kappa[F]*Pbar[F])*Pbar[F]/RT[F]
-        lnKBfac[F] = 0 #; this doesn't matter since TB = 0 for this case
-    F = logical_or(WhichKs==6, WhichKs==7)
-    if any(F):
-        # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
-        # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
-        # Culberson and Pytkowicz, L and O 13:403-417, 1968:
-        # but the fits are the same as those in
-        # Edmond and Gieskes, GCA, 34:1261-1291, 1970
-        # who in turn quote Li, personal communication
-        lnK1fac[F] = (24.2 - 0.085*TempC[F])*Pbar[F]/RT[F]
-        lnK2fac[F] = (16.4 - 0.04 *TempC[F])*Pbar[F]/RT[F]
-        # Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
-        # and matches the GEOSECS results
-        lnKBfac[F] = (27.5 - 0.095*TempC[F])*Pbar[F]/RT[F]
-    F=logical_and.reduce((WhichKs!=6, WhichKs!=7, WhichKs!=8))
-    if any(F):
-        #***PressureEffectsOnK1:
-        # These are from Millero, 1995.
-        # They are the same as Millero, 1979 and Millero, 1992.
-        # They are from data of Culberson and Pytkowicz, 1968.
-        deltaV[F]  = -25.5 + 0.1271*TempC[F]
-        # deltaV = deltaV - .151*(Sali - 34.8); # Millero, 1979
-        Kappa[F]   = (-3.08 + 0.0877*TempC[F])/1000
-        #  Kappa = Kappa  - .578*(Sali - 34.8)/1000.; # Millero, 1979
-        lnK1fac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
-        # The fits given in Millero, 1983 are somewhat different.
-
-        #***PressureEffectsOnK2:
-        # These are from Millero, 1995.
-        # They are the same as Millero, 1979 and Millero, 1992.
-        # They are from data of Culberson and Pytkowicz, 1968.
-        deltaV[F]  = -15.82 - 0.0219*TempC[F]
-        # deltaV = deltaV + .321*(Sali - 34.8); # Millero, 1979
-        Kappa[F]   = (1.13 - 0.1475*TempC[F])/1000
-        # Kappa = Kappa - .314*(Sali - 34.8)/1000: # Millero, 1979
-        lnK2fac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
-        # The fit given in Millero, 1983 is different.
-        # Not by a lot for deltaV, but by much for Kappa. #
-
-        #***PressureEffectsOnKB:
-        #               This is from Millero, 1979.
-        #               It is from data of Culberson and Pytkowicz, 1968.
-        deltaV[F]  = -29.48 + 0.1622*TempC[F] - 0.002608*TempC[F]**2
-        #               Millero, 1983 has:
-        #                 'deltaV = -28.56 + .1211*TempCi - .000321*TempCi*TempCi
-        #               Millero, 1992 has:
-        #                 'deltaV = -29.48 + .1622*TempCi + .295*(Sali - 34.8)
-        #               Millero, 1995 has:
-        #                 'deltaV = -29.48 - .1622*TempCi - .002608*TempCi*TempCi
-        #                 'deltaV = deltaV + .295*(Sali - 34.8); # Millero, 1979
-        Kappa[F]   = -2.84/1000 # Millero, 1979
-        #               Millero, 1992 and Millero, 1995 also have this.
-        #                 'Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
-        #               Millero, 1983 has:
-        #                 'Kappa = (-3 + .0427*TempCi)/1000
-        lnKBfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
-
-    # CorrectKWForPressure:
-    lnKWfac = full_like(TempC, nan)
-    F=(WhichKs==8)
-    if any(F):
-        # PressureEffectsOnKWinFreshWater:
-        #               This is from Millero, 1983.
-        deltaV[F]  =  -25.6 + 0.2324*TempC[F] - 0.0036246*TempC[F]**2
-        Kappa[F]   = (-7.33 + 0.1368*TempC[F] - 0.001233 *TempC[F]**2)/1000
-        lnKWfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
-
-        #               NOTE the temperature dependence of KappaK1 and KappaKW
-        #               for fresh water in Millero, 1983 are the same.
-    F=(WhichKs!=8)
-    if any(F):
-        # GEOSECS doesn't include OH term, so this won't matter.
-        # Peng et al didn't include pressure, but here I assume that the KW correction
-        #       is the same as for the other seawater cases.
-        # PressureEffectsOnKW:
-        #               This is from Millero, 1983 and his programs CO2ROY(T).BAS.
-        deltaV[F]  = -20.02 + 0.1119*TempC[F] - 0.001409*TempC[F]**2
-        #               Millero, 1992 and Millero, 1995 have:
-        Kappa[F]   = (-5.13 + 0.0794*TempC[F])/1000 # Millero, 1983
-        #               Millero, 1995 has this too, but Millero, 1992 is different.
-        lnKWfac[F] = lnKfac(deltaV[F], Kappa[F], Pbar[F], TempK[F])
-        #               Millero, 1979 does not list values for these.
-
-    # PressureEffectsOnKF:
-    #       This is from Millero, 1995, which is the same as Millero, 1983.
-    #       It is assumed that KF is on the free pH scale.
-    deltaV = -9.78 - 0.009*TempC - 0.000942*TempC**2
-    Kappa = (-3.91 + 0.054*TempC)/1000
-    lnKFfac = lnKfac(deltaV, Kappa, Pbar, TempK)
-    # PressureEffectsOnKS:
-    #       This is from Millero, 1995, which is the same as Millero, 1983.
-    #       It is assumed that KS is on the free pH scale.
-    deltaV = -18.03 + 0.0466*TempC + 0.000316*TempC**2
-    Kappa = (-4.53 + 0.09*TempC)/1000
-    lnKSfac = lnKfac(deltaV, Kappa, Pbar, TempK)
-
-    # CorrectKP1KP2KP3KSiForPressure:
-    # These corrections don't matter for the GEOSECS choice (WhichKs# = 6) and
-    #       the freshwater choice (WhichKs# = 8). For the Peng choice I assume
-    #       that they are the same as for the other choices (WhichKs# = 1 to 5).
-    # The corrections for KP1, KP2, and KP3 are from Millero, 1995, which are the
-    #       same as Millero, 1983.
-    # PressureEffectsOnKP1:
-    deltaV = -14.51 + 0.1211*TempC - 0.000321*TempC**2
-    Kappa  = (-2.67 + 0.0427*TempC)/1000
-    lnKP1fac = lnKfac(deltaV, Kappa, Pbar, TempK)
-    # PressureEffectsOnKP2:
-    deltaV = -23.12 + 0.1758*TempC - 0.002647*TempC**2
-    Kappa  = (-5.15 + 0.09  *TempC)/1000
-    lnKP2fac = lnKfac(deltaV, Kappa, Pbar, TempK)
-    # PressureEffectsOnKP3:
-    deltaV = -26.57 + 0.202 *TempC - 0.003042*TempC**2
-    Kappa  = (-4.08 + 0.0714*TempC)/1000
-    lnKP3fac = lnKfac(deltaV, Kappa, Pbar, TempK)
-    # PressureEffectsOnKSi:
-    #  The only mention of this is Millero, 1995 where it is stated that the
-    #    values have been estimated from the values of boric acid. HOWEVER,
-    #    there is no listing of the values in the table.
-    #    I used the values for boric acid from above.
-    deltaV = -29.48 + 0.1622*TempC - 0.002608*TempC**2
-    Kappa  = -2.84/1000
-    lnKSifac = lnKfac(deltaV, Kappa, Pbar, TempK)
-
-    # CorrectKNH3KH2SForPressure:
-    # The corrections are from Millero, 1995, which are the
-    #       same as Millero, 1983.
-    # PressureEffectsOnKNH3:
-    deltaV = -26.43 + 0.0889*TempC - 0.000905*TempC**2
-    Kappa = (-5.03 + 0.0814*TempC)/1000
-    lnKNH3fac = lnKfac(deltaV, Kappa, Pbar, TempK)
-    # PressureEffectsOnKH2S:
-    # Millero 1995 gives values for deltaV in fresh water instead of SW.
-    # Millero 1995 gives -b0 as -2.89 instead of 2.89
-    # Millero 1983 is correct for both
-    deltaV = -11.07 - 0.009*TempC - 0.000942*TempC**2
-    Kappa = (-2.89 + 0.054*TempC)/1000
-    lnKH2Sfac = lnKfac(deltaV, Kappa, Pbar, TempK)
-
-    # CorrectKsForPressureHere:
-    K1 *= exp(lnK1fac)
-    K2 *= exp(lnK2fac)
-    KW *= exp(lnKWfac)
-    KB *= exp(lnKBfac)
-    KF *= exp(lnKFfac)
-    KS *= exp(lnKSfac)
-    KP1 *= exp(lnKP1fac)
-    KP2 *= exp(lnKP2fac)
-    KP3 *= exp(lnKP3fac)
-    KSi *= exp(lnKSifac)
-    KNH3 *= exp(lnKNH3fac)
-    KH2S *= exp(lnKH2Sfac)
-
-    # CorrectpHScaleConversionsForPressure:
+    # Correct pH scale conversions for pressure.
     # fH has been assumed to be independent of pressure.
     SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
     FREEtoTOT = convert.free2tot(TS, KS)
-
-    #  The values KS and KF are already pressure-corrected, so the pH scale
-    #  conversions are now valid at pressure.
-
+    # The values KS and KF are already now pressure-corrected, so the pH scale
+    # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor = full_like(TempC, nan)
-    F = pHScale==1 # Total
-    pHfactor[F] = SWStoTOT[F]
-    F = pHScale==2 # SWS, they are all on this now
-    pHfactor[F] = 1.0
-    F = pHScale==3 # pHfree
-    pHfactor[F] = SWStoTOT[F]/FREEtoTOT[F]
-    F = pHScale==4 # pHNBS
-    pHfactor[F] = fH[F]
-
+    pHfactor = full(size(TempC), nan)
+    pHfactor = where(pHScale==1, SWStoTOT, pHfactor) # Total
+    pHfactor = where(pHScale==2, 1.0, pHfactor) # Seawater (already on this)
+    pHfactor = where(pHScale==3, SWStoTOT/FREEtoTOT, pHfactor) # Free
+    pHfactor = where(pHScale==4, fH, pHfactor) # NBS
     # Convert from SWS pH scale to chosen scale
-    K1 *= pHfactor
-    K2 *= pHfactor
-    KW *= pHfactor
-    KB *= pHfactor
-    KP1 *= pHfactor
-    KP2 *= pHfactor
-    KP3 *= pHfactor
-    KSi *= pHfactor
-    KNH3 *= pHfactor
-    KH2S *= pHfactor
-
+    K1 = K1*pHfactor
+    K2 = K2*pHfactor
+    KW = KW*pHfactor
+    KB = KB*pHfactor
+    KP1 = KP1*pHfactor
+    KP2 = KP2*pHfactor
+    KP3 = KP3*pHfactor
+    KSi = KSi*pHfactor
+    KNH3 = KNH3*pHfactor
+    KH2S = KH2S*pHfactor
     return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH

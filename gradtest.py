@@ -28,11 +28,11 @@ jaxout = grad(whoop)(np.array([2.0, 2.5]))
 # print(derivative_fn(x_small))
 
 npts = 10000
-Sal = onp.full(npts, 35.)
+Sal = onp.full(npts, 32.3)
 WhichKs = onp.full(npts, 10)
 WhoseTB = onp.full(npts, 2)
 TempC = onp.full(npts, 25.)
-Pdbar = onp.full(npts, 1.)
+Pdbar = onp.full(npts, 5000.)
 pHScale = onp.full(npts, 3)
 WhoseKSO4 = onp.full(npts, 1)
 WhoseKF = onp.full(npts,  1)
@@ -60,10 +60,11 @@ phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
     K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
     TB, TF, TS, TP, TSi, TNH3, TH2S), TA, dx=1e-9)
 
-co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, TempC, TempC, Pdbar, Pdbar, TSi*1e6,
-              TP*1e6, 3, 7, 3, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
-print(co2d['OmegaCAin'][0])
-print(co2d['OmegaARin'][0])
+# from PyCO2SYS.original import CO2SYS
+co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, 15, 26, 0, Pdbar, TSi*1e6,
+              TP*1e6, 3, 7, 3)#, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
+print(co2d['pHinSWS'][0])
+print(co2d['pHoutSWS'][0])
 clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
@@ -77,6 +78,6 @@ conc = lambda Sal: pyco2.assemble.concs_TB(Sal, WhichKs, WhoseTB)
 # print(egrad(conc)(Sal)[0])
 
 # Assemble equilibria
-# eq = lambda TempC: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
-#     WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
-# print(egrad(eq)(TempC)[0])
+eq = lambda TS: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
+    WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
+print(egrad(eq)(TS)[0])

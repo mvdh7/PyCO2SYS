@@ -23,7 +23,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
 
 !!! example "Changes in v1.3.0"
     * Rename module `extra` to `buffers`.
-    * All functions in `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
+    * All functions in modules `assemble` and `solve` updated to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Relocated `_CaSolubility` function from root into new module `solubility` and renamed as `CaCO3`.
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
     * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
