@@ -148,7 +148,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # CalculateOtherParamsAtInputConditions:
     (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
         Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, **Kis, **totals)
-    PAlkinp += PengCorrection
+    PAlkinp = PAlkinp + PengCorrection
     CO2inp = TCc - CO3inp - HCO3inp
     Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, Kis,
                                        totals)
@@ -176,7 +176,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     # Calculate other stuff at output conditions:
     (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
         Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, **Kos, **totals)
-    PAlkout += PengCorrection
+    PAlkout = PAlkout + PengCorrection
     CO2out = TCc - CO3out - HCO3out
     Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, Kos,
                                        totals)
