@@ -1,5 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+"""Solve the marine carbonate system from any two of its variables."""
+
 from autograd.numpy import (array, full, full_like, log, log10, nan, size, sqrt,
                             where)
 from autograd.numpy import abs as np_abs

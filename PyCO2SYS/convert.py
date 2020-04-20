@@ -1,5 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+"""Convert units and calculate conversion factors."""
 
 from .constants import Tzero
 
