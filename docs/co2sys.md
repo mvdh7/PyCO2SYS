@@ -129,6 +129,8 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'fCO2in'`/`'fCO2out'`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
     * `'xCO2in'`/`'xCO2out'`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
 
+    ---
+
     ***Alkalinity and its components***
 
     * `'TAlk'`: **total alkalinity** in μmol·kg<sup>−1</sup>.
@@ -137,6 +139,8 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'SiAlkin'`/`'SiAlkout'`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'NH3Alkin'`/`'NH3Alkout'`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'H2SAlkin'`/`'H2SAlkout'`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+
+    ---
 
     ***pH and water***
 
@@ -148,10 +152,14 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'HFreein'`/`'HFreeout'`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'OHin'`/`'OHout'`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
 
+    ---
+
     ***Carbonate mineral saturation***
 
     * `'OmegaCAin'`/`'OmegaCAout'`: **saturation state of calcite** at input/output conditions.
     * `'OmegaARin'`/`'OmegaARout'`: **saturation state of aragonite** at input/output conditions.
+
+    ---
 
     ***Buffer factors***
 
@@ -166,11 +174,15 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'isoQin'`/`'isoQout'`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `'isoQapprox_in'`/`'isoQapprox_out'`: **approximate isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
 
+    ---
+
     ***Totals estimated from salinity***
 
     * `'TB'`: **total borate** in μmol·kg<sup>−1</sup>.
     * `'TF'`: **total fluoride** μmol·kg<sup>−1</sup>.
     * `'TS'`: **total sulfate** in μmol·kg<sup>−1</sup>.
+
+    ---
 
     ***Equilibrium constants***
 
@@ -191,6 +203,8 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'KSiinput'`/`'KSioutput'`: **silicic acid** dissociation constant at input/output conditions.
     * `'KNH3input'`/`'KNH3output'`: **ammonium** equilibrium constant at input/output conditions.
     * `'KH2Sinput'`/`'KH2Soutput'`: **hydrogen sulfide** equilibrium constant at input/output conditions.
+
+    ---
 
     ***Function inputs***
 
