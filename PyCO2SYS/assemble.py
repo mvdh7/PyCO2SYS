@@ -44,7 +44,12 @@ def concentrations(Sal, WhichKs, WhoseTB):
     TB = concs_TB(Sal, WhichKs, WhoseTB)
     TF = conc.fluoride_R65(Sal)
     TS = conc.sulfate_MR66(Sal)
-    return TB, TF, TS
+    # Return results as a dict for stability
+    return {
+        'TB': TB,
+        'TF': TF,
+        'TSO4': TS,
+    }
 
 def units(TempC, Pdbar):
     """Convert temperature and pressure units."""
@@ -448,8 +453,7 @@ def eq_KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
     K2 = K2*_pcxK2(TempK, Pbar, WhichKs)
     return K1, K2
 
-def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
-        TF, TS):
+def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
 
@@ -478,7 +482,7 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     KS0 = eq_KS(TempK, Sal, 0.0, WhoseKSO4)
     KF0 = eq_KF(TempK, Sal, 0.0, WhoseKF)
     fH = eq_fH(TempK, Sal, WhichKs)
-    SWStoTOT0 = convert.sws2tot(TS, KS0, TF, KF0)
+    SWStoTOT0 = convert.sws2tot(totals['TSO4'], KS0, totals['TF'], KF0)
     # Calculate other dissociation constants
     KB = eq_KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0)
     KW = eq_KW(TempK, Sal, Pbar, WhichKs)
@@ -490,8 +494,8 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     KNH3 = eq_KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
     # Correct pH scale conversions for pressure.
     # fH has been assumed to be independent of pressure.
-    SWStoTOT = convert.sws2tot(TS, KS, TF, KF)
-    FREEtoTOT = convert.free2tot(TS, KS)
+    SWStoTOT = convert.sws2tot(totals['TSO4'], KS, totals['TF'], KF)
+    FREEtoTOT = convert.free2tot(totals['TSO4'], KS)
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
@@ -512,6 +516,23 @@ def equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4, WhoseKF, TP, TSi, Sal,
     KNH3 = KNH3*pHfactor
     KH2S = KH2S*pHfactor
     return K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH
+    # # Return results as a dict
+    # return {
+    #     'K0': K0,
+    #     'K1': K1,
+    #     'K2': K2,
+    #     'KW': KW,
+    #     'KB': KB,
+    #     'KF': KF,
+    #     'KS': KS,
+    #     'KP1': KP1,
+    #     'KP2': KP2,
+    #     'KP3': KP3,
+    #     'KSi': KSi,
+    #     'KNH3': KNH3,
+    #     'KH2S': KH2S,
+    #     'fH': fH,
+    # }
 
 # Original notes from CO2SYS-MATLAB regarding pressure corrections (now in
 # function `equilibria` above):

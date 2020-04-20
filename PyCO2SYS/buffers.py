@@ -43,7 +43,7 @@ def psi(CO2, pH, K1, K2, KB, KW, TB):
 
 def RevelleFactor(TA, TC, K0,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate the Revelle Factor from total alkalinity and dissolved
     inorganic carbon.
 
@@ -54,7 +54,7 @@ def RevelleFactor(TA, TC, K0,
 
     Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
     """
-    Ts = [TB, TF, TS, TP, TSi, TNH3, TH2S]
+    Ts = [TB, TF, TSO4, TPO4, TSi, TNH3, TH2S]
     Ks = [K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S]
     dTC = 1e-6 # 1 umol/kg-SW
     # Find fCO2 at TA, TC+dTC

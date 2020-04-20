@@ -43,41 +43,43 @@ TH2S = onp.full(npts, 0.01e-6)
 TA = onp.full(npts, 2300e-6)
 TC = onp.full(npts, 2000e-6)
 
-TB, TF, TS = pyco2.assemble.concentrations(Sal, WhichKs, WhoseTB)
-K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH = \
-    pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4,
-                              WhoseKF, TP, TSi, Sal, TF, TS)
+# TB, TF, TS = pyco2.assemble.concentrations(Sal, WhichKs, WhoseTB)
+# K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH = \
+#     pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4,
+#                               WhoseKF, TP, TSi, Sal, TF, TS)
 
-phargs = (TA, TC, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-          TB, TF, TS, TP, TSi, TNH3, TH2S)
-ph = pyco2.solve.pHfromTATC(*phargs)
+# phargs = (TA, TC, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+#           TB, TF, TS, TP, TSi, TNH3, TH2S)
+# ph = pyco2.solve.pHfromTATC(*phargs)
 
-tc = pyco2.solve.TCfromTApH(TA, ph, *phargs[2:])
-tcg = egrad(pyco2.solve.TCfromTApH)(TA, ph, *phargs[2:])
+# tc = pyco2.solve.TCfromTApH(TA, ph, *phargs[2:])
+# tcg = egrad(pyco2.solve.TCfromTApH)(TA, ph, *phargs[2:])
 
-phag = egrad(pyco2.solve.pHfromTATC, argnum=0)(*phargs)
-phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
-    K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-    TB, TF, TS, TP, TSi, TNH3, TH2S), TA, dx=1e-9)
+# phag = egrad(pyco2.solve.pHfromTATC, argnum=0)(*phargs)
+# phdg = derivative(lambda TA: pyco2.solve.pHfromTATC(TA, TC,
+#     K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
+#     TB, TF, TS, TP, TSi, TNH3, TH2S), TA, dx=1e-9)
 
 # from PyCO2SYS.original import CO2SYS
 co2d = CO2SYS(TA*1e6, TC*1e6, 1, 2, Sal, 15, 26, 0, Pdbar, TSi*1e6,
               TP*1e6, 3, 7, 3)#, NH3=TNH3*1e6, H2S=TH2S*1e6, KFCONSTANT=1)
 print(co2d['pHinSWS'][0])
 print(co2d['pHoutSWS'][0])
-clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
-clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
+print(co2d['RFin'][0])
+print(co2d['RFout'][0])
+# clc = pyco2.solubility.aragonite(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
+# clcg = egrad(pyco2.solubility.aragonite)(Sal, TempC, Pdbar, TC, ph, WhichKs, K1, K2)
 
 # # From 2 to 6
 # TA, TC, PH, PC, FC, CARB = pyco2.solve.from2to6(p1, p2, K0, Ks, Ts, TA, TC, PH,
 #     PC, FC, CARB, PengCorrection, FugFac)
 
-# Assemble concentrations
-conc = lambda Sal: pyco2.assemble.concs_TB(Sal, WhichKs, WhoseTB)
-# print(conc(Sal)[0]*1e6)
-# print(egrad(conc)(Sal)[0])
+# # Assemble concentrations
+# conc = lambda Sal: pyco2.assemble.concs_TB(Sal, WhichKs, WhoseTB)
+# # print(conc(Sal)[0]*1e6)
+# # print(egrad(conc)(Sal)[0])
 
-# Assemble equilibria
-eq = lambda TS: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
-    WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
-print(egrad(eq)(TS)[0])
+# # Assemble equilibria
+# eq = lambda TS: pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs,
+#     WhoseKSO4, WhoseKF, TP, TSi, Sal, TF, TS)[1]
+# print(egrad(eq)(TS)[0])

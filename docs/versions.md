@@ -29,6 +29,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Relocated `_RevelleFactor` function from root into module `buffers` and removed leading `_`.
     * Added module `constants` for storing values of universal physical constants.
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
+    * Added missing "Peng correction" to Revelle factor calculation at output conditions.
 
 ## 1.2
 

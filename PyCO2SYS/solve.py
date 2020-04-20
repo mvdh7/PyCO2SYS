@@ -14,11 +14,11 @@ pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
 def AlkParts(pH, TC,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate the different components of total alkalinity from pH and
     dissolved inorganic carbon.
 
-    Although coded for H on the total pH scale, for the pH values occuring in
+    Although coded for H on the Total pH scale, for the pH values occuring in
     seawater (pH > 6) this will be equally valid on any pH scale (i.e. H terms
     are negligible) as long as the K Constants are on that scale.
 
@@ -29,20 +29,20 @@ def AlkParts(pH, TC,
     CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
     BAlk = TB*KB/(KB + H)
     OH = KW/H
-    PAlk = (TP*(KP1*KP2*H + 2*KP1*KP2*KP3 - H**3)/
+    PAlk = (TPO4*(KP1*KP2*H + 2*KP1*KP2*KP3 - H**3)/
             (H**3 + KP1*H**2 + KP1*KP2*H + KP1*KP2*KP3))
     SiAlk = TSi*KSi/(KSi + H)
     NH3Alk = TNH3*KNH3/(KNH3 + H)
     H2SAlk = TH2S*KH2S/(KH2S + H)
-    FREEtoTOT = convert.free2tot(TS, KS)
+    FREEtoTOT = convert.free2tot(TSO4, KS)
     Hfree = H/FREEtoTOT # for H on the Total scale
-    HSO4 = TS/(1 + KS/Hfree) # since KS is on the Free scale
+    HSO4 = TSO4/(1 + KS/Hfree) # since KS is on the Free scale
     HF = TF/(1 + KF/Hfree) # since KF is on the Free scale
     return HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF
 
 def pHfromTATC(TA, TC,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and dissolved inorganic carbon.
 
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
@@ -64,7 +64,7 @@ def pHfromTATC(TA, TC,
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, TC,
                 K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         CAlk = HCO3 + 2*CO3
         H = 10.0**-pH
         Denom = H**2 + K1*H + K1*K2
@@ -97,7 +97,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
 
 def TCfromTApH(TA, pH,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
     This calculates TC from TA and pH.
@@ -111,7 +111,7 @@ def TCfromTApH(TA, pH,
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(pH, 0.0,
             K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-            TB, TF, TS, TP, TSi, TNH3, TH2S)
+            TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
     CAlk = (TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 +
             HF)
     TC = CAlk*(H**2 + K1*H + K1*K2)/(K1*(H + 2*K2))
@@ -119,7 +119,7 @@ def TCfromTApH(TA, pH,
 
 def pHfromTAfCO2(TA, fCO2, K0,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and CO2 fugacity.
 
     This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
@@ -143,7 +143,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, 0.0,
                 K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
                     Hfree + HSO4 + HF)
         # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
@@ -162,7 +162,7 @@ def pHfromTAfCO2(TA, fCO2, K0,
 
 def TAfromTCpH(TC, pH,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -175,7 +175,7 @@ def TAfromTCpH(TC, pH,
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(pH, TC,
             K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-            TB, TF, TS, TP, TSi, TNH3, TH2S)
+            TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
     CAlk = HCO3 + 2*CO3
     TAc = (CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree -
            HSO4 - HF)
@@ -208,7 +208,7 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
 
 def pHfromTACarb(TA, CARB,
         K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TS, TP, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and carbonate ion.
 
     This calculates pH from TA and Carb using K1 and K2 by Newton's method.
@@ -230,7 +230,7 @@ def pHfromTACarb(TA, CARB,
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
             AlkParts(pH, 0.0,
                 K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TS, TP, TSi, TNH3, TH2S)
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
                     H2SAlk + Hfree + HSO4 + HF)
         # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
@@ -294,11 +294,13 @@ def CarbfromTCpH(TC, pH, K1, K2):
     CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
     return CARB
 
-def from2to6(p1, p2, K0, Ks, Ts, TA, TC, PH, PC, FC, CARB, PengCorrection,
-        FugFac):
+def from2to6(p1, p2, K0, Ks, TA, TC,
+        PH, PC, FC, CARB, PengCorrection, FugFac,
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Solve the marine carbonate system from any valid pair of inputs."""
     K1 = Ks[0]
     K2 = Ks[1]
+    Ts = [TB, TF, TSO4, TPO4, TSi, TNH3, TH2S]
     # Generate vector describing the combination of input parameters
     # So, the valid ones are: 12,13,14,15,16,23,24,25,26,34,35,36,46,56
     Icase = (10*np_min(array([p1, p2]), axis=0) +
