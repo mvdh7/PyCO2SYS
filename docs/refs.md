@@ -40,6 +40,9 @@ Click on each reference to see more details.
 
 ### E
 
+??? note "EG70: Edmond & Gieskes (1970) *Geochim. Cosmochim. Acta*"
+    Edmond, J. M., and Gieskes, J. M. T. M. (1970). On the calculation of the degree of saturation of sea water with respect to calcium carbonate under in situ conditions. *Geochimica et Cosmochimica Acta* 34(12), 1261–1291. <a href='https://doi.org/10.1016/0016-7037(70)90041-4'>doi:10.1016/0016-7037(70)90041-4</a>.
+
 ??? note "ESM10: Egleston et al. (2010) *Global Biogeochem. Cy.*"
     Egleston, E. S., Sabine, C. L., and Morel, F. M. M. (2010). Revelle revisited: Buffer factors that quantify the response of ocean chemistry to changes in DIC and alkalinity. *Global Biogeochemical Cycles* 24, GB1002. [doi:10.1029/2008GB003407](https://doi.org/10.1029/2008GB003407).
 
@@ -108,6 +111,12 @@ Click on each reference to see more details.
 ??? note "M83: Mucci (1983) *Am. J. Sci.*"
     Mucci, A. (1983). The solubility of calcite and aragonite in seawater at various salinities, temperatures, and one atmosphere total pressure. *American Journal of Science* 283, 780–799. [doi:10.2475/ajs.283.7.780](doi:10.2475/ajs.283.7.780).
 
+??? note "Mi83: Millero (1983) in *"Chemical Oceanography"*"
+    Millero, F. J. (1983). “Influence of pressure on chemical processes in the sea,” in *Chemical Oceanography*, eds. J. P. Riley and R. Chester (Academic Press).
+
+??? note "MS92: Millero & Sohn (1992) *"Chemical Oceanography"*"
+    Millero, F. J., and Sohn, M. L. (1992). *Chemical Oceanography.* CRC Press, Florida, USA.
+
 ??? note "M95: Millero (1995) *Geochim. Cosmochim. Acta*"
     Millero, F. J. (1995). Thermodynamics of the carbon dioxide system in the oceans. *Geochimica et Cosmochimica Acta* 59, 661–677. <a href='https://doi.org/10.1016/0016-7037(94)00354-O'>doi:10.1016/0016-7037(94)00354-O</a>.
 
@@ -160,7 +169,7 @@ Click on each reference to see more details.
 
 ### T
 
-??? note "TWB82: Takahashi et al. (1982) in *GEOSECS Pacific Expedition*"
+??? note "TWB82: Takahashi et al. (1982) in *"GEOSECS Pacific Expedition"*"
     Takahashi, T., Williams, R. T., and Bos, D. L. (1982). “Carbonate Chemistry,” in *GEOSECS Pacific Expedition: Hydrographic Data* (Washington, D. C.: National Science Foundation), 77–105.
 
 ### U
