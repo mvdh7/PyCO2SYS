@@ -210,7 +210,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     Finally, `CO2SYS` splits up the input `KSO4CONSTANTS` into two separate settings variables internally, which are also returned in the `CO2dict` output:
 
     * `'KSO4CONSTANT'`:
-        * `1` for `KSO4CONSTANTS in [1, 3]` (i.e. bisulfate dissociation from [D90a](../refs/#d))
+        * `1` for `KSO4CONSTANTS in [1, 3]` (i.e. bisulfate dissociation from [D90a](../refs/#d)).
         * `2` for `KSO4CONSTANTS in [2, 4]` (i.e. bisulfate dissociation from [KRCB77](../refs/#k)).
     * `'BORON'`:
         * `1` for `KSO4CONSTANTS in [1, 2]` (i.e. borate:salinity from [U74](../refs/#u)).
