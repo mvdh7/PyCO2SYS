@@ -23,7 +23,7 @@ Each input can either be a single scalar value or a [NumPy array](https://docs.s
 Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here. Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
 
 !!! info "`PyCO2SYS.CO2SYS` inputs"
-    ***Carbonate system parameters***
+    #### Carbonate system parameters
 
     * `PAR1` and `PAR2`: values of two different carbonate system parameters.
     * `PAR1TYPE` and `PAR2TYPE`: which types of parameter `PAR1` and `PAR2` are.
@@ -38,9 +38,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
-    ---
-
-    ***Hydrographic conditions***
+    #### Hydrographic conditions
 
     * `SAL`: **practical salinity** (dimensionless).
     * `TEMPIN`: **temperature** at which `PAR1` and `PAR2` inputs are provided in °C.
@@ -50,9 +48,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `TEMPIN = 25`, `TEMPOUT = 2.5`, `PRESIN = 0`, and `PRESIN = 1000`.
 
-    ---
-
-    ***Nutrients***
+    #### Nutrients and other solutes
 
     *Required:*
 
@@ -66,9 +62,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
-    ---
-
-    ***Settings***
+    #### Settings
 
     *Required:*
 
@@ -119,7 +113,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 !!! abstract "`PyCO2SYS.CO2SYS` outputs"
     The only output is a dict. Its keys are as follows:
 
-    ***Dissolved inorganic carbon***
+    #### Dissolved inorganic carbon
 
     * `'TCO2'`: **dissolved inorganic carbon** in μmol·kg<sup>−1</sup>.
     * `'CO3in'`/`'CO3out'`: **carbonate ion** at input/output conditions in μmol·kg<sup>−1</sup>.
@@ -129,9 +123,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'fCO2in'`/`'fCO2out'`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
     * `'xCO2in'`/`'xCO2out'`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
 
-    ---
-
-    ***Alkalinity and its components***
+    #### Alkalinity and its components
 
     * `'TAlk'`: **total alkalinity** in μmol·kg<sup>−1</sup>.
     * `'BAlkin'`/`'BAlkout'`: **borate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
@@ -140,9 +132,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'NH3Alkin'`/`'NH3Alkout'`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'H2SAlkin'`/`'H2SAlkout'`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
 
-    ---
-
-    ***pH and water***
+    #### pH and water
 
     * `'pHin'`/`'pHout'`: **pH** at input/output conditions on the scale specified by input `pHSCALEIN`.
     * `'pHinTOTAL'`/`'pHoutTOTAL'`: **pH** at input/output conditions on the **Total scale**.
@@ -152,16 +142,12 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'HFreein'`/`'HFreeout'`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'OHin'`/`'OHout'`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
 
-    ---
-
-    ***Carbonate mineral saturation***
+    #### Carbonate mineral saturation
 
     * `'OmegaCAin'`/`'OmegaCAout'`: **saturation state of calcite** at input/output conditions.
     * `'OmegaARin'`/`'OmegaARout'`: **saturation state of aragonite** at input/output conditions.
 
-    ---
-
-    ***Buffer factors***
+    #### Buffer factors
 
     * `'RFin'`/`'RFout'`: **Revelle factor** at input/output conditions.
     * `'psi_in'`/`'psi_out'`: *ψ* of [FCG94](../refs/#f) at input/output conditions.
@@ -174,17 +160,13 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'isoQin'`/`'isoQout'`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `'isoQapprox_in'`/`'isoQapprox_out'`: **approximate isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
 
-    ---
-
-    ***Totals estimated from salinity***
+    #### Totals estimated from salinity
 
     * `'TB'`: **total borate** in μmol·kg<sup>−1</sup>.
     * `'TF'`: **total fluoride** μmol·kg<sup>−1</sup>.
     * `'TS'`: **total sulfate** in μmol·kg<sup>−1</sup>.
 
-    ---
-
-    ***Equilibrium constants***
+    #### Equilibrium constants
 
     All equilibrium constants are returned on the pH scale of input `pHSCALEIN` except for `'KFinput'`/`'KFoutput'` and `'KSinput'`/`'KSoutput'`, which are always on the Free scale.
 
@@ -204,9 +186,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'KNH3input'`/`'KNH3output'`: **ammonium** equilibrium constant at input/output conditions.
     * `'KH2Sinput'`/`'KH2Soutput'`: **hydrogen sulfide** equilibrium constant at input/output conditions.
 
-    ---
-
-    ***Function inputs***
+    #### Function inputs
 
     * `'TEMPIN'`/`'TEMPOUT'`: inputs `TEMPIN`/`TEMPOUT`.
     * `'PRESIN'`/`'PRESOUT'`: inputs `PRESIN`/`PRESOUT`.
