@@ -174,6 +174,8 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
     ***Equilibrium constants***
 
+    All equilibrium constants are returned on the pH scale of input `pHSCALEIN`.
+
     * `'K0input'`/`'K0output'`: **Henry's constant for CO<sub>2</sub>** at input/output conditions.
     * `'K1input'`/`'K1output'`: **first carbonic acid** dissociation constant at input/output conditions.
     * `'K2input'`/`'K2output'`: **second carbonic acid** dissociation constant at input/output conditions.
