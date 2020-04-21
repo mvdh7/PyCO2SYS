@@ -305,18 +305,18 @@ def pars2mcs(par1, par2, par1type, par2type, ntps):
     FC = full(ntps, nan) # fCO2
     CARB = full(ntps, nan) # CO3 ions
     # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
-    TA = where(p1==1, PAR1*1e-6, TA)
-    TC = where(p1==2, PAR1*1e-6, TC)
-    PH = where(p1==3, PAR1, PH)
-    PC = where(p1==4, PAR1*1e-6, PC)
-    FC = where(p1==5, PAR1*1e-6, FC)
-    CARB = where(p1==6, PAR1*1e-6, CARB)
-    TA = where(p2==1, PAR2*1e-6, TA)
-    TC = where(p2==2, PAR2*1e-6, TC)
-    PH = where(p2==3, PAR2, PH)
-    PC = where(p2==4, PAR2*1e-6, PC)
-    FC = where(p2==5, PAR2*1e-6, FC)
-    CARB = where(p2==6, PAR2*1e-6, CARB)
+    TA = where(par1type==1, par1*1e-6, TA)
+    TC = where(par1type==2, par1*1e-6, TC)
+    PH = where(par1type==3, par1, PH)
+    PC = where(par1type==4, par1*1e-6, PC)
+    FC = where(par1type==5, par1*1e-6, FC)
+    CARB = where(par1type==6, par1*1e-6, CARB)
+    TA = where(par2type==1, par2*1e-6, TA)
+    TC = where(par2type==2, par2*1e-6, TC)
+    PH = where(par2type==3, par2, PH)
+    PC = where(par2type==4, par2*1e-6, PC)
+    FC = where(par2type==5, par2*1e-6, FC)
+    CARB = where(par2type==6, par2*1e-6, CARB)
     return TA, TC, PH, PC, FC, CARB
 
 def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
