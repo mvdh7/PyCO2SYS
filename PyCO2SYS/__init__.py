@@ -57,138 +57,50 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     PAR2 = args['PAR2']
     p1 = args['PAR1TYPE']
     p2 = args['PAR2TYPE']
-    Sal = args['SAL']*1.0
+    Sal = args['SAL']
     TempCi = args['TEMPIN']
     TempCo = args['TEMPOUT']
     Pdbari = args['PRESIN']
     Pdbaro = args['PRESOUT']
-    TSi = args['SI']*1.0
-    TP = args['PO4']*1.0
-    TNH3 = args['NH3']*1.0
-    TH2S = args['H2S']*1.0
+    TSi = args['SI']
+    TP = args['PO4']
+    TNH3 = args['NH3']
+    TH2S = args['H2S']
     pHScale = args['pHSCALEIN']
     WhichKs = args['K1K2CONSTANTS']
     WhoseKSO4 = args['KSO4CONSTANT']
     WhoseKF = args['KFCONSTANT']
     WhoseTB = args['BORON']
-
-    # Generate the columns holding Si, Phos and Sal.
-    # Pure Water case:
-    Sal = where(WhichKs==8, 0.0, Sal)
-    # GEOSECS and Pure Water:
-    F = (WhichKs==6) | (WhichKs==8)
-    TP = where(F, 0.0, TP)
-    TSi = where(F, 0.0, TSi)
-    TNH3 = where(F, 0.0, TNH3)
-    TH2S = where(F, 0.0, TH2S)
-    # Convert micromol to mol
-    TP = TP*1e-6
-    TSi = TSi*1e-6
-    TNH3 = TNH3*1e-6
-    TH2S = TH2S*1e-6
-    TCa, totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
-    # Add equilibrating user inputs except DIC to `totals` dict
-    totals['TPO4'] = TP
-    totals['TSi'] = TSi
-    totals['TNH3'] = TNH3
-    totals['TH2S'] = TH2S
-    # The vector `PengCorrection` is used to modify the value of TA, for those
-    # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
-    # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
-    PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
-    # Expand input `PAR1` and `PAR2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB = solve.pars2mcs(PAR1, PAR2, p1, p2, ntps)
-    # Calculate the constants for all samples at input conditions.
-    # The constants calculated for each sample will be on the appropriate pH
-    # scale!
-    ConstPuts = (Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
-    K0i, fHi, Kis = assemble.equilibria(TempCi, Pdbari, *ConstPuts)
-    # Calculate the pKs at input
-    pK1i = -log10(Kis['K1'])
-    pK2i = -log10(Kis['K2'])
-    # Make sure fCO2 is available for each sample that has pCO2.
-    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
-    VPFaci = gas.vpfactor(TempCi, Sal)
-    FC = where((p1==4) | (p2==4), PC*FugFaci, FC)
-    # Generate vector for results, and copy the raw input values into them. This
-    # copies ~60% NaNs, which will be replaced for calculated values later on.
-    # Note that numpy.ndarray.copy() is not good for Autograd!
-    TAc = TA*1
-    TCc = TC*1
-    PHic = PH*1
-    PCic = PC*1
-    FCic = FC*1
-    CARBic = CARB*1
-    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(p1, p2, K0i,
-        TAc, TCc, PH, PC, FC, CARB, PengCorrection, FugFaci, Kis, totals)
-    # Calculate other variables at input conditions
-    (HCO3inp, CO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp, H2SAlkinp,
-        Hfreeinp, HSO4inp, HFinp) = solve.AlkParts(PHic, TCc, **Kis, **totals)
-    PAlkinp = PAlkinp + PengCorrection
-    CO2inp = TCc - CO3inp - HCO3inp
-    Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, Kis,
-                                       totals)
-    OmegaCainp, OmegaArinp = solubility.CaCO3(Sal, TempCi, Pdbari, TCc, PHic,
-        TCa, WhichKs, Kis['K1'], Kis['K2'])
-    xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
-
-    # Just for reference, convert pH at input conditions to the other scales
-    pHicT, pHicS, pHicF, pHicN = convert.pH2allscales(PHic, pHScale,
-        Kis['KSO4'], Kis['KF'], totals['TSO4'], totals['TF'], fHi)
-
-    # Calculate the constants for all samples at output conditions
-    K0o, fHo, Kos = assemble.equilibria(TempCo, Pdbaro, *ConstPuts)
-    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
-    VPFaco = gas.vpfactor(TempCo, Sal)
-
-    # Calculate, for output conditions, using conservative TA and TC, pH, fCO2
-    # and pCO2
-    PHoc = solve.pHfromTATC(TAc-PengCorrection, TCc, **Kos, **totals)
-    # ^pH is returned on the scale requested in "pHscale" (see 'constants')
-    FCoc = solve.fCO2fromTCpH(TCc, PHoc, K0o, Kos['K1'], Kos['K2'])
-    CARBoc = solve.CarbfromTCpH(TCc, PHoc, Kos['K1'], Kos['K2'])
-    PCoc = FCoc/FugFaco
-
-    # Calculate other stuff at output conditions:
-    (HCO3out, CO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout, H2SAlkout,
-        Hfreeout, HSO4out, HFout) = solve.AlkParts(PHoc, TCc, **Kos, **totals)
-    PAlkout = PAlkout + PengCorrection
-    CO2out = TCc - CO3out - HCO3out
-    Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, Kos,
-                                       totals)
-    OmegaCaout, OmegaArout = solubility.CaCO3(Sal, TempCo, Pdbaro, TCc, PHoc,
-        TCa, WhichKs, Kos['K1'], Kos['K2'])
-    xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
-
-    # Just for reference, convert pH at output conditions to the other scales
-    pHocT, pHocS, pHocF, pHocN = convert.pH2allscales(PHoc, pHScale,
-        Kos['KSO4'], Kos['KF'], totals['TSO4'], totals['TF'], fHo)
-
-    # Calculate the pKs at output
-    pK1o = -log10(Kos['K1'])
-    pK2o = -log10(Kos['K2'])
-
-    # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
-    gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi = \
-        buffers.buffers_ESM10(TCc, TAc, CO2inp, HCO3inp, CARBic, PHic, OHinp,
-                              BAlkinp, Kis['KB'])
-    gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo = \
-        buffers.buffers_ESM10(TCc, TAc, CO2out, HCO3out, CARBoc, PHoc, OHout,
-                              BAlkout, Kos['KB'])
-
-    # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
-    # [added v1.2.0]
-    isoQi = buffers.bgc_isocap(CO2inp, PHic, Kis['K1'], Kis['K2'], Kis['KB'],
-        Kis['KW'], totals['TB'])
-    isoQxi = buffers.bgc_isocap_approx(TCc, PCic, K0i, Kis['K1'], Kis['K2'])
-    psii = buffers.psi(CO2inp, PHic, Kis['K1'], Kis['K2'], Kis['KB'], Kis['KW'],
-        totals['TB'])
-    isoQo = buffers.bgc_isocap(CO2out, PHoc, Kos['K1'], Kos['K2'], Kos['KB'],
-        Kos['KW'], totals['TB'])
-    isoQxo = buffers.bgc_isocap_approx(TCc, PCoc, K0o, Kos['K1'], Kos['K2'])
-    psio = buffers.psi(CO2out, PHoc, Kos['K1'], Kos['K2'], Kos['KB'], Kos['KW'],
-        totals['TB'])
-
+    # Solve the core marine carbonate system at input conditions
+    Sal, TCa, totals, PengCorrection = solve.from2to6constants(Sal, TSi, TP,
+        TNH3, TH2S, WhichKs, WhoseTB)
+    K0i, fHi, Kis, FugFaci = solve.from2to6variables(TempCi, Pdbari, Sal,
+        totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
+    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(PAR1, PAR2, p1, p2,
+        PengCorrection, totals, K0i, FugFaci, Kis)
+    # Calculate all other results at input conditions
+    (pK1i, pK2i, HCO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp,
+        H2SAlkinp, Hfreeinp, HSO4inp, HFinp, CO2inp, OmegaCainp, OmegaArinp,
+        VPFaci, xCO2dryinp, pHicT, pHicS, pHicF, pHicN, Revelleinp,
+        gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi, isoQi, isoQxi,
+        psii) = solve.allothers(TAc, TCc, PHic, PCic, CARBic, Sal, TempCi,
+            Pdbari, K0i, Kis, fHi, totals, PengCorrection, TCa, pHScale,
+            WhichKs)
+    # Solve the core MCS at output conditions
+    K0o, fHo, Kos, FugFaco = solve.from2to6variables(TempCo, Pdbaro, Sal,
+        totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
+    TAtype = full(ntps, 1)
+    TCtype = full(ntps, 2)
+    _, _, PHoc, PCoc, FCoc, CARBoc = solve.from2to6(TAc, TCc, TAtype, TCtype,
+        PengCorrection, totals, K0o, FugFaco, Kos)
+    # Calculate all other results at output conditions
+    (pK1o, pK2o, HCO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout,
+        H2SAlkout, Hfreeout, HSO4out, HFout, CO2out, OmegaCaout, OmegaArout,
+        VPFaco, xCO2dryout, pHocT, pHocS, pHocF, pHocN, Revelleout,
+        gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo, isoQo, isoQxo,
+        psio) = solve.allothers(TAc, TCc, PHoc, PCoc, CARBoc, Sal, TempCo,
+            Pdbaro, K0o, Kos, fHo, totals, PengCorrection, TCa, pHScale,
+            WhichKs)
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
         'TAlk': TAc*1e6,

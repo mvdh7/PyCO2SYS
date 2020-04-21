@@ -37,6 +37,14 @@ def TempK2C(TempK):
     """Convert temperature from K to degC."""
     return TempK - Tzero
 
+def Pdbar2bar(Pdbar):
+    """Convert pressure from dbar to bar."""
+    return Pdbar/10.0
+
+def Pbar2dbar(Pbar):
+    """Convert pressure from bar to dbar."""
+    return Pbar*10.0
+
 def pH2allscales(pH, pHScale, KSO4, KF, TSO4, TF, fH):
     """Calculate pH on all scales.
 

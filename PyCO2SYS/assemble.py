@@ -58,13 +58,6 @@ def concentrations(Sal, WhichKs, WhoseTB):
         'TSO4': TS,
     }
 
-def units(TempC, Pdbar):
-    """Convert temperature and pressure units."""
-    TempK = convert.TempC2K(TempC)
-    Pbar = Pdbar/10.0
-    RT = RGasConstant*TempK
-    return TempK, Pbar, RT
-
 def lnKfac(deltaV, Kappa, Pbar, TempK):
     """Calculate pressure correction factor for equilibrium constants."""
     return (-deltaV + 0.5*Kappa*Pbar)*Pbar/(RGasConstant*TempK)
@@ -470,7 +463,8 @@ def equilibria(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     # All constants are converted to the pH scale `pHScale` (the chosen one) in
     # units of mol/kg-sw, except KS and KF are on the Free scale, and KW is in
     # units of (mol/kg-sw)**2.
-    TempK, Pbar, RT = units(TempC, Pdbar)
+    TempK = convert.TempC2K(TempC)
+    Pbar = convert.Pdbar2bar(Pdbar)
     K0 = eq.kCO2_W74(TempK, Sal)
     KSO4 = eq_KSO4(TempK, Sal, Pbar, WhoseKSO4)
     KF = eq_KF(TempK, Sal, Pbar, WhoseKF)

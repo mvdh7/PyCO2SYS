@@ -95,7 +95,7 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar):
     KAr = KAr*exp((33.3 - 0.22*TempC)*Pbar/(RGasConstant*TempK))
     return KAr
 
-def calcite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
+def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
     """Calculate calcite solubility.
 
     This calculates omega, the solubility ratio, for calcite.
@@ -104,17 +104,15 @@ def calcite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    TempK, Pbar, RT = assemble.units(TempC, Pdbar)
+    # Get stoichiometric solubility constant
     F = (WhichKs==6) | (WhichKs==7) # GEOSECS values
     KCa = where(F, k_calcite_I75(TempK, Sal, Pbar),
                 k_calcite_M83(TempK, Sal, Pbar))
-    # Calculate omega here:
-    H = 10.0**-pH
-    CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
-    OmegaCa = CO3*TCa/KCa
+    # Calculate saturation state
+    OmegaCa = CARB*TCa/KCa
     return OmegaCa
 
-def aragonite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
+def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
     """Calculate aragonite solubility.
 
     This calculates omega, the solubility ratio, for aragonite.
@@ -123,17 +121,15 @@ def aragonite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    TempK, Pbar, RT = assemble.units(TempC, Pdbar)
+    # Get stoichiometric solubility constant
     F = (WhichKs==6) | (WhichKs==7) # GEOSECS values
     KAr = where(F, k_aragonite_GEOSECS(TempK, Sal, Pbar),
                 k_aragonite_M83(TempK, Sal, Pbar))
-    # Calculate omega here:
-    H = 10.0**-pH
-    CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
-    OmegaAr = CO3*TCa/KAr
+    # Calculate saturation state
+    OmegaAr = CARB*TCa/KAr
     return OmegaAr
 
-def CaCO3(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
+def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, K1, K2):
     """Calculate calcite and aragonite solubility.
 
     This calculates omega, the solubility ratio, for calcite and aragonite.
@@ -143,6 +139,10 @@ def CaCO3(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    OmegaCa = calcite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2)
-    OmegaAr = aragonite(Sal, TempC, Pdbar, TC, pH, TCa, WhichKs, K1, K2)
+    # Convert units
+    TempK = convert.TempC2K(TempC)
+    Pbar = convert.Pdbar2bar(Pdbar)
+    # Calculate saturation states
+    OmegaCa = calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2)
+    OmegaAr = aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2)
     return OmegaCa, OmegaAr

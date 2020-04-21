@@ -8,11 +8,20 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import convert
+from . import assemble, buffers, convert, gas, solubility
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
-def AlkParts(pH, TC,
+def CarbfromTCpH(TC, pH, K1, K2):
+    """Calculate carbonate ion from dissolved inorganic carbon and pH.
+
+    Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
+    """
+    H = 10.0**-pH
+    CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
+    return CARB
+
+def AlkParts(pH, TC, FREEtoTOT,
         K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
         TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
     """Calculate the different components of total alkalinity from pH and
@@ -26,7 +35,7 @@ def AlkParts(pH, TC,
     """
     H = 10.0**-pH
     HCO3 = TC*K1*H/(K1*H + H**2 + K1*K2)
-    CO3 = TC*K1*K2/(K1*H + H**2 + K1*K2)
+    CO3 = CarbfromTCpH(TC, pH, K1, K2)
     BAlk = TB*KB/(KB + H)
     OH = KW/H
     PAlk = (TPO4*(KP1*KP2*H + 2*KP1*KP2*KP3 - H**3)/
@@ -34,7 +43,6 @@ def AlkParts(pH, TC,
     SiAlk = TSi*KSi/(KSi + H)
     NH3Alk = TNH3*KNH3/(KNH3 + H)
     H2SAlk = TH2S*KH2S/(KH2S + H)
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
     Hfree = H/FREEtoTOT # for H on the Total scale
     HSO4 = TSO4/(1 + KSO4/Hfree) # since KSO4 is on the Free scale
     HF = TF/(1 + KF/Hfree) # since KF is on the Free scale
@@ -42,7 +50,7 @@ def AlkParts(pH, TC,
 
 def pHfromTATC(TA, TC,
         K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
+        TB, TF, TSO4, TPO4,  TSi, TNH3, TH2S):
     """Calculate pH from total alkalinity and dissolved inorganic carbon.
 
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
@@ -60,9 +68,10 @@ def pHfromTATC(TA, TC,
     pH = full(size(TA), pHGuess) # first guess for all samples
     deltapH = 1.0 + pHTol
     ln10 = log(10)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            AlkParts(pH, TC,
+            AlkParts(pH, TC, FREEtoTOT,
                 K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
                 TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
         CAlk = HCO3 + 2*CO3
@@ -70,9 +79,20 @@ def pHfromTATC(TA, TC,
         Denom = H**2 + K1*H + K1*K2
         Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
                     Hfree + HSO4 + HF)
-        # Find slope dTA/dpH (this is not exact, but keeps important terms):
+        # Find slope dTA/dpH
+        # Calculation of phosphate component of slope makes virtually no
+        # difference to end result and makes code run much slower, so not used.
+        # PDenom = (KP1*KP2*KP3 + KP1*KP2*H + KP1*H**2 + H**3)
+        # PSlope = -TPO4*H*((KP1*KP2 - 2*H)/PDenom -
+        #     (KP1*KP2 + 2*KP1*H + 3*H**2)*(2*KP1*KP2*KP3 + KP1*KP2*H - H**2)/
+        #     PDenom**2)
+        # Adding other nutrients doesn't really impact speed but makes so little
+        # difference that they've been excluded for consistency with previous
+        # versions of CO2SYS.
         Slope = ln10*(TC*K1*H*(H**2 + K1*K2 + 4*H*K2)/Denom**2 +
-                      BAlk*H/(KB + H) + OH + H)
+            BAlk*H/(KB + H) + OH + H) # terms after here would add nutrients
+            # SiAlk*H/(KSi + H) + NH3Alk*H/(KNH3 + H) + H2SAlk*H/(KH2S + H))
+            # + PSlope) # to add phosphate component
         deltapH = Residual/Slope # this is Newton's method
         # To keep the jump from being too big:
         deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
@@ -84,6 +104,92 @@ def pHfromTATC(TA, TC,
         # iterations the other input rows take to solve. // MPH
         pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
         # ^pH is on the same scale as K1 and K2 were calculated.
+    return pH
+
+def pHfromTAfCO2(TA, fCO2, K0,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
+    """Calculate pH from total alkalinity and CO2 fugacity.
+
+    This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
+    It tries to solve for the pH at which Residual = 0.
+    The starting guess is pH = 8.
+    Though it is coded for H on the total pH scale, for the pH values occuring
+    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
+    negligible) as long as the K Constants are on that scale.
+
+    Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
+    """
+    pHGuess = 8.0 # this is the first guess
+    pH = full(size(TA), pHGuess) # first guess for all samples
+    deltapH = 1 + pHTol
+    ln10 = log(10)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    while np_any(np_abs(deltapH) > pHTol):
+        H = 10.0**-pH
+        HCO3 = K0*K1*fCO2/H
+        CO3 = K0*K1*K2*fCO2/H**2
+        CAlk = HCO3 + 2*CO3
+        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
+            AlkParts(pH, 0.0, FREEtoTOT,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
+        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
+                    Hfree + HSO4 + HF)
+        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
+        Slope = ln10*(HCO3 + 4*CO3 + BAlk*H/(KB + H) + OH + H)
+        deltapH = Residual/Slope # this is Newton's method
+        # To keep the jump from being too big:
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
+    return pH
+
+def pHfromTACarb(TA, CARB,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
+    """Calculate pH from total alkalinity and carbonate ion.
+
+    This calculates pH from TA and Carb using K1 and K2 by Newton's method.
+    It tries to solve for the pH at which Residual = 0.
+    The starting guess is pH = 8.
+    Though it is coded for H on the total pH scale, for the pH values occuring
+    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
+    negligible) as long as the K constants are on that scale.
+
+    Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
+    """
+    pHGuess = 8.0 # this is the first guess
+    pH = full(size(TA), pHGuess) # first guess for all samples
+    deltapH = 1 + pHTol
+    ln10 = log(10)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    while np_any(np_abs(deltapH) > pHTol):
+        H = 10.0**-pH
+        CAlk = CARB*(H + 2*K2)/K2
+        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
+            AlkParts(pH, 0.0, FREEtoTOT,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
+        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
+                    H2SAlk + Hfree + HSO4 + HF)
+        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
+        Slope = ln10*(-CARB*H/K2 + BAlk*H/(KB + H) + OH + H)
+        deltapH = Residual/Slope # this is Newton's method
+        # To keep the jump from being too big:
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
     return pH
 
 def fCO2fromTCpH(TC, pH, K0, K1, K2):
@@ -108,57 +214,14 @@ def TCfromTApH(TA, pH,
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0**-pH
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-        AlkParts(pH, 0.0,
+        AlkParts(pH, 0.0, FREEtoTOT,
             K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
             TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
-    CAlk = (TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 +
-            HF)
+    CAlk = (TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF)
     TC = CAlk*(H**2 + K1*H + K1*K2)/(K1*(H + 2*K2))
     return TC
-
-def pHfromTAfCO2(TA, fCO2, K0,
-        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
-    """Calculate pH from total alkalinity and CO2 fugacity.
-
-    This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
-    """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
-    ln10 = log(10)
-    while np_any(np_abs(deltapH) > pHTol):
-        H = 10.0**-pH
-        HCO3 = K0*K1*fCO2/H
-        CO3 = K0*K1*K2*fCO2/H**2
-        CAlk = HCO3 + 2*CO3
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            AlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
-        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk +
-                    Hfree + HSO4 + HF)
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10*(HCO3 + 4*CO3 + BAlk*H/(KB + H) + OH + H)
-        deltapH = Residual/Slope # this is Newton's method
-        # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
-    return pH
 
 def TAfromTCpH(TC, pH,
         K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
@@ -172,8 +235,9 @@ def TAfromTCpH(TC, pH,
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-        AlkParts(pH, TC,
+        AlkParts(pH, TC, FREEtoTOT,
             K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
             TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
     CAlk = HCO3 + 2*CO3
@@ -205,47 +269,6 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
     H = 10.0**-pH
     TC = K0*fCO2*(H**2 + K1*H + K1*K2)/H**2
     return TC
-
-def pHfromTACarb(TA, CARB,
-        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
-        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
-    """Calculate pH from total alkalinity and carbonate ion.
-
-    This calculates pH from TA and Carb using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K constants are on that scale.
-
-    Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
-    """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
-    ln10 = log(10)
-    while np_any(np_abs(deltapH) > pHTol):
-        H = 10.0**-pH
-        CAlk = CARB*(H + 2*K2)/K2
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
-            AlkParts(pH, 0.0,
-                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
-                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
-        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
-                    H2SAlk + Hfree + HSO4 + HF)
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10*(-CARB*H/K2 + BAlk*H/(KB + H) + OH + H)
-        deltapH = Residual/Slope # this is Newton's method
-        # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
-    return pH
 
 def pHfromTCCarb(TC, CARB, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
@@ -285,19 +308,11 @@ def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     pH = -log10(H)
     return pH
 
-def CarbfromTCpH(TC, pH, K1, K2):
-    """Calculate carbonate ion from dissolved inorganic carbon and pH.
-
-    Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
-    """
-    H = 10.0**-pH
-    CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
-    return CARB
-
-def pars2mcs(par1, par2, par1type, par2type, ntps):
+def pars2mcs(par1, par2, par1type, par2type):
     """Expand `par1` and `par2` inputs into one array per core variable of the
     marine carbonate system.
     """
+    ntps = size(par1)
     # Generate empty vectors for...
     TA = full(ntps, nan) # Talk
     TC = full(ntps, nan) # DIC
@@ -331,15 +346,45 @@ def getIcase(par1type, par2type):
                         56.
     """
     Iarr = array([par1type, par2type])
-    assert np_all(isin(Iarr, array([1, 2, 3, 4, 5, 6]))), \
+    assert np_all(isin(Iarr, [1, 2, 3, 4, 5, 6])), \
         'All `PAR1TYPE` and `PAR2TYPE` values must be integers from 1 to 6.'
     Icase = 10*np_min(Iarr, axis=0) + np_max(Iarr, axis=0)
     assert ~np_any(Icase == 45), 'pCO2 and fCO2 is not a valid input pair.'
     return Icase
 
+def from2to6constants(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
+    """Calculate constants (w.r.t. temperature and pressure) in preparation for
+    `fill6` or `_from2to6` functions."""
+    # Pure Water case:
+    Sal = where(WhichKs==8, 0.0, Sal)
+    # GEOSECS and Pure Water:
+    F = (WhichKs==6) | (WhichKs==8)
+    TP = where(F, 0.0, TP)
+    TSi = where(F, 0.0, TSi)
+    TNH3 = where(F, 0.0, TNH3)
+    TH2S = where(F, 0.0, TH2S)
+    # Convert micromol to mol
+    TP = TP*1e-6
+    TSi = TSi*1e-6
+    TNH3 = TNH3*1e-6
+    TH2S = TH2S*1e-6
+    TCa, totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
+    # Add equilibrating user inputs except DIC to `totals` dict
+    totals['TPO4'] = TP
+    totals['TSi'] = TSi
+    totals['TNH3'] = TNH3
+    totals['TH2S'] = TH2S
+    # The vector `PengCorrection` is used to modify the value of TA, for those
+    # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
+    # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
+    PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
+    return Sal, TCa, totals, PengCorrection
+
 def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
-    """Solve the core marine carbonate system from any valid pair of inputs."""
-    # pCO2 will be calculated later on, the functions here work with fCO2.
+    """Fill the 6 partly empty MCS variable columns with solutions."""
+    # pCO2 will be calculated at the end, the functions here work with fCO2
+    PCgiven = isin(Icase, [14, 24, 34, 46])
+    FC = where(PCgiven, PC*FugFac, FC)
     F = Icase==12 # input TA, TC
     if any(F):
         PH = where(F, pHfromTATC(TA-PengCx, TC, **Ks, **totals), PH)
@@ -392,12 +437,65 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
-    # Generate the associated pCO2 value:
-    PC = FC/FugFac
+    # Generate the associated pCO2 values:
+    PC = where(~PCgiven, FC/FugFac, PC)
     return TA, TC, PH, PC, FC, CARB
 
-def from2to6(par1type, par2type, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
-    # Generate vector describing the combination of input parameters
+def from2to6variables(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4,
+        WhoseKF):
+    """Calculate variables (w.r.t. temperature and pressure) in preparation for
+    `fill6` or `_from2to6` functions."""
+    # Calculate the constants for all samples at input conditions.
+    # The constants calculated for each sample will be on the input pH scale.
+    K0, fH, Ks = assemble.equilibria(TempC, Pdbar, Sal, totals, pHScale,
+        WhichKs, WhoseKSO4, WhoseKF)
+    # Make sure fCO2 is available for each sample that has pCO2
+    FugFac = gas.fugacityfactor(TempC, WhichKs)
+    return K0, fH, Ks, FugFac
+
+def from2to6(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
+    """Solve the core marine carbonate system from any 2 of its variables."""
+    # Expand inputs `PAR1` and `PAR2` into one array per core MCS variable
+    TA, TC, PH, PC, FC, CARB = pars2mcs(par1, par2, par1type, par2type)
+    # Generate vector describing the combination(s) of input parameters
     Icase = getIcase(par1type, par2type)
-    TA, TC, PH, PC, FC, CARB = fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals)
+    # Solve the core marine carbonate system
+    TA, TC, PH, PC, FC, CARB = fill6(Icase, K0, TA, TC, PH, PC, FC, CARB,
+        PengCx, FugFac, Ks, totals)
     return TA, TC, PH, PC, FC, CARB
+
+def allothers(TA, TC, PH, PC, CARB, Sal, TempC, Pdbar, K0, Ks, fH, totals,
+        PengCx, TCa, pHScale, WhichKs):
+    # pKs
+    pK1 = -log10(Ks['K1'])
+    pK2 = -log10(Ks['K2'])
+    # Components of alkalinity and DIC
+    FREEtoTOT = convert.free2tot(totals['TSO4'], Ks['KSO4'])
+    HCO3, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
+        AlkParts(PH, TC, FREEtoTOT, **Ks, **totals)
+    PAlk = PAlk + PengCx
+    CO2 = TC - CARB - HCO3
+    # CaCO3 solubility
+    OmegaCa, OmegaAr = solubility.CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs,
+        Ks['K1'], Ks['K2'])
+    # Dry mole fraction of CO2
+    VPFac = gas.vpfactor(TempC, Sal)
+    xCO2dry = PC/VPFac # this assumes pTot = 1 atm
+    # Just for reference, convert pH at input conditions to the other scales
+    pHT, pHS, pHF, pHN = convert.pH2allscales(PH, pHScale, Ks['KSO4'], Ks['KF'],
+        totals['TSO4'], totals['TF'], fH)
+    # Buffers by explicit calculation
+    Revelle = buffers.RevelleFactor(TA-PengCx, TC, K0, Ks, totals)
+    # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
+    gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = \
+        buffers.buffers_ESM10(TC, TA, CO2, HCO3, CARB, PH, OH, BAlk, Ks['KB'])
+    # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
+    # [added v1.2.0]
+    isoQ = buffers.bgc_isocap(CO2, PH, Ks['K1'], Ks['K2'], Ks['KB'], Ks['KW'],
+        totals['TB'])
+    isoQx = buffers.bgc_isocap_approx(TC, PC, K0, Ks['K1'], Ks['K2'])
+    psi = buffers.psi(CO2, PH, Ks['K1'], Ks['K2'], Ks['KB'], Ks['KW'],
+        totals['TB'])
+    return (pK1, pK2, HCO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4,
+        HF, CO2, OmegaCa, OmegaAr, VPFac, xCO2dry, pHT, pHS, pHF, pHN, Revelle,
+        gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA, isoQ, isoQx, psi)
