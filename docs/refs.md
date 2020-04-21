@@ -143,7 +143,7 @@ Click on each reference to see more details.
 
 ### O
 
-??? note "OE13: Orr & Epitalon (2013) *Geosci. Model Dev.*"
+??? note "OE15: Orr & Epitalon (2015) *Geosci. Model Dev.*"
     Orr, J. C., and Epitalon, J.-M. (2015). Improved routines to model the ocean carbonate system: mocsy 2.0. *Geoscientific Model Development* 8, 485–499. [doi:10.5194/gmd-8-485-2015](https://doi.org/10.5194/gmd-8-485-2015).
 
 ??? note "OEDG18: Orr et al. (2018) *Mar. Chem.*"

@@ -55,7 +55,7 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
 
 def _guesspH_TC(CBAlk, TC, TB, K1, K2, KB):
     """Find initial value for pH solvers with TC as the second variable
-    following M13's 3.2.2 and its implementation in mocsy/phsolvers.f90 (OE13).
+    following M13's 3.2.2 and its implementation in mocsy/phsolvers.f90 (OE15).
     """
     # Logical conditions and defaults from mocsy phsolvers.f90
     H0 = where(CBAlk <= 0,
@@ -112,7 +112,7 @@ def pHfromTATC(TA, TC,
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
     The starting guess uses the carbonate-borate alkalinity estimate of M13 and
-    OE13 as implemented in mocsy.
+    OE15 as implemented in mocsy.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
@@ -121,7 +121,7 @@ def pHfromTATC(TA, TC,
     SVH2007: Made this to accept vectors. It will continue iterating until all
     values in the vector are "abs(deltapH) < pHTol".
     """
-    pH = _guesspH_TC(TA, TC, TB, K1, K2, KB) # following M13/OE13, added v1.3.0
+    pH = _guesspH_TC(TA, TC, TB, K1, K2, KB) # following M13/OE15, added v1.3.0
     deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
