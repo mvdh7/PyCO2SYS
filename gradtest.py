@@ -112,3 +112,16 @@ test3 = egrad(pyco2.assemble._pcxK1)(*pcxargs)
 test4 = pyco2.assemble._pcxK1(*pcxargs)
 print(test4)
 print(test3)
+
+#%% Munhoven
+ta = co2d['TAlk'][:3]*1e-6
+tc = co2d['TCO2'][:3]*1e-6
+tb = co2d['TB'][:3]*1e-6
+k1 = co2d['K1input'][:3]
+k2 = co2d['K2input'][:3]
+kB = co2d['KBinput'][:3]
+ph = co2d['pHinFREE'][0]
+
+test = pyco2.solve.guesspH(ta, tc, tb, k1, k2, kB)
+print(' ')
+print(test)

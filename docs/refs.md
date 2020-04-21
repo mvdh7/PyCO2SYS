@@ -108,6 +108,9 @@ Click on each reference to see more details.
 ??? note "M10: Millero (2010) *Mar. Freshwater Res.*"
     Millero, F. J. (2010). Carbonate constants for estuarine waters. *Marine and Freshwater Research* 61(2), 139–142. [doi:10.1071/MF09254](https://doi.org/10.1071/MF09254).
 
+??? note "M13: Munhoven (2013) *Geosci. Model Dev.*"
+    Munhoven, G. (2013). Mathematics of the total alkalinity–pH equation – pathway to robust and universal solution algorithms: the SolveSAPHE package v1.0.1. *Geoscientific Model Development* 6, 1367–1388. [doi:10.5194/gmd-6-1367-2013](https://doi.org/10.5194/gmd-6-1367-2013).
+
 ??? note "M79: Millero (1979) *Geochim. Cosmochim. Acta*"
     Millero, F. J. (1979). The thermodynamics of the carbonate system in seawater. *Geochimica et Cosmochimica Acta* 43, 1651–1661. <a href='https://doi.org/10.1016/0016-7037(79)90184-4'>doi:10.1016/0016-7037(79)90184-4</a>.
 
@@ -139,6 +142,9 @@ Click on each reference to see more details.
     Morris, A. W., and Riley, J. P. (1966). The bromide/chlorinity and sulphate/chlorinity ratio in sea water. *Deep-Sea Research* 13, 699–705. <a href='https://doi.org/10.1016/0011-7471(66)90601-2'>doi:10.1016/0011-7471(66)90601-2</a>.
 
 ### O
+
+??? note "OE13: Orr & Epitalon (2013) *Geosci. Model Dev.*"
+    Orr, J. C., and Epitalon, J.-M. (2015). Improved routines to model the ocean carbonate system: mocsy 2.0. *Geoscientific Model Development* 8, 485–499. [doi:10.5194/gmd-8-485-2015](https://doi.org/10.5194/gmd-8-485-2015).
 
 ??? note "OEDG18: Orr et al. (2018) *Mar. Chem.*"
     Orr, J. C., Epitalon, J.-M., Dickson, A. G., and Gattuso, J.-P. (2018). Routine uncertainty propagation for the marine carbon dioxide system. *Marine Chemistry* 207, 84–107. [doi:10.1016/j.marchem.2018.10.006](https://doi.org/10.1016/j.marchem.2018.10.006).

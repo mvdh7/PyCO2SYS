@@ -10,6 +10,35 @@ from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 from . import assemble, buffers, convert, gas, solubility
 
+def _goodH0(CBAlk, TC, TB, K1, K2, KB):
+    """Find initial value for pH solvers following M13 section 3.2.2 assuming
+    that CBAlk is within a suitable range.
+    """
+    c2 = KB*(1 - TB/CBAlk) + K1*(1 - TC/CBAlk)
+    c1 = K1*(KB*(1 - TB/CBAlk - TC/CBAlk) + K2*(1 - 2*TC/CBAlk))
+    c0 = K1*K2*KB*(1 - (2*TC + TB)/CBAlk)
+    c21min = c2**2 - 3*c1
+    c21min_positive = c21min > 0
+    sq21 = where(c21min_positive, sqrt(c21min), 0.0)
+    Hmin = where(c2 < 0, -c2 + sq21/3, -c1/(c2 + sq21))
+    H0 = where(c21min_positive, # i.e. sqrt(c21min) is real
+               Hmin + sqrt(-(c2*Hmin**2 + c1*Hmin + c0)/sq21),
+               1e-7) # default pH=7 if 2nd order approx has no solution
+    return H0
+
+def guesspH(CBAlk, TC, TB, K1, K2, KB):
+    """Find initial value for pH solvers following M13 section 3.2.2 and its
+    implementation in mocsy/phsolvers.f90 (OE13).
+    """
+    # Logical conditions and defaults from mocsy phsolvers.f90
+    H0 = where(CBAlk <= 0,
+               1e-3, # default pH=3 for negative alkalinity
+               1e-10) # default pH=10 for very high alkalinity relative to DIC
+    F = (CBAlk > 0) & (CBAlk < 2*TC + TB)
+    if any(F): # use better estimate if alkalinity in suitable range
+        H0 = where(F, _goodH0(CBAlk, TC, TB, K1, K2, KB), H0)
+    return -log10(H0)
+
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
 def CarbfromTCpH(TC, pH, K1, K2):
@@ -55,7 +84,8 @@ def pHfromTATC(TA, TC,
 
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
+    The starting guess uses the carbonate-borate alkalinity estimate of M13 and
+    OE13 as implemented in mocsy.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
@@ -64,8 +94,7 @@ def pHfromTATC(TA, TC,
     SVH2007: Made this to accept vectors. It will continue iterating until all
     values in the vector are "abs(deltapH) < pHTol".
     """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
+    pH = guesspH(TA, TC, TB, K1, K2, KB) # following M13 and OE13, added v1.3.0
     deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
