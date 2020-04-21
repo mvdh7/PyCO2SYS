@@ -120,8 +120,19 @@ tb = co2d['TB'][:3]*1e-6
 k1 = co2d['K1input'][:3]
 k2 = co2d['K2input'][:3]
 kB = co2d['KBinput'][:3]
-ph = co2d['pHinFREE'][0]
+ph = co2d['pHinFREE'][:3]
 
-test = pyco2.solve.guesspH(ta, tc, tb, k1, k2, kB)
+test = pyco2.solve._guesspH_TC(ta, tc, tb, k1, k2, kB)
 print(' ')
 print(test)
+
+#%% Myhoven
+from autograd.numpy import sqrt, log10, where
+
+
+    
+co2 = co2d['CO2in'][:3]*1e-6
+
+myh = pyco2.solve._guesspH_CO2(ta, co2, tb, k1, k2, kB)
+
+print(myh)
