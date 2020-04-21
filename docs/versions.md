@@ -26,6 +26,8 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Added module `solubility` for mineral solubility calculations.
     * Relocated `_CaSolubility` function from root to `solubility.CaCO3`.
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
+      * Added calcium molinity `TCa` as an input, instead of being evaluated internally.
+    * Added calcium molininty `TCa` into the main `CO2dict` output from `PyCO2SYS.CO2SYS`.
     * Relocated `_RevelleFactor` function from root to `buffers.RevelleFactor`.
     * Relocated `_FindpHOnAllScales` function from root to `convert.pH2allscales`.
     * Added module `constants` for storing values of universal physical constants.

@@ -165,6 +165,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'TB'`: **total borate** in μmol·kg<sup>−1</sup>.
     * `'TF'`: **total fluoride** μmol·kg<sup>−1</sup>.
     * `'TS'`: **total sulfate** in μmol·kg<sup>−1</sup>.
+    * `'TCa'`: **total calcium** in μmol·kg<sup>−1</sup>.
 
     #### Equilibrium constants
 

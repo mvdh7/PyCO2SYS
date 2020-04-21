@@ -1,7 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from autograd.numpy import array, exp, full, nan, size, unique, where
-from . import concentrations as conc
+from . import concentrations as concs
 from . import convert
 from . import equilibria as eq
 from .constants import RGasConstant
@@ -27,11 +27,17 @@ def inputs(input_locals):
 def concs_TB(Sal, WhichKs, WhoseTB):
     """Calculate total borate from salinity for the given options."""
     TB = where(WhichKs==8, 0.0, nan) # pure water
-    TB = where((WhichKs==6) | (WhichKs==7), conc.borate_C65(Sal), TB)
+    TB = where((WhichKs==6) | (WhichKs==7), concs.borate_C65(Sal), TB)
     F = (WhichKs!=6) & (WhichKs!=7) & (WhichKs!=8)
-    TB = where(F & (WhoseTB==1), conc.borate_U74(Sal), TB)
-    TB = where(F & (WhoseTB==2), conc.borate_LKB10(Sal), TB)
+    TB = where(F & (WhoseTB==1), concs.borate_U74(Sal), TB)
+    TB = where(F & (WhoseTB==2), concs.borate_LKB10(Sal), TB)
     return TB
+
+def concs_TCa(Sal, WhichKs):
+    """Calculate total calcium from salinity for the given options."""
+    F = (WhichKs==6) | (WhichKs==7) # GEOSECS values
+    TCa = where(F, concs.calcium_C65(Sal), concs.calcium_RT67(Sal))
+    return TCa
 
 def concentrations(Sal, WhichKs, WhoseTB):
     """Estimate total concentrations of borate, fluoride and sulfate from
@@ -42,10 +48,11 @@ def concentrations(Sal, WhichKs, WhoseTB):
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
     TB = concs_TB(Sal, WhichKs, WhoseTB)
-    TF = conc.fluoride_R65(Sal)
-    TS = conc.sulfate_MR66(Sal)
-    # Return results as a dict for stability
-    return {
+    TF = concs.fluoride_R65(Sal)
+    TS = concs.sulfate_MR66(Sal)
+    TCa = concs_TCa(Sal, WhichKs)
+    # Return equilibrating results as a dict for stability
+    return TCa, {
         'TB': TB,
         'TF': TF,
         'TSO4': TS,

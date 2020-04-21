@@ -86,8 +86,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     TSi = TSi*1e-6
     TNH3 = TNH3*1e-6
     TH2S = TH2S*1e-6
-    totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
-    # Add user inputs to `totals` dict
+    TCa, totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
+    # Add equilibrating user inputs except DIC to `totals` dict
     totals['TPO4'] = TP
     totals['TSi'] = TSi
     totals['TNH3'] = TNH3
@@ -129,7 +129,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     Revelleinp = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0i, Kis,
                                        totals)
     OmegaCainp, OmegaArinp = solubility.CaCO3(Sal, TempCi, Pdbari, TCc, PHic,
-                                              WhichKs, Kis['K1'], Kis['K2'])
+        TCa, WhichKs, Kis['K1'], Kis['K2'])
     xCO2dryinp = PCic/VPFaci # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at input conditions to the other scales
@@ -157,7 +157,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     Revelleout = buffers.RevelleFactor(TAc-PengCorrection, TCc, K0o, Kos,
                                        totals)
     OmegaCaout, OmegaArout = solubility.CaCO3(Sal, TempCo, Pdbaro, TCc, PHoc,
-                                              WhichKs, Kos['K1'], Kos['K2'])
+        TCa, WhichKs, Kos['K1'], Kos['K2'])
     xCO2dryout = PCoc/VPFaco # this assumes pTot = 1 atm
 
     # Just for reference, convert pH at output conditions to the other scales
@@ -304,6 +304,8 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'isoQapprox_out': isoQxo,
         'psi_in': psii,
         'psi_out': psio,
+        # Added in v1.3.0:
+        'TCa': TCa*1e6,
     }
     return CO2dict
 
