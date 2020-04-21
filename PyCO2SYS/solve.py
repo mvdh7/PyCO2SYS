@@ -337,10 +337,8 @@ def getIcase(par1type, par2type):
     assert ~np_any(Icase == 45), 'pCO2 and fCO2 is not a valid input pair.'
     return Icase
 
-def fill6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
+def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
     """Solve the core marine carbonate system from any valid pair of inputs."""
-    # Generate vector describing the combination of input parameters
-    Icase = getIcase(p1, p2)
     # pCO2 will be calculated later on, the functions here work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):
@@ -398,6 +396,8 @@ def fill6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
     PC = FC/FugFac
     return TA, TC, PH, PC, FC, CARB
 
-def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
-    TA, TC, PH, PC, FC, CARB = fill6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals)
+def from2to6(par1type, par2type, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
+    # Generate vector describing the combination of input parameters
+    Icase = getIcase(par1type, par2type)
+    TA, TC, PH, PC, FC, CARB = fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals)
     return TA, TC, PH, PC, FC, CARB
