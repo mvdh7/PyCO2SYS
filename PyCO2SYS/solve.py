@@ -2,8 +2,9 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Solve the marine carbonate system from any two of its variables."""
 
-from autograd.numpy import array, full, log, log10, nan, size, sqrt, where
+from autograd.numpy import array, full, isin, log, log10, nan, size, sqrt, where
 from autograd.numpy import abs as np_abs
+from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
@@ -319,18 +320,27 @@ def pars2mcs(par1, par2, par1type, par2type, ntps):
     CARB = where(par2type==6, par2*1e-6, CARB)
     return TA, TC, PH, PC, FC, CARB
 
-def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
+def getIcase(par1type, par2type):
+    """Generate vector describing the combination of input parameters.
+
+    Noting that the pCO2 and fCO2 pair is not allowed, the valid ones are:
+        12, 13, 14, 15, 16,
+            23, 24, 25, 26,
+                34, 35, 36,
+                        46,
+                        56.
+    """
+    Iarr = array([par1type, par2type])
+    assert np_all(isin(Iarr, array([1, 2, 3, 4, 5, 6]))), \
+        'All `PAR1TYPE` and `PAR2TYPE` values must be integers from 1 to 6.'
+    Icase = 10*np_min(Iarr, axis=0) + np_max(Iarr, axis=0)
+    assert ~np_any(Icase == 45), 'pCO2 and fCO2 is not a valid input pair.'
+    return Icase
+
+def fill6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
     """Solve the core marine carbonate system from any valid pair of inputs."""
-    # Generate vector describing the combination of input parameters.
-    Icase = (10*np_min(array([p1, p2]), axis=0) +
-        np_max(array([p1, p2]), axis=0))
-    # Noting that the pCO2 and fCO2 pair is not allowed, the valid ones are:
-    # 12, 13, 14, 15, 16,
-    #     23, 24, 25, 26,
-    #         34, 35, 36,
-    #                 46,
-    #                 56
-    # Calculate missing values for AT, CT, PH, FC and CARB:
+    # Generate vector describing the combination of input parameters
+    Icase = getIcase(p1, p2)
     # pCO2 will be calculated later on, the functions here work with fCO2.
     F = Icase==12 # input TA, TC
     if any(F):
@@ -386,4 +396,8 @@ def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 value:
     PC = FC/FugFac
+    return TA, TC, PH, PC, FC, CARB
+
+def from2to6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
+    TA, TC, PH, PC, FC, CARB = fill6(p1, p2, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals)
     return TA, TC, PH, PC, FC, CARB
