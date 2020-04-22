@@ -129,3 +129,5 @@ dmypy.json
 
 # Documents
 *.docx
+junit.xml
+.vscode/settings.json
