@@ -1,14 +1,13 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Solve the marine carbonate system from any two of its variables."""
-
 from autograd.numpy import array, full, isin, log, log10, nan, size, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import buffers, convert, equilibria, gas, salts, solubility
+from .. import buffers, convert, equilibria, gas, salts, solubility
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
