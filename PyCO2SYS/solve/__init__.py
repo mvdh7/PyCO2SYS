@@ -119,28 +119,17 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
 
 
 def others(
-    core_solved,
-    Sal,
-    TempC,
-    Pdbar,
-    K0,
-    Ks,
-    fH,
-    totals,
-    PengCx,
-    TCa,
-    pHScale,
-    WhichKs,
+    core_solved, Sal, TempC, Pdbar, K0, Ks, fH, totals, PengCx, TCa, pHScale, WhichKs,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
-    TA = core_solved['TA']
-    TC = core_solved['TC']
-    PH = core_solved['PH']
-    PC = core_solved['PC']
-    CARB = core_solved['CARB']
-    HCO3 = core_solved['HCO3']
-    CO2 = core_solved['CO2']
+    TA = core_solved["TA"]
+    TC = core_solved["TC"]
+    PH = core_solved["PH"]
+    PC = core_solved["PC"]
+    CARB = core_solved["CARB"]
+    HCO3 = core_solved["HCO3"]
+    CO2 = core_solved["CO2"]
     # pKs
     pK1 = -log10(Ks["K1"])
     pK2 = -log10(Ks["K2"])
