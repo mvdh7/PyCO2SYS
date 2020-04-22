@@ -3,7 +3,7 @@
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 from . import p1atm, pcx, pressured
 from autograd.numpy import full, nan, size, where
-from .. import convert
+from .. import convert, gas
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
@@ -71,9 +71,12 @@ def assemble(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KSi = KSi * pHfactor
     KNH3 = KNH3 * pHfactor
     KH2S = KH2S * pHfactor
+    # Calculate fugacity factor
+    FugFac = gas.fugacityfactor(TempC, WhichKs)
     # Return solution equilibrium constants as a dict
     return (
         K0,
+        FugFac,
         fH,
         {
             "K1": K1,
