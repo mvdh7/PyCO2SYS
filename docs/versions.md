@@ -21,6 +21,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
 ### 1.3.0 (forthcoming)
 
 !!! example "Changes in v1.3.0"
+    * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
     * Entire package updated to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Renamed module `extra` as `buffers`.
     * Added module `solubility` for mineral solubility calculations.

@@ -69,13 +69,25 @@ def _guesspH_TC(CBAlk, TC, TB, K1, K2, KB):
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
 def CarbfromTCpH(TC, pH, K1, K2):
-    """Calculate carbonate ion from dissolved inorganic carbon and pH.
+    """Calculate carbonate ion from dissolved inorganic carbon and pH."""
+    H = 10.0**-pH
+    return CarbfromTCH(TC, H, K1, K2)
+
+def CarbfromTCH(TC, H, K1, K2):
+    """Calculate carbonate ion from dissolved inorganic carbon and [H+].
 
     Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
     """
+    return TC*K1*K2/(H**2 + K1*H + K1*K2)
+
+def HCO3fromTCpH(TC, pH, K1, K2):
+    """Calculate bicarbonate ion from dissolved inorganic carbon and pH."""
     H = 10.0**-pH
-    CARB = TC*K1*K2/(H**2 + K1*H + K1*K2)
-    return CARB
+    return HCO3fromTCH(TC, H, K1, K2)
+
+def HCO3fromTCH(TC, H, K1, K2):
+    """Calculate bicarbonate ion from dissolved inorganic carbon and [H+]."""
+    return TC*K1*H/(H**2 + K1*H + K1*K2)
 
 def AlkParts(pH, TC, FREEtoTOT,
         K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
@@ -90,8 +102,8 @@ def AlkParts(pH, TC, FREEtoTOT,
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0**-pH
-    HCO3 = TC*K1*H/(K1*H + H**2 + K1*K2)
-    CO3 = CarbfromTCpH(TC, pH, K1, K2)
+    HCO3 = HCO3fromTCH(TC, H, K1, K2)
+    CO3 = CarbfromTCH(TC, H, K1, K2)
     BAlk = TB*KB/(KB + H)
     OH = KW/H
     PAlk = (TPO4*(KP1*KP2*H + 2*KP1*KP2*KP3 - H**3)/
@@ -248,14 +260,53 @@ def pHfromTACarb(TA, CARB,
         pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
     return pH
 
+def pHfromTAHCO3(TA, HCO3,
+        K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+        TB, TF, TSO4, TPO4, TSi, TNH3, TH2S):
+    """Calculate pH from total alkalinity and bicarbonate ion.
+
+    This calculates pH from TA and HCO3 using K1 and K2 by Newton's method.
+    It tries to solve for the pH at which Residual = 0.
+    The starting guess is pH = 8.
+    Though it is coded for H on the total pH scale, for the pH values occuring
+    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
+    negligible) as long as the K constants are on that scale.
+    """
+    pHGuess = 8.0 # this is the first guess
+    pH = full(size(TA), pHGuess) # first guess for all samples
+    deltapH = 1 + pHTol
+    ln10 = log(10)
+    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    while np_any(np_abs(deltapH) > pHTol):
+        H = 10.0**-pH
+        CAlk = HCO3*(1 + 2*K2/H)
+        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
+            AlkParts(pH, 0.0, FREEtoTOT,
+                K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
+                TB, TF, TSO4, TPO4, TSi, TNH3, TH2S)
+        Residual = (TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk -
+                    H2SAlk + Hfree + HSO4 + HF)
+        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
+        Slope = ln10*(2*HCO3*K2/H + BAlk*H/(KB + H) + OH + H)
+        deltapH = Residual/Slope # this is Newton's method
+        # To keep the jump from being too big:
+        deltapH = where(np_abs(deltapH) > 1, deltapH/2, deltapH)
+        # The following logical means that each row stops updating once its
+        # deltapH value is beneath the pHTol threshold, instead of continuing
+        # to update ALL rows until they all meet the threshold.
+        # This approach avoids the problem of reaching a different
+        # answer for a given set of input conditions depending on how many
+        # iterations the other input rows take to solve. // MPH
+        pH = where(np_abs(deltapH) > pHTol, pH+deltapH, pH)
+    return pH
+
 def fCO2fromTCpH(TC, pH, K0, K1, K2):
     """Calculate CO2 fugacity from dissolved inorganic carbon and pH.
 
     Based on CalculatefCO2fromTCpH, version 02.02, 12-13-96, by Ernie Lewis.
     """
     H = 10.0**-pH
-    fCO2 = TC*H**2/(H**2 + K1*H + K1*K2)/K0
-    return fCO2
+    return TC*H**2/(H**2 + K1*H + K1*K2)/K0
 
 def TCfromTApH(TA, pH,
         K1, K2, KW, KB, KF, KSO4, KP1, KP2, KP3, KSi, KNH3, KH2S,
@@ -323,8 +374,7 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
     Based on CalculateTCfrompHfCO2, version 01.02, 12-13-96, by Ernie Lewis.
     """
     H = 10.0**-pH
-    TC = K0*fCO2*(H**2 + K1*H + K1*K2)/H**2
-    return TC
+    return K0*fCO2*(H**2 + K1*H + K1*K2)/H**2
 
 def pHfromTCCarb(TC, CARB, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
@@ -332,14 +382,12 @@ def pHfromTCCarb(TC, CARB, K1, K2):
     This calculates pH from Carbonate and TC using K1, and K2 by solving the
     quadratic in H: TC * K1 * K2= Carb * (H * H + K1 * H +  K1 * K2).
 
-    Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
-    Pierrot.
+    Based on CalculatepHfromTCCarb, version 01.00, 06-12-2019, by Denis Pierrot.
     """
     RR = 1 - TC/CARB
     Discr = K1**2 - 4*K1*K2*RR
     H = (-K1 + sqrt(Discr))/2
-    pH = -log10(H)
-    return pH
+    return -log10(H)
 
 def fCO2frompHCarb(pH, CARB, K0, K1, K2):
     """Calculate CO2 fugacity from pH and carbonate ion.
@@ -348,8 +396,14 @@ def fCO2frompHCarb(pH, CARB, K0, K1, K2):
     Pierrot.
     """
     H = 10.0**-pH
-    fCO2 = CARB*H**2/(K0*K1*K2)
-    return fCO2
+    return CARB*H**2/(K0*K1*K2)
+
+def TCfrompHHCO3(pH, HCO3, K1, K2):
+    """Calculate dissolved inorganic carbon from pH and bicarbonate ion
+    following ZW01 Appendix B (6).
+    """
+    H = 10.0**-pH
+    return HCO3*(1 + H/K1 + K2/H)
 
 def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     """Calculate pH from CO2 fugacity and carbonate ion.
@@ -361,13 +415,32 @@ def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     Pierrot.
     """
     H = sqrt(K0*K1*K2*fCO2/CARB)
-    pH = -log10(H)
-    return pH
+    return -log10(H)
+
+def pHfromTCHCO3(TC, HCO3, K1, K2):
+    """Calculate pH from dissolved inorganic carbon and carbonate ion following
+    ZW01 Appendix B (12).
+    """
+    a = HCO3/K1
+    b = HCO3 - TC
+    c = HCO3*K2
+    H = (-b - sqrt(b**2 - 4*a*c))/(2*a) # ZW01 Appendix B (12)
+    return -log10(H)
+
+def CarbfromfCO2HCO3(fCO2, HCO3, K0, K1, K2):
+    """Calculate carbonate ion from CO2 fugacity and bicarbonate ion."""
+    return HCO3**2*K2/(K0*fCO2*K1)
+
+def fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2):
+    """Calculate CO2 fugacity from carbonate ion and bicarbonate ion."""
+    return HCO3**2*K2/(CARB*K1*K0)
 
 def pars2mcs(par1, par2, par1type, par2type):
     """Expand `par1` and `par2` inputs into one array per core variable of the
     marine carbonate system.
     """
+    assert size(par1) == size(par2) == size(par1type) == size(par2type), \
+        '`par1`, `par2`, `par1type` and `par2type` must all be the same size.'
     ntps = size(par1)
     # Generate empty vectors for...
     TA = full(ntps, nan) # total alkalinity
@@ -469,61 +542,104 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks,
         totals):
     """Fill the partly empty MCS variable columns with solutions."""
     # Convert any pCO2 and CO2(aq) values into fCO2
-    PCgiven = isin(Icase, [14, 24, 34, 46])
+    PCgiven = isin(Icase, [14, 24, 34, 46, 47])
     FC = where(PCgiven, PC*FugFac, FC)
     CO2given = isin(Icase, [18, 28, 38, 68, 78])
     FC = where(CO2given, CO2*FugFac/K0, FC)
+    # For convenience
+    K1 = Ks['K1']
+    K2 = Ks['K2']
     # Solve the marine carbonate system
     F = Icase==12 # input TA, TC
     if any(F):
         PH = where(F, pHfromTATC(TA-PengCx, TC, **Ks, **totals), PH)
         # ^pH is returned on the scale requested in `pHscale`
-        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase==13 # input TA, pH
     if any(F):
         TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
-        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = (Icase==14) | (Icase==15) | (Icase==18) # input TA, [pCO2|fCO2|CO2aq]
     if any(F):
         PH = where(F, pHfromTAfCO2(TA-PengCx, FC, K0, **Ks, **totals), PH)
         TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase==16 # input TA, CARB
     if any(F):
         PH = where(F, pHfromTACarb(TA-PengCx, CARB, **Ks, **totals), PH)
         TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
-        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
+    F = Icase==17 # input TA, HCO3
+    if any(F):
+        PH = where(F, pHfromTAHCO3(TA-PengCx, HCO3, **Ks, **totals), PH)
+        TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = Icase==23 # input TC, pH
     if any(F):
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
-        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = (Icase==24) | (Icase==25) | (Icase==28) # input TC, [pCO2|fCO2|CO2aq]
     if any(F):
-        PH = where(F, pHfromTCfCO2(TC, FC, K0, Ks['K1'], Ks['K2']), PH)
+        PH = where(F, pHfromTCfCO2(TC, FC, K0, K1, K2), PH)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase==26 # input TC, CARB
     if any(F):
-        PH = where(F, pHfromTCCarb(TC, CARB, Ks['K1'], Ks['K2']), PH)
-        FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
+        PH = where(F, pHfromTCCarb(TC, CARB, K1, K2), PH)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
+    F = Icase==27 # input TC, HCO3
+    if any(F):
+        PH = where(F, pHfromTCHCO3(TC, HCO3, K1, K2), PH)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = (Icase==34) | (Icase==35) | (Icase==38) # input pH, [pCO2|fCO2|CO2aq]
     if any(F):
-        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
-        CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase==36 # input pH, CARB
     if any(F):
-        FC = where(F, fCO2frompHCarb(PH, CARB, K0, Ks['K1'], Ks['K2']), FC)
-        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        FC = where(F, fCO2frompHCarb(PH, CARB, K0, K1, K2), FC)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
+    F = Icase==37 # input pH, HCO3
+    if any(F):
+        TC = where(F, TCfrompHHCO3(PH, HCO3, K1, K2), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        FC = where(F, fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        CARB = where(F, CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = (Icase==46) | (Icase==56) | (Icase==68) # input [pCO2|fCO2|CO2aq], CARB
     if any(F):
-        PH = where(F, pHfromfCO2Carb(FC, CARB, K0, Ks['K1'], Ks['K2']), PH)
-        TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
+        PH = where(F, pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        HCO3 = where(F, HCO3fromTCpH(TC, PH, K1, K2), HCO3)
+    F = Icase==67 # input CO3, HCO3
+    if any(F):
+        FC = where(F, fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2), FC)
+        PH = where(F, pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
+        TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+    F = (Icase==47) | (Icase==57) | (Icase==78) # input [pCO2|fCO2|CO2aq], HCO3
+    if any(F):
+        CARB = where(F, CarbfromfCO2HCO3(FC, HCO3, K0, K1, K2), CARB)
+        PH = where(F, pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
+        TC = where(F, TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
@@ -555,14 +671,14 @@ def from2to6(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
         CARB, HCO3, CO2, PengCx, FugFac, Ks, totals)
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
-def allothers(TA, TC, PH, PC, CARB, CO2, Sal, TempC, Pdbar, K0, Ks, fH, totals,
-        PengCx, TCa, pHScale, WhichKs):
+def allothers(TA, TC, PH, PC, CARB, HCO3, CO2, Sal, TempC, Pdbar, K0, Ks, fH,
+        totals, PengCx, TCa, pHScale, WhichKs):
     # pKs
     pK1 = -log10(Ks['K1'])
     pK2 = -log10(Ks['K2'])
     # Components of alkalinity and DIC
     FREEtoTOT = convert.free2tot(totals['TSO4'], Ks['KSO4'])
-    HCO3, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
+    _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(PH, TC, FREEtoTOT, **Ks, **totals)
     PAlk = PAlk + PengCx
     # CaCO3 solubility
@@ -586,6 +702,6 @@ def allothers(TA, TC, PH, PC, CARB, CO2, Sal, TempC, Pdbar, K0, Ks, fH, totals,
     isoQx = buffers.bgc_isocap_approx(TC, PC, K0, Ks['K1'], Ks['K2'])
     psi = buffers.psi(CO2, PH, Ks['K1'], Ks['K2'], Ks['KB'], Ks['KW'],
         totals['TB'])
-    return (pK1, pK2, HCO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4,
+    return (pK1, pK2, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4,
         HF, OmegaCa, OmegaAr, VPFac, xCO2dry, pHT, pHS, pHF, pHN, Revelle,
         gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA, isoQ, isoQx, psi)

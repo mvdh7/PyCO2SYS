@@ -35,6 +35,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
     * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1]. Which scale is given by the input `pHSCALEIN`.
     * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm.
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
+    * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
     * **Aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
 
     For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
