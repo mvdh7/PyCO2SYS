@@ -16,13 +16,13 @@
 
 ## 1.3
 
-Continues to reorganise code structure behind the scenes. Makes all functions [Autograd](https://github.com/HIPS/autograd)-able.
+Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved. Continues to reorganise code behind the scenes. Makes everything [Autograd](https://github.com/HIPS/autograd)-able.
 
 ### 1.3.0 (forthcoming)
 
 !!! example "Changes in v1.3.0"
     * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
-    * Entire package updated to be [Autograd](https://github.com/HIPS/autograd)-able.
+    * Update entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Renamed module `extra` as `buffers`.
     * Added module `solubility` for mineral solubility calculations.
     * Relocated `_CaSolubility` function from root to `solubility.CaCO3`.
