@@ -70,7 +70,7 @@ def _CO2SYS(
     BORON,
     KSO4CONSTANTS=0,
 ):
-    # Condition inputs and assign input to the 'historical' variable names.
+    # Condition inputs and assign input values to the 'historical' variable names
     args, ntps = engine.inputs(locals())
     PAR1 = args["PAR1"]
     PAR2 = args["PAR2"]
@@ -90,14 +90,15 @@ def _CO2SYS(
     WhoseKSO4 = args["KSO4CONSTANT"]
     WhoseKF = args["KFCONSTANT"]
     WhoseTB = args["BORON"]
-    # Solve the core marine carbonate system at input conditions
+    # Prepare to solve the core marine carbonate system at input conditions
     Sal, TCa, PengCorrection, totals = salts.assemble(
         Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB
     )
     K0i, FugFaci, fHi, Kis = equilibria.assemble(
         TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
-    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = engine.solvecore(
+    # Solve the core marine carbonate system at input conditions
+    core_in = engine.solvecore(
         PAR1, PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis
     )
     # Calculate all other results at input conditions
@@ -132,13 +133,7 @@ def _CO2SYS(
         isoQxi,
         psii,
     ) = solve.others(
-        TAc,
-        TCc,
-        PHic,
-        PCic,
-        CARBic,
-        HCO3ic,
-        CO2ic,
+        core_in,
         Sal,
         TempCi,
         Pdbari,
@@ -151,14 +146,23 @@ def _CO2SYS(
         pHScale,
         WhichKs,
     )
-    # Solve the core MCS at output conditions
+    # Prepare to solve the core MCS at output conditions
     K0o, FugFaco, fHo, Kos = equilibria.assemble(
         TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
-    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = engine.solvecore(
-        TAc, TCc, TAtype, TCtype, PengCorrection, totals, K0o, FugFaco, Kos
+    # Solve the core MCS at output conditions
+    core_out = engine.solvecore(
+        core_in["TA"],
+        core_in["TC"],
+        TAtype,
+        TCtype,
+        PengCorrection,
+        totals,
+        K0o,
+        FugFaco,
+        Kos,
     )
     # Calculate all other results at output conditions
     (
@@ -192,13 +196,7 @@ def _CO2SYS(
         isoQxo,
         psio,
     ) = solve.others(
-        TAc,
-        TCc,
-        PHoc,
-        PCoc,
-        CARBoc,
-        HCO3oc,
-        CO2oc,
+        core_out,
         Sal,
         TempCo,
         Pdbaro,
@@ -213,14 +211,14 @@ def _CO2SYS(
     )
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
-        "TAlk": TAc * 1e6,
-        "TCO2": TCc * 1e6,
-        "pHin": PHic,
-        "pCO2in": PCic * 1e6,
-        "fCO2in": FCic * 1e6,
-        "HCO3in": HCO3ic * 1e6,
-        "CO3in": CARBic * 1e6,
-        "CO2in": CO2ic * 1e6,
+        "TAlk": core_in["TA"] * 1e6,
+        "TCO2": core_in["TC"] * 1e6,
+        "pHin": core_in["PH"],
+        "pCO2in": core_in["PC"] * 1e6,
+        "fCO2in": core_in["FC"] * 1e6,
+        "HCO3in": core_in["HCO3"] * 1e6,
+        "CO3in": core_in["CARB"] * 1e6,
+        "CO2in": core_in["CO2"] * 1e6,
         "BAlkin": BAlkinp * 1e6,
         "OHin": OHinp * 1e6,
         "PAlkin": PAlkinp * 1e6,
@@ -232,12 +230,12 @@ def _CO2SYS(
         "OmegaCAin": OmegaCainp,
         "OmegaARin": OmegaArinp,
         "xCO2in": xCO2dryinp * 1e6,
-        "pHout": PHoc,
-        "pCO2out": PCoc * 1e6,
-        "fCO2out": FCoc * 1e6,
-        "HCO3out": HCO3oc * 1e6,
-        "CO3out": CARBoc * 1e6,
-        "CO2out": CO2oc * 1e6,
+        "pHout": core_out["PH"],
+        "pCO2out": core_out["PC"] * 1e6,
+        "fCO2out": core_out["FC"] * 1e6,
+        "HCO3out": core_out["HCO3"] * 1e6,
+        "CO3out": core_out["CARB"] * 1e6,
+        "CO2out": core_out["CO2"] * 1e6,
         "BAlkout": BAlkout * 1e6,
         "OHout": OHout * 1e6,
         "PAlkout": PAlkout * 1e6,

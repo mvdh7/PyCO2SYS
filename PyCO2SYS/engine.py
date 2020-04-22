@@ -125,7 +125,7 @@ def getIcase(par1type, par2type):
 def solvecore(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
     """Solve the core marine carbonate system (MCS) from any 2 of its variables.
     
-    The core MCS outputs and associated `par1type`/`par2type` inputs are:
+    The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
         
       * Type `1`, `TA`: total alkalinity in mol/kg-sw.
       * Type `2`, `TC`: dissolved inorganic carbon in mol/kg-sw.
@@ -144,4 +144,13 @@ def solvecore(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
     TA, TC, PH, PC, FC, CARB, HCO3, CO2 = solve.core(
         Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals
     )
-    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
+    return {
+        "TA": TA,
+        "TC": TC,
+        "PH": PH,
+        "PC": PC,
+        "FC": FC,
+        "CARB": CARB,
+        "HCO3": HCO3,
+        "CO2": CO2,
+    }

@@ -9,7 +9,8 @@ __all__ = ["initialise", "get"]
 
 
 def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals):
-    """Fill part-empty core marine carbonate system variable columns."""
+    """Fill all part-empty core marine carbonate system variable columns with solutions.
+    """
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = isin(Icase, [14, 24, 34, 46, 47])
     FC = where(PCgiven, PC * FugFac, FC)
@@ -22,7 +23,7 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
     F = Icase == 12  # input TA, TC
     if any(F):
         PH = where(F, get.pHfromTATC(TA - PengCx, TC, **Ks, **totals), PH)
-        # ^pH is returned on the scale requested in `pHscale`
+        # ^pH is returned on the same scale as `Ks`
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
@@ -118,13 +119,7 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
 
 
 def others(
-    TA,
-    TC,
-    PH,
-    PC,
-    CARB,
-    HCO3,
-    CO2,
+    core_solved,
     Sal,
     TempC,
     Pdbar,
@@ -137,6 +132,15 @@ def others(
     pHScale,
     WhichKs,
 ):
+    """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
+    # Unpack for convenience
+    TA = core_solved['TA']
+    TC = core_solved['TC']
+    PH = core_solved['PH']
+    PC = core_solved['PC']
+    CARB = core_solved['CARB']
+    HCO3 = core_solved['HCO3']
+    CO2 = core_solved['CO2']
     # pKs
     pK1 = -log10(Ks["K1"])
     pK2 = -log10(Ks["K2"])
