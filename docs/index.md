@@ -1,6 +1,7 @@
 # PyCO2SYS
 
-[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS) [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
+[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
+[![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
 
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties. Its core is a Python implementation of CO<sub>2</sub>SYS for MATLAB[^1].
 
@@ -21,7 +22,7 @@ The import convention for PyCO2SYS will be:
     :::python
     import PyCO2SYS as pyco2
 
-However, the modules and functions contained within are not yet fully documented. We therefore recommend that you "do it like in MATLAB" for now:
+However, the modules and functions contained within are not yet fully documented. We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
 
 !!! tip "Do it like in MATLAB"
     If you are familiar with CO<sub>2</sub>SYS for MATLAB and wish to use PyCO2SYS in exactly the same way:
