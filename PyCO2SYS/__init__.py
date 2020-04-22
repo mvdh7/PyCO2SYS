@@ -76,30 +76,30 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         TNH3, TH2S, WhichKs, WhoseTB)
     K0i, fHi, Kis, FugFaci = solve.from2to6variables(TempCi, Pdbari, Sal,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
-    TAc, TCc, PHic, PCic, FCic, CARBic = solve.from2to6(PAR1, PAR2, p1, p2,
-        PengCorrection, totals, K0i, FugFaci, Kis)
+    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = solve.from2to6(PAR1,
+        PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis)
     # Calculate all other results at input conditions
     (pK1i, pK2i, HCO3inp, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp,
-        H2SAlkinp, Hfreeinp, HSO4inp, HFinp, CO2inp, OmegaCainp, OmegaArinp,
+        H2SAlkinp, Hfreeinp, HSO4inp, HFinp, OmegaCainp, OmegaArinp,
         VPFaci, xCO2dryinp, pHicT, pHicS, pHicF, pHicN, Revelleinp,
         gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi, isoQi, isoQxi,
-        psii) = solve.allothers(TAc, TCc, PHic, PCic, CARBic, Sal, TempCi,
-            Pdbari, K0i, Kis, fHi, totals, PengCorrection, TCa, pHScale,
+        psii) = solve.allothers(TAc, TCc, PHic, PCic, CARBic, CO2ic, Sal,
+            TempCi, Pdbari, K0i, Kis, fHi, totals, PengCorrection, TCa, pHScale,
             WhichKs)
     # Solve the core MCS at output conditions
     K0o, fHo, Kos, FugFaco = solve.from2to6variables(TempCo, Pdbaro, Sal,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
-    _, _, PHoc, PCoc, FCoc, CARBoc = solve.from2to6(TAc, TCc, TAtype, TCtype,
-        PengCorrection, totals, K0o, FugFaco, Kos)
+    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = solve.from2to6(TAc, TCc,
+        TAtype, TCtype, PengCorrection, totals, K0o, FugFaco, Kos)
     # Calculate all other results at output conditions
     (pK1o, pK2o, HCO3out, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout,
-        H2SAlkout, Hfreeout, HSO4out, HFout, CO2out, OmegaCaout, OmegaArout,
+        H2SAlkout, Hfreeout, HSO4out, HFout, OmegaCaout, OmegaArout,
         VPFaco, xCO2dryout, pHocT, pHocS, pHocF, pHocN, Revelleout,
         gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo, isoQo, isoQxo,
-        psio) = solve.allothers(TAc, TCc, PHoc, PCoc, CARBoc, Sal, TempCo,
-            Pdbaro, K0o, Kos, fHo, totals, PengCorrection, TCa, pHScale,
+        psio) = solve.allothers(TAc, TCc, PHoc, PCoc, CARBoc, CO2oc, Sal,
+            TempCo, Pdbaro, K0o, Kos, fHo, totals, PengCorrection, TCa, pHScale,
             WhichKs)
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
@@ -110,7 +110,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'fCO2in': FCic*1e6,
         'HCO3in': HCO3inp*1e6,
         'CO3in': CARBic*1e6,
-        'CO2in': CO2inp*1e6,
+        'CO2in': CO2ic*1e6,
         'BAlkin': BAlkinp*1e6,
         'OHin': OHinp*1e6,
         'PAlkin': PAlkinp*1e6,
@@ -127,7 +127,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         'fCO2out': FCoc*1e6,
         'HCO3out': HCO3out*1e6,
         'CO3out': CARBoc*1e6,
-        'CO2out': CO2out*1e6,
+        'CO2out': CO2oc*1e6,
         'BAlkout': BAlkout*1e6,
         'OHout': OHout*1e6,
         'PAlkout': PAlkout*1e6,

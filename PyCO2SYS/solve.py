@@ -370,12 +370,14 @@ def pars2mcs(par1, par2, par1type, par2type):
     """
     ntps = size(par1)
     # Generate empty vectors for...
-    TA = full(ntps, nan) # Talk
+    TA = full(ntps, nan) # total alkalinity
     TC = full(ntps, nan) # DIC
     PH = full(ntps, nan) # pH
-    PC = full(ntps, nan) # pCO2
-    FC = full(ntps, nan) # fCO2
-    CARB = full(ntps, nan) # CO3 ions
+    PC = full(ntps, nan) # CO2 partial pressure
+    FC = full(ntps, nan) # CO2 fugacity
+    CARB = full(ntps, nan) # carbonate ions
+    HCO3 = full(ntps, nan) # bicarbonate ions
+    CO2 = full(ntps, nan) # aqueous CO2
     # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
     TA = where(par1type==1, par1*1e-6, TA)
     TC = where(par1type==2, par1*1e-6, TC)
@@ -383,29 +385,56 @@ def pars2mcs(par1, par2, par1type, par2type):
     PC = where(par1type==4, par1*1e-6, PC)
     FC = where(par1type==5, par1*1e-6, FC)
     CARB = where(par1type==6, par1*1e-6, CARB)
+    HCO3 = where(par1type==7, par1*1e-6, HCO3)
+    CO2 = where(par1type==8, par1*1e-6, CO2)
     TA = where(par2type==1, par2*1e-6, TA)
     TC = where(par2type==2, par2*1e-6, TC)
     PH = where(par2type==3, par2, PH)
     PC = where(par2type==4, par2*1e-6, PC)
     FC = where(par2type==5, par2*1e-6, FC)
     CARB = where(par2type==6, par2*1e-6, CARB)
-    return TA, TC, PH, PC, FC, CARB
+    HCO3 = where(par2type==7, par2*1e-6, HCO3)
+    CO2 = where(par2type==8, par2*1e-6, CO2)
+    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 def getIcase(par1type, par2type):
     """Generate vector describing the combination of input parameters.
 
-    Noting that the pCO2 and fCO2 pair is not allowed, the valid ones are:
-        12, 13, 14, 15, 16,
-            23, 24, 25, 26,
-                34, 35, 36,
-                        46,
-                        56.
+    Options for `par1type` and `par2type`:
+
+      * `1` = total alkalinity
+      * `2` = dissolved inorganic carbon
+      * `3` = pH
+      * `4` = partial pressure of CO2
+      * `5` = fugacity of CO2
+      * `6` = carbonate ion
+      * `7` = bicarbonate ion
+      * `8` = aqueous CO2
+
+    `Icase` is calculated as `10*parXtype + parYtype` where `parXtype` is
+    whichever of `par1type` or `par2type` is greater.
+
+    Noting that a pair of any two from pCO2, fCO2 and CO2(aq) is not allowed,
+    the valid `Icase` options are:
+
+        12, 13, 14, 15, 16, 17, 18,
+            23, 24, 25, 26, 27, 28,
+                34, 35, 36, 37, 38,
+                        46, 47,
+                        56, 57,
+                            67, 68,
+                                78.
     """
+    # Check validity of separate `par1type` and `par2type` inputs
     Iarr = array([par1type, par2type])
-    assert np_all(isin(Iarr, [1, 2, 3, 4, 5, 6])), \
-        'All `PAR1TYPE` and `PAR2TYPE` values must be integers from 1 to 6.'
+    assert np_all(isin(Iarr, [1, 2, 3, 4, 5, 6, 7, 8])), \
+        'All `par1type` and `par2type` values must be integers from 1 to 8.'
+    assert ~np_any(par1type == par2type), \
+        '`par1type` and `par2type` must be different from each other.'
+    # Combine inputs into `Icase` and check its validity
     Icase = 10*np_min(Iarr, axis=0) + np_max(Iarr, axis=0)
-    assert ~np_any(Icase == 45), 'pCO2 and fCO2 is not a valid input pair.'
+    assert ~np_any(isin(Icase, [45, 48, 58])), \
+        'Combinations of pCO2, fCO2 and CO2(aq) are not valid input pairs.'
     return Icase
 
 def from2to6constants(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
@@ -436,11 +465,15 @@ def from2to6constants(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
     PengCorrection = where(WhichKs==7, totals['TPO4'], 0.0)
     return Sal, TCa, totals, PengCorrection
 
-def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
-    """Fill the 6 partly empty MCS variable columns with solutions."""
-    # pCO2 will be calculated at the end, the functions here work with fCO2
+def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks,
+        totals):
+    """Fill the partly empty MCS variable columns with solutions."""
+    # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = isin(Icase, [14, 24, 34, 46])
     FC = where(PCgiven, PC*FugFac, FC)
+    CO2given = isin(Icase, [18, 28, 38, 68, 78])
+    FC = where(CO2given, CO2*FugFac/K0, FC)
+    # Solve the marine carbonate system
     F = Icase==12 # input TA, TC
     if any(F):
         PH = where(F, pHfromTATC(TA-PengCx, TC, **Ks, **totals), PH)
@@ -452,7 +485,7 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
         TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
-    F = (Icase==14) | (Icase==15) # input TA, (pCO2 or fCO2)
+    F = (Icase==14) | (Icase==15) | (Icase==18) # input TA, [pCO2|fCO2|CO2aq]
     if any(F):
         PH = where(F, pHfromTAfCO2(TA-PengCx, FC, K0, **Ks, **totals), PH)
         TC = where(F, TCfromTApH(TA-PengCx, PH, **Ks, **totals), TC)
@@ -467,7 +500,7 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         CARB = where(F, CarbfromTCpH(TC, PH, Ks['K1'], Ks['K2']), CARB)
-    F = (Icase==24) | (Icase==25) # input TC, (pCO2 or fCO2)
+    F = (Icase==24) | (Icase==25) | (Icase==28) # input TC, [pCO2|fCO2|CO2aq]
     if any(F):
         PH = where(F, pHfromTCfCO2(TC, FC, K0, Ks['K1'], Ks['K2']), PH)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
@@ -477,7 +510,7 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
         PH = where(F, pHfromTCCarb(TC, CARB, Ks['K1'], Ks['K2']), PH)
         FC = where(F, fCO2fromTCpH(TC, PH, K0, Ks['K1'], Ks['K2']), FC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
-    F = (Icase==34) | (Icase==35) # input pH, (pCO2 or fCO2)
+    F = (Icase==34) | (Icase==35) | (Icase==38) # input pH, [pCO2|fCO2|CO2aq]
     if any(F):
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
@@ -487,15 +520,16 @@ def fill6(Icase, K0, TA, TC, PH, PC, FC, CARB, PengCx, FugFac, Ks, totals):
         FC = where(F, fCO2frompHCarb(PH, CARB, K0, Ks['K1'], Ks['K2']), FC)
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
-    F = (Icase==46) | (Icase==56) # input (pCO2 or fCO2), CARB
+    F = (Icase==46) | (Icase==56) | (Icase==68) # input [pCO2|fCO2|CO2aq], CARB
     if any(F):
         PH = where(F, pHfromfCO2Carb(FC, CARB, K0, Ks['K1'], Ks['K2']), PH)
         TC = where(F, TCfrompHfCO2(PH, FC, K0, Ks['K1'], Ks['K2']), TC)
         TA = where(F, TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
-    # Generate the associated pCO2 values:
+    # Generate the associated pCO2 and CO2(aq) values:
     PC = where(~PCgiven, FC/FugFac, PC)
-    return TA, TC, PH, PC, FC, CARB
+    CO2 = where(~CO2given, FC*K0/FugFac, CO2)
+    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 def from2to6variables(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4,
         WhoseKF):
@@ -512,15 +546,16 @@ def from2to6variables(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4,
 def from2to6(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
     """Solve the core marine carbonate system from any 2 of its variables."""
     # Expand inputs `PAR1` and `PAR2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB = pars2mcs(par1, par2, par1type, par2type)
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pars2mcs(par1, par2, par1type,
+        par2type)
     # Generate vector describing the combination(s) of input parameters
     Icase = getIcase(par1type, par2type)
     # Solve the core marine carbonate system
-    TA, TC, PH, PC, FC, CARB = fill6(Icase, K0, TA, TC, PH, PC, FC, CARB,
-        PengCx, FugFac, Ks, totals)
-    return TA, TC, PH, PC, FC, CARB
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = fill6(Icase, K0, TA, TC, PH, PC, FC,
+        CARB, HCO3, CO2, PengCx, FugFac, Ks, totals)
+    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
-def allothers(TA, TC, PH, PC, CARB, Sal, TempC, Pdbar, K0, Ks, fH, totals,
+def allothers(TA, TC, PH, PC, CARB, CO2, Sal, TempC, Pdbar, K0, Ks, fH, totals,
         PengCx, TCa, pHScale, WhichKs):
     # pKs
     pK1 = -log10(Ks['K1'])
@@ -530,7 +565,6 @@ def allothers(TA, TC, PH, PC, CARB, Sal, TempC, Pdbar, K0, Ks, fH, totals,
     HCO3, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = \
         AlkParts(PH, TC, FREEtoTOT, **Ks, **totals)
     PAlk = PAlk + PengCx
-    CO2 = TC - CARB - HCO3
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs,
         Ks['K1'], Ks['K2'])
@@ -553,5 +587,5 @@ def allothers(TA, TC, PH, PC, CARB, Sal, TempC, Pdbar, K0, Ks, fH, totals,
     psi = buffers.psi(CO2, PH, Ks['K1'], Ks['K2'], Ks['KB'], Ks['KW'],
         totals['TB'])
     return (pK1, pK2, HCO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4,
-        HF, CO2, OmegaCa, OmegaAr, VPFac, xCO2dry, pHT, pHS, pHF, pHN, Revelle,
+        HF, OmegaCa, OmegaAr, VPFac, xCO2dry, pHT, pHS, pHF, pHN, Revelle,
         gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA, isoQ, isoQx, psi)
