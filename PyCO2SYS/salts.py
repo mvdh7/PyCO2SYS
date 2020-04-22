@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"""Estimate total concentrations of seawater solutes from practical salinity."""
+"""Estimate total molinities of seawater solutes from practical salinity."""
 
 def ionstr_DOE94(Sal):
     """Ionic strength following DOE94."""
