@@ -8,9 +8,6 @@ from .. import buffers, convert, gas, solubility
 __all__ = ["initialise", "get"]
 
 
-
-
-
 def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals):
     """Fill part-empty core marine carbonate system variable columns."""
     # Convert any pCO2 and CO2(aq) values into fCO2
@@ -118,9 +115,6 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
     PC = where(~PCgiven, FC / FugFac, PC)
     CO2 = where(~CO2given, FC * K0 / FugFac, CO2)
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
-
-
-
 
 
 def others(

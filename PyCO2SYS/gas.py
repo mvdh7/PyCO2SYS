@@ -1,10 +1,10 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate gas properties."""
-
 from autograd.numpy import exp, log, where
 from . import convert
 from .constants import RGasConstant
+
 
 def fugacityfactor(TempC, WhichKs):
     """Calculate the fugacity factor."""
@@ -13,18 +13,23 @@ def fugacityfactor(TempC, WhichKs):
     # Following Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # Delta and B are in cm**3/mol.
     TempK = convert.TempC2K(TempC)
-    RT = RGasConstant*TempK
-    Delta = 57.7 - 0.118*TempK
-    b = (-1636.75 + 12.0408*TempK - 0.0327957*TempK**2 +
-         3.16528*0.00001*TempK**3)
+    RT = RGasConstant * TempK
+    Delta = 57.7 - 0.118 * TempK
+    b = (
+        -1636.75
+        + 12.0408 * TempK
+        - 0.0327957 * TempK ** 2
+        + 3.16528 * 0.00001 * TempK ** 3
+    )
     # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
-    P1atm = 1.01325 # in bar
-    FugFac = exp((b + 2*Delta)*P1atm/RT)
+    P1atm = 1.01325  # in bar
+    FugFac = exp((b + 2 * Delta) * P1atm / RT)
     # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
-    F = (WhichKs==6) | (WhichKs==7)
+    F = (WhichKs == 6) | (WhichKs == 7)
     if any(F):
         FugFac = where(F, 1.0, FugFac)
     return FugFac
+
 
 def vpfactor(TempC, Sal):
     """Calculate the vapour pressure factor."""
@@ -46,8 +51,8 @@ def vpfactor(TempC, Sal):
     #       This is eq. 10 on p. 350.
     #       This is in atmospheres.
     TempK = convert.TempC2K(TempC)
-    VPWP = exp(24.4543 - 67.4509*(100/TempK) - 4.8489*log(TempK/100))
-    VPCorrWP = exp(-0.000544*Sal)
-    VPSWWP = VPWP*VPCorrWP
-    VPFac = 1.0 - VPSWWP # this assumes 1 atmosphere
+    VPWP = exp(24.4543 - 67.4509 * (100 / TempK) - 4.8489 * log(TempK / 100))
+    VPCorrWP = exp(-0.000544 * Sal)
+    VPSWWP = VPWP * VPCorrWP
+    VPFac = 1.0 - VPSWWP  # this assumes 1 atmosphere
     return VPFac
