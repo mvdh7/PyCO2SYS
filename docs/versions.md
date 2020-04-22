@@ -21,33 +21,61 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 ### 1.3.0 (forthcoming)
 
 !!! example "Changes in v1.3.0"
+
+    ***New features***
+
     * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
+
+    ***Improved calculations***
+
+    * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
+
+    * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
+
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
+
+    ***Internal reorganisation***
+
+    * Major internal reorganisation that is probably not fully captured in these notes.
+
     * Renamed modules:
         * `assemble` is now `engine`.
         * `concentrations` is now `salts`.
         * `extra` is now `buffers`.
+
     * Module `equilibria` now contains sub-modules:
         * `p1atm` for calculating constants at atmospheric pressure.
         * `pcx` for determining pressure correction factors.
         * `pressured` for calculating constants at given pressure.
+
     * Module `solve` now contains sub-modules:
         * `initialise` to generate first-guess estimates of pH for the TA-pH solvers.
         * `get` to calculate a new system variable from various input pairs.
+
     * Added module `solubility` for mineral solubility calculations.
+
     * Relocated `_CaSolubility` function from root to `solubility.CaCO3`.
-      * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
-      * Added calcium molinity `TCa` as an input, instead of being evaluated internally.
+        * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
+        * Added calcium molinity `TCa` as an input, instead of being evaluated internally.
+
     * Added calcium molininty `TCa` into the main `CO2dict` output from `PyCO2SYS.CO2SYS`.
+
     * Relocated `_RevelleFactor` function from root to `buffers.RevelleFactor`.
+
     * Relocated `_FindpHOnAllScales` function from root to `convert.pH2allscales`.
+
     * Added module `constants` for storing values of universal physical constants.
-    * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
-    * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
+
     * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for safety.
+
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
-    * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
+
     * The as-close-as-possible MATLAB clone in `PyCO2SYS.original` no longer produces a dict but just the original `DATA`, `HEADERS` and `NICEHEADERS` outputs.
+
+    ***Miscellaneous***
+
+    * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
+
     * All code now formatted with [Black](https://github.com/psf/black) (except for module `original`).
 
 ## 1.2
