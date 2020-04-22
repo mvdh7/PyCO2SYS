@@ -59,6 +59,12 @@ def CO2SYS_wrap(dic=None, alk=None, pco2=None, fco2=None, pH=None,
         2  =  Seawater scale
         3  =  Free scale
         4  =  NBS scale
+
+    Returns
+    -------
+    pd.DataFrame or xr.Dataset containing the fully solved marine carbonate system parameters
+    Note that output variables are labelled as the original CO2SYS output names, and not the
+    wrapper inputs
     """
     import numpy as np
     import inspect
