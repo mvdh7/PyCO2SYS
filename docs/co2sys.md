@@ -248,7 +248,7 @@ The outputs are also the same [as described above](#outputs), except:
   * The `KSO4CONSTANTS` input is not split into `KSO4CONSTANT` and `BORON`.
   * There are none of the outputs associated with the `NH3` and `H2S` equilibria.
   * `TCa` is not provided.
-  * The outputs are reported in the original MATLAB style:
+  * They are reported in the original MATLAB style:
     *  `DATA` contains a matrix of all calculated values.
     *  `HEADERS` indicate the variable in each column of `DATA`.
     *  `NICEHEADERS` is an alternative to `HEADERS` containing a little more information about each variable.

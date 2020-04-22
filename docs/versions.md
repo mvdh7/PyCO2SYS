@@ -37,6 +37,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for safety.
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
     * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
+    * The as-close-as-possible MATLAB clone in `PyCO2SYS.original` no longer produces a dict but just the original `DATA`, `HEADERS` and `NICEHEADERS` outputs.
 
 ## 1.2
 
