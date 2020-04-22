@@ -44,6 +44,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
     * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
     * The as-close-as-possible MATLAB clone in `PyCO2SYS.original` no longer produces a dict but just the original `DATA`, `HEADERS` and `NICEHEADERS` outputs.
+    * All code now formatted with [Black](https://github.com/psf/black).
 
 ## 1.2
 
