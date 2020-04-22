@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from . import (
-    assemble,
     buffers,
     constants,
     convert,
+    engine,
     equilibria,
     gas,
     meta,
@@ -31,6 +31,7 @@ __all__ = [
     'buffers',
     'constants',
     'convert',
+    'engine',
     'equilibria',
     'gas',
     'meta',
@@ -49,7 +50,7 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
         KFCONSTANT, BORON, KSO4CONSTANTS=0):
     # Condition inputs and assign input to the 'historical' variable names.
-    args, ntps = assemble.inputs(locals())
+    args, ntps = engine.inputs(locals())
     PAR1 = args['PAR1']
     PAR2 = args['PAR2']
     p1 = args['PAR1TYPE']
@@ -69,11 +70,11 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     WhoseKF = args['KFCONSTANT']
     WhoseTB = args['BORON']
     # Solve the core marine carbonate system at input conditions
-    Sal, TCa, totals, PengCorrection = solve.from2to6constants(Sal, TSi, TP,
+    Sal, TCa, PengCorrection, totals = salts.assemble(Sal, TSi, TP,
         TNH3, TH2S, WhichKs, WhoseTB)
-    K0i, fHi, Kis, FugFaci = solve.from2to6variables(TempCi, Pdbari, Sal,
+    K0i, FugFaci, fHi, Kis = equilibria.assemble(TempCi, Pdbari, Sal,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
-    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = solve.from2to6(PAR1,
+    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = solve.core(PAR1,
         PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis)
     # Calculate all other results at input conditions
     (pK1i, pK2i, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp,
@@ -84,11 +85,11 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
             Sal, TempCi, Pdbari, K0i, Kis, fHi, totals, PengCorrection, TCa,
             pHScale, WhichKs)
     # Solve the core MCS at output conditions
-    K0o, fHo, Kos, FugFaco = solve.from2to6variables(TempCo, Pdbaro, Sal,
+    K0o, FugFaco, fHo, Kos = equilibria.assemble(TempCo, Pdbaro, Sal,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
-    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = solve.from2to6(TAc, TCc,
+    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = solve.core(TAc, TCc,
         TAtype, TCtype, PengCorrection, totals, K0o, FugFaco, Kos)
     # Calculate all other results at output conditions
     (pK1o, pK2o, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout,
