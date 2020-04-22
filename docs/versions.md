@@ -24,12 +24,16 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Renamed modules:
+        * `assemble` is now `engine`.
         * `concentrations` is now `salts`.
         * `extra` is now `buffers`.
-    * Module `equilibria` now contains submodules:
+    * Module `equilibria` now contains sub-modules:
         * `p1atm` for calculating constants at atmospheric pressure.
         * `pcx` for determining pressure correction factors.
         * `pressured` for calculating constants at given pressure.
+    * Module `solve` now contains sub-modules:
+        * `initialise` to generate first-guess estimates of pH for the TA-pH solvers.
+        * `get` to calculate a new system variable from various input pairs.
     * Added module `solubility` for mineral solubility calculations.
     * Relocated `_CaSolubility` function from root to `solubility.CaCO3`.
       * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
