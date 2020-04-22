@@ -10,6 +10,8 @@ from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 from . import assemble, buffers, convert, gas, solubility
 
+pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
+
 def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with fCO2 as the second variable,
     assuming that CBAlk is within a suitable range.
@@ -107,8 +109,6 @@ def _guesspH_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
                _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB),
                1e-3) # default pH=3 for low alkalinity
     return -log10(H0)
-
-pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
 def CarbfromTCpH(TC, pH, K1, K2):
     """Calculate carbonate ion from dissolved inorganic carbon and pH."""
