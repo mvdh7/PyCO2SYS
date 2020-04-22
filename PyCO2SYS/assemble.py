@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 from autograd.numpy import array, exp, full, nan, size, unique, where
 from . import convert, salts
-from . import equilibria as eq
+from .equilibria import p1atm as eq
 from .constants import RGasConstant
 
 def inputs(input_locals):
