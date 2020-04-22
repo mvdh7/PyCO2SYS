@@ -4,7 +4,7 @@
 """
 
 from autograd.numpy import exp, log, log10, sqrt
-from . import concentrations as conc
+from . import salts
 
 def kCO2_W74(TempK, Sal):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""
@@ -26,7 +26,7 @@ def kHSO4_FREE_D90a(TempK, Sal):
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
     logTempK = log(TempK)
-    IonS = conc.ionstr_DOE94(Sal)
+    IonS = salts.ionstr_DOE94(Sal)
     lnKSO4 = (-4276.1/TempK + 141.328 - 23.093*logTempK +
         (-13856/TempK + 324.57 - 47.986*logTempK)*sqrt(IonS) +
         (35474/TempK - 771.54 + 114.723*logTempK)*IonS +
@@ -49,7 +49,7 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     # The rms error is .0021 in pKS, or about .5% in KS.
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
-    IonS = conc.ionstr_DOE94(Sal)
+    IonS = salts.ionstr_DOE94(Sal)
     pKSO4 = 647.59/TempK - 6.3451 + 0.019085*TempK - 0.5208*sqrt(IonS)
     return 10.0**-pKSO4*(1 - 0.001005*Sal)
 
@@ -58,7 +58,7 @@ def kHF_FREE_DR79(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    IonS = conc.ionstr_DOE94(Sal)
+    IonS = salts.ionstr_DOE94(Sal)
     lnKF = 1590.2/TempK - 12.641 + 1.525*IonS**0.5
     return exp(lnKF)*(1 - 0.001005*Sal)
 
@@ -167,7 +167,7 @@ def kSi_SWS_YM95(TempK, Sal):
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KSi was given on the SWS pH scale in mol/kg-H2O, but is converted here
     # to mol/kg-sw.
-    IonS = conc.ionstr_DOE94(Sal)
+    IonS = salts.ionstr_DOE94(Sal)
     lnKSi = (-8904.2/TempK + 117.4 - 19.334*log(TempK) + (-458.79/TempK +
         3.5913)*sqrt(IonS) + (188.74/TempK - 1.5998)*IonS +
         (-12.1652/TempK + 0.07871)*IonS**2)

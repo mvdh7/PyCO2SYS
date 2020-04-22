@@ -1,11 +1,12 @@
 from autograd import elementwise_grad as egrad
-from autograd import numpy as anp
+from autograd import numpy as np
+anp = np
 import numpy as onp
-from jax import numpy as np
-from jax import grad, vmap
+# from jax import numpy as np
+# from jax import grad, vmap
 import PyCO2SYS as pyco2
 from PyCO2SYS import CO2SYS
-from scipy.misc import derivative
+# from scipy.misc import derivative
 
 def whoop(varin):
     varsum = np.sum(np.sqrt(varin))
@@ -18,7 +19,7 @@ def whoop(varin):
 varin = np.arange(10.0)
 varout = whoop(varin)
 # gradout = egrad(whoop)(varin)
-jaxout = grad(whoop)(np.array([2.0, 2.5]))
+# jaxout = grad(whoop)(np.array([2.0, 2.5]))
 
 # def sum_logistic(x):
 #   return np.sum(1.0 / (1.0 + np.exp(-x)))

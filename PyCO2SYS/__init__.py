@@ -16,26 +16,26 @@
 from . import (
     assemble,
     buffers,
-    concentrations,
     constants,
     convert,
     equilibria,
     gas,
     meta,
     original,
+    salts,
     solubility,
     solve,
 )
 __all__ = [
     'assemble',
     'buffers',
-    'concentrations',
     'constants',
     'convert',
     'equilibria',
     'gas',
     'meta',
     'original',
+    'salts',
     'solubility',
     'solve',
 ]
