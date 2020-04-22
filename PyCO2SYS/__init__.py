@@ -43,10 +43,7 @@ __all__ = [
 __author__ = meta.authors
 __version__ = meta.version
 
-from autograd.numpy import (array, exp, full, log, log10, nan, shape, size,
-                            sqrt, where, zeros)
-from autograd.numpy import min as np_min
-from autograd.numpy import max as np_max
+from autograd.numpy import array, full, shape
 
 def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
@@ -231,8 +228,7 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     contributions from S. van Heuven, J.W.B. Rae, J.C. Orr, J.-M. Epitalon,
     A.G. Dickson, J.-P. Gattuso, and D. Pierrot.
 
-    Most recently converted for Python by Matthew Humphreys, NIOZ Royal
-    Netherlands Institute for Sea Research, Texel, the Netherlands.
+    Most recently converted for Python and extended by Matthew P. Humphreys.
     """
     # Convert traditional inputs to new format before running CO2SYS
     if shape(KSO4CONSTANTS) == ():
