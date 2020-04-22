@@ -74,14 +74,14 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         TNH3, TH2S, WhichKs, WhoseTB)
     K0i, FugFaci, fHi, Kis = equilibria.assemble(TempCi, Pdbari, Sal,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
-    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = solve.core(PAR1,
+    TAc, TCc, PHic, PCic, FCic, CARBic, HCO3ic, CO2ic = engine.solvecore(PAR1,
         PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis)
     # Calculate all other results at input conditions
     (pK1i, pK2i, BAlkinp, OHinp, PAlkinp, SiAlkinp, NH3Alkinp,
         H2SAlkinp, Hfreeinp, HSO4inp, HFinp, OmegaCainp, OmegaArinp,
         VPFaci, xCO2dryinp, pHicT, pHicS, pHicF, pHicN, Revelleinp,
         gammaTCi, betaTCi, omegaTCi, gammaTAi, betaTAi, omegaTAi, isoQi, isoQxi,
-        psii) = solve.allothers(TAc, TCc, PHic, PCic, CARBic, HCO3ic, CO2ic,
+        psii) = solve.others(TAc, TCc, PHic, PCic, CARBic, HCO3ic, CO2ic,
             Sal, TempCi, Pdbari, K0i, Kis, fHi, totals, PengCorrection, TCa,
             pHScale, WhichKs)
     # Solve the core MCS at output conditions
@@ -89,14 +89,14 @@ def _CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
         totals, pHScale, WhichKs, WhoseKSO4, WhoseKF)
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
-    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = solve.core(TAc, TCc,
+    _, _, PHoc, PCoc, FCoc, CARBoc, HCO3oc, CO2oc = engine.solvecore(TAc, TCc,
         TAtype, TCtype, PengCorrection, totals, K0o, FugFaco, Kos)
     # Calculate all other results at output conditions
     (pK1o, pK2o, BAlkout, OHout, PAlkout, SiAlkout, NH3Alkout,
         H2SAlkout, Hfreeout, HSO4out, HFout, OmegaCaout, OmegaArout,
         VPFaco, xCO2dryout, pHocT, pHocS, pHocF, pHocN, Revelleout,
         gammaTCo, betaTCo, omegaTCo, gammaTAo, betaTAo, omegaTAo, isoQo, isoQxo,
-        psio) = solve.allothers(TAc, TCc, PHoc, PCoc, CARBoc, HCO3oc, CO2oc, Sal,
+        psio) = solve.others(TAc, TCc, PHoc, PCoc, CARBoc, HCO3oc, CO2oc, Sal,
             TempCo, Pdbaro, K0o, Kos, fHo, totals, PengCorrection, TCa, pHScale,
             WhichKs)
     # Save data directly as a dict to avoid ordering issues
