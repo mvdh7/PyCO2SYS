@@ -61,8 +61,9 @@ If you use PyCO2SYS in your work, please cite it as:
 
 The DOI refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
 
-    :::python
-    from PyCO2SYS.meta import version
+```python
+from PyCO2SYS.meta import version
+```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
 
