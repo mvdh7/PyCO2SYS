@@ -2,9 +2,8 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 "Calculate saturation states of soluble solids."
 
-from autograd.numpy import exp, full, log10, nan, size, sqrt, where
-from . import assemble, convert
-from . import concentrations as concs
+from autograd.numpy import exp, log10, sqrt, where
+from . import convert
 from .constants import RGasConstant
 
 def _deltaKappaCalcite_I75(TempC):
