@@ -11,9 +11,9 @@ from autograd.numpy import max as np_max
 from . import assemble, buffers, convert, gas, solubility
 
 def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
-    """Find initial value for pH solvers with TC as the second variable
-    inspired by M13 section 3.2.2 for fCO2 as the second variable,
+    """Find initial value for TA-pH solver with fCO2 as the second variable,
     assuming that CBAlk is within a suitable range.
+    Inspired by M13, section 3.2.2.
     """
     c2 = KB - (TB*KB + K1*CO2)/CBAlk
     c1 = -K1*(2*K2*CO2 + KB*CO2)/CBAlk
@@ -23,13 +23,13 @@ def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     sq21 = where(c21min_positive, sqrt(c21min), 0.0)
     Hmin = where(c2 < 0, -c2 + sq21/3, -c1/(c2 + sq21))
     H0 = where(c21min_positive, # i.e. sqrt(c21min) is real
-                Hmin + sqrt(-(c2*Hmin**2 + c1*Hmin + c0)/sq21),
-                1e-7) # default pH=7 if 2nd order approx has no solution
+               Hmin + sqrt(-(c2*Hmin**2 + c1*Hmin + c0)/sq21),
+               1e-7) # default pH=7 if 2nd order approx has no solution
     return H0
 
 def _guesspH_CO2(CBAlk, CO2, TB, K1, K2, KB):
-    """Find initial value for pH solvers with fCO2 as the second variable
-    inspired by M13 section 3.2.2 for fCO2 as the second variable.
+    """Find initial value for TA-pH solver with fCO2 as the second variable.
+    Inspired by M13, section 3.2.2.
     """
     H0 = where(CBAlk > 0,
                _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB),
@@ -37,9 +37,9 @@ def _guesspH_CO2(CBAlk, CO2, TB, K1, K2, KB):
     return -log10(H0)
 
 def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
-    """Find initial value for pH solvers with TC as the second variable
-    following M13 section 3.2.2 for TC as the second variable,
+    """Find initial value for TA-pH solver with TC as the second variable,
     assuming that CBAlk is within a suitable range.
+    Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
     c2 = KB*(1 - TB/CBAlk) + K1*(1 - TC/CBAlk)
     c1 = K1*(KB*(1 - TB/CBAlk - TC/CBAlk) + K2*(1 - 2*TC/CBAlk))
@@ -54,8 +54,8 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     return H0
 
 def _guesspH_TC(CBAlk, TC, TB, K1, K2, KB):
-    """Find initial value for pH solvers with TC as the second variable
-    following M13's 3.2.2 and its implementation in mocsy/phsolvers.f90 (OE15).
+    """Find initial value for TA-pH solver with TC as the second variable,
+    Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
     # Logical conditions and defaults from mocsy phsolvers.f90
     H0 = where(CBAlk <= 0,
@@ -64,6 +64,48 @@ def _guesspH_TC(CBAlk, TC, TB, K1, K2, KB):
     F = (CBAlk > 0) & (CBAlk < 2*TC + TB)
     if any(F): # use better estimate if alkalinity in suitable range
         H0 = where(F, _goodH0_TC(CBAlk, TC, TB, K1, K2, KB), H0)
+    return -log10(H0)
+
+def _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB):
+    """Find initial value for TA-pH solver with carbonate ion as the second
+    variable, assuming that CBAlk is within a suitable range.
+    Inspired by M13, section 3.2.2.
+    """
+    a = CARB
+    b = CARB*KB + K2*(2*CARB - CBAlk)
+    c = K2*KB*(2*CARB + TB - CBAlk)
+    H0 = (-b + sqrt(b**2 - 4*a*c))/(2*a)
+    return H0
+
+def _guesspH_CO3(CBAlk, CARB, TB, K1, K2, KB):
+    """Find initial value for TA-pH solver with carbonate ion as the second
+    variable.
+    Inspired by M13, section 3.2.2.
+    """
+    H0 = where(CBAlk > 2*CARB + TB,
+               _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB),
+               1e-10) # default pH=10 for low alkalinity
+    return -log10(H0)
+
+def _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
+    """Find initial value for TA-pH solver with bicarbonate ion as the second
+    variable, assuming that CBAlk is within a suitable range.
+    Inspired by M13, section 3.2.2.
+    """
+    a = HCO3 - CBAlk
+    b = KB*(HCO3 + TB - CBAlk) + 2*K2*HCO3
+    c = 2*K2*KB*HCO3
+    H0 = (-b - sqrt(b**2 - 4*a*c))/(2*a)
+    return H0
+
+def _guesspH_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
+    """Find initial value for TA-pH solver with bicarbonate ion as the second
+    variable.
+    Inspired by M13, section 3.2.2.
+    """
+    H0 = where(CBAlk > HCO3,
+               _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB),
+               1e-3) # default pH=3 for low alkalinity
     return -log10(H0)
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
@@ -133,7 +175,7 @@ def pHfromTATC(TA, TC,
     SVH2007: Made this to accept vectors. It will continue iterating until all
     values in the vector are "abs(deltapH) < pHTol".
     """
-    pH = _guesspH_TC(TA, TC, TB, K1, K2, KB) # following M13/OE15, added v1.3.0
+    pH = _guesspH_TC(TA, TC, TB, K1, K2, KB) # first guess, added v1.3.0
     deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
@@ -188,9 +230,8 @@ def pHfromTAfCO2(TA, fCO2, K0,
 
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
+    pH = _guesspH_CO2(TA, K0*fCO2, TB, K1, K2, KB) # first guess, added v1.3.0
+    deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):
@@ -232,9 +273,8 @@ def pHfromTACarb(TA, CARB,
 
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
+    pH = _guesspH_CO3(TA, CARB, TB, K1, K2, KB) # first guess
+    deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):
@@ -272,9 +312,8 @@ def pHfromTAHCO3(TA, HCO3,
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K constants are on that scale.
     """
-    pHGuess = 8.0 # this is the first guess
-    pH = full(size(TA), pHGuess) # first guess for all samples
-    deltapH = 1 + pHTol
+    pH = _guesspH_HCO3(TA, HCO3, TB, K1, K2, KB) # first guess
+    deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):

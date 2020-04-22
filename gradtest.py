@@ -134,10 +134,8 @@ print(test)
 #%% Myhoven
 from autograd.numpy import sqrt, log10, where
 
+bicarb = co2d['HCO3in'][:3]*1e-6
 
-    
-co2 = co2d['CO2in'][:3]*1e-6
-
-myh = pyco2.solve._guesspH_CO2(ta, co2, tb, k1, k2, kB)
+myh = pyco2.solve._guesspH_HCO3(ta, bicarb, tb, k1, k2, kB)
 
 print(myh)

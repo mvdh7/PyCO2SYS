@@ -36,7 +36,7 @@ Continues to reorganise code structure behind the scenes. Makes all functions [A
     * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
     * Lists of equilibrium constants and total concentrations now passed around internally as dicts, for safety.
     * Total sulfate and bisulfate dissociation constant renamed from `TS` and `KS` to `TSO4` and `KSO4` internally to avoid confusion with sulfide species.
-    * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o).
+    * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
 
 ## 1.2
 
