@@ -8,7 +8,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import assemble, buffers, convert, equilibria, gas, solubility
+from . import buffers, convert, equilibria, gas, salts, solubility
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
@@ -565,7 +565,7 @@ def from2to6constants(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
     TSi = TSi*1e-6
     TNH3 = TNH3*1e-6
     TH2S = TH2S*1e-6
-    TCa, totals = assemble.concentrations(Sal, WhichKs, WhoseTB)
+    TCa, totals = salts.assemble(Sal, WhichKs, WhoseTB)
     # Add equilibrating user inputs except DIC to `totals` dict
     totals['TPO4'] = TP
     totals['TSi'] = TSi
