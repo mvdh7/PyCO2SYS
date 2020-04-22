@@ -20,7 +20,8 @@ The citation for PyCO2SYS alone is:
 The DOI above refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
 
 ```python
-from PyCO2SYS.meta import version
+import PyCO2SYS as pyco2
+print(pyco2.__version__)
 ```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
