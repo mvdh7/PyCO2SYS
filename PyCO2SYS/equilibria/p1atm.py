@@ -1,8 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"""Estimate stoichiometric equilibrium constants at atmospheric pressure from
-temperature and salinity.
-"""
+"""Estimate stoichiometric equilibrium constants at atmospheric pressure."""
 
 from autograd.numpy import exp, log, log10, sqrt
 from .. import salts

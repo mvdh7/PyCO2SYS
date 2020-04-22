@@ -104,18 +104,14 @@ print(omg)
 
 # why nan?
 aa = anp.array
-test = egrad(lambda *args: pyco2.assemble.eq_KC(*args)[0], argnum=0)(
+test = egrad(lambda *args: pyco2.equilibria.pressured.KC(*args)[0], argnum=0)(
     aa([298.15]), aa([35.0]), aa([10.0]), aa([6]), aa([1.0]), aa([1.0]))
 print(' ')
 print(test)
 
-test2 = egrad(lambda TempK, Sal: pyco2.equilibria.kH2CO3_NBS_MCHP73(TempK, Sal)[0],
-              argnum=0)(aa([298.15]), aa([35.0]))
-print(test2)
-
 pcxargs = (aa([298.15]), aa([10.0]), aa([6]))
-test3 = egrad(pyco2.assemble._pcxK1)(*pcxargs)
-test4 = pyco2.assemble._pcxK1(*pcxargs)
+test3 = egrad(pyco2.equilibria.pcx.K1fac)(*pcxargs)
+test4 = pyco2.equilibria.pcx.K1fac(*pcxargs)
 print(test4)
 print(test3)
 

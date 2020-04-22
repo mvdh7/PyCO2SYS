@@ -8,7 +8,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import assemble, buffers, convert, gas, solubility
+from . import assemble, buffers, convert, equilibria, gas, solubility
 
 pHTol = 1e-6 # tolerance for ending iterations in all pH solvers
 
@@ -692,7 +692,7 @@ def from2to6variables(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4,
     `fill6` or `_from2to6` functions."""
     # Calculate the constants for all samples at input conditions.
     # The constants calculated for each sample will be on the input pH scale.
-    K0, fH, Ks = assemble.equilibria(TempC, Pdbar, Sal, totals, pHScale,
+    K0, fH, Ks = equilibria.assemble(TempC, Pdbar, Sal, totals, pHScale,
         WhichKs, WhoseKSO4, WhoseKF)
     # Make sure fCO2 is available for each sample that has pCO2
     FugFac = gas.fugacityfactor(TempC, WhichKs)
@@ -701,8 +701,7 @@ def from2to6variables(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4,
 def from2to6(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
     """Solve the core marine carbonate system from any 2 of its variables."""
     # Expand inputs `PAR1` and `PAR2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pars2mcs(par1, par2, par1type,
-        par2type)
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pars2mcs(par1, par2, par1type, par2type)
     # Generate vector describing the combination(s) of input parameters
     Icase = getIcase(par1type, par2type)
     # Solve the core marine carbonate system
@@ -734,8 +733,7 @@ def allothers(TA, TC, PH, PC, CARB, HCO3, CO2, Sal, TempC, Pdbar, K0, Ks, fH,
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = \
         buffers.buffers_ESM10(TC, TA, CO2, HCO3, CARB, PH, OH, BAlk, Ks['KB'])
-    # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94]
-    # [added v1.2.0]
+    # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94] [added v1.2.0]
     isoQ = buffers.bgc_isocap(CO2, PH, Ks['K1'], Ks['K2'], Ks['KB'], Ks['KW'],
         totals['TB'])
     isoQx = buffers.bgc_isocap_approx(TC, PC, K0, Ks['K1'], Ks['K2'])
