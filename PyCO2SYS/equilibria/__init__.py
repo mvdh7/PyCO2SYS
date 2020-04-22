@@ -4,7 +4,7 @@
 """
 
 from autograd.numpy import exp, log, log10, sqrt
-from . import salts
+from .. import salts
 
 def kCO2_W74(TempK, Sal):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""
