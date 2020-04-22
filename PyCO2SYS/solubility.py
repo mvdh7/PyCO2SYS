@@ -1,13 +1,13 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"Calculate saturation states of soluble solids."
+"""Calculate saturation states of soluble solids."""
 from autograd.numpy import exp, log10, sqrt, where
 from . import convert
 from .constants import RGasConstant
 
 
 def _deltaKappaCalcite_I75(TempC):
-    "Delta and kappa terms for calcite solubility [I75]."
+    """Delta and kappa terms for calcite solubility [I75]."""
     # Note that Millero, GCA 1995 has typos:
     #   (-.5304, -.3692, and 10^3 for Kappa factor)
     deltaVKCa = -48.76 + 0.5304 * TempC
