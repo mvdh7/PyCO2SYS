@@ -1,13 +1,11 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate equilibrium constants from temperature, salinity and pressure."""
-
 from . import p1atm, pcx, pressured
-
-__all__ = ["p1atm", "pcx", "pressured"]
-
 from autograd.numpy import full, nan, size, where
 from .. import convert
+
+__all__ = ["p1atm", "pcx", "pressured"]
 
 
 def assemble(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):

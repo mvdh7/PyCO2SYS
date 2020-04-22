@@ -1,10 +1,9 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+"""Correct equilibrium constants for pressure."""
 from autograd.numpy import full, nan, size, where
 from . import p1atm, pcx
 from .. import convert
-
-"""Correct equilibrium constants for pressure."""
 
 
 def KSO4(TempK, Sal, Pbar, WhoseKSO4):
