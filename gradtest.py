@@ -124,7 +124,7 @@ k2 = co2d['K2input'][:3]
 kB = co2d['KBinput'][:3]
 ph = co2d['pHinFREE'][:3]
 
-test = pyco2.solve._guesspH_TC(ta, tc, tb, k1, k2, kB)
+test = pyco2.solve.initialise.fromTC(ta, tc, tb, k1, k2, kB)
 print(' ')
 print(test)
 
@@ -133,6 +133,6 @@ from autograd.numpy import sqrt, log10, where
 
 bicarb = co2d['HCO3in'][:3]*1e-6
 
-myh = pyco2.solve._guesspH_HCO3(ta, bicarb, tb, k1, k2, kB)
+myh = pyco2.solve.initialise.fromHCO3(ta, bicarb, tb, k1, k2, kB)
 
 print(myh)
