@@ -1,11 +1,15 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"""An as-close-as-possible clone of CO2SYS-MATLAB v2.0.5.
+"""An as-close-as-possible clone of CO2SYS-MATLAB v2.0.5."""
 
-Import with:
+from copy import deepcopy
+from numpy import (array, exp, full, log, log10, logical_and, logical_or, nan,
+                   ones, size, sqrt, transpose, unique, vstack, zeros)
+from numpy import abs as np_abs
+from numpy import any as np_any
+from numpy import min as np_min
+from numpy import max as np_max
 
-    from PyCO2SYS.original import CO2SYS
-"""
 #**************************************************************************
 #
 # First   CO2SYS.m version: 1.1 (Sep 2011)
@@ -264,14 +268,6 @@ Import with:
 # NOTHING BELOW THIS SHOULD REQUIRE EDITING BY USER!
 #**************************************************************************
 
-from copy import deepcopy
-from numpy import (array, exp, full, log, log10, logical_and, logical_or, nan,
-                   ones, size, sqrt, unique, vstack, zeros)
-from numpy import abs as np_abs
-from numpy import any as np_any
-from numpy import min as np_min
-from numpy import max as np_max
-
 def _Constants(TempC, Pdbar):
 # SUB Constants, version 04.01, 10-13-97, written by Ernie Lewis.
 # Converted from MATLAB to Python 2020-01-29 by Matthew Humphreys.
@@ -526,10 +522,14 @@ def _Constants(TempC, Pdbar):
             *(1 - 0.001005*Sal[F]))        # convert to mol/kg-SW
 
     # CalculateK1K2:
-    logK1    = full(ntps, nan); lnK1     = full(ntps, nan);
-    pK1      = full(ntps, nan); K1       = full(ntps, nan);
-    logK2    = full(ntps, nan); lnK2     = full(ntps, nan);
-    pK2      = full(ntps, nan); K2       = full(ntps, nan);
+    # logK1    = full(ntps, nan)
+    lnK1     = full(ntps, nan)
+    pK1      = full(ntps, nan)
+    K1       = full(ntps, nan)
+    # logK2    = full(ntps, nan)
+    lnK2     = full(ntps, nan)
+    pK2      = full(ntps, nan)
+    K2       = full(ntps, nan)
     F=(WhichKs==1)
     if any(F):
         # ROY et al, Marine Chemistry, 44:249-267, 1993
@@ -1357,7 +1357,7 @@ def _CaSolubility(Sal, TempC, Pdbar, TC, pH):
     # '       13:403-417, 1968.
     # '***********************************************************************
     Ca = full(ntps, nan)
-    Ar = full(ntps, nan)
+    # Ar = full(ntps, nan)
     KCa = full(ntps, nan)
     KAr = full(ntps, nan)
     F=logical_and(WhichKs!=6, WhichKs!=7)
@@ -1761,6 +1761,4 @@ def CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN,
     del K0, KP1, KW, RGasConstant, TF, TempCo, fH
     del K1, KP2, Pbar, RT, TP, TempK, logTempK
 
-    DICT = {HEADERS[i]: DATA[i] for i in range(len(DATA))}
-
-    return DICT, DATA, HEADERS, NICEHEADERS
+    return transpose(DATA), HEADERS, NICEHEADERS

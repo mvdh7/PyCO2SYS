@@ -217,3 +217,40 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
 [^2]: Equations for the buffer factors of [ESM10](../refs/#e) have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
+
+## The original CO<sub>2</sub>SYS clone
+
+Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO<sub>2</sub>SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
+
+If you want to use the as-close-as-possible clone instead, this is still available via:
+
+    :::python
+    # Import the original CO2SYS clone
+    from PyCO2SYS.original import CO2SYS
+
+    # Run CO2SYS
+    DATA, HEADERS, NICEHEADERS = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE,
+        SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
+        pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)
+
+The inputs are the same [as described above](#inputs) except:
+
+  * `PAR1TYPE` and `PAR2TYPE` can only take values from `1` to `5` inclusive.
+  * The optional extra inputs (`NH3`, `H2S` and `KFCONSTANT`) are not allowed. This is equivalent to using `NH3 = 0`, `H2S = 0` and `KFCONSTANT = 1` in the Pythonic version.
+
+The outputs are also the same [as described above](#outputs), except:
+
+  * There are no buffer factors other than the Revelle factor.
+  * The Revelle factor at output conditions does not include the "Peng correction" (applicable only for `K1K2CONSTANTS = 7`).
+  * The `KSO4CONSTANTS` input is not split into `KSO4CONSTANT` and `BORON`.
+  * There are none of the outputs associated with the `NH3` and `H2S` equilibria.
+  * `TCa` is not provided.
+  * The outputs are reported in the original MATLAB style:
+    *  `DATA` contains a matrix of all calculated values.
+    *  `HEADERS` indicate the variable in each column of `DATA`.
+    *  `NICEHEADERS` is an alternative to `HEADERS` containing a little more information about each variable.
+
+To convert these MATLAB-style outputs into a dict comparable to `CO2dict`:
+
+    :::python
+    CO2dict = {header: DATA[:, h] for h, header in enumerate(headers)}
