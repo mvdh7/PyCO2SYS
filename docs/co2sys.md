@@ -222,7 +222,10 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
 Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO<sub>2</sub>SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
 
-If you want to use the as-close-as-possible clone instead, this is still available via:
+!!! warning
+    We strongly recommend that you use the Pythonised version [described above](#syntax)!
+
+If you do need to use the as-close-as-possible clone instead, this is still available via:
 
     :::python
     # Import the original CO2SYS clone
@@ -253,4 +256,4 @@ The outputs are also the same [as described above](#outputs), except:
 To convert these MATLAB-style outputs into a dict comparable to `CO2dict`:
 
     :::python
-    CO2dict = {header: DATA[:, h] for h, header in enumerate(headers)}
+    CO2dict = {header: DATA[:, h] for h, header in enumerate(HEADERS)}
