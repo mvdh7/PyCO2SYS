@@ -3,7 +3,8 @@
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
 from . import p1atm, pcx, pressured
-__all__ = ['p1atm', 'pcx', 'pressured']
+
+__all__ = ["p1atm", "pcx", "pressured"]
 
 from autograd.numpy import full, nan, size, where
 from .. import convert
@@ -39,7 +40,7 @@ def assemble(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KSO40 = pressured.KSO4(TempK, Sal, 0.0, WhoseKSO4)
     KF0 = pressured.KF(TempK, Sal, 0.0, WhoseKF)
     fH = pressured.fH(TempK, Sal, WhichKs)
-    SWStoTOT0 = convert.sws2tot(totals['TSO4'], KSO40, totals['TF'], KF0)
+    SWStoTOT0 = convert.sws2tot(totals["TSO4"], KSO40, totals["TF"], KF0)
     # Calculate other dissociation constants
     KB = pressured.KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0)
     KW = pressured.KW(TempK, Sal, Pbar, WhichKs)
@@ -51,39 +52,43 @@ def assemble(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KNH3 = pressured.KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0)
     # Correct pH scale conversions for pressure.
     # fH has been assumed to be independent of pressure.
-    SWStoTOT = convert.sws2tot(totals['TSO4'], KSO4, totals['TF'], KF)
-    FREEtoTOT = convert.free2tot(totals['TSO4'], KSO4)
+    SWStoTOT = convert.sws2tot(totals["TSO4"], KSO4, totals["TF"], KF)
+    FREEtoTOT = convert.free2tot(totals["TSO4"], KSO4)
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
     pHfactor = full(size(TempC), nan)
-    pHfactor = where(pHScale==1, SWStoTOT, pHfactor) # Total
-    pHfactor = where(pHScale==2, 1.0, pHfactor) # Seawater (already on this)
-    pHfactor = where(pHScale==3, SWStoTOT/FREEtoTOT, pHfactor) # Free
-    pHfactor = where(pHScale==4, fH, pHfactor) # NBS
+    pHfactor = where(pHScale == 1, SWStoTOT, pHfactor)  # Total
+    pHfactor = where(pHScale == 2, 1.0, pHfactor)  # Seawater (already on this)
+    pHfactor = where(pHScale == 3, SWStoTOT / FREEtoTOT, pHfactor)  # Free
+    pHfactor = where(pHScale == 4, fH, pHfactor)  # NBS
     # Convert from SWS pH scale to chosen scale
-    K1 = K1*pHfactor
-    K2 = K2*pHfactor
-    KW = KW*pHfactor
-    KB = KB*pHfactor
-    KP1 = KP1*pHfactor
-    KP2 = KP2*pHfactor
-    KP3 = KP3*pHfactor
-    KSi = KSi*pHfactor
-    KNH3 = KNH3*pHfactor
-    KH2S = KH2S*pHfactor
+    K1 = K1 * pHfactor
+    K2 = K2 * pHfactor
+    KW = KW * pHfactor
+    KB = KB * pHfactor
+    KP1 = KP1 * pHfactor
+    KP2 = KP2 * pHfactor
+    KP3 = KP3 * pHfactor
+    KSi = KSi * pHfactor
+    KNH3 = KNH3 * pHfactor
+    KH2S = KH2S * pHfactor
     # Return solution equilibrium constants as a dict
-    return K0, fH, {
-        'K1': K1,
-        'K2': K2,
-        'KW': KW,
-        'KB': KB,
-        'KF': KF,
-        'KSO4': KSO4,
-        'KP1': KP1,
-        'KP2': KP2,
-        'KP3': KP3,
-        'KSi': KSi,
-        'KNH3': KNH3,
-        'KH2S': KH2S,
-    }
+    return (
+        K0,
+        fH,
+        {
+            "K1": K1,
+            "K2": K2,
+            "KW": KW,
+            "KB": KB,
+            "KF": KF,
+            "KSO4": KSO4,
+            "KP1": KP1,
+            "KP2": KP2,
+            "KP3": KP3,
+            "KSi": KSi,
+            "KNH3": KNH3,
+            "KH2S": KH2S,
+        },
+    )
