@@ -1,16 +1,15 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Solve the marine carbonate system from any two of its variables."""
-from . import initialise, get
+from . import delta, initialise, get
 from autograd.numpy import isin, log10, where
 from .. import buffers, convert, gas, solubility
 
-__all__ = ["initialise", "get"]
+__all__ = ["delta", "initialise", "get"]
 
 
 def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals):
-    """Fill all part-empty core marine carbonate system variable columns with solutions.
-    """
+    """Fill part-empty core marine carbonate system variable columns with solutions."""
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = isin(Icase, [14, 24, 34, 46, 47])
     FC = where(PCgiven, PC * FugFac, FC)

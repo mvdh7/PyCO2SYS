@@ -1,11 +1,12 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
-from autograd.numpy import errstate, log, log10, nan, sqrt, where
+
+from autograd.numpy import errstate, log10, nan, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
 from .. import convert
-from . import initialise
+from . import delta, initialise
 
 pHTol = 1e-8  # set tolerance for ending iterations in all pH solvers
 
@@ -104,58 +105,17 @@ def pHfromTATC(TA, TC, Ks, totals):
     SVH2007: Made this to accept vectors. It will continue iterating until all values in
     the vector are "abs(deltapH) < pHTol".
     """
-    # Relabel for convenience
-    TB = totals["TB"]
-    TSO4 = totals["TSO4"]
-    K1 = Ks["K1"]
-    K2 = Ks["K2"]
-    KB = Ks["KB"]
-    KSO4 = Ks["KSO4"]
-    # Solve
-    pH = initialise.fromTC(TA, TC, TB, K1, K2, KB)  # first guess, added v1.3.0
+    pH = initialise.fromTC(
+        TA, TC, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
+    )  # first guess, added v1.3.0
     deltapH = 1.0 + pHTol
-    ln10 = log(10)
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
     while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol
-        HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH, TC, FREEtoTOT, **Ks, **totals
-        )
-        CAlk = HCO3 + 2 * CO3
-        H = 10.0 ** -pH
-        Denom = H ** 2 + K1 * H + K1 * K2
-        Residual = (
-            TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
-        )
-        # Find slope dTA/dpH
-        # Calculation of phosphate component of slope makes virtually no
-        # difference to end result and makes code run much slower, so not used.
-        # PDenom = (KP1*KP2*KP3 + KP1*KP2*H + KP1*H**2 + H**3)
-        # PSlope = -TPO4*H*((KP1*KP2 - 2*H)/PDenom -
-        #     (KP1*KP2 + 2*KP1*H + 3*H**2)*(2*KP1*KP2*KP3 + KP1*KP2*H - H**2)/
-        #     PDenom**2)
-        # Adding other nutrients doesn't really impact speed but makes so little
-        # difference that they've been excluded for consistency with previous
-        # versions of CO2SYS.
-        Slope = ln10 * (
-            TC * K1 * H * (H ** 2 + K1 * K2 + 4 * H * K2) / Denom ** 2
-            + BAlk * H / (KB + H)
-            + OH
-            + H
-        )  # terms after here would add nutrients
-        # SiAlk*H/(KSi + H) + NH3Alk*H/(KNH3 + H) + H2SAlk*H/(KH2S + H))
-        # + PSlope) # to add phosphate component
-        deltapH = Residual / Slope  # this is Newton's method
+        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
+        deltapH = delta.pHfromTATC(pH, TA, TC, FREEtoTOT, Ks, totals)
         # To keep the jump from being too big:
         deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(pHdone, pH, pH + deltapH)
-        # ^pH is on the same scale as K1 and K2 were calculated.
+        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
@@ -165,49 +125,23 @@ def pHfromTAfCO2(TA, fCO2, K0, Ks, totals):
 
     This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K Constants are on that scale.
 
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    # Relabel for convenience
-    TB = totals["TB"]
-    TSO4 = totals["TSO4"]
-    K1 = Ks["K1"]
-    K2 = Ks["K2"]
-    KB = Ks["KB"]
-    KSO4 = Ks["KSO4"]
-    # Solve
-    pH = initialise.fromCO2(TA, K0 * fCO2, TB, K1, K2, KB)  # first guess, added v1.3.0
+    pH = initialise.fromCO2(
+        TA, K0 * fCO2, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
+    )  # first guess, added v1.3.0
     deltapH = 1.0 + pHTol
-    ln10 = log(10)
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    while np_any(np_abs(deltapH) > pHTol):
-        pHdone = np_abs(deltapH) < pHTol
-        H = 10.0 ** -pH
-        HCO3 = K0 * K1 * fCO2 / H
-        CO3 = K0 * K1 * K2 * fCO2 / H ** 2
-        CAlk = HCO3 + 2 * CO3
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH, 0.0, FREEtoTOT, **Ks, **totals
-        )
-        Residual = (
-            TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
-        )
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10 * (HCO3 + 4 * CO3 + BAlk * H / (KB + H) + OH + H)
-        deltapH = Residual / Slope  # this is Newton's method
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
+    while np_any(np_abs(deltapH) >= pHTol):
+        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
+        deltapH = delta.pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals)
         # To keep the jump from being too big:
         deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(pHdone, pH, pH + deltapH)
+        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
@@ -217,47 +151,23 @@ def pHfromTACarb(TA, CARB, Ks, totals):
 
     This calculates pH from TA and Carb using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
     Though it is coded for H on the total pH scale, for the pH values occuring
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K constants are on that scale.
 
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
-    # Relabel for convenience
-    TB = totals["TB"]
-    TSO4 = totals["TSO4"]
-    K1 = Ks["K1"]
-    K2 = Ks["K2"]
-    KB = Ks["KB"]
-    KSO4 = Ks["KSO4"]
-    # Solve
-    pH = initialise.fromCO3(TA, CARB, TB, K1, K2, KB)  # first guess
+    pH = initialise.fromCO3(
+        TA, CARB, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
+    )  # first guess
     deltapH = 1.0 + pHTol
-    ln10 = log(10)
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    while np_any(np_abs(deltapH) > pHTol):
-        pHdone = np_abs(deltapH) < pHTol
-        H = 10.0 ** -pH
-        CAlk = CARB * (H + 2 * K2) / K2
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH, 0.0, FREEtoTOT, **Ks, **totals
-        )
-        Residual = (
-            TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
-        )
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10 * (-CARB * H / K2 + BAlk * H / (KB + H) + OH + H)
-        deltapH = Residual / Slope  # this is Newton's method
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
+    while np_any(np_abs(deltapH) >= pHTol):
+        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
+        deltapH = delta.pHfromTACarb(pH, TA, CARB, FREEtoTOT, Ks, totals)
         # To keep the jump from being too big:
         deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(pHdone, pH, pH + deltapH)
+        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
@@ -272,40 +182,17 @@ def pHfromTAHCO3(TA, HCO3, Ks, totals):
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K constants are on that scale.
     """
-    # Relabel for convenience
-    TB = totals["TB"]
-    TSO4 = totals["TSO4"]
-    K1 = Ks["K1"]
-    K2 = Ks["K2"]
-    KB = Ks["KB"]
-    KSO4 = Ks["KSO4"]
-    # Solve
-    pH = initialise.fromHCO3(TA, HCO3, TB, K1, K2, KB)  # first guess
+    pH = initialise.fromHCO3(
+        TA, HCO3, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
+    )  # first guess
     deltapH = 1.0 + pHTol
-    ln10 = log(10)
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
     while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol
-        H = 10.0 ** -pH
-        CAlk = HCO3 * (1 + 2 * K2 / H)
-        _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH, 0.0, FREEtoTOT, **Ks, **totals
-        )
-        Residual = (
-            TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
-        )
-        # Find Slope dTA/dpH (this is not exact, but keeps all important terms)
-        Slope = ln10 * (2 * HCO3 * K2 / H + BAlk * H / (KB + H) + OH + H)
-        deltapH = Residual / Slope  # this is Newton's method
+        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
+        deltapH = delta.pHfromTAHCO3(pH, TA, HCO3, FREEtoTOT, Ks, totals)
         # To keep the jump from being too big:
         deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        # The following logical means that each row stops updating once its
-        # deltapH value is beneath the pHTol threshold, instead of continuing
-        # to update ALL rows until they all meet the threshold.
-        # This approach avoids the problem of reaching a different
-        # answer for a given set of input conditions depending on how many
-        # iterations the other input rows take to solve. // MPH
-        pH = where(pHdone, pH, pH + deltapH)
+        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
