@@ -59,10 +59,10 @@ def AlkParts(
     TNH3,
     TH2S,
 ):
-    """Calculate the different components of total alkalinity from pH and dissolved 
+    """Calculate the different components of total alkalinity from pH and dissolved
     inorganic carbon.
 
-    Although coded for H on the Total pH scale, for the pH values occuring in seawater 
+    Although coded for H on the Total pH scale, for the pH values occuring in seawater
     (pH > 6) this will be equally valid on any pH scale (i.e. H terms are negligible) as
     long as the K Constants are on that scale.
 
@@ -114,11 +114,11 @@ def pHfromTATC(
 
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
     It tries to solve for the pH at which Residual = 0.
-    The starting guess uses the carbonate-borate alkalinity estimate of M13 and OE15 as 
+    The starting guess uses the carbonate-borate alkalinity estimate of M13 and OE15 as
     implemented in mocsy.
-    
-    Although it is coded for H on the total pH scale, for the pH values occuring in 
-    seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as 
+
+    Although it is coded for H on the total pH scale, for the pH values occuring in
+    seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as
     long as the K Constants are on that scale.
 
     Based on CalculatepHfromTATC, version 04.01, 10-13-96, by Ernie Lewis.
@@ -627,7 +627,7 @@ def fCO2frompHCarb(pH, CARB, K0, K1, K2):
 
 def TCfrompHHCO3(pH, HCO3, K1, K2):
     """Calculate dissolved inorganic carbon from pH and bicarbonate ion.
-    
+
     Follows ZW01 Appendix B (6).
     """
     H = 10.0 ** -pH
@@ -649,13 +649,13 @@ def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
 
 def pHfromTCHCO3(TC, HCO3, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
-    
+
     Follows ZW01 Appendix B (12).
     """
     a = HCO3 / K1
     b = HCO3 - TC
     c = HCO3 * K2
-    H = (-b - sqrt(b ** 2 - 4 * a * c)) / (2 * a)  # ZW01 Appendix B (12)
+    H = (-b - sqrt(b ** 2 - 4 * a * c)) / (2 * a)
     return -log10(H)
 
 
