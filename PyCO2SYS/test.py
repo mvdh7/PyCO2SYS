@@ -40,17 +40,35 @@ def _rr_parcombos(par1type, par2type):
 
 
 def roundrobin(
-    par1, par2, par1type, par2type, sal, temp, pres, si, phos, pHscale, k1k2, kso4
+    par1,
+    par2,
+    par1type,
+    par2type,
+    sal,
+    temp,
+    pres,
+    si,
+    phos,
+    pHscale,
+    k1k2,
+    kso4,
+    **kwargs
 ):
     """Solve the core marine carbonate system from given input parameters, then solve
     again from the results using every other possible combination of input pairs.
     """
+    # Check all inputs are scalar
+    nonscalar_message = "All inputs must be scalar."
     assert all(
-        [isscalar(local) for local in locals().values()]
-    ), "All inputs must be scalar."
+        [isscalar(v) for k, v in locals().items() if k != "kwargs"]
+    ), nonscalar_message
+    if "kwargs" in locals().keys():
+        assert all(
+            [isscalar(v) for k, v in locals()["kwargs"].items()]
+        ), nonscalar_message
     # Solve the MCS using the initial input pair
     args = (sal, temp, temp, pres, pres, si, phos, pHscale, k1k2, kso4)
-    res0 = engine.CO2SYS(par1, par2, par1type, par2type, *args)
+    res0 = engine.CO2SYS(par1, par2, par1type, par2type, *args, **kwargs)
     # Extract the core variables
     res0core = hstack([res0[_partypes[i]] for i in range(1, 9)])
     # Generate new inputs, all combinations
@@ -58,7 +76,7 @@ def roundrobin(
     par1s = res0core[par1types - 1]
     par2s = res0core[par2types - 1]
     # Solve the MCS again but from all combinations
-    res = engine.CO2SYS(par1s, par2s, par1types, par2types, *args)
+    res = engine.CO2SYS(par1s, par2s, par1types, par2types, *args, **kwargs)
     # Calculate differences from original to aid comparisons
     nodiffs = [
         "PAR1TYPE",
