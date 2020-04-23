@@ -32,7 +32,9 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
 
-    * Implemented better initial guess for pH in `solve.pHfromTATC` following [M13](../refs/#m) and [OE15](../refs/#o) and equivalent first guesses for all other functions to solve pH from alkalinity.
+    * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
+
+    * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.
 
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
 
