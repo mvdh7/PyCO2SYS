@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Solve the marine carbonate system and calculate related seawater properties."""
+
 from . import (
     buffers,
     constants,
@@ -44,10 +45,8 @@ __all__ = [
     "solve",
     "test",
 ]
-
 __author__ = meta.authors
 __version__ = meta.version
-
 
 # Alias for top-level access
 CO2SYS = engine.CO2SYS

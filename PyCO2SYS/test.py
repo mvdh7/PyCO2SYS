@@ -1,8 +1,9 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"""Test the internal consistency of PyCO2SYS and compare its results with those
-from other software tools.
+"""Test the internal consistency of PyCO2SYS and compare its results with those from 
+other software tools.
 """
+
 from autograd.numpy import hstack, isin, isscalar, meshgrid
 from . import engine
 
@@ -22,7 +23,8 @@ _partypes = {
 
 def _rr_parcombos(par1type, par2type):
     """Generate all possible valid pairs of parameter type numbers excluding the input
-    pair."""
+    pair.
+    """
     assert isscalar(par1type) & isscalar(par2type), "Both inputs must be scalar."
     # Get all possible combinations of parameter type numbers
     allpars = list(_partypes.keys())

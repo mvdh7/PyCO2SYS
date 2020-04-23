@@ -28,7 +28,7 @@ varout = whoop(varin)
 # derivative_fn = grad(sum_logistic)
 # print(derivative_fn(x_small))
 
-npts = 10000
+npts = 100000
 Sal = onp.full(npts, 32.3)
 WhichKs = onp.full(npts, 10)
 WhoseTB = onp.full(npts, 2)

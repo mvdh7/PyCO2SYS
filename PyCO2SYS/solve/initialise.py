@@ -1,6 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Estimate initial pH values for iterative TA equation solvers."""
+
 from autograd.numpy import errstate, log10, sqrt, where
 
 
