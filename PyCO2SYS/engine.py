@@ -41,9 +41,10 @@ def inputs(input_locals):
     return args, ntps
 
 
-def pair2core(par1, par2, par1type, par2type):
+def pair2core(par1, par2, par1type, par2type, convertunits):
     """Expand `par1` and `par2` inputs into one array per core variable of the marine 
-    carbonate system.
+    carbonate system and convert units from microX to X if requested with the input
+    logical `convertunits`.
     """
     assert (
         size(par1) == size(par2) == size(par1type) == size(par2type)
@@ -58,23 +59,28 @@ def pair2core(par1, par2, par1type, par2type):
     CARB = full(ntps, nan)  # carbonate ions
     HCO3 = full(ntps, nan)  # bicarbonate ions
     CO2 = full(ntps, nan)  # aqueous CO2
-    # Assign values to empty vectors and convert micro[mol|atm] to [mol|atm]
-    TA = where(par1type == 1, par1 * 1e-6, TA)
-    TC = where(par1type == 2, par1 * 1e-6, TC)
+    # Assign values to empty vectors & convert micro[mol|atm] to [mol|atm] if requested
+    assert type(convertunits) == bool, "`convertunits` must be `True` or `False`."
+    if convertunits:
+        cfac = 1e-6
+    else:
+        cfac = 1.0
+    TA = where(par1type == 1, par1 * cfac, TA)
+    TC = where(par1type == 2, par1 * cfac, TC)
     PH = where(par1type == 3, par1, PH)
-    PC = where(par1type == 4, par1 * 1e-6, PC)
-    FC = where(par1type == 5, par1 * 1e-6, FC)
-    CARB = where(par1type == 6, par1 * 1e-6, CARB)
-    HCO3 = where(par1type == 7, par1 * 1e-6, HCO3)
-    CO2 = where(par1type == 8, par1 * 1e-6, CO2)
-    TA = where(par2type == 1, par2 * 1e-6, TA)
-    TC = where(par2type == 2, par2 * 1e-6, TC)
+    PC = where(par1type == 4, par1 * cfac, PC)
+    FC = where(par1type == 5, par1 * cfac, FC)
+    CARB = where(par1type == 6, par1 * cfac, CARB)
+    HCO3 = where(par1type == 7, par1 * cfac, HCO3)
+    CO2 = where(par1type == 8, par1 * cfac, CO2)
+    TA = where(par2type == 1, par2 * cfac, TA)
+    TC = where(par2type == 2, par2 * cfac, TC)
     PH = where(par2type == 3, par2, PH)
-    PC = where(par2type == 4, par2 * 1e-6, PC)
-    FC = where(par2type == 5, par2 * 1e-6, FC)
-    CARB = where(par2type == 6, par2 * 1e-6, CARB)
-    HCO3 = where(par2type == 7, par2 * 1e-6, HCO3)
-    CO2 = where(par2type == 8, par2 * 1e-6, CO2)
+    PC = where(par2type == 4, par2 * cfac, PC)
+    FC = where(par2type == 5, par2 * cfac, FC)
+    CARB = where(par2type == 6, par2 * cfac, CARB)
+    HCO3 = where(par2type == 7, par2 * cfac, HCO3)
+    CO2 = where(par2type == 8, par2 * cfac, CO2)
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 
@@ -127,7 +133,9 @@ def getIcase(par1type, par2type, checks=True):
     return Icase
 
 
-def solvecore(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
+def solvecore(
+    par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks, convertunits
+):
     """Solve the core marine carbonate system (MCS) from any 2 of its variables.
     
     The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
@@ -140,9 +148,14 @@ def solvecore(par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks):
       * Type `6`, `CARB`: carbonate ion in mol/kg-sw.
       * Type `7`, `HCO3`: bicarbonate ion in mol/kg-sw.
       * Type `8`, `CO2`: aqueous CO2 in mol/kg-sw.
+      
+    The input `convertunits` specifies whether the inputs `par1` and `par2` are in
+    micro-mol/kg and micro-atm units (`True`) or mol/kg and atm units (`False`).
     """
     # Expand inputs `par1` and `par2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pair2core(par1, par2, par1type, par2type)
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pair2core(
+        par1, par2, par1type, par2type, convertunits
+    )
     # Generate vector describing the combination(s) of input parameters
     Icase = getIcase(par1type, par2type)
     # Solve the core marine carbonate system
@@ -211,7 +224,7 @@ def _CO2SYS(
     )
     # Solve the core marine carbonate system at input conditions
     core_in = solvecore(
-        PAR1, PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis
+        PAR1, PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis, True,
     )
     # Calculate all other results at input conditions
     others_in = solve.others(
@@ -245,6 +258,7 @@ def _CO2SYS(
         K0o,
         FugFaco,
         Kos,
+        False,
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
