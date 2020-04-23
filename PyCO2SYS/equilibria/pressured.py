@@ -91,7 +91,7 @@ def KP(TempK, Sal, Pbar, WhichKs, fH):
         # contributions from phosphate or silicate.
         KP1 = where(F, 0.0, KP1)
         KP2 = where(F, 0.0, KP2)
-        KP2 = where(F, 0.0, KP2)
+        KP3 = where(F, 0.0, KP3)
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
     if any(F):
         KP1_YM95, KP2_YM95, KP3_YM95 = p1atm.kH3PO4_SWS_YM95(TempK, Sal)
