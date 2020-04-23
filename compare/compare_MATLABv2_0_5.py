@@ -1,44 +1,28 @@
-import numpy as np
-from scipy.io import loadmat
-from PyCO2SYS.original import CO2SYS as CO2SYSo
-from PyCO2SYS import CO2SYS
 from time import time
+import pandas as pd
+import PyCO2SYS as pyco2
 
-# Import input conditions: "MATLAB_CO2SYSv2_0_5.mat" was generated in MATLAB
-# using the script "compare_MATLABv2_0_5.m".
-matfile = loadmat('data/MATLAB_CO2SYSv2_0_5.mat')['co2s']
-(P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout, phos, si,
-    pHscales, K1K2, KSO4) = [matfile[var][0][0] for var in ['PAR1', 'PAR2',
-    'PAR1TYPE', 'PAR2TYPE', 'SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT',
-    'PO4', 'SI', 'pHSCALEIN', 'K1K2CONSTANTS', 'KSO4CONSTANTS']]
-co2inputs = [P1, P2, P1type, P2type, sal, tempin, tempout, presin, presout,
-             si, phos, pHscales, K1K2, KSO4]
-# # Just do one row (for Python vs Python, breaks MATLAB comparison)
-# co2inputs = [inp[0] for inp in co2inputs]
+# Import input conditions: "compare_MATLABv2_0_5.csv" was generated in MATLAB
+# using "compare_MATLABv2_0_5.m".
+co2matlab = pd.read_csv('compare/data/compare_MATLABv2_0_5.csv')
 
-# Run CO2SYS in Python
+# Run PyCO2SYS.CO2SYS under the same conditions
+co2inputs = [co2matlab[var].values for var in ['PAR1', 'PAR2', 'PAR1TYPE', 'PAR2TYPE',
+    'SAL', 'TEMPIN', 'TEMPOUT', 'PRESIN', 'PRESOUT', 'SI', 'PO4', 'pHSCALEIN',
+    'K1K2CONSTANTS', 'KSO4CONSTANTS']]
 go = time()
-co2py = CO2SYS(*co2inputs)
-print('PyCO2SYS          runtime = {:.6f} s'.format(time() - go))
-if np.shape(co2py) == (4,):
-    co2py = co2py[0]
-# Also test the 'original' CO2SYS conversion
+co2py = pyco2.CO2SYS(*co2inputs)
+print('PyCO2SYS runtime = {:.6f} s'.format(time() - go))
+co2py = pd.DataFrame(co2py)
+
+# Also test the original CO2SYS clone
 go = time()
-co2pyo = CO2SYSo(*co2inputs)[0]
+DATA, HEADERS, _ = pyco2.original.CO2SYS(*co2inputs)
 print('PyCO2SYS.original runtime = {:.6f} s'.format(time() - go))
+co2pyo = pd.DataFrame({header: DATA[:, h] for h, header in enumerate(HEADERS)})
 
-# Prepare MATLAB results to compare
-pyvars = ['NH3Alkin', 'NH3Alkout', 'H2SAlkin', 'H2SAlkout', 'KSO4CONSTANT',
-          'KFCONSTANT', 'BORON', 'NH3', 'H2S', 'KNH3input', 'KNH3output',
-          'KH2Sinput', 'KH2Soutput']
-co2mat = {var: matfile[var][0][0].ravel() for var in co2py.keys()
-          if var not in pyvars}
-# Differences between PyCO2SYS and MATLAB v2.0.5
-co2diff = {var: co2py[var] - co2mat[var] for var in co2mat.keys()}
-co2maxdiff = {var: np.max(np.abs(co2diff[var])) for var in co2mat.keys()}
-# Differences between PyCO2SYS.original and MATLAB v2.0.5
-co2diffo = {var: co2pyo[var] - co2mat[var] for var in co2mat.keys()}
-co2maxdiffo = {var: np.max(np.abs(co2diffo[var])) for var in co2mat.keys()}
-# Differences between PyCO2SYS and PyCO2SYS.original
-pyco2diff = {var: co2py[var] - co2pyo[var] for var in co2mat.keys()}
-pyco2maxdiff = {var: np.max(np.abs(pyco2diff[var])) for var in co2mat.keys()}
+# Compare the results
+cvars = list(co2matlab.keys())
+co2py_pyo = co2py.subtract(co2pyo)
+co2py_matlab = co2py.subtract(co2matlab)
+co2pyo_matlab = co2pyo.subtract(co2matlab)
