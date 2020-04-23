@@ -15,7 +15,7 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
     PCgiven = isin(Icase, [14, 24, 34, 46, 47])
     FC = where(PCgiven, PC * FugFac, FC)
     CO2given = isin(Icase, [18, 28, 38, 68, 78])
-    FC = where(CO2given, CO2 * FugFac / K0, FC)
+    FC = where(CO2given, CO2 / K0, FC)
     # For convenience
     K1 = Ks["K1"]
     K2 = Ks["K2"]
@@ -114,7 +114,7 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
     PC = where(~PCgiven, FC / FugFac, PC)
-    CO2 = where(~CO2given, FC * K0 / FugFac, CO2)
+    CO2 = where(~CO2given, FC * K0, CO2)
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 
