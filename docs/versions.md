@@ -26,6 +26,8 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
 
+    * Module `test` added with functions to perform internal consistency checks on `PyCO2SYS.CO2SYS` calculations and compare results with those from other sources.
+
     ***Improved calculations***
 
     * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
