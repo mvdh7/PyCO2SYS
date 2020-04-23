@@ -7,7 +7,7 @@ from autograd.numpy import any as np_any
 from .. import convert
 from . import initialise
 
-pHTol = 1e-6  # set tolerance for ending iterations in all pH solvers
+pHTol = 1e-8  # set tolerance for ending iterations in all pH solvers
 
 
 def CarbfromTCH(TC, H, K1, K2):
@@ -130,7 +130,8 @@ def pHfromTATC(
     deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    while np_any(np_abs(deltapH) > pHTol):
+    while np_any(np_abs(deltapH) >= pHTol):
+        pHdone = np_abs(deltapH) < pHTol
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
             pH,
             TC,
@@ -188,7 +189,7 @@ def pHfromTATC(
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH + deltapH, pH)
+        pH = where(pHdone, pH, pH + deltapH)
         # ^pH is on the same scale as K1 and K2 were calculated.
     return pH
 
@@ -234,6 +235,7 @@ def pHfromTAfCO2(
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):
+        pHdone = np_abs(deltapH) < pHTol
         H = 10.0 ** -pH
         HCO3 = K0 * K1 * fCO2 / H
         CO3 = K0 * K1 * K2 * fCO2 / H ** 2
@@ -276,7 +278,7 @@ def pHfromTAfCO2(
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH + deltapH, pH)
+        pH = where(pHdone, pH, pH + deltapH)
     return pH
 
 
@@ -320,6 +322,7 @@ def pHfromTACarb(
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     while np_any(np_abs(deltapH) > pHTol):
+        pHdone = np_abs(deltapH) < pHTol
         H = 10.0 ** -pH
         CAlk = CARB * (H + 2 * K2) / K2
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
@@ -360,7 +363,7 @@ def pHfromTACarb(
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH + deltapH, pH)
+        pH = where(pHdone, pH, pH + deltapH)
     return pH
 
 
@@ -401,7 +404,8 @@ def pHfromTAHCO3(
     deltapH = 1.0 + pHTol
     ln10 = log(10)
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    while np_any(np_abs(deltapH) > pHTol):
+    while np_any(np_abs(deltapH) >= pHTol):
+        pHdone = np_abs(deltapH) < pHTol
         H = 10.0 ** -pH
         CAlk = HCO3 * (1 + 2 * K2 / H)
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
@@ -442,7 +446,7 @@ def pHfromTAHCO3(
         # This approach avoids the problem of reaching a different
         # answer for a given set of input conditions depending on how many
         # iterations the other input rows take to solve. // MPH
-        pH = where(np_abs(deltapH) > pHTol, pH + deltapH, pH)
+        pH = where(pHdone, pH, pH + deltapH)
     return pH
 
 
