@@ -39,25 +39,25 @@ def AlkParts(
     pH,
     TC,
     FREEtoTOT,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
+    K1=1.0,
+    K2=1.0,
+    KW=1.0,
+    KB=1.0,
+    KF=1.0,
+    KSO4=1.0,
+    KP1=1.0,
+    KP2=1.0,
+    KP3=1.0,
+    KSi=1.0,
+    KNH3=1.0,
+    KH2S=0.0,
+    TB=0.0,
+    TF=0.0,
+    TSO4=0.0,
+    TPO4=0.0,
+    TSi=0.0,
+    TNH3=0.0,
+    TH2S=0.0,
 ):
     """Calculate the different components of total alkalinity from pH and dissolved
     inorganic carbon.
@@ -88,29 +88,7 @@ def AlkParts(
 
 
 @errstate(invalid="ignore")
-def pHfromTATC(
-    TA,
-    TC,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def pHfromTATC(TA, TC, Ks, totals):
     """Calculate pH from total alkalinity and dissolved inorganic carbon.
 
     This calculates pH from TA and TC using K1 and K2 by Newton's method.
@@ -126,6 +104,14 @@ def pHfromTATC(
     SVH2007: Made this to accept vectors. It will continue iterating until all values in
     the vector are "abs(deltapH) < pHTol".
     """
+    # Relabel for convenience
+    TB = totals["TB"]
+    TSO4 = totals["TSO4"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    KB = Ks["KB"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     pH = initialise.fromTC(TA, TC, TB, K1, K2, KB)  # first guess, added v1.3.0
     deltapH = 1.0 + pHTol
     ln10 = log(10)
@@ -133,28 +119,7 @@ def pHfromTATC(
     while np_any(np_abs(deltapH) >= pHTol):
         pHdone = np_abs(deltapH) < pHTol
         HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH,
-            TC,
-            FREEtoTOT,
-            K1,
-            K2,
-            KW,
-            KB,
-            KF,
-            KSO4,
-            KP1,
-            KP2,
-            KP3,
-            KSi,
-            KNH3,
-            KH2S,
-            TB,
-            TF,
-            TSO4,
-            TPO4,
-            TSi,
-            TNH3,
-            TH2S,
+            pH, TC, FREEtoTOT, **Ks, **totals
         )
         CAlk = HCO3 + 2 * CO3
         H = 10.0 ** -pH
@@ -195,30 +160,7 @@ def pHfromTATC(
 
 
 @errstate(invalid="ignore")
-def pHfromTAfCO2(
-    TA,
-    fCO2,
-    K0,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def pHfromTAfCO2(TA, fCO2, K0, Ks, totals):
     """Calculate pH from total alkalinity and CO2 fugacity.
 
     This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
@@ -230,6 +172,14 @@ def pHfromTAfCO2(
 
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
+    # Relabel for convenience
+    TB = totals["TB"]
+    TSO4 = totals["TSO4"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    KB = Ks["KB"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     pH = initialise.fromCO2(TA, K0 * fCO2, TB, K1, K2, KB)  # first guess, added v1.3.0
     deltapH = 1.0 + pHTol
     ln10 = log(10)
@@ -241,28 +191,7 @@ def pHfromTAfCO2(
         CO3 = K0 * K1 * K2 * fCO2 / H ** 2
         CAlk = HCO3 + 2 * CO3
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH,
-            0.0,
-            FREEtoTOT,
-            K1,
-            K2,
-            KW,
-            KB,
-            KF,
-            KSO4,
-            KP1,
-            KP2,
-            KP3,
-            KSi,
-            KNH3,
-            KH2S,
-            TB,
-            TF,
-            TSO4,
-            TPO4,
-            TSi,
-            TNH3,
-            TH2S,
+            pH, 0.0, FREEtoTOT, **Ks, **totals
         )
         Residual = (
             TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
@@ -283,29 +212,7 @@ def pHfromTAfCO2(
 
 
 @errstate(invalid="ignore")
-def pHfromTACarb(
-    TA,
-    CARB,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def pHfromTACarb(TA, CARB, Ks, totals):
     """Calculate pH from total alkalinity and carbonate ion.
 
     This calculates pH from TA and Carb using K1 and K2 by Newton's method.
@@ -317,6 +224,14 @@ def pHfromTACarb(
 
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
+    # Relabel for convenience
+    TB = totals["TB"]
+    TSO4 = totals["TSO4"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    KB = Ks["KB"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     pH = initialise.fromCO3(TA, CARB, TB, K1, K2, KB)  # first guess
     deltapH = 1.0 + pHTol
     ln10 = log(10)
@@ -326,28 +241,7 @@ def pHfromTACarb(
         H = 10.0 ** -pH
         CAlk = CARB * (H + 2 * K2) / K2
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH,
-            0.0,
-            FREEtoTOT,
-            K1,
-            K2,
-            KW,
-            KB,
-            KF,
-            KSO4,
-            KP1,
-            KP2,
-            KP3,
-            KSi,
-            KNH3,
-            KH2S,
-            TB,
-            TF,
-            TSO4,
-            TPO4,
-            TSi,
-            TNH3,
-            TH2S,
+            pH, 0.0, FREEtoTOT, **Ks, **totals
         )
         Residual = (
             TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
@@ -368,29 +262,7 @@ def pHfromTACarb(
 
 
 @errstate(invalid="ignore")
-def pHfromTAHCO3(
-    TA,
-    HCO3,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def pHfromTAHCO3(TA, HCO3, Ks, totals):
     """Calculate pH from total alkalinity and bicarbonate ion.
 
     This calculates pH from TA and HCO3 using K1 and K2 by Newton's method.
@@ -400,6 +272,14 @@ def pHfromTAHCO3(
     in seawater (pH > 6) it will be equally valid on any pH scale (H terms
     negligible) as long as the K constants are on that scale.
     """
+    # Relabel for convenience
+    TB = totals["TB"]
+    TSO4 = totals["TSO4"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    KB = Ks["KB"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     pH = initialise.fromHCO3(TA, HCO3, TB, K1, K2, KB)  # first guess
     deltapH = 1.0 + pHTol
     ln10 = log(10)
@@ -409,28 +289,7 @@ def pHfromTAHCO3(
         H = 10.0 ** -pH
         CAlk = HCO3 * (1 + 2 * K2 / H)
         _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-            pH,
-            0.0,
-            FREEtoTOT,
-            K1,
-            K2,
-            KW,
-            KB,
-            KF,
-            KSO4,
-            KP1,
-            KP2,
-            KP3,
-            KSi,
-            KNH3,
-            KH2S,
-            TB,
-            TF,
-            TSO4,
-            TPO4,
-            TSi,
-            TNH3,
-            TH2S,
+            pH, 0.0, FREEtoTOT, **Ks, **totals
         )
         Residual = (
             TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
@@ -459,29 +318,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
     return TC * H ** 2 / (H ** 2 + K1 * H + K1 * K2) / K0
 
 
-def TCfromTApH(
-    TA,
-    pH,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def TCfromTApH(TA, pH, Ks, totals):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
     This calculates TC from TA and pH.
@@ -491,60 +328,23 @@ def TCfromTApH(
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
+    # Relabel for convenience
+    TSO4 = totals["TSO4"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     H = 10.0 ** -pH
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-        pH,
-        0.0,
-        FREEtoTOT,
-        K1,
-        K2,
-        KW,
-        KB,
-        KF,
-        KSO4,
-        KP1,
-        KP2,
-        KP3,
-        KSi,
-        KNH3,
-        KH2S,
-        TB,
-        TF,
-        TSO4,
-        TPO4,
-        TSi,
-        TNH3,
-        TH2S,
+        pH, 0.0, FREEtoTOT, **Ks, **totals
     )
     CAlk = TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
     TC = CAlk * (H ** 2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
     return TC
 
 
-def TAfromTCpH(
-    TC,
-    pH,
-    K1,
-    K2,
-    KW,
-    KB,
-    KF,
-    KSO4,
-    KP1,
-    KP2,
-    KP3,
-    KSi,
-    KNH3,
-    KH2S,
-    TB,
-    TF,
-    TSO4,
-    TPO4,
-    TSi,
-    TNH3,
-    TH2S,
-):
+def TAfromTCpH(TC, pH, Ks, totals):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -554,30 +354,13 @@ def TAfromTCpH(
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
+    # Relabel for convenience
+    TSO4 = totals["TSO4"]
+    KSO4 = Ks["KSO4"]
+    # Solve
     FREEtoTOT = convert.free2tot(TSO4, KSO4)
     HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-        pH,
-        TC,
-        FREEtoTOT,
-        K1,
-        K2,
-        KW,
-        KB,
-        KF,
-        KSO4,
-        KP1,
-        KP2,
-        KP3,
-        KSi,
-        KNH3,
-        KH2S,
-        TB,
-        TF,
-        TSO4,
-        TPO4,
-        TSi,
-        TNH3,
-        TH2S,
+        pH, TC, FREEtoTOT, **Ks, **totals
     )
     CAlk = HCO3 + 2 * CO3
     TAc = CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree - HSO4 - HF

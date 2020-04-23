@@ -22,95 +22,95 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
     if any(F):
-        PH = where(F, get.pHfromTATC(TA - PengCx, TC, **Ks, **totals), PH)
+        PH = where(F, get.pHfromTATC(TA - PengCx, TC, Ks, totals), PH)
         # ^pH is returned on the same scale as `Ks`
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 13  # input TA, pH
     if any(F):
-        TC = where(F, get.TCfromTApH(TA - PengCx, PH, **Ks, **totals), TC)
+        TC = where(F, get.TCfromTApH(TA - PengCx, PH, Ks, totals), TC)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = (Icase == 14) | (Icase == 15) | (Icase == 18)  # input TA, [pCO2|fCO2|CO2aq]
     if any(F):
-        PH = where(F, get.pHfromTAfCO2(TA - PengCx, FC, K0, **Ks, **totals), PH)
-        TC = where(F, get.TCfromTApH(TA - PengCx, PH, **Ks, **totals), TC)
+        PH = where(F, get.pHfromTAfCO2(TA - PengCx, FC, K0, Ks, totals), PH)
+        TC = where(F, get.TCfromTApH(TA - PengCx, PH, Ks, totals), TC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 16  # input TA, CARB
     if any(F):
-        PH = where(F, get.pHfromTACarb(TA - PengCx, CARB, **Ks, **totals), PH)
-        TC = where(F, get.TCfromTApH(TA - PengCx, PH, **Ks, **totals), TC)
+        PH = where(F, get.pHfromTACarb(TA - PengCx, CARB, Ks, totals), PH)
+        TC = where(F, get.TCfromTApH(TA - PengCx, PH, Ks, totals), TC)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 17  # input TA, HCO3
     if any(F):
-        PH = where(F, get.pHfromTAHCO3(TA - PengCx, HCO3, **Ks, **totals), PH)
-        TC = where(F, get.TCfromTApH(TA - PengCx, PH, **Ks, **totals), TC)
+        PH = where(F, get.pHfromTAHCO3(TA - PengCx, HCO3, Ks, totals), PH)
+        TC = where(F, get.TCfromTApH(TA - PengCx, PH, Ks, totals), TC)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = Icase == 23  # input TC, pH
     if any(F):
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = (Icase == 24) | (Icase == 25) | (Icase == 28)  # input TC, [pCO2|fCO2|CO2aq]
     if any(F):
         PH = where(F, get.pHfromTCfCO2(TC, FC, K0, K1, K2), PH)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 26  # input TC, CARB
     if any(F):
         PH = where(F, get.pHfromTCCarb(TC, CARB, K1, K2), PH)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 27  # input TC, HCO3
     if any(F):
         PH = where(F, get.pHfromTCHCO3(TC, HCO3, K1, K2), PH)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = (Icase == 34) | (Icase == 35) | (Icase == 38)  # input pH, [pCO2|fCO2|CO2aq]
     if any(F):
         TC = where(F, get.TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 36  # input pH, CARB
     if any(F):
         FC = where(F, get.fCO2frompHCarb(PH, CARB, K0, K1, K2), FC)
         TC = where(F, get.TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 37  # input pH, HCO3
     if any(F):
         TC = where(F, get.TCfrompHHCO3(PH, HCO3, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         FC = where(F, get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
     F = (Icase == 46) | (Icase == 56) | (Icase == 68)  # input [pCO2|fCO2|CO2aq], CARB
     if any(F):
         PH = where(F, get.pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
         TC = where(F, get.TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = Icase == 67  # input CO3, HCO3
     if any(F):
         FC = where(F, get.fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2), FC)
         PH = where(F, get.pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
         TC = where(F, get.TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
     F = (Icase == 47) | (Icase == 57) | (Icase == 78)  # input [pCO2|fCO2|CO2aq], HCO3
     if any(F):
         CARB = where(F, get.CarbfromfCO2HCO3(FC, HCO3, K0, K1, K2), CARB)
         PH = where(F, get.pHfromfCO2Carb(FC, CARB, K0, K1, K2), PH)
         TC = where(F, get.TCfrompHfCO2(PH, FC, K0, K1, K2), TC)
-        TA = where(F, get.TAfromTCpH(TC, PH, **Ks, **totals) + PengCx, TA)
+        TA = where(F, get.TAfromTCpH(TC, PH, Ks, totals) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
     PC = where(~PCgiven, FC / FugFac, PC)
@@ -130,7 +130,7 @@ def others(
     CARB = core_solved["CARB"]
     HCO3 = core_solved["HCO3"]
     CO2 = core_solved["CO2"]
-    # pKs
+    # Calculate pKs
     pK1 = -log10(Ks["K1"])
     pK2 = -log10(Ks["K2"])
     # Components of alkalinity and DIC

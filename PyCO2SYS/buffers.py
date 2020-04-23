@@ -61,11 +61,11 @@ def RevelleFactor(TA, TC, K0, Ks, totals):
     dTC = 1e-6  # 1 umol/kg-SW
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
-    pH_plus = solve.get.pHfromTATC(TA, TC_plus, **Ks, **totals)
+    pH_plus = solve.get.pHfromTATC(TA, TC_plus, Ks, totals)
     fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, K0, Ks["K1"], Ks["K2"])
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
-    pH_minus = solve.get.pHfromTATC(TA, TC_minus, **Ks, **totals)
+    pH_minus = solve.get.pHfromTATC(TA, TC_minus, Ks, totals)
     fCO2_minus = solve.get.fCO2fromTCpH(TC_minus, pH_minus, K0, Ks["K1"], Ks["K2"])
     # Calculate Revelle Factor
     Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC_minus)
