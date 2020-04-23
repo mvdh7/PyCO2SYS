@@ -78,7 +78,7 @@ def pair2core(par1, par2, par1type, par2type):
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 
-def getIcase(par1type, par2type):
+def getIcase(par1type, par2type, checks=True):
     """Generate vector describing the combination of input parameters.
 
     Options for `par1type` and `par2type`:
@@ -105,20 +105,25 @@ def getIcase(par1type, par2type):
                         56, 57,
                             67, 68,
                                 78.
+                                
+    The optional input `checks` allows you to decide whether the function should test
+    the validity of the entered combinations or not.
     """
     # Check validity of separate `par1type` and `par2type` inputs
     Iarr = array([par1type, par2type])
-    assert np_all(
-        isin(Iarr, [1, 2, 3, 4, 5, 6, 7, 8])
-    ), "All `par1type` and `par2type` values must be integers from 1 to 8."
-    assert ~np_any(
-        par1type == par2type
-    ), "`par1type` and `par2type` must be different from each other."
+    if checks:
+        assert np_all(
+            isin(Iarr, [1, 2, 3, 4, 5, 6, 7, 8])
+        ), "All `par1type` and `par2type` values must be integers from 1 to 8."
+        assert ~np_any(
+            par1type == par2type
+        ), "`par1type` and `par2type` must be different from each other."
     # Combine inputs into `Icase` and check its validity
     Icase = 10 * np_min(Iarr, axis=0) + np_max(Iarr, axis=0)
-    assert ~np_any(
-        isin(Icase, [45, 48, 58])
-    ), "Combinations of pCO2, fCO2 and CO2(aq) are not valid input pairs."
+    if checks:
+        assert ~np_any(
+            isin(Icase, [45, 48, 58])
+        ), "Combinations of pCO2, fCO2 and CO2(aq) are not valid input pairs."
     return Icase
 
 
