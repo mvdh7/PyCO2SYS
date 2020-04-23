@@ -1,7 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
-from autograd.numpy import log, log10, nan, sqrt, where
+from autograd.numpy import errstate, log, log10, nan, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
 from .. import convert
@@ -87,6 +87,7 @@ def AlkParts(
     return HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF
 
 
+@errstate(invalid="ignore")
 def pHfromTATC(
     TA,
     TC,
@@ -192,6 +193,7 @@ def pHfromTATC(
     return pH
 
 
+@errstate(invalid="ignore")
 def pHfromTAfCO2(
     TA,
     fCO2,
@@ -278,6 +280,7 @@ def pHfromTAfCO2(
     return pH
 
 
+@errstate(invalid="ignore")
 def pHfromTACarb(
     TA,
     CARB,
@@ -361,6 +364,7 @@ def pHfromTACarb(
     return pH
 
 
+@errstate(invalid="ignore")
 def pHfromTAHCO3(
     TA,
     HCO3,
@@ -576,6 +580,7 @@ def TAfromTCpH(
     return TAc
 
 
+@errstate(invalid="ignore")
 def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
@@ -588,7 +593,7 @@ def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     RR = K0 * fCO2 / TC
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     H = 0.5 * (K1 * RR + sqrt(Discr)) / (1 - RR)
-    H[H < 0] = nan
+    H = where(H < 0, nan, H)
     pH = -log10(H)
     return pH
 
