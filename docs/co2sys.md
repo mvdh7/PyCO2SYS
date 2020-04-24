@@ -18,6 +18,26 @@ The simplest way to use PyCO2SYS is to follow the approach of previous versions 
 
 Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables. These are described in detail in the following sections.
 
+### Using the API
+A pythonic API can also be used to interface with CO2SYS. Note that the api returns a pandas DataFrame, thus you will need pandas installed to import this module. The function uses keyword
+arguments, meaning that only the specified marine carbonate system parameters have to be entered.
+
+```python
+from PyCO2SYS.api import CO2SYS_wrap as co2sys
+
+# called with defaults 
+df1 = co2sys(dic=2103, alk=2360)
+# the above is equivalent to 
+df2 = co2sys(
+    dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
+    temp_in=25, temp_out=25, pres_in=0, pres_out=0,
+    sal=34.5, si=5.5, po4=0.5, 
+    K1K2_constants=4, KSO4_constants=1, pHscale_in=1, 
+    verbose=True)
+```
+
+The api will also accept numpy arrays, pandas.Series or xarray.DataArrays as inputs. Scalar or default values will be broadcast to match the vector input. Note that output names are taken from the CO2SYS output dictionary. 
+
 ## Inputs
 
 Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here. Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
