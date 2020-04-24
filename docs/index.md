@@ -59,7 +59,11 @@ Additionally, for the MATLAB programs:
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
 
-## License
+### Contributing
+
+Suggestions for new features, bug reports and contributions to PyCO2SYS are very welcome!  Please follow the [contribution guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md).
+
+### License
 
 PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
