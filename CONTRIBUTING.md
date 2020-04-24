@@ -46,7 +46,7 @@ A very approximate plan of future additions to the code, and the person leading 
 
 ### v1.3 (release imminent)
 
-  * Package structure now Pythonised so the backend should henceforth remain more stable ([mvdh7](https://github.com/mvdh7)).
+  * Pythonise the package structure so the backend should henceforth remain more stable ([mvdh7](https://github.com/mvdh7)).
   * Add API for integration with Pandas and Xarray ([luke-gregor](https://github.com/luke-gregor))
 
 ### v1.4
@@ -59,6 +59,9 @@ A very approximate plan of future additions to the code, and the person leading 
 
 ### Non-version specific
 
-  * Add air-sea CO<sub>2</sub> calculations?
   * Integrate with [Pytzer](https://github.com/mvdh7/pytzer) ([mvdh7](https://github.com/mvdh7)).
   
+### Things that will not be added
+
+  * Air-sea CO<sub>2</sub> calculations.
+  * Alkalinity titration solvers - use e.g. [Calkulate](https://github.com/mvdh7/calkulate).
