@@ -59,7 +59,7 @@ def CO2SYS_wrap(
         4   =  Mehrbach refit by Dickson AND Millero (DEFAULT)
         5   =  Hansson and Mehrbach refit by Dickson AND Millero
         6   =  GEOSECS (i.e., original Mehrbach)
-        7   =  Peng    (i.e., originam Mehrbach but without XXX)
+        7   =  Peng    (i.e., original Mehrbach but without XXX)
         8   =  Millero, 1979, FOR PURE WATER ONLY (i.e., Sal=0)
         9   =  Cai and Wang, 1998
         10  =  Lueker et al, 2000
@@ -67,7 +67,7 @@ def CO2SYS_wrap(
         12  =  Millero et al, 2002
         13  =  Millero et al, 2006
         14  =  Millero, 2010
-        15  =  Waters, Millero, & Woosley, 2014")
+        15  =  Waters, Millero, & Woosley, 2014
     KO4_constants : int
         The constants used for phosphate calculations
         1  =  KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (DEFAULT)
@@ -76,7 +76,7 @@ def CO2SYS_wrap(
         4  =  KSO4 of Khoo et al 1977 & TB of Lee 2010
     pHscale : int
         The scale on which the input pH was determined
-        1  =  Total scale
+        1  =  Total scale  (DEFAULT)
         2  =  Seawater scale
         3  =  Free scale
         4  =  NBS scale
@@ -87,7 +87,7 @@ def CO2SYS_wrap(
     system parameters. Note that output variables are labelled as the original
     CO2SYS output names, and not the wrapper inputs.
     """
-    import numpy as np
+    from autograd import numpy as np
     import inspect
     import pandas as pd
 
@@ -198,7 +198,7 @@ def CO2SYS_wrap(
 
     # REMOVE NANS FOR EFFICIENCY
     printv("Removing nans for efficiency")
-    # in oder to save processing time on the MATLAB side, we remove all
+    # in order to save processing time on the MATLAB side, we remove all
     # the nans in the data. This will speed up things quite a bit if there
     # are a large number of nans, which may often be the case if you're
     # giving xarray datasets to the function.
