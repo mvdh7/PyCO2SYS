@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Estimate stoichiometric equilibrium constants at atmospheric pressure."""
 
-from autograd.numpy import exp, log, log10, sqrt
+from autograd.numpy import errstate, exp, log, log10, sqrt
 from .. import salts
 
 
@@ -375,6 +375,7 @@ def kH2CO3_SWS_HM_DM87(TempK, Sal):
     return K1, K2
 
 
+@errstate(divide="ignore", invalid="ignore")  # because Sal=0 gives log10(Sal)=-inf
 def kH2CO3_NBS_MCHP73(TempK, Sal):
     """Carbonic acid dissociation constants following MCHP73."""
     # === CO2SYS.m comments: =======
@@ -401,8 +402,7 @@ def kH2CO3_NBS_MCHP73(TempK, Sal):
         - 8.0944e-4 * Sal * TempK
         - 5617.11 * log10(Sal) / TempK
         + 2.136 * Sal / TempK
-    )
-    # pK2 is not defined for Sal=0, since log10(0)=-inf
+    )  # pK2 is not defined for Sal=0, since log10(0)=-inf
     K2 = 10.0 ** -pK2  # this is on the NBS scale
     return K1, K2
 
