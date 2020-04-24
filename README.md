@@ -55,7 +55,7 @@ Each field in the output `CO2dict` corresponds to a column in the original MATLA
 
 For a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).
 
-You can also look at the [example scripts](examples) here in the repo.
+You can also look at the [example scripts](examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
 <<<<<<< HEAD
 ## Citation

@@ -28,9 +28,9 @@ varout = whoop(varin)
 # derivative_fn = grad(sum_logistic)
 # print(derivative_fn(x_small))
 
-npts = 10000
+npts = 1000
 Sal = onp.full(npts, 32.3)
-WhichKs = onp.full(npts, 10)
+WhichKs = onp.full(npts, 8)
 WhoseTB = onp.full(npts, 2)
 TempC = onp.full(npts, 25.)
 Pdbar = onp.full(npts, 5000.)
@@ -44,6 +44,20 @@ TH2S = onp.full(npts, 1e-6)
 TA = onp.full(npts, 2300e-6)
 TC = onp.full(npts, 2000e-6)
 
+totals = pyco2.salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)[-1]
+_, FugFac, _, Ks = pyco2.equilibria.assemble(TempC, Pdbar, Sal, totals, pHScale,
+                          WhichKs, WhoseKSO4, WhoseKF)
+
+
+caniph = np.array([8.0])
+canidic = np.array([2100e-6])
+FREEtoTOT = pyco2.convert.free2tot(totals["TSO4"], Ks["KSO4"])
+cani = pyco2.solve.get.TAfromTCpH(canidic, caniph, Ks, totals)
+
+alkparts = pyco2.solve.get.AlkParts(caniph, canidic, FREEtoTOT, **Ks, **totals)
+HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = alkparts
+
+#%%
 # TB, TF, TS = pyco2.assemble.concentrations(Sal, WhichKs, WhoseTB)
 # K0, K1, K2, KW, KB, KF, KS, KP1, KP2, KP3, KSi, KNH3, KH2S, fH = \
 #     pyco2.assemble.equilibria(TempC, Pdbar, pHScale, WhichKs, WhoseKSO4,

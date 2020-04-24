@@ -1,9 +1,11 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Estimate initial pH values for iterative TA equation solvers."""
-from autograd.numpy import log10, sqrt, where
+
+from autograd.numpy import errstate, log10, sqrt, where
 
 
+@errstate(invalid="ignore")
 def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with fCO2 as the second variable, assuming
     that CBAlk is within a suitable range.
@@ -25,6 +27,7 @@ def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     return H0
 
 
+@errstate(invalid="ignore")
 def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with fCO2 as the second variable.
     
@@ -38,6 +41,7 @@ def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
     return -log10(H0)
 
 
+@errstate(invalid="ignore")
 def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with TC as the second variable, assuming that
     CBAlk is within a suitable range.
@@ -59,6 +63,7 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     return H0
 
 
+@errstate(invalid="ignore")
 def fromTC(CBAlk, TC, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with TC as the second variable.
     
@@ -89,6 +94,7 @@ def _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB):
     return H0
 
 
+@errstate(invalid="ignore")
 def fromCO3(CBAlk, CARB, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with carbonate ion as the second variable.
     
@@ -115,6 +121,7 @@ def _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
     return H0
 
 
+@errstate(invalid="ignore")
 def fromHCO3(CBAlk, HCO3, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with bicarbonate ion as the second variable.
     
