@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Alternative APIs for executing the main CO2SYS function."""
 
-from . import CO2SYS
+from .engine import CO2SYS
 
 
 def CO2SYS_wrap(
@@ -24,7 +24,7 @@ def CO2SYS_wrap(
     verbose=True,
 ):
     """
-    A pythonic api for PyCO2SYS that contains defaults and accepts/returns
+    A Pythonic API for PyCO2SYS that contains defaults and accepts/returns
     numpy.ndarrays, pandas.Series, xarray.DataArrays as inputs.
 
     Parameters
@@ -85,7 +85,7 @@ def CO2SYS_wrap(
     -------
     pd.DataFrame or xr.Dataset containing the fully solved marine carbonate
     system parameters. Note that output variables are labelled as the original
-    CO2SYS output names, and not the wrapper inputs
+    CO2SYS output names, and not the wrapper inputs.
     """
     import numpy as np
     import inspect
