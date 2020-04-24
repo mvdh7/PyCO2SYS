@@ -37,8 +37,8 @@ def HCO3fromTCpH(TC, pH, K1, K2):
 
 
 def AlkParts(
-    pH,
     TC,
+    pH,
     FREEtoTOT,
     K1=1.0,
     K2=1.0,
@@ -60,8 +60,8 @@ def AlkParts(
     TNH3=0.0,
     TH2S=0.0,
 ):
-    """Calculate the different components of total alkalinity from pH and dissolved
-    inorganic carbon.
+    """Calculate the different components of total alkalinity from dissolved inorganic 
+    carbon and pH.
 
     Although coded for H on the Total pH scale, for the pH values occuring in seawater
     (pH > 6) this will be equally valid on any pH scale (i.e. H terms are negligible) as
@@ -85,7 +85,84 @@ def AlkParts(
     Hfree = H / FREEtoTOT  # for H on the Total scale
     HSO4 = TSO4 / (1 + KSO4 / Hfree)  # since KSO4 is on the Free scale
     HF = TF / (1 + KF / Hfree)  # since KF is on the Free scale
-    return HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF
+    return {
+        "HCO3": HCO3,
+        "CO3": CO3,
+        "BAlk": BAlk,
+        "OH": OH,
+        "PAlk": PAlk,
+        "SiAlk": SiAlk,
+        "NH3Alk": NH3Alk,
+        "H2SAlk": H2SAlk,
+        "Hfree": Hfree,
+        "HSO4": HSO4,
+        "HF": HF,
+    }
+
+
+def TAfromTCpH(TC, pH, Ks, totals):
+    """Calculate total alkalinity from dissolved inorganic carbon and pH.
+
+    This calculates TA from TC and pH.
+    Though it is coded for H on the total pH scale, for the pH values occuring
+    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
+    negligible) as long as the K Constants are on that scale.
+
+    Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
+    """
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
+    alks = AlkParts(TC, pH, FREEtoTOT, **Ks, **totals)
+    TA = (
+        alks["HCO3"]
+        + 2 * alks["CO3"]
+        + alks["BAlk"]
+        + alks["OH"]
+        + alks["PAlk"]
+        + alks["SiAlk"]
+        + alks["NH3Alk"]
+        + alks["H2SAlk"]
+        - alks["Hfree"]
+        - alks["HSO4"]
+        - alks["HF"]
+    )
+    return TA
+
+
+def TAfrompHfCO2(pH, fCO2, K0, Ks, totals):
+    """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
+    TC = TCfrompHfCO2(pH, fCO2, K0, Ks["K1"], Ks["K2"])
+    return TAfromTCpH(TC, pH, Ks, totals)
+
+
+def TCfrompHHCO3(pH, HCO3, K1, K2):
+    """Calculate dissolved inorganic carbon from pH and bicarbonate ion.
+
+    Follows ZW01 Appendix B (6).
+    """
+    H = 10.0 ** -pH
+    return HCO3 * (1 + H / K1 + K2 / H)
+
+
+def TCfrompHCarb(pH, CARB, K1, K2):
+    """Calculate dissolved inorganic carbon from pH and carbonate ion.
+
+    Follows ZW01 Appendix B (7).
+    """
+    H = 10.0 ** -pH
+    return CARB * (1 + H / K2 + H ** 2 / (K1 * K2))
+
+
+def TAfrompHCarb(pH, CARB, Ks, totals):
+    """Calculate total alkalinity from dissolved inorganic carbon and carbonate ion."""
+    TC = TCfrompHCarb(pH, CARB, Ks["K1"], Ks["K2"])
+    return TAfromTCpH(TC, pH, Ks, totals)
+
+
+def TAfrompHHCO3(pH, HCO3, Ks, totals):
+    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion.
+    """
+    TC = TCfrompHHCO3(pH, HCO3, Ks["K1"], Ks["K2"])
+    return TAfromTCpH(TC, pH, Ks, totals)
 
 
 @errstate(invalid="ignore")
@@ -215,43 +292,12 @@ def TCfromTApH(TA, pH, Ks, totals):
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
-    # Relabel for convenience
-    TSO4 = totals["TSO4"]
+    CAlk = TA - TAfromTCpH(0.0, pH, Ks, totals)
     K1 = Ks["K1"]
     K2 = Ks["K2"]
-    KSO4 = Ks["KSO4"]
-    # Solve
     H = 10.0 ** -pH
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-        pH, 0.0, FREEtoTOT, **Ks, **totals
-    )
-    CAlk = TA - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
     TC = CAlk * (H ** 2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
     return TC
-
-
-def TAfromTCpH(TC, pH, Ks, totals):
-    """Calculate total alkalinity from dissolved inorganic carbon and pH.
-
-    This calculates TA from TC and pH.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
-    """
-    # Relabel for convenience
-    TSO4 = totals["TSO4"]
-    KSO4 = Ks["KSO4"]
-    # Solve
-    FREEtoTOT = convert.free2tot(TSO4, KSO4)
-    HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = AlkParts(
-        pH, TC, FREEtoTOT, **Ks, **totals
-    )
-    CAlk = HCO3 + 2 * CO3
-    TAc = CAlk + BAlk + OH + PAlk + SiAlk + NH3Alk + H2SAlk - Hfree - HSO4 - HF
-    return TAc
 
 
 @errstate(invalid="ignore")
@@ -302,15 +348,6 @@ def fCO2frompHCarb(pH, CARB, K0, K1, K2):
     """
     H = 10.0 ** -pH
     return CARB * H ** 2 / (K0 * K1 * K2)
-
-
-def TCfrompHHCO3(pH, HCO3, K1, K2):
-    """Calculate dissolved inorganic carbon from pH and bicarbonate ion.
-
-    Follows ZW01 Appendix B (6).
-    """
-    H = 10.0 ** -pH
-    return HCO3 * (1 + H / K1 + K2 / H)
 
 
 def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):

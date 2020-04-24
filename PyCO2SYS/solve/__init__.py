@@ -135,10 +135,8 @@ def others(
     pK2 = -log10(Ks["K2"])
     # Components of alkalinity and DIC
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = get.AlkParts(
-        PH, TC, FREEtoTOT, **Ks, **totals
-    )
-    PAlk = PAlk + PengCx
+    alks = get.AlkParts(PH, TC, FREEtoTOT, **Ks, **totals)
+    alks["PAlk"] = alks["PAlk"] + PengCx
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(
         Sal, TempC, Pdbar, CARB, TCa, WhichKs, Ks["K1"], Ks["K2"]
@@ -154,7 +152,7 @@ def others(
     Revelle = buffers.explicit.RevelleFactor(TA - PengCx, TC, K0, Ks, totals)
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.explicit.buffers_ESM10(
-        TC, TA, CO2, HCO3, CARB, PH, OH, BAlk, Ks["KB"]
+        TC, TA, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"]
     )
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94] [added v1.2.0]
     isoQ = buffers.explicit.bgc_isocap(
@@ -167,15 +165,15 @@ def others(
     return {
         "pK1": pK1,
         "pK2": pK2,
-        "BAlk": BAlk,
-        "OH": OH,
-        "PAlk": PAlk,
-        "SiAlk": SiAlk,
-        "NH3Alk": NH3Alk,
-        "H2SAlk": H2SAlk,
-        "Hfree": Hfree,
-        "HSO4": HSO4,
-        "HF": HF,
+        "BAlk": alks["BAlk"],
+        "OH": alks["OH"],
+        "PAlk": alks["PAlk"],
+        "SiAlk": alks["SiAlk"],
+        "NH3Alk": alks["NH3Alk"],
+        "H2SAlk": alks["H2SAlk"],
+        "Hfree": alks["Hfree"],
+        "HSO4": alks["HSO4"],
+        "HF": alks["HF"],
         "OmegaCa": OmegaCa,
         "OmegaAr": OmegaAr,
         "VPFac": VPFac,

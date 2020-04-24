@@ -9,11 +9,7 @@ from . import get
 
 def _pHfromTATC_r(pH, TA, TC, FREEtoTOT, Ks, totals):
     """Calculate residual alkalinity from pH and TC for solver `pHfromTATC`."""
-    HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = get.AlkParts(
-        pH, TC, FREEtoTOT, **Ks, **totals
-    )
-    CAlk = HCO3 + 2 * CO3
-    return TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
+    return TA - get.TAfromTCpH(TC, pH, Ks, totals)
 
 
 # Calculate residual alkalinity slope from pH and TC for solver `pHfromTATC`
@@ -47,14 +43,7 @@ def pHfromTATC(pH, TA, TC, FREEtoTOT, Ks, totals):
 
 def _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals):
     """Calculate residual alkalinity from pH and fCO2 for solver `pHfromTAfCO2`."""
-    H = 10.0 ** -pH
-    HCO3 = K0 * Ks["K1"] * fCO2 / H
-    CO3 = K0 * Ks["K1"] * Ks["K2"] * fCO2 / H ** 2
-    CAlk = HCO3 + 2 * CO3
-    _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = get.AlkParts(
-        pH, 0.0, FREEtoTOT, **Ks, **totals
-    )
-    return TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
+    return TA - get.TAfrompHfCO2(pH, fCO2, K0, Ks, totals)
 
 
 # Calculate residual alkalinity slope from pH and fCO2 for solver `pHfromTAfCO2`
@@ -82,12 +71,7 @@ def pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals):
 
 def _pHfromTACarb_r(pH, TA, CARB, FREEtoTOT, Ks, totals):
     """Calculate residual alkalinity from pH and CARB for solver `pHfromTACarb`."""
-    H = 10.0 ** -pH
-    CAlk = CARB * (H + 2 * Ks["K2"]) / Ks["K2"]
-    _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = get.AlkParts(
-        pH, 0.0, FREEtoTOT, **Ks, **totals
-    )
-    return TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
+    return TA - get.TAfrompHCarb(pH, CARB, Ks, totals)
 
 
 # Calculate residual alkalinity slope from pH and CARB for solver `pHfromTACarb`
@@ -115,12 +99,7 @@ def pHfromTACarb(pH, TA, CARB, FREEtoTOT, Ks, totals):
 
 def _pHfromTAHCO3_r(pH, TA, HCO3, FREEtoTOT, Ks, totals):
     """Calculate residual alkalinity from pH and HCO3 for solver `pHfromTAHCO3`."""
-    H = 10.0 ** -pH
-    CAlk = HCO3 * (1 + 2 * Ks["K2"] / H)
-    _, _, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = get.AlkParts(
-        pH, 0.0, FREEtoTOT, **Ks, **totals
-    )
-    return TA - CAlk - BAlk - OH - PAlk - SiAlk - NH3Alk - H2SAlk + Hfree + HSO4 + HF
+    return TA - get.TAfrompHHCO3(pH, HCO3, Ks, totals)
 
 
 # Calculate residual alkalinity slope from pH and HCO3 for solver `pHfromTAHCO3`
