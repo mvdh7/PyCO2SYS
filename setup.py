@@ -11,7 +11,7 @@ setuptools.setup(
     description="Python implementation of CO2SYS",
     url="https://github.com/mvdh7/PyCO2SYS",
     packages=setuptools.find_packages(),
-    install_requires=["numpy>=1.17", "autograd==1.3",],
+    install_requires=["autograd==1.3", "numpy>=1.17", "pandas>=1"],
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
