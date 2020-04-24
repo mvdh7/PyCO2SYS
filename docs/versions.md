@@ -3,20 +3,28 @@
 !!! info "Semantics"
     Version numbering aims to follow [semantic versioning](https://semver.org/). Therefore:
 
-      * New patch versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
-      * New minor versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code. They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
-      * New major versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things. They may alter the results of calculations with default settings.
+      * New *patch* versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
+      * New *minor* versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
+      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may alter the results of calculations with default settings.
 
 !!! warning
     *Will (not) break your code* refers **only** to how you use the main `CO2SYS` function as imported with:
+
     ```python
     from PyCO2SYS import CO2SYS
+    CO2dict = CO2SYS(*args, **kwargs)
     ```
-    However, the structure of the underlying modules and their functions is not yet stable and, for now, may change in any version increment. Such changes will be described in the release notes below.
+
+    The only things that may change in this function, in at least a *minor* version release, are:
+
+      1. Additional inputs may be added to the `kwargs`, but always with default values such that the results do not change if they are not explicitly set.
+      2. Additional calculated variables may be returned in the output `CO2dict`.
+
+    The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
 ## 1.3
 
-Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved. Continues to reorganise code behind the scenes. Makes everything [Autograd](https://github.com/HIPS/autograd)-able.
+Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able.
 
 ### 1.3.0 (forthcoming)
 
@@ -30,7 +38,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     ***Improved calculations***
 
-    * Added missing "Peng correction" to Revelle factor calculation at output conditions. *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
+    * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
     * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
     * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
@@ -68,7 +76,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
 ## 1.2
 
-Adds additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB. New releases are henceforth assigned DOIs from Zenodo.
+Adds additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB.  New releases are henceforth assigned DOIs from Zenodo.
 
 ### 1.2.1 (9 Apr 2020)
 
@@ -87,7 +95,7 @@ Adds additional buffer factor calculations that are not currently included in CO
 
 ## 1.1
 
-Adds extra optional inputs for consistency with Pierrot et al.'s forthcoming MATLAB "v1.21". Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
+Adds extra optional inputs for consistency with Pierrot et al.'s forthcoming MATLAB "v1.21".  Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
 
 ### 1.1.1 (20 Mar 2020)
 
