@@ -15,6 +15,7 @@ nav:
   - Calculate everything!: co2sys.md
   # - Module reference:
   #   - <code>buffers</code>: modules/buffers.md
+  #     - <code>explicit</code>: modules/explicit.md
   #   - <code>constants</code>: modules/constants.md
   #   - <code>convert</code>: modules/convert.md
   #   - <code>engine</code>: modules/engine.md
