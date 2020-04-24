@@ -57,25 +57,6 @@ For a more detailed explanation of all the inputs and outputs, see the [document
 
 You can also look at the [example scripts](examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
-## Citation
-
-If you use PyCO2SYS in your work, please cite it as:
-
-> Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.2.1. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
-
-The DOI refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
-
-```python
-from PyCO2SYS.meta import version
-```
-
-As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
-
-Additionally, for the MATLAB programs:
-
-  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#h).
-  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o).
-
 ## About
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
