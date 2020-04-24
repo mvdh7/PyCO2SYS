@@ -1,12 +1,35 @@
 # PyCO2SYS
 
-[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS) [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
+[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
+[![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 
 **PyCO2SYS** is a Python implementation of CO<sub>2</sub>SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for tentatively forthcoming MATLAB v1.21 as well as some additional related calculations. This software calculates the full marine carbonate system from values of any two of its variables.
 
 Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible). See the scripts in the [compare](compare) directory to see how and check this for yourself. **Please [let me know](https://mvdh.xyz/contact) ASAP if you discover a discrepancy that I have not spotted!**
 
 Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
+
+## Citation
+
+The citation for PyCO2SYS alone is:
+
+> Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., & Wallace, D. W. R. (2020). PyCO2SYS v1.3.0: marine carbonate system calculations in Python. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+
+The DOI above refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
+
+```python
+import PyCO2SYS as pyco2
+print(pyco2.__version__)
+```
+
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
+
+Additionally, for the MATLAB programs:
+
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
 
 ## Installation
 
@@ -16,11 +39,11 @@ Install from the Python Package Index:
 
 Update an existing installation:
 
-    pip install PyCO2SYS --upgrade --no-cache-dir    
+    pip install PyCO2SYS --upgrade --no-cache-dir
 
 ## Basic use
 
-The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. Recommended usage is therefore:
+The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. If you want the MATLAB-like experience, recommended usage is therefore:
 
 ```python
 from PyCO2SYS import CO2SYS
@@ -34,6 +57,7 @@ For a more detailed explanation of all the inputs and outputs, see the [document
 
 You can also look at the [example scripts](examples) here in the repo.
 
+<<<<<<< HEAD
 ## Citation
 
 If you use PyCO2SYS in your work, please cite it as:
@@ -52,6 +76,8 @@ Additionally, for the MATLAB programs:
   * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#h).
   * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o).
 
+=======
+>>>>>>> develop
 ## About
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
