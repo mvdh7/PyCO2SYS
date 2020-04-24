@@ -23,6 +23,6 @@ co2pyo = pd.DataFrame({header: DATA[:, h] for h, header in enumerate(HEADERS)})
 
 # Compare the results
 cvars = list(co2matlab.keys())
-co2py_pyo = co2py.subtract(co2pyo)
-co2py_matlab = co2py.subtract(co2matlab)
-co2pyo_matlab = co2pyo.subtract(co2matlab)
+co2py_pyo = co2py.subtract(co2pyo)  # PyCO2SYS.CO2SYS vs PyCO2SYS.original.CO2SYS
+co2py_matlab = co2py.subtract(co2matlab)  # PyCO2SYS.CO2SYS vs MATLAB
+co2pyo_matlab = co2pyo.subtract(co2matlab)  # PyCO2SYS.original.CO2SYS vs MATLAB
