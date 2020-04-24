@@ -24,7 +24,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     ***New features***
 
-    * Added bicarbonate ion and aqueous CO<sub>2</sub> as options for initial marine carbonate system variables.
+    * Added bicarbonate ion (type `7`) and aqueous CO<sub>2</sub> (type `8`) as options for initial marine carbonate system variables.
 
     * Module `test` added with functions to perform internal consistency checks on `PyCO2SYS.CO2SYS` calculations and compare results with those from other sources.
 
@@ -45,7 +45,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     * Renamed modules:
         * `assemble` is now `engine`.
         * `concentrations` is now `salts`.
-        * `extra` is now `buffers`.
+        * `extra` is now `buffers.explicit`.
 
     * Module `equilibria` now contains sub-modules:
         * `p1atm` for calculating constants at atmospheric pressure.
@@ -62,7 +62,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
         * Separated out its internal calculations into a set of subfunctions also in the `solubility` module.
         * Added calcium molinity `TCa` as an input, instead of being evaluated internally.
 
-    * Added calcium molininty `TCa` into the main `CO2dict` output from `PyCO2SYS.CO2SYS`.
+    * Added calcium molininty `TCa` (estimated from salinity) into the main `CO2dict` output from `PyCO2SYS.CO2SYS`.
 
     * Relocated `_RevelleFactor` function from root to `buffers.RevelleFactor`.
 
