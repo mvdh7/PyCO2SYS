@@ -7,7 +7,7 @@
 
 **PyCO2SYS** is a Python implementation of CO<sub>2</sub>SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for tentatively forthcoming MATLAB v1.21 as well as some additional related calculations. This software calculates the full marine carbonate system from values of any two of its variables.
 
-Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible). See the scripts in the [compare](compare) directory to see how and check this for yourself. **Please [let me know](https://mvdh.xyz/contact) ASAP if you discover a discrepancy that I have not spotted!**
+Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible). See the scripts in the [compare](compare) directory to see how and check this for yourself. **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that I have not spotted!**
 
 Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
 
@@ -15,9 +15,9 @@ Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sy
 
 The citation for PyCO2SYS alone is:
 
-> Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., & Wallace, D. W. R. (2020). PyCO2SYS v1.3.0: marine carbonate system calculations in Python. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+> Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., & Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
 
-The DOI above refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
+The DOI above refers to all versions of PyCO2SYS.  Please be sure to update the version number if necessary.  You can find the current version that you are using in Python with:
 
 ```python
 import PyCO2SYS as pyco2
@@ -43,7 +43,7 @@ Update an existing installation:
 
 ## Basic use
 
-The API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience. If you want the MATLAB-like experience, recommended usage is therefore:
+The default API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience.  If you want the MATLAB-like experience, recommended usage is therefore:
 
 ```python
 from PyCO2SYS import CO2SYS
@@ -53,7 +53,7 @@ CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, P
 
 Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`.  The keys to the dict come from the original MATLAB output `HEADERS`.  Vector inputs should be provided as Numpy arrays.  Everything gets flattened with `ravel`.  Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
-For a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).  It is also possible to provide Pandas Series and Xarray DataArrays [using the wrapper functions in the api module](https://pyco2sys.readthedocs.io/en/latest/co2sys/#using-the-pythonic-api).
+It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).
 
 You can also look at the [example scripts](examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
