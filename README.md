@@ -57,7 +57,6 @@ For a more detailed explanation of all the inputs and outputs, see the [document
 
 You can also look at the [example scripts](examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
-<<<<<<< HEAD
 ## Citation
 
 If you use PyCO2SYS in your work, please cite it as:
@@ -76,8 +75,6 @@ Additionally, for the MATLAB programs:
   * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#h).
   * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o).
 
-=======
->>>>>>> develop
 ## About
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
