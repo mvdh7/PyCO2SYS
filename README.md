@@ -51,9 +51,9 @@ CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, P
     SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
 ```
 
-Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`. The keys to the dict come from the original MATLAB output `HEADERS`. Vector inputs should be provided as Numpy arrays. Everything gets flattened with `ravel`. Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
+Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`.  The keys to the dict come from the original MATLAB output `HEADERS`.  Vector inputs should be provided as Numpy arrays.  Everything gets flattened with `ravel`.  Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
 
-For a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).
+For a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).  It is also possible to provide Pandas Series and Xarray DataArrays [using the wrapper functions in the api module](https://pyco2sys.readthedocs.io/en/latest/co2sys/#using-the-pythonic-api).
 
 You can also look at the [example scripts](examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
@@ -65,8 +65,9 @@ If you use PyCO2SYS in your work, please cite it as:
 
 The DOI refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
 
-    :::python
-    from PyCO2SYS.meta import version
+```python
+from PyCO2SYS.meta import version
+```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
 
