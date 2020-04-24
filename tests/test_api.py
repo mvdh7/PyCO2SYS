@@ -31,7 +31,7 @@ def test_CO2sys_raise_error():
         output = e
 
     if output is not None:
-        raise output('Test should fail if no KeyError is not passed')
+        raise output("Test should fail if no KeyError is not passed")
 
 
 def test_CO2sys_xarray():
@@ -39,9 +39,9 @@ def test_CO2sys_xarray():
 
     dic = xr.DataArray(
         data=[[2001, 2100], [2200, 2040]],
-        coords={'lat': [30, 40], 'lon': [20, 30]},
-        dims=['lat', 'lon'],
-        name='dic'
+        coords={"lat": [30, 40], "lon": [20, 30]},
+        dims=["lat", "lon"],
+        name="dic",
     )
 
     output = CO2SYS(dic=dic, pco2=430)
