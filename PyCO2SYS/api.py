@@ -147,7 +147,7 @@ def CO2SYS_wrap(
     # we go through the carbon parameters to find the arrays that are None
     # these arrays will be dropped at the end of the code block
     # if there are more or less than 2 carbon params, an error will be raised
-    keys = ['dic', 'alk', 'pco2', 'fco2', 'pH', 'carb', 'bicarb', 'co2aq']
+    keys = ["dic", "alk", "pco2", "fco2", "pH", "carb", "bicarb", "co2aq"]
     # find inputs that are None
     to_drop = [k for k in keys if (params[k] == None).all()]
     if len(set(keys) - set(to_drop)) != 2:
