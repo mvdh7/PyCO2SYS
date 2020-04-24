@@ -30,7 +30,7 @@ varout = whoop(varin)
 
 npts = 1000
 Sal = onp.full(npts, 32.3)
-WhichKs = onp.full(npts, 8)
+WhichKs = onp.full(npts, 10)
 WhoseTB = onp.full(npts, 2)
 TempC = onp.full(npts, 25.)
 Pdbar = onp.full(npts, 5000.)
@@ -55,7 +55,8 @@ FREEtoTOT = pyco2.convert.free2tot(totals["TSO4"], Ks["KSO4"])
 cani = pyco2.solve.get.TAfromTCpH(canidic, caniph, Ks, totals)
 
 alkparts = pyco2.solve.get.AlkParts(caniph, canidic, FREEtoTOT, **Ks, **totals)
-HCO3, CO3, BAlk, OH, PAlk, SiAlk, NH3Alk, H2SAlk, Hfree, HSO4, HF = alkparts
+alkparts = {k: v[0] for k, v in alkparts.items()}
+alkparts_dic = (alkparts['CO3'] + alkparts['HCO3'])*1e6
 
 #%%
 # TB, TF, TS = pyco2.assemble.concentrations(Sal, WhichKs, WhoseTB)
