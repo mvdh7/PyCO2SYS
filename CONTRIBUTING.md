@@ -63,5 +63,5 @@ A very approximate plan of future additions to the code, and the person leading 
   
 ### Things that will not be added
 
-  * Air-sea CO<sub>2</sub> calculations.
+  * Air-sea CO<sub>2</sub> flux calculations.
   * Alkalinity titration solvers - use e.g. [Calkulate](https://github.com/mvdh7/calkulate).
