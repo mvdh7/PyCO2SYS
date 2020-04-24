@@ -135,7 +135,7 @@ def others(
     pK2 = -log10(Ks["K2"])
     # Components of alkalinity and DIC
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    alks = get.AlkParts(PH, TC, FREEtoTOT, **Ks, **totals)
+    alks = get.AlkParts(TC, PH, FREEtoTOT, **Ks, **totals)
     alks["PAlk"] = alks["PAlk"] + PengCx
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(
