@@ -26,7 +26,9 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     * Added bicarbonate ion (type `7`) and aqueous CO<sub>2</sub> (type `8`) as options for initial marine carbonate system variables.
 
-    * Module `test` added with functions to perform internal consistency checks on `PyCO2SYS.CO2SYS` calculations and compare results with those from other sources.
+    * Added module `test` with functions to perform internal consistency checks on `PyCO2SYS.CO2SYS` calculations and compare results with those from other sources.
+
+    * Added module `api` with a wrapper for the `CO2SYS` function to allow inputs as Pandas Series and/or Xarray DataArrays.
 
     ***Improved calculations***
 

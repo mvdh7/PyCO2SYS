@@ -16,6 +16,7 @@
 """Solve the marine carbonate system and calculate related seawater properties."""
 
 from . import (
+    api,
     buffers,
     constants,
     convert,
@@ -31,7 +32,7 @@ from . import (
 )
 
 __all__ = [
-    "assemble",
+    "api",
     "buffers",
     "constants",
     "convert",
