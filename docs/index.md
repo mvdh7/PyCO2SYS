@@ -40,7 +40,7 @@ However, the modules and functions contained within are not yet fully documented
 If you use PyCO2SYS in your work, please cite it as:
 
 !!! note "PyCO2SYS citation"
-    Humphreys, M. P., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+    Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., and Wallace, D.W.R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
 
 The DOI refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
 

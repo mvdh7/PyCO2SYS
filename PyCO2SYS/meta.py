@@ -5,6 +5,7 @@
 version = "1.3.0"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Gregor, Luke"
     "Pierrot, Denis",
     "van Heuven, Steven M. A. C.",
     "Lewis, Ernie",
