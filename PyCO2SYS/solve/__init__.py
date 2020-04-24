@@ -151,17 +151,19 @@ def others(
         PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], fH
     )
     # Buffers by explicit calculation
-    Revelle = buffers.RevelleFactor(TA - PengCx, TC, K0, Ks, totals)
+    Revelle = buffers.explicit.RevelleFactor(TA - PengCx, TC, K0, Ks, totals)
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
-    gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.buffers_ESM10(
+    gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.explicit.buffers_ESM10(
         TC, TA, CO2, HCO3, CARB, PH, OH, BAlk, Ks["KB"]
     )
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94] [added v1.2.0]
-    isoQ = buffers.bgc_isocap(
+    isoQ = buffers.explicit.bgc_isocap(
         CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
     )
-    isoQx = buffers.bgc_isocap_approx(TC, PC, K0, Ks["K1"], Ks["K2"])
-    psi = buffers.psi(CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"])
+    isoQx = buffers.explicit.bgc_isocap_approx(TC, PC, K0, Ks["K1"], Ks["K2"])
+    psi = buffers.explicit.psi(
+        CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
+    )
     return {
         "pK1": pK1,
         "pK2": pK2,
