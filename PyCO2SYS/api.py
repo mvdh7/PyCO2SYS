@@ -11,15 +11,21 @@ def CO2SYS_wrap(
     pco2=None,
     fco2=None,
     pH=None,
-    sal=34.5,
+    carb=None,
+    bicarb=None,
+    co2aq=None,
+    sal=35,
     temp_in=25,
     temp_out=25,
     pres_in=0,
     pres_out=0,
-    si=5.5,
-    po4=0.5,
+    si=0,
+    po4=0,
+    nh3=0,
+    h2s=0,
     K1K2_constants=4,
     KSO4_constants=1,
+    KF_constant=1,
     pHscale_in=1,
     verbose=True,
 ):
@@ -39,18 +45,28 @@ def CO2SYS_wrap(
         fugacity of carbon dioxide in uatm
     pH : array-like
         pH of seawater in total-scale
+    carb : array-like
+        carbonate ion in umol/kg
+    bicarb : array-like
+        bicarbonate ion in umol/kg
+    co2aq : array-like
+        aqueous CO2 in umol/kg
     sal : array-like
         salinity in parts per thousand
     temp : array-like
-        temperature in degress C, both input and output temeprature can be
-        given
+        temperature in degrees C, both input and output temperature can be given,
+        distinguished with _in / _out suffix
     pres : array-like
-        pressure in dbar (akin to depth), both input and output pressure can
-        be given, distinguished with _in / _out suffix
+        pressure in dbar (similar to depth in m), both input and output pressure
+        can be given, distinguished with _in / _out suffix
     si : array-like
-        silicate concentration in umol/kg
+        total silicate in umol/kg
     po4 : array-like
-        phosphate concentration in umol/kg
+        total phosphate in umol/kg
+    nh3 : array-like
+        total ammonia in umol/kg
+    h2s : array-like
+        total sulfide in umol/kg
     K1K2_constants : int
         The constants used to solve the marine carbonate system
         1   =  Roy, 1993
@@ -68,12 +84,16 @@ def CO2SYS_wrap(
         13  =  Millero et al, 2006
         14  =  Millero, 2010
         15  =  Waters, Millero, & Woosley, 2014
-    KO4_constants : int
-        The constants used for phosphate calculations
+    KSO4_constants : int
+        The constants used for bisulfate dissociation and boron:salinity
         1  =  KSO4 of Dickson 1990a   & TB of Uppstrom 1974  (DEFAULT)
         2  =  KSO4 of Khoo et al 1977 & TB of Uppstrom 1974
         3  =  KSO4 of Dickson 1990a   & TB of Lee 2010
         4  =  KSO4 of Khoo et al 1977 & TB of Lee 2010
+    KF_constant : int
+        The constant used for hydrogen fluoride dissociation
+        1  =  KF of Dickson & Riley 1979  (DEFAULT)
+        2  =  KF of Perez & Fraga 1987
     pHscale : int
         The scale on which the input pH was determined
         1  =  Total scale  (DEFAULT)
@@ -117,7 +137,7 @@ def CO2SYS_wrap(
         # later to convert the data back into the same format
         if hasxr:
             if (cube is None) & (type(v) == xr.core.dataarray.DataArray):
-                printv("input is xarray.DataArray - output will be xr.Dataset")
+                printv("Input is xarray.DataArray - output will be xr.Dataset")
                 cube = v.copy() * np.nan
             if type(v) == xr.core.dataarray.DataArray:
                 v = v.load()
@@ -127,7 +147,7 @@ def CO2SYS_wrap(
     # we go through the carbon parameters to find the arrays that are None
     # these arrays will be dropped at the end of the code block
     # if there are more or less than 2 carbon params, an error will be raised
-    keys = "dic  alk  pco2  fco2  pH".split()  # lazy way to make co2 keys
+    keys = ['dic', 'alk', 'pco2', 'fco2', 'pH', 'carb', 'bicarb', 'co2aq']
     # find inputs that are None
     to_drop = [k for k in keys if (params[k] == None).all()]
     if len(set(keys) - set(to_drop)) != 2:
@@ -155,7 +175,7 @@ def CO2SYS_wrap(
     # DEFINE PARAMETER TYPES
     # use a dictionary to find the input parameters based on
     # the names of the CO2 parameters in the params dictionary
-    parnum = dict(alk=1, dic=2, pH=3, pco2=4, fco2=5)
+    parnum = dict(alk=1, dic=2, pH=3, pco2=4, fco2=5, carb=6, bicarb=7, co2aq=8)
     df["PAR1TYPE"] = parnum[df.columns[0]]
     df["PAR2TYPE"] = parnum[df.columns[1]]
 
@@ -177,6 +197,9 @@ def CO2SYS_wrap(
             "pHscale_in",
             "K1K2_constants",
             "KSO4_constants",
+            "nh3",
+            "h2s",
+            "KF_constant",
         ],
     ]
     df.columns = [
@@ -194,6 +217,9 @@ def CO2SYS_wrap(
         "pHSCALEIN",
         "K1K2CONSTANTS",
         "KSO4CONSTANTS",
+        "NH3",
+        "H2S",
+        "KFCONSTANT",
     ]
 
     # REMOVE NANS FOR EFFICIENCY

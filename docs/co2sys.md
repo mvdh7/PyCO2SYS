@@ -2,7 +2,7 @@
 
 ## Syntax
 
-The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO<sub>2</sub>SYS and calculate every possible variable of interest at once. We can do this using the top-level `CO2SYS` function:
+The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO<sub>2</sub>SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
 
     :::python
     # Import the function
@@ -16,31 +16,35 @@ The simplest way to use PyCO2SYS is to follow the approach of previous versions 
     # Get (e.g.) aragonite saturation state, output conditions
     OmegaARout = CO2dict['OmegaARout']
 
-Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables. These are described in detail in the following sections.
+Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
 
-### Using the API
-A pythonic API can also be used to interface with CO2SYS. Note that the api returns a pandas DataFrame, thus you will need pandas installed to import this module. The function uses keyword
-arguments, meaning that only the specified marine carbonate system parameters have to be entered.
+### Using the Pythonic API
 
-```python
-from PyCO2SYS.api import CO2SYS_wrap as co2sys
+Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This returns a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) in place of the dict, with the same names for the various outputs.  The function uses keyword arguments, meaning that only the specified marine carbonate system parameters have to be entered.
 
-# called with defaults 
-df1 = co2sys(dic=2103, alk=2360)
-# the above is equivalent to 
-df2 = co2sys(
-    dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
-    temp_in=25, temp_out=25, pres_in=0, pres_out=0,
-    sal=34.5, si=5.5, po4=0.5, 
-    K1K2_constants=4, KSO4_constants=1, pHscale_in=1, 
-    verbose=True)
-```
+    :::python
+    from PyCO2SYS.api import CO2SYS_wrap as co2sys
 
-The api will also accept numpy arrays, pandas.Series or xarray.DataArrays as inputs. Scalar or default values will be broadcast to match the vector input. Note that output names are taken from the CO2SYS output dictionary. 
+    # Call with defaults
+    df1 = co2sys(dic=2103, alk=2360)
+
+    # The above is equivalent to:
+    df1 = co2sys(
+        dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
+        carb=None, bicarb=None, co2aq=None,
+        temp_in=25, temp_out=25, pres_in=0, pres_out=0,
+        sal=35, si=0, po4=0, nh3=0, h2s=0,
+        K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
+        verbose=True)
+
+!!! warning
+    In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
+
+This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
 
 ## Inputs
 
-Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here. Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values. If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
+Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
 
 !!! info "`PyCO2SYS.CO2SYS` inputs"
     #### Carbonate system parameters
@@ -52,13 +56,12 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
     * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
     * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
-    * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1]. Which scale is given by the input `pHSCALEIN`.
-    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm.
+    * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1].  Which scale is given by the input `pHSCALEIN`.
+    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm or **aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
-    * **Aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
 
-    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
     #### Hydrographic conditions
 
