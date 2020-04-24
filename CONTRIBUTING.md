@@ -59,6 +59,7 @@ A very approximate plan of future additions to the code, and the person leading 
 
 ### Non-version specific
 
+  * Add validity checker for temperature, salinity and pressure conditions.
   * Integrate with [Pytzer](https://github.com/mvdh7/pytzer) ([mvdh7](https://github.com/mvdh7)).
   
 ### Things that will not be added
