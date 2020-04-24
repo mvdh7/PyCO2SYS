@@ -254,6 +254,7 @@ def TAfromTCpH(TC, pH, Ks, totals):
     return TAc
 
 
+@errstate(invalid="ignore")
 def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
