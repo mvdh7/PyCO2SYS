@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
 [![DOI](https://zenodo.org/badge/237243120.svg)](https://zenodo.org/badge/latestdoi/237243120)
 
-PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties. Its core is a Python implementation of CO<sub>2</sub>SYS for MATLAB[^1].
+PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  Its core is a Python implementation of CO<sub>2</sub>SYS for MATLAB[^1].
 
 ## Installation
 
@@ -22,7 +22,7 @@ The import convention for PyCO2SYS will be:
     :::python
     import PyCO2SYS as pyco2
 
-However, the modules and functions contained within are not yet fully documented. We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
+However, the modules and functions contained within are not yet fully documented.  We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
 
 !!! tip "Do it like in MATLAB"
     If you are familiar with CO<sub>2</sub>SYS for MATLAB and wish to use PyCO2SYS in exactly the same way:
@@ -33,16 +33,16 @@ However, the modules and functions contained within are not yet fully documented
             PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
             NH3=0.0, H2S=0.0, KFCONSTANT=1)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). Its keys are named following the `HEADERS` output from the original MATLAB program. See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
 
 ## Citation
 
 If you use PyCO2SYS in your work, please cite it as:
 
 !!! note "PyCO2SYS citation"
-    Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., and Wallace, D.W.R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+    Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., and Wallace, D.W.R. (2020).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
 
-The DOI refers to all versions of PyCO2SYS. Please be sure to update the version number if necessary. You can find the current version that you are using in Python with:
+The DOI refers to all versions of PyCO2SYS.  Please be sure to update the version number if necessary.  You can find the current version that you are using in Python with:
 
     :::python
     import PyCO2SYS as pyco2
