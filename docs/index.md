@@ -59,12 +59,16 @@ Additionally, for the MATLAB programs:
 
 PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
 
-### Contributing
+### History
 
-Suggestions for new features, bug reports and contributions to PyCO2SYS are very welcome!  Please follow the [contribution guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md).
+The original CO<sub>2</sub>SYS program for DOS was written by Ernie Lewis and Doug Wallace.  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven.  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program.  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys.  Further (ongoing) modifications and additions to PyCO2SYS have been made by Matthew Humphreys and Luke Gregor.
 
 ### License
 
 PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 [^1]: For CO<sub>2</sub>SYS for MATLAB refer to [LW98](refs/#l), [HPR11](refs/#h) and [OEDG18](refs/#o).
+
+## Contributing
+
+Suggestions for new features, bug reports and contributions to PyCO2SYS are very welcome!  Please follow the [contribution guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md).
