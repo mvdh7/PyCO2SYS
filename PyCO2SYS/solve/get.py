@@ -298,8 +298,9 @@ def TCfromTApH(TA, pH, Ks, totals):
     F = TA_TC0_pH > TA
     if any(F):
         warnings.warn(
-            "Some input pH values are impossibly high given the input alkalinity, " +
-            "returning NaN.", )
+            "Some input pH values are impossibly high given the input alkalinity, "
+            + "returning NaN.",
+        )
     CAlk = where(F, nan, TA - TA_TC0_pH)
     K1 = Ks["K1"]
     K2 = Ks["K2"]
