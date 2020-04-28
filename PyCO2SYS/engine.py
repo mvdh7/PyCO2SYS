@@ -433,10 +433,10 @@ def CO2SYS(
 
 
 def say_hello():
-    print("")
+    print(" ")
     print("   Program PyCO2SYS, version {}.".format(meta.version))
-    print("")
-    print("")
+    print(" ")
+    print(" ")
     print("  Py  CCCC       OOOOO        222        SSS      YY      YY      SSS  ")
     print("     CC   C     OO   OO     22   22    SS   SS     YY    YY     SS   SS")
     print("    CC         OO     OO         22    SS           YY  YY      SS     ")
@@ -444,9 +444,10 @@ def say_hello():
     print("    CC         OO     OO       22           SS        YY             SS")
     print("     CC   C     OO   OO      22        SS   SS        YY        SS   SS")
     print("      CCCC       OOOOO      2222222      SSS          YY          SSS  ")
-    print("")
-    print("")
+    print(" ")
+    print(" ")
     print("   Lasciate ogni speranza, voi ch' entrate!")
     #             (All hope abandon, ye who enter here.)
     print("                                    Dante, Inferno iii, 9 ")
     print("                                    sign on the entrance gates of hell")
+    print(" ")
