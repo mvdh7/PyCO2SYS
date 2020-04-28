@@ -7,7 +7,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import equilibria, gas, salts, solve
+from . import equilibria, gas, meta, salts, solve
 
 
 def inputs(input_locals):
@@ -43,7 +43,7 @@ def inputs(input_locals):
 
 
 def pair2core(par1, par2, par1type, par2type, convertunits):
-    """Expand `par1` and `par2` inputs into one array per core variable of the marine 
+    """Expand `par1` and `par2` inputs into one array per core variable of the marine
     carbonate system and convert units from microX to X if requested with the input
     logical `convertunits`.
     """
@@ -99,10 +99,10 @@ def getIcase(par1type, par2type, checks=True):
       * `7` = bicarbonate ion
       * `8` = aqueous CO2
 
-    `Icase` is `10*parXtype + parYtype` where `parXtype` is whichever of `par1type` or 
+    `Icase` is `10*parXtype + parYtype` where `parXtype` is whichever of `par1type` or
     `par2type` is greater.
 
-    Noting that a pair of any two from pCO2, fCO2 and CO2(aq) is not allowed, the valid 
+    Noting that a pair of any two from pCO2, fCO2 and CO2(aq) is not allowed, the valid
     `Icase` options are therefore:
 
         12, 13, 14, 15, 16, 17, 18,
@@ -112,7 +112,7 @@ def getIcase(par1type, par2type, checks=True):
                         56, 57,
                             67, 68,
                                 78.
-                                
+
     The optional input `checks` allows you to decide whether the function should test
     the validity of the entered combinations or not.
     """
@@ -136,9 +136,9 @@ def getIcase(par1type, par2type, checks=True):
 
 def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
     """Solve the core marine carbonate system (MCS) from any 2 of its variables.
-    
+
     The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
-        
+
       * Type `1`, `TA`: total alkalinity in mol/kg-sw.
       * Type `2`, `TC`: dissolved inorganic carbon in mol/kg-sw.
       * Type `3`, `PH`: pH on whichever scale(s) the constants in `Ks` are provided.
@@ -147,7 +147,7 @@ def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
       * Type `6`, `CARB`: carbonate ion in mol/kg-sw.
       * Type `7`, `HCO3`: bicarbonate ion in mol/kg-sw.
       * Type `8`, `CO2`: aqueous CO2 in mol/kg-sw.
-      
+
     The input `convertunits` specifies whether the inputs `par1` and `par2` are in
     micro-mol/kg and micro-atm units (`True`) or mol/kg and atm units (`False`).
     """
@@ -430,3 +430,23 @@ def CO2SYS(
         BORON,
         KSO4CONSTANTS=KSO4CONSTANTS,
     )
+
+
+def say_hello():
+    print("")
+    print("    Program PyCO2SYS, version {}.".format(meta.version))
+    print("")
+    print("")
+    print("  Py  CCCC       OOOOO        222        SSS      YY      YY      SSS  ")
+    print("     CC   C     OO   OO     22   22    SS   SS     YY    YY     SS   SS")
+    print("    CC         OO     OO         22    SS           YY  YY      SS     ")
+    print("    CC         OO     OO        22        S           YY          SSS  ")
+    print("    CC         OO     OO       22           SS        YY             SS")
+    print("     CC   C     OO   OO      22        SS   SS        YY        SS   SS")
+    print("      CCCC       OOOOO      2222222      SSS          YY          SSS  ")
+    print("")
+    print("")
+    print("      Lasciate ogni speranza, voi ch' entrate!")
+    #             (All hope abandon, ye who enter here.)
+    print("                                    Dante, Inferno iii, 9 ")
+    print("                                    sign on the entrance gates of hell ")

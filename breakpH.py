@@ -2,7 +2,7 @@ import PyCO2SYS as pyco2
 import numpy as np
 from PyCO2SYS import CO2SYS
 
-test = pyco2.api.CO2SYS_wrap(pH=np.linspace(8.0, 14.0, 13), dic=2300)
+test = pyco2.api.CO2SYS_wrap(pH=np.linspace(8.0, 14.0, 13), alk=2300)
 TempC = np.array([25.0])
 Pdbar = np.array([0.0])
 Sal = np.array([35.0])
