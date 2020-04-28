@@ -2,6 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
+import warnings
 from autograd.numpy import errstate, log10, nan, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
@@ -282,6 +283,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
     return TC * H ** 2 / (H ** 2 + K1 * H + K1 * K2) / K0
 
 
+@errstate(invalid="ignore")
 def TCfromTApH(TA, pH, Ks, totals):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
@@ -292,7 +294,13 @@ def TCfromTApH(TA, pH, Ks, totals):
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
-    CAlk = TA - TAfromTCpH(0.0, pH, Ks, totals)
+    TA_TC0_pH = TAfromTCpH(0.0, pH, Ks, totals)
+    F = TA_TC0_pH > TA
+    if any(F):
+        warnings.warn(
+            "Some input pH values are impossibly high given the input alkalinity, " +
+            "returning NaN.", )
+    CAlk = where(F, nan, TA - TA_TC0_pH)
     K1 = Ks["K1"]
     K2 = Ks["K2"]
     H = 10.0 ** -pH

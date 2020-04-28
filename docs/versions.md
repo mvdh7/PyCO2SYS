@@ -42,6 +42,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
     * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
+    * Return NaN instead of negative DIC if an impossible pH-alkalinity combination is given as input (i.e. pH is too high).
 
     ***Internal reorganisation***
 
