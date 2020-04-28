@@ -2,7 +2,6 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-import warnings
 from autograd.numpy import errstate, log10, nan, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
@@ -37,31 +36,8 @@ def HCO3fromTCpH(TC, pH, K1, K2):
     return HCO3fromTCH(TC, H, K1, K2)
 
 
-def AlkParts(
-    TC,
-    pH,
-    FREEtoTOT,
-    K1=1.0,
-    K2=1.0,
-    KW=1.0,
-    KB=1.0,
-    KF=1.0,
-    KSO4=1.0,
-    KP1=1.0,
-    KP2=1.0,
-    KP3=1.0,
-    KSi=1.0,
-    KNH3=1.0,
-    KH2S=0.0,
-    TB=0.0,
-    TF=0.0,
-    TSO4=0.0,
-    TPO4=0.0,
-    TSi=0.0,
-    TNH3=0.0,
-    TH2S=0.0,
-):
-    """Calculate the different components of total alkalinity from dissolved inorganic 
+def AlkParts(TC, pH, FREEtoTOT, Ks, totals):
+    """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
 
     Although coded for H on the Total pH scale, for the pH values occuring in seawater
@@ -71,21 +47,26 @@ def AlkParts(
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0 ** -pH
-    HCO3 = HCO3fromTCH(TC, H, K1, K2)
-    CO3 = CarbfromTCH(TC, H, K1, K2)
-    BAlk = TB * KB / (KB + H)
-    OH = KW / H
+    HCO3 = HCO3fromTCH(TC, H, Ks["K1"], Ks["K2"])
+    CO3 = CarbfromTCH(TC, H, Ks["K1"], Ks["K2"])
+    BAlk = totals["TB"] * Ks["KB"] / (Ks["KB"] + H)
+    OH = Ks["KW"] / H
     PAlk = (
-        TPO4
-        * (KP1 * KP2 * H + 2 * KP1 * KP2 * KP3 - H ** 3)
-        / (H ** 3 + KP1 * H ** 2 + KP1 * KP2 * H + KP1 * KP2 * KP3)
+        totals["TPO4"]
+        * (Ks["KP1"] * Ks["KP2"] * H + 2 * Ks["KP1"] * Ks["KP2"] * Ks["KP3"] - H ** 3)
+        / (
+            H ** 3
+            + Ks["KP1"] * H ** 2
+            + Ks["KP1"] * Ks["KP2"] * H
+            + Ks["KP1"] * Ks["KP2"] * Ks["KP3"]
+        )
     )
-    SiAlk = TSi * KSi / (KSi + H)
-    NH3Alk = TNH3 * KNH3 / (KNH3 + H)
-    H2SAlk = TH2S * KH2S / (KH2S + H)
+    SiAlk = totals["TSi"] * Ks["KSi"] / (Ks["KSi"] + H)
+    NH3Alk = totals["TNH3"] * Ks["KNH3"] / (Ks["KNH3"] + H)
+    H2SAlk = totals["TH2S"] * Ks["KH2S"] / (Ks["KH2S"] + H)
     Hfree = H / FREEtoTOT  # for H on the Total scale
-    HSO4 = TSO4 / (1 + KSO4 / Hfree)  # since KSO4 is on the Free scale
-    HF = TF / (1 + KF / Hfree)  # since KF is on the Free scale
+    HSO4 = totals["TSO4"] / (1 + Ks["KSO4"] / Hfree)  # since KSO4 is on the Free scale
+    HF = totals["TF"] / (1 + Ks["KF"] / Hfree)  # since KF is on the Free scale
     return {
         "HCO3": HCO3,
         "CO3": CO3,
@@ -112,7 +93,7 @@ def TAfromTCpH(TC, pH, Ks, totals):
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    alks = AlkParts(TC, pH, FREEtoTOT, **Ks, **totals)
+    alks = AlkParts(TC, pH, FREEtoTOT, Ks, totals)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
@@ -297,10 +278,8 @@ def TCfromTApH(TA, pH, Ks, totals):
     TA_TC0_pH = TAfromTCpH(0.0, pH, Ks, totals)
     F = TA_TC0_pH > TA
     if any(F):
-        warnings.warn(
-            "Some input pH values are impossibly high given the input alkalinity; "
-            + "returning NaN, rather than negative DIC.",
-        )
+        print("Some input pH values are impossibly high given the input alkalinity;")
+        print("returning NaN rather than negative DIC values.")
     CAlk = where(F, nan, TA - TA_TC0_pH)
     K1 = Ks["K1"]
     K2 = Ks["K2"]

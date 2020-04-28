@@ -7,7 +7,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import equilibria, salts, solve
+from . import equilibria, gas, salts, solve
 
 
 def inputs(input_locals):
@@ -134,9 +134,7 @@ def getIcase(par1type, par2type, checks=True):
     return Icase
 
 
-def solvecore(
-    par1, par2, par1type, par2type, PengCx, totals, K0, FugFac, Ks, convertunits
-):
+def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
     """Solve the core marine carbonate system (MCS) from any 2 of its variables.
     
     The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
@@ -161,7 +159,7 @@ def solvecore(
     Icase = getIcase(par1type, par2type)
     # Solve the core marine carbonate system
     TA, TC, PH, PC, FC, CARB, HCO3, CO2 = solve.core(
-        Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals
+        Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFac, Ks, totals
     )
     return {
         "TA": TA,
@@ -217,64 +215,34 @@ def _CO2SYS(
     WhoseKF = args["KFCONSTANT"]
     WhoseTB = args["BORON"]
     # Prepare to solve the core marine carbonate system at input conditions
-    Sal, TCa, PengCorrection, totals = salts.assemble(
-        Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB
-    )
-    K0i, FugFaci, fHi, Kis = equilibria.assemble(
+    totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
+    Sal = totals["Sal"]
+    Kis = equilibria.assemble(
         TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
+    # Calculate fugacity factor
+    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
     # Solve the core marine carbonate system at input conditions
-    core_in = solvecore(
-        PAR1, PAR2, p1, p2, PengCorrection, totals, K0i, FugFaci, Kis, True,
-    )
+    core_in = solvecore(PAR1, PAR2, p1, p2, totals, FugFaci, Kis, True)
     # Calculate all other results at input conditions
     others_in = solve.others(
-        core_in,
-        Sal,
-        TempCi,
-        Pdbari,
-        K0i,
-        Kis,
-        fHi,
-        totals,
-        PengCorrection,
-        TCa,
-        pHScale,
-        WhichKs,
+        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs,
     )
     # Prepare to solve the core MCS at output conditions
-    K0o, FugFaco, fHo, Kos = equilibria.assemble(
+    Kos = equilibria.assemble(
         TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
+    # Calculate fugacity factor
+    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
     # Solve the core MCS at output conditions
     core_out = solvecore(
-        core_in["TA"],
-        core_in["TC"],
-        TAtype,
-        TCtype,
-        PengCorrection,
-        totals,
-        K0o,
-        FugFaco,
-        Kos,
-        False,
+        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, FugFaco, Kos, False,
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
-        core_out,
-        Sal,
-        TempCo,
-        Pdbaro,
-        K0o,
-        Kos,
-        fHo,
-        totals,
-        PengCorrection,
-        TCa,
-        pHScale,
-        WhichKs,
+        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs,
     )
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
@@ -339,7 +307,7 @@ def _CO2SYS(
         "SI": args["SI"],
         "NH3": args["NH3"],
         "H2S": args["H2S"],
-        "K0input": K0i,
+        "K0input": Kis["K0"],
         "K1input": Kis["K1"],
         "K2input": Kis["K2"],
         "pK1input": others_in["pK1"],
@@ -354,7 +322,7 @@ def _CO2SYS(
         "KSiinput": Kis["KSi"],
         "KNH3input": Kis["KNH3"],
         "KH2Sinput": Kis["KH2S"],
-        "K0output": K0o,
+        "K0output": Kos["K0"],
         "K1output": Kos["K1"],
         "K2output": Kos["K2"],
         "pK1output": others_out["pK1"],
@@ -392,7 +360,7 @@ def _CO2SYS(
         "psi_in": others_in["psi"],
         "psi_out": others_out["psi"],
         # Added in v1.3.0:
-        "TCa": TCa * 1e6,
+        "TCa": totals["TCa"] * 1e6,
     }
     return CO2dict
 

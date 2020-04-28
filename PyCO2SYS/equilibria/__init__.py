@@ -4,7 +4,7 @@
 
 from . import p1atm, pcx, pressured
 from autograd.numpy import full, nan, size, where
-from .. import convert, gas
+from .. import convert
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
@@ -72,25 +72,20 @@ def assemble(TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF):
     KSi = KSi * pHfactor
     KNH3 = KNH3 * pHfactor
     KH2S = KH2S * pHfactor
-    # Calculate fugacity factor
-    FugFac = gas.fugacityfactor(TempC, WhichKs)
-    # Return solution equilibrium constants as a dict
-    return (
-        K0,
-        FugFac,
-        fH,
-        {
-            "K1": K1,
-            "K2": K2,
-            "KW": KW,
-            "KB": KB,
-            "KF": KF,
-            "KSO4": KSO4,
-            "KP1": KP1,
-            "KP2": KP2,
-            "KP3": KP3,
-            "KSi": KSi,
-            "KNH3": KNH3,
-            "KH2S": KH2S,
-        },
-    )
+    # Return solution equilibrium constants and the fH factor as a dict
+    return {
+        "fH": fH,
+        "K0": K0,
+        "K1": K1,
+        "K2": K2,
+        "KW": KW,
+        "KB": KB,
+        "KF": KF,
+        "KSO4": KSO4,
+        "KP1": KP1,
+        "KP2": KP2,
+        "KP3": KP3,
+        "KSi": KSi,
+        "KNH3": KNH3,
+        "KH2S": KH2S,
+    }

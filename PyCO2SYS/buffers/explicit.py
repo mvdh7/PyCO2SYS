@@ -50,7 +50,7 @@ def psi(CO2, pH, K1, K2, KB, KW, TB):
     return -1 + 2 / Q
 
 
-def RevelleFactor(TA, TC, K0, Ks, totals):
+def RevelleFactor(TA, TC, Ks, totals):
     """Calculate the Revelle Factor from total alkalinity and dissolved
     inorganic carbon.
 
@@ -65,11 +65,13 @@ def RevelleFactor(TA, TC, K0, Ks, totals):
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
     pH_plus = solve.get.pHfromTATC(TA, TC_plus, Ks, totals)
-    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, K0, Ks["K1"], Ks["K2"])
+    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
     pH_minus = solve.get.pHfromTATC(TA, TC_minus, Ks, totals)
-    fCO2_minus = solve.get.fCO2fromTCpH(TC_minus, pH_minus, K0, Ks["K1"], Ks["K2"])
+    fCO2_minus = solve.get.fCO2fromTCpH(
+        TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
+    )
     # Calculate Revelle Factor
     Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC_minus)
     return Revelle

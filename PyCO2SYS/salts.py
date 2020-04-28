@@ -101,10 +101,10 @@ def fromSal(Sal, WhichKs, WhoseTB):
     TS = sulfate_MR66(Sal)
     TCa = _co2sys_TCa(Sal, WhichKs)
     # Return equilibrating results as a dict for stability
-    return TCa, {"TB": TB, "TF": TF, "TSO4": TS}
+    return {"TB": TB, "TF": TF, "TSO4": TS, "TCa": TCa}
 
 
-def assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
+def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB):
     """Estimate total molinities from salinity and assemble along with other salts and
     related variables.
     """
@@ -112,23 +112,25 @@ def assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB):
     Sal = where(WhichKs == 8, 0.0, Sal)
     # GEOSECS and Pure Water:
     F = (WhichKs == 6) | (WhichKs == 8)
-    TP = where(F, 0.0, TP)
+    TPO4 = where(F, 0.0, TPO4)
     TSi = where(F, 0.0, TSi)
     TNH3 = where(F, 0.0, TNH3)
     TH2S = where(F, 0.0, TH2S)
     # Convert micromol to mol
-    TP = TP * 1e-6
+    TPO4 = TPO4 * 1e-6
     TSi = TSi * 1e-6
     TNH3 = TNH3 * 1e-6
     TH2S = TH2S * 1e-6
-    TCa, totals = fromSal(Sal, WhichKs, WhoseTB)
-    # Add equilibrating user inputs except DIC to `totals` dict
-    totals["TPO4"] = TP
-    totals["TSi"] = TSi
-    totals["TNH3"] = TNH3
-    totals["TH2S"] = TH2S
+    totals = fromSal(Sal, WhichKs, WhoseTB)
     # The vector `PengCorrection` is used to modify the value of TA, for those
     # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
-    PengCorrection = where(WhichKs == 7, totals["TPO4"], 0.0)
-    return Sal, TCa, PengCorrection, totals
+    PengCorrection = where(WhichKs == 7, TPO4, 0.0)
+    # Add everything else to `totals` dict
+    totals["TPO4"] = TPO4
+    totals["TSi"] = TSi
+    totals["TNH3"] = TNH3
+    totals["TH2S"] = TH2S
+    totals["Sal"] = Sal  # this is input `Sal` but with pure water case forced to 0.0
+    totals["PengCorrection"] = PengCorrection
+    return totals

@@ -9,16 +9,18 @@ from .. import buffers, convert, gas, solubility
 __all__ = ["delta", "initialise", "get"]
 
 
-def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, totals):
+def core(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFac, Ks, totals):
     """Fill part-empty core marine carbonate system variable columns with solutions."""
+    # For convenience
+    K0 = Ks["K0"]
+    K1 = Ks["K1"]
+    K2 = Ks["K2"]
+    PengCx = totals["PengCorrection"]
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = isin(Icase, [14, 24, 34, 46, 47])
     FC = where(PCgiven, PC * FugFac, FC)
     CO2given = isin(Icase, [18, 28, 38, 68, 78])
     FC = where(CO2given, CO2 / K0, FC)
-    # For convenience
-    K1 = Ks["K1"]
-    K2 = Ks["K2"]
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
     if any(F):
@@ -119,7 +121,7 @@ def core(Icase, K0, TA, TC, PH, PC, FC, CARB, HCO3, CO2, PengCx, FugFac, Ks, tot
 
 
 def others(
-    core_solved, Sal, TempC, Pdbar, K0, Ks, fH, totals, PengCx, TCa, pHScale, WhichKs,
+    core_solved, Sal, TempC, Pdbar, Ks, totals, pHScale, WhichKs,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -130,35 +132,37 @@ def others(
     CARB = core_solved["CARB"]
     HCO3 = core_solved["HCO3"]
     CO2 = core_solved["CO2"]
+    # Apply Peng correction
+    TAPeng = TA - totals["PengCorrection"]
     # Calculate pKs
     pK1 = -log10(Ks["K1"])
     pK2 = -log10(Ks["K2"])
     # Components of alkalinity and DIC
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    alks = get.AlkParts(TC, PH, FREEtoTOT, **Ks, **totals)
-    alks["PAlk"] = alks["PAlk"] + PengCx
+    alks = get.AlkParts(TC, PH, FREEtoTOT, Ks, totals)
+    alks["PAlk"] = alks["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(
-        Sal, TempC, Pdbar, CARB, TCa, WhichKs, Ks["K1"], Ks["K2"]
+        Sal, TempC, Pdbar, CARB, totals["TCa"], WhichKs, Ks["K1"], Ks["K2"]
     )
     # Dry mole fraction of CO2
     VPFac = gas.vpfactor(TempC, Sal)
     xCO2dry = PC / VPFac  # this assumes pTot = 1 atm
     # Just for reference, convert pH at input conditions to the other scales
     pHT, pHS, pHF, pHN = convert.pH2allscales(
-        PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], fH
+        PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], Ks["fH"]
     )
     # Buffers by explicit calculation
-    Revelle = buffers.explicit.RevelleFactor(TA - PengCx, TC, K0, Ks, totals)
+    Revelle = buffers.explicit.RevelleFactor(TAPeng, TC, Ks, totals)
     # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
     gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.explicit.buffers_ESM10(
-        TC, TA, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"]
+        TC, TAPeng, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"]
     )
     # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94] [added v1.2.0]
     isoQ = buffers.explicit.bgc_isocap(
         CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
     )
-    isoQx = buffers.explicit.bgc_isocap_approx(TC, PC, K0, Ks["K1"], Ks["K2"])
+    isoQx = buffers.explicit.bgc_isocap_approx(TC, PC, Ks["K0"], Ks["K1"], Ks["K2"])
     psi = buffers.explicit.psi(
         CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
     )
