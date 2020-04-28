@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate saturation states of soluble solids."""
 
-from autograd.numpy import exp, log10, sqrt, where
+from autograd.numpy import errstate, exp, log10, sqrt, where
 from . import convert
 from .constants import RGasConstant
 
@@ -52,6 +52,7 @@ def k_aragonite_M83(TempK, Sal, Pbar):
     return KAr
 
 
+@errstate(divide="ignore")
 def k_calcite_I75(TempK, Sal, Pbar):
     """Calcite solubility following ICHP73 with no pressure correction.
     For use with GEOSECS constants.
