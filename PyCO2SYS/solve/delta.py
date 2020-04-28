@@ -41,9 +41,9 @@ def pHfromTATC(pH, TA, TC, FREEtoTOT, Ks, totals):
     )
 
 
-def _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals):
+def _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, Ks, totals):
     """Calculate residual alkalinity from pH and fCO2 for solver `pHfromTAfCO2`."""
-    return TA - get.TAfrompHfCO2(pH, fCO2, K0, Ks, totals)
+    return TA - get.TAfrompHfCO2(pH, fCO2, Ks, totals)
 
 
 # Calculate residual alkalinity slope from pH and fCO2 for solver `pHfromTAfCO2`
@@ -61,11 +61,11 @@ def _pHfromTAfCO2_s_approx(HCO3, CO3, BAlk, H, OH, KB):
     return log(10) * (HCO3 + 4 * CO3 + BAlk * H / (KB + H) + OH + H)
 
 
-def pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals):
+def pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, Ks, totals):
     """Calculate delta-pH from pH and fCO2 for solver `pHfromTAfCO2`."""
     return -(
-        _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals)
-        / _pHfromTAfCO2_s(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals)
+        _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, Ks, totals)
+        / _pHfromTAfCO2_s(pH, TA, fCO2, FREEtoTOT, Ks, totals)
     )
 
 

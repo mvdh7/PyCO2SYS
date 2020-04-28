@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-from autograd.numpy import errstate, log10, nan, sqrt, where
+from autograd.numpy import errstate, log10, nan, sign, sqrt, where
 from autograd.numpy import abs as np_abs
 from autograd.numpy import any as np_any
 from .. import convert
@@ -110,9 +110,9 @@ def TAfromTCpH(TC, pH, Ks, totals):
     return TA
 
 
-def TAfrompHfCO2(pH, fCO2, K0, Ks, totals):
+def TAfrompHfCO2(pH, fCO2, Ks, totals):
     """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
-    TC = TCfrompHfCO2(pH, fCO2, K0, Ks["K1"], Ks["K2"])
+    TC = TCfrompHfCO2(pH, fCO2, Ks["K0"], Ks["K1"], Ks["K2"])
     return TAfromTCpH(TC, pH, Ks, totals)
 
 
@@ -148,111 +148,65 @@ def TAfrompHHCO3(pH, HCO3, Ks, totals):
 
 
 @errstate(invalid="ignore")
-def pHfromTATC(TA, TC, Ks, totals):
-    """Calculate pH from total alkalinity and dissolved inorganic carbon.
-
-    This calculates pH from TA and TC using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess uses the carbonate-borate alkalinity estimate of M13 and OE15 as
-    implemented in mocsy.
-
+def _pHfromTAVX(TA, VX, Ks, totals, initialfunc, deltafunc):
+    """Calculate pH from total alkalinity and DIC or one of its components using a
+    Newton-Raphson iterative method.
+    
     Although it is coded for H on the total pH scale, for the pH values occuring in
     seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as
     long as the K Constants are on that scale.
-
-    Based on CalculatepHfromTATC, version 04.01, 10-13-96, by Ernie Lewis.
-    SVH2007: Made this to accept vectors. It will continue iterating until all values in
-    the vector are "abs(deltapH) < pHTol".
+    
+    Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
-    pH = initialise.fromTC(
-        TA, TC, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
-    )  # first guess, added v1.3.0
+    # First guess inspired by M13/OE15, added v1.3.0:
+    pH = initialfunc(TA, VX, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"])
     deltapH = 1.0 + pHTol
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
     while np_any(np_abs(deltapH) >= pHTol):
         pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = delta.pHfromTATC(pH, TA, TC, FREEtoTOT, Ks, totals)
+        deltapH = deltafunc(pH, TA, VX, FREEtoTOT, Ks, totals)  # the pH jump
         # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
+        abs_deltapH = np_abs(deltapH)
+        sign_deltapH = sign(deltapH)
+        # Jump by 1 instead if `deltapH` > 5
+        deltapH = where(abs_deltapH > 5.0, sign_deltapH, deltapH)
+        # Jump by 0.5 instead if 1 < `deltapH` < 5
+        deltapH = where(
+            (abs_deltapH > 0.5) & (abs_deltapH <= 5.0), 0.5 * sign_deltapH, deltapH,
+        )  # assumes that once we're within 1 of the correct pH, we will converge
         pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
-@errstate(invalid="ignore")
-def pHfromTAfCO2(TA, fCO2, K0, Ks, totals):
-    """Calculate pH from total alkalinity and CO2 fugacity.
-
-    This calculates pH from TA and fCO2 using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
-
-    Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
-    """
-    pH = initialise.fromCO2(
-        TA, K0 * fCO2, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
-    )  # first guess, added v1.3.0
-    deltapH = 1.0 + pHTol
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = delta.pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, K0, Ks, totals)
-        # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
-    return pH
+def pHfromTATC(TA, TC, Ks, totals):
+    """Calculate pH from total alkalinity and dissolved inorganic carbon."""
+    return _pHfromTAVX(TA, TC, Ks, totals, initialise.fromTC, delta.pHfromTATC)
 
 
-@errstate(invalid="ignore")
+def pHfromTAfCO2(TA, fCO2, Ks, totals):
+    """Calculate pH from total alkalinity and CO2 fugacity."""
+    # Slightly more convoluted than the others because initialise.fromCO2 takes CO2 as
+    # an input, while delta.pHfromTAfCO2 takes fCO2.
+    return _pHfromTAVX(
+        TA,
+        fCO2,
+        Ks,
+        totals,
+        lambda TA, fCO2, TB, K1, K2, KB: initialise.fromCO2(
+            TA, Ks["K0"] * fCO2, TB, K1, K2, KB
+        ),  # this just transforms initalise.fromCO2 to take fCO2 in place of CO2
+        delta.pHfromTAfCO2,
+    )
+
+
 def pHfromTACarb(TA, CARB, Ks, totals):
-    """Calculate pH from total alkalinity and carbonate ion.
-
-    This calculates pH from TA and Carb using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K constants are on that scale.
-
-    Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
-    """
-    pH = initialise.fromCO3(
-        TA, CARB, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
-    )  # first guess
-    deltapH = 1.0 + pHTol
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = delta.pHfromTACarb(pH, TA, CARB, FREEtoTOT, Ks, totals)
-        # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
-    return pH
+    """Calculate pH from total alkalinity and carbonate ion molinity."""
+    return _pHfromTAVX(TA, CARB, Ks, totals, initialise.fromCO3, delta.pHfromTACarb)
 
 
-@errstate(invalid="ignore")
 def pHfromTAHCO3(TA, HCO3, Ks, totals):
-    """Calculate pH from total alkalinity and bicarbonate ion.
-
-    This calculates pH from TA and HCO3 using K1 and K2 by Newton's method.
-    It tries to solve for the pH at which Residual = 0.
-    The starting guess is pH = 8.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K constants are on that scale.
-    """
-    pH = initialise.fromHCO3(
-        TA, HCO3, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"]
-    )  # first guess
-    deltapH = 1.0 + pHTol
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = delta.pHfromTAHCO3(pH, TA, HCO3, FREEtoTOT, Ks, totals)
-        # To keep the jump from being too big:
-        deltapH = where(np_abs(deltapH) > 1, deltapH / 2, deltapH)
-        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
-    return pH
+    """Calculate pH from total alkalinity and bicarbonate ion molinity."""
+    return _pHfromTAVX(TA, HCO3, Ks, totals, initialise.fromHCO3, delta.pHfromTAHCO3)
 
 
 def fCO2fromTCpH(TC, pH, K0, K1, K2):

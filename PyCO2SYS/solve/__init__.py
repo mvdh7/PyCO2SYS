@@ -37,7 +37,7 @@ def core(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFac, Ks, totals):
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     F = (Icase == 14) | (Icase == 15) | (Icase == 18)  # input TA, [pCO2|fCO2|CO2aq]
     if any(F):
-        PH = where(F, get.pHfromTAfCO2(TA - PengCx, FC, K0, Ks, totals), PH)
+        PH = where(F, get.pHfromTAfCO2(TA - PengCx, FC, Ks, totals), PH)
         TC = where(F, get.TCfromTApH(TA - PengCx, PH, Ks, totals), TC)
         CARB = where(F, get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         HCO3 = where(F, get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
