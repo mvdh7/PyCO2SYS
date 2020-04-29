@@ -7,7 +7,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import equilibria, gas, meta, salts, solve
+from . import equilibria, gas, salts, solve
 
 
 def inputs(input_locals):
@@ -430,24 +430,3 @@ def CO2SYS(
         BORON,
         KSO4CONSTANTS=KSO4CONSTANTS,
     )
-
-
-def say_hello():
-    print(" ")
-    print("   Program PyCO2SYS, version {}.".format(meta.version))
-    print(" ")
-    print(" ")
-    print("  Py  CCCC       OOOOO        222        SSS      YY      YY      SSS  ")
-    print("     CC   C     OO   OO     22   22    SS   SS     YY    YY     SS   SS")
-    print("    CC         OO     OO         22    SS           YY  YY      SS     ")
-    print("    CC         OO     OO        22        S           YY          SSS  ")
-    print("    CC         OO     OO       22           SS        YY             SS")
-    print("     CC   C     OO   OO      22        SS   SS        YY        SS   SS")
-    print("      CCCC       OOOOO      2222222      SSS          YY          SSS  ")
-    print(" ")
-    print(" ")
-    print("   Lasciate ogni speranza, voi ch' entrate!")
-    #             (All hope abandon, ye who enter here.)
-    print("                                    Dante, Inferno iii, 9 ")
-    print("                                    sign on the entrance gates of hell")
-    print(" ")

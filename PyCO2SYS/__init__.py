@@ -51,4 +51,4 @@ __version__ = meta.version
 
 # Alias for top-level access
 CO2SYS = engine.CO2SYS
-engine.say_hello()  # because history
+meta.say_hello()  # because history
