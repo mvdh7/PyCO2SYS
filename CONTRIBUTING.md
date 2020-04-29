@@ -48,12 +48,9 @@ A very approximate plan of future additions to the code, and the person leading 
 
   * Pythonise the package structure so the backend should henceforth remain more stable ([mvdh7](https://github.com/mvdh7)).
   * Add API for integration with Pandas and Xarray ([luke-gregor](https://github.com/luke-gregor))
+  * Calculate a full array of buffer factors with Autograd ([mvdh7](https://github.com/mvdh7))
 
 ### v1.4
-
-  * Calculate a full array of buffer factors ([mvdh7](https://github.com/mvdh7)).
-  
-### v1.5
 
   * Error propagation à la [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o) ([mvdh7](https://github.com/mvdh7)).
 
