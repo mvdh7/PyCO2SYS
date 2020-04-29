@@ -49,6 +49,6 @@ __all__ = [
 __author__ = meta.authors
 __version__ = meta.version
 
-# Alias for top-level access
+# Aliases for top-level access
 CO2SYS = engine.CO2SYS
-meta.say_hello()  # because history
+say_hello = meta.say_hello  # because history

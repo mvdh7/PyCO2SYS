@@ -38,6 +38,8 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     ***Improved calculations***
 
+    * The Revelle factor and all other buffer factors added in v1.2 are now evaluated using automatic differentiation, which means that the effects of all equilibrating species are taken into account.
+        * The original, non-automatic functions that do not account for nutrient effects are still available in `buffers.explicit`.
     * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
     * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
     * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.

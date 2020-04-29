@@ -7,6 +7,9 @@ Click on each reference to see more details.
 ??? note "B76: Berner (1976) *Am. J. Sci.*"
     Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. *American Journal of Science* 276, 713–730. [doi:10.2475/ajs.276.6.713](https://doi.org/10.2475/ajs.276.6.713).
 
+??? note "BTSP79: Broecker et al. (1979) *Science*"
+    Broecker, W. S., Takahashi, T., Simpson, H. J., and Peng, T.-H. (1979). Fate of Fossil Fuel Carbon Dioxide and the Global Carbon Budget. *Science* 206, 409–418. [doi:10.1126/science.206.4417.409](https://doi.org/10.1126/science.206.4417.409).
+
 ### C
 
 ??? note "C65: Culkin (1965) in *Chemical Oceanography*"

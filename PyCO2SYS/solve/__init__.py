@@ -129,8 +129,8 @@ def others(
     TC = core_solved["TC"]
     PH = core_solved["PH"]
     PC = core_solved["PC"]
+    FC = core_solved["FC"]
     CARB = core_solved["CARB"]
-    CO2 = core_solved["CO2"]
     # Apply Peng correction
     TAPeng = TA - totals["PengCorrection"]
     # Calculate pKs
@@ -151,23 +151,11 @@ def others(
     pHT, pHS, pHF, pHN = convert.pH2allscales(
         PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], Ks["fH"]
     )
-    # Buffers by explicit calculation
-    Revelle = buffers.explicit.RevelleFactor(TAPeng, TC, Ks, totals)
-    # # Evaluate ESM10 buffer factors (corrected following RAH18) [added v1.2.0]
-    # gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.explicit.buffers_ESM10(
-    #     TC, TAPeng, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"]
-    # )
-    # Evaluate (approximate) isocapnic quotient [HDW18] and psi [FCG94] [added v1.2.0]
-    isoQ = buffers.explicit.bgc_isocap(
-        CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
-    )
+    # Approximate isocapnic quotient of HDW18
     isoQx = buffers.explicit.bgc_isocap_approx(TC, PC, Ks["K0"], Ks["K1"], Ks["K2"])
-    psi = buffers.explicit.psi(
-        CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
-    )
     # Evaluate buffers with automatic differentiation [added v1.3.0]
-    gammaTC, betaTC, omegaTC, gammaTA, betaTA, omegaTA = buffers.allfactors(
-        TA,
+    allbuffers_ESM10 = buffers.all_ESM10(
+        TAPeng,
         TC,
         PH,
         CARB,
@@ -178,6 +166,9 @@ def others(
         Ks,
         totals,
     )
+    isoQ = buffers.isoQ(TAPeng, TC, PH, FC, Ks, totals)
+    psi = buffers.psi(isoQ)
+    Revelle = buffers.RevelleFactor(TAPeng, TC, PH, Ks, totals)
     return {
         "pK1": pK1,
         "pK2": pK2,
@@ -199,12 +190,12 @@ def others(
         "pHF": pHF,
         "pHN": pHN,
         "Revelle": Revelle,
-        "gammaTC": gammaTC,
-        "betaTC": betaTC,
-        "omegaTC": omegaTC,
-        "gammaTA": gammaTA,
-        "betaTA": betaTA,
-        "omegaTA": omegaTA,
+        "gammaTC": allbuffers_ESM10['gammaTC'],
+        "betaTC": allbuffers_ESM10['betaTC'],
+        "omegaTC": allbuffers_ESM10['omegaTC'],
+        "gammaTA": allbuffers_ESM10['gammaTA'],
+        "betaTA": allbuffers_ESM10['betaTA'],
+        "omegaTA": allbuffers_ESM10['omegaTA'],
         "isoQ": isoQ,
         "isoQx": isoQx,
         "psi": psi,
