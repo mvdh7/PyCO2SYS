@@ -44,13 +44,13 @@ Any changes that you make should be added to appropriate set of release notes in
 
 A very approximate plan of future additions to the code, and the person leading their implementation (get in touch with them to contribute):
 
-### v1.3 (release imminent)
+### v1.3 (release at end of April)
 
   * Pythonise the package structure so the backend should henceforth remain more stable ([mvdh7](https://github.com/mvdh7)).
   * Add API for integration with Pandas and Xarray ([luke-gregor](https://github.com/luke-gregor))
   * Calculate a full array of buffer factors with Autograd ([mvdh7](https://github.com/mvdh7))
 
-### v1.4
+### v1.4 (release during May)
 
   * Error propagation à la [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o) ([mvdh7](https://github.com/mvdh7)).
 
