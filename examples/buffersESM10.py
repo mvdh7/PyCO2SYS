@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from PyCO2SYS import CO2SYS
+import PyCO2SYS as pyco2
 
 # Define input conditions
 dic = np.linspace(1600, 3200, 1601)
@@ -12,7 +12,7 @@ si = 0
 phos = 0
 
 # Run CO2SYS
-cdict = CO2SYS(ta, dic, 1, 2, sal, tmp, tmp, prs, prs, si, phos, 3, 10, 3)
+cdict = pyco2.CO2SYS(ta, dic, 1, 2, sal, tmp, tmp, prs, prs, si, phos, 3, 10, 3)
 
 # Recreate ESM10 Fig. 2
 fvars = ["gammaTCin", "gammaTAin", "betaTCin", "betaTAin", "omegaTCin", "omegaTAin"]
@@ -37,14 +37,14 @@ ax.set_xlabel("DIC (mM)")
 ax.set_ylabel("buffer factor (mM)")
 ax.grid(alpha=0.4)
 
-#%% Compare with MATLAB
-from scipy.io import loadmat
+# #%% Compare with MATLAB
+# from scipy.io import loadmat
 
-mvers = loadmat("../../oceancarb-constants/ESM10_test_202004120.mat")
-d_dic = cdict["TCO2"] - mvers["dic"].ravel()
-d_gDIC = cdict["gammaTCin"] * 1e6 - mvers["gDIC"].ravel()
-d_bDIC = cdict["betaTCin"] * 1e6 - mvers["bDIC"].ravel()
-d_oDIC = cdict["omegaTCin"] * 1e6 - mvers["oDIC"].ravel()
-d_gAlk = cdict["gammaTAin"] * 1e6 - mvers["gALK"].ravel()
-d_bAlk = cdict["betaTAin"] * 1e6 - mvers["bALK"].ravel()
-d_oAlk = cdict["omegaTAin"] * 1e6 - mvers["oALK"].ravel()
+# mvers = loadmat("../../oceancarb-constants/ESM10_test_202004120.mat")
+# d_dic = cdict["TCO2"] - mvers["dic"].ravel()
+# d_gDIC = cdict["gammaTCin"] * 1e6 - mvers["gDIC"].ravel()
+# d_bDIC = cdict["betaTCin"] * 1e6 - mvers["bDIC"].ravel()
+# d_oDIC = cdict["omegaTCin"] * 1e6 - mvers["oDIC"].ravel()
+# d_gAlk = cdict["gammaTAin"] * 1e6 - mvers["gALK"].ravel()
+# d_bAlk = cdict["betaTAin"] * 1e6 - mvers["bALK"].ravel()
+# d_oAlk = cdict["omegaTAin"] * 1e6 - mvers["oALK"].ravel()
