@@ -27,6 +27,7 @@ def CO2SYS_wrap(
     KSO4_constants=1,
     KF_constant=1,
     pHscale_in=1,
+    buffers_mode="auto",
     verbose=True,
 ):
     """
@@ -100,6 +101,11 @@ def CO2SYS_wrap(
         2  =  Seawater scale
         3  =  Free scale
         4  =  NBS scale
+    buffers_mode : str
+        Which method to use to evaluate buffer factors.
+        'auto'     = automatic differentiation (DEFAULT)
+        'explicit' = explicit equations but without nutrient effects
+        'none'     = do not calculate buffers, return NaNs for them
 
     Returns
     -------
@@ -200,6 +206,7 @@ def CO2SYS_wrap(
             "nh3",
             "h2s",
             "KF_constant",
+            "buffers_mode",
         ],
     ]
     df.columns = [
@@ -220,6 +227,7 @@ def CO2SYS_wrap(
         "NH3",
         "H2S",
         "KFCONSTANT",
+        "buffers_mode",
     ]
 
     # REMOVE NANS FOR EFFICIENCY
@@ -232,7 +240,7 @@ def CO2SYS_wrap(
 
     # COMPUTING CO2sys PARAMETERS
     printv("Computing CO2 parameters")
-    dict_out = CO2SYS(*df_nonan.values.T)
+    dict_out = CO2SYS(*df_nonan.values.T, buffers_mode=buffers_mode)
 
     # CONVERTING DICTIONARY TO PADNAS.DATAFRAME
     # here we convert to a pandas.DataFrame and we use the index

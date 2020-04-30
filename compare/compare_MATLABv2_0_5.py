@@ -27,7 +27,7 @@ co2inputs = [
     ]
 ]
 go = time()
-co2py = pyco2.CO2SYS(*co2inputs)
+co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="auto")
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
 

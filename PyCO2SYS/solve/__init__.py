@@ -3,7 +3,7 @@
 """Solve the marine carbonate system from any two of its variables."""
 
 from . import delta, initialise, get
-from autograd.numpy import isin, log10, where
+from autograd.numpy import full, isin, log10, nan, size, where
 from .. import buffers, convert, gas, solubility
 
 __all__ = ["delta", "initialise", "get"]
@@ -121,7 +121,7 @@ def core(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFac, Ks, totals):
 
 
 def others(
-    core_solved, Sal, TempC, Pdbar, Ks, totals, pHScale, WhichKs,
+    core_solved, Sal, TempC, Pdbar, Ks, totals, pHScale, WhichKs, buffers_mode,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -131,6 +131,8 @@ def others(
     PC = core_solved["PC"]
     FC = core_solved["FC"]
     CARB = core_solved["CARB"]
+    HCO3 = core_solved["HCO3"]
+    CO2 = core_solved["CO2"]
     # Apply Peng correction
     TAPeng = TA - totals["PengCorrection"]
     # Calculate pKs
@@ -151,24 +153,74 @@ def others(
     pHT, pHS, pHF, pHN = convert.pH2allscales(
         PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], Ks["fH"]
     )
-    # Approximate isocapnic quotient of HDW18
-    isoQx = buffers.explicit.bgc_isocap_approx(TC, PC, Ks["K0"], Ks["K1"], Ks["K2"])
-    # Evaluate buffers with automatic differentiation [added v1.3.0]
-    allbuffers_ESM10 = buffers.all_ESM10(
-        TAPeng,
-        TC,
-        PH,
-        CARB,
-        Sal,
-        convert.TempC2K(TempC),
-        convert.Pdbar2bar(Pdbar),
-        WhichKs,
-        Ks,
-        totals,
-    )
-    isoQ = buffers.isoQ(TAPeng, TC, PH, FC, Ks, totals)
-    psi = buffers.psi(isoQ)
-    Revelle = buffers.RevelleFactor(TAPeng, TC, PH, Ks, totals)
+    # Get buffers as and if requested
+    assert all(
+        isin(buffers_mode, ["auto", "explicit", "none"])
+    ), "Valid options for buffers_mode are 'auto', 'explicit' or 'none'."
+    isoQx = full(size(Sal), nan)
+    isoQ = full(size(Sal), nan)
+    Revelle = full(size(Sal), nan)
+    psi = full(size(Sal), nan)
+    esm10buffers = [
+        "gammaTC",
+        "betaTC",
+        "omegaTC",
+        "gammaTA",
+        "betaTA",
+        "omegaTA",
+    ]
+    allbuffers_ESM10 = {buffer: full(size(Sal), nan) for buffer in esm10buffers}
+    F = buffers_mode == "auto"
+    if any(F):
+        # Evaluate buffers with automatic differentiation [added v1.3.0]
+        auto_ESM10 = buffers.all_ESM10(
+            TAPeng,
+            TC,
+            PH,
+            CARB,
+            Sal,
+            convert.TempC2K(TempC),
+            convert.Pdbar2bar(Pdbar),
+            WhichKs,
+            Ks,
+            totals,
+        )
+        for buffer in esm10buffers:
+            allbuffers_ESM10[buffer] = where(
+                F, auto_ESM10[buffer], allbuffers_ESM10[buffer]
+            )
+        isoQ = where(F, buffers.isocap(TAPeng, TC, PH, FC, Ks, totals), isoQ)
+        Revelle = where(F, buffers.RevelleFactor(TAPeng, TC, PH, Ks, totals), Revelle)
+    F = buffers_mode == "explicit"
+    if any(F):
+        # Evaluate buffers with explicit equations but ignoring nutrient effects
+        expl_ESM10 = buffers.explicit.all_ESM10(
+            TC, TAPeng, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"],
+        )
+        for buffer in esm10buffers:
+            allbuffers_ESM10[buffer] = where(
+                F, expl_ESM10[buffer], allbuffers_ESM10[buffer]
+            )
+        isoQ = where(
+            F,
+            buffers.explicit.isocap(
+                CO2, PH, Ks["K1"], Ks["K2"], Ks["KB"], Ks["KW"], totals["TB"]
+            ),
+            isoQ,
+        )
+        Revelle = where(
+            F, buffers.explicit.RevelleFactor(TAPeng, TC, Ks, totals), Revelle
+        )
+    F = buffers_mode != "none"
+    if any(F):
+        # Approximate isocapnic quotient of HDW18
+        isoQx = where(
+            F,
+            buffers.explicit.isocap_approx(TC, PC, Ks["K0"], Ks["K1"], Ks["K2"]),
+            isoQx,
+        )
+        # psi of FCG94 following HDW18
+        psi = where(F, buffers.psi(isoQ), psi)
     return {
         "pK1": pK1,
         "pK2": pK2,
@@ -190,12 +242,12 @@ def others(
         "pHF": pHF,
         "pHN": pHN,
         "Revelle": Revelle,
-        "gammaTC": allbuffers_ESM10['gammaTC'],
-        "betaTC": allbuffers_ESM10['betaTC'],
-        "omegaTC": allbuffers_ESM10['omegaTC'],
-        "gammaTA": allbuffers_ESM10['gammaTA'],
-        "betaTA": allbuffers_ESM10['betaTA'],
-        "omegaTA": allbuffers_ESM10['omegaTA'],
+        "gammaTC": allbuffers_ESM10["gammaTC"],
+        "betaTC": allbuffers_ESM10["betaTC"],
+        "omegaTC": allbuffers_ESM10["omegaTC"],
+        "gammaTA": allbuffers_ESM10["gammaTA"],
+        "betaTA": allbuffers_ESM10["betaTA"],
+        "omegaTA": allbuffers_ESM10["omegaTA"],
         "isoQ": isoQ,
         "isoQx": isoQx,
         "psi": psi,

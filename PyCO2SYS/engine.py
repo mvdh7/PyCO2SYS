@@ -192,6 +192,7 @@ def _CO2SYS(
     KSO4CONSTANT,
     KFCONSTANT,
     BORON,
+    buffers_mode,
     KSO4CONSTANTS=0,
 ):
     # Condition inputs and assign input values to the 'historical' variable names
@@ -214,6 +215,7 @@ def _CO2SYS(
     WhoseKSO4 = args["KSO4CONSTANT"]
     WhoseKF = args["KFCONSTANT"]
     WhoseTB = args["BORON"]
+    buffers_mode = args["buffers_mode"]
     # Prepare to solve the core marine carbonate system at input conditions
     totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
     Sal = totals["Sal"]
@@ -226,7 +228,7 @@ def _CO2SYS(
     core_in = solvecore(PAR1, PAR2, p1, p2, totals, FugFaci, Kis, True)
     # Calculate all other results at input conditions
     others_in = solve.others(
-        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs,
+        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs, buffers_mode,
     )
     # Prepare to solve the core MCS at output conditions
     Kos = equilibria.assemble(
@@ -242,7 +244,7 @@ def _CO2SYS(
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
-        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs,
+        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
     CO2dict = {
@@ -361,6 +363,7 @@ def _CO2SYS(
         "psi_out": others_out["psi"],
         # Added in v1.3.0:
         "TCa": totals["TCa"] * 1e6,
+        "buffers_mode": buffers_mode,
     }
     return CO2dict
 
@@ -383,6 +386,7 @@ def CO2SYS(
     NH3=0.0,
     H2S=0.0,
     KFCONSTANT=1,
+    buffers_mode="auto",
 ):
     """Solve the carbonate system using the input parameters.
 
@@ -428,5 +432,6 @@ def CO2SYS(
         KSO4CONSTANT,
         KFCONSTANT,
         BORON,
+        buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
     )

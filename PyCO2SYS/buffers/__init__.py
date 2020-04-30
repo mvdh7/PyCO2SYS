@@ -64,7 +64,7 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):
     }
 
 
-def isoQ(TA, TC, PH, FC, Ks, totals):
+def isocap(TA, TC, PH, FC, Ks, totals):
     """d[TA]/d[TC] at constant fCO2, i.e. Q of HDW18."""
     dTA_dPH__FC = egrad(lambda PH: solve.get.TAfrompHfCO2(PH, FC, Ks, totals))(PH)
     dTC_dPH__FC = egrad(

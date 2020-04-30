@@ -11,10 +11,10 @@ The simplest way to use PyCO2SYS is to follow the approach of previous versions 
     # Run CO2SYS
     CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-        NH3=0.0, H2S=0.0, KFCONSTANT=1)
+        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto")
 
     # Get (e.g.) aragonite saturation state, output conditions
-    OmegaARout = CO2dict['OmegaARout']
+    OmegaARout = CO2dict["OmegaARout"]
 
 Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
 
@@ -35,7 +35,7 @@ Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This
         temp_in=25, temp_out=25, pres_in=0, pres_out=0,
         sal=35, si=0, po4=0, nh3=0, h2s=0,
         K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
-        verbose=True)
+        buffers_mode="auto", verbose=True)
 
 !!! warning
     In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
@@ -134,6 +134,13 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
     * `KFCONSTANT`: which equilibrium constant to use for **hydrogen fluoride dissociation:**
         * `1`: [DR79](../refs/#d) (default, consistent with CO<sub>2</sub>SYS for MATLAB).
         * `2`: [PF87](../refs/#p).
+
+    * `buffers_mode`: how to calculate the various buffer factors (or not).
+        * `'auto'`: using automatic differentiation, which accounts for the effects of all equilibrating solutes (default).
+        * `'explicit'`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
+        * `'none'`: not at all.
+
+    For `buffers_mode`, `'auto'` is the recommended and most accurate calculation, but it is a little slower to compute than `'explicit'`.  If `'none'` is selected, then the corresponding outputs have the value `nan`.
 
 ## Outputs
 

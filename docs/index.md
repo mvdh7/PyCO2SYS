@@ -25,13 +25,13 @@ The import convention for PyCO2SYS will be:
 However, the modules and functions contained within are not yet fully documented.  We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
 
 !!! tip "Do it like in MATLAB"
-    If you are familiar with CO<sub>2</sub>SYS for MATLAB and wish to use PyCO2SYS in exactly the same way:
+    If you are familiar with CO<sub>2</sub>SYS for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
 
         :::python
         from PyCO2SYS import CO2SYS
         CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
             PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-            NH3=0.0, H2S=0.0, KFCONSTANT=1)
+            NH3=0.0, H2S=0.0)
 
     The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
 
@@ -46,7 +46,7 @@ The DOI refers to all versions of PyCO2SYS.  Please be sure to update the versio
 
     :::python
     import PyCO2SYS as pyco2
-    print(pyco2.__version__)
+    pyco2.say_hello()
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](refs/#l).
 
