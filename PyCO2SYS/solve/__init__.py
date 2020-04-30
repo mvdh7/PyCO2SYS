@@ -190,10 +190,13 @@ def others(
                 F, auto_ESM10[buffer], allbuffers_ESM10[buffer]
             )
         isoQ = where(F, buffers.isocap(TAPeng, TC, PH, FC, Ks, totals), isoQ)
-        Revelle = where(F, buffers.RevelleFactor(TAPeng, TC, PH, Ks, totals), Revelle)
+        Revelle = where(
+            F, buffers.RevelleFactor(TAPeng, TC, PH, FC, Ks, totals), Revelle
+        )
     F = buffers_mode == "explicit"
     if any(F):
-        # Evaluate buffers with explicit equations but ignoring nutrient effects
+        # Evaluate buffers with explicit equations, but these don't include nutrients
+        # (i.e. only carbonate, borate and water alkalinities are accounted for)
         expl_ESM10 = buffers.explicit.all_ESM10(
             TC, TAPeng, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"],
         )

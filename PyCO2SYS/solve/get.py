@@ -25,6 +25,7 @@ def CarbfromTCpH(TC, pH, K1, K2):
     return CarbfromTCH(TC, H, K1, K2)
 
 
+@errstate(invalid="ignore")
 def HCO3fromTCH(TC, H, K1, K2):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+]."""
     return TC * K1 * H / (H ** 2 + K1 * H + K1 * K2)
@@ -36,6 +37,7 @@ def HCO3fromTCpH(TC, pH, K1, K2):
     return HCO3fromTCH(TC, H, K1, K2)
 
 
+@errstate(invalid="ignore")
 def AlkParts(TC, pH, FREEtoTOT, Ks, totals):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
@@ -242,7 +244,7 @@ def TCfromTApH(TA, pH, Ks, totals):
     return TC
 
 
-@errstate(invalid="ignore")
+@errstate(divide="ignore", invalid="ignore")
 def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
@@ -254,8 +256,11 @@ def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     """
     RR = K0 * fCO2 / TC
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
-    H = 0.5 * (K1 * RR + sqrt(Discr)) / (1 - RR)
-    H = where(H < 0, nan, H)
+    F = (RR >= 1) | (Discr <= 0)
+    if any(F):
+        print("Some input fCO2 values are impossibly high given the input DIC;")
+        print("returning NaN.")
+    H = where(F, nan, 0.5 * (K1 * RR + sqrt(Discr)) / (1 - RR))
     pH = -log10(H)
     return pH
 
@@ -269,6 +274,7 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
     return K0 * fCO2 * (H ** 2 + K1 * H + K1 * K2) / H ** 2
 
 
+@errstate(invalid="ignore")
 def pHfromTCCarb(TC, CARB, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
@@ -279,7 +285,11 @@ def pHfromTCCarb(TC, CARB, K1, K2):
     """
     RR = 1 - TC / CARB
     Discr = K1 ** 2 - 4 * K1 * K2 * RR
-    H = (-K1 + sqrt(Discr)) / 2
+    F = (CARB >= TC) | (Discr <= 0)
+    if any(F):
+        print("Some input CO3 values are impossibly high given the input DIC;")
+        print("returning NaN.")
+    H = where(F, nan, (-K1 + sqrt(Discr)) / 2)
     return -log10(H)
 
 
@@ -305,6 +315,7 @@ def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     return -log10(H)
 
 
+@errstate(invalid="ignore")
 def pHfromTCHCO3(TC, HCO3, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
@@ -313,7 +324,12 @@ def pHfromTCHCO3(TC, HCO3, K1, K2):
     a = HCO3 / K1
     b = HCO3 - TC
     c = HCO3 * K2
-    H = (-b - sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+    bsq_4ac = b ** 2 - 4 * a * c
+    F = (HCO3 >= TC) | (bsq_4ac <= 0)
+    if any(F):
+        print("Some input HCO3 values are impossibly high given the input DIC;")
+        print("returning NaN.")
+    H = where(F, nan, (-b - sqrt(bsq_4ac)) / (2 * a))
     return -log10(H)
 
 
@@ -332,6 +348,7 @@ def fCO2fromTATC(TA, TC, Ks, totals):
     pH = pHfromTATC(TA, TC, Ks, totals)
     return fCO2fromTCpH(TC, pH, Ks["K0"], Ks["K1"], Ks["K2"])
 
+
 def fCO2fromTApH(TA, pH, Ks, totals):
     """Calculate CO2 fugacity from total alkalinity and pH."""
     TC = TCfromTApH(TA, pH, Ks, totals)
@@ -347,4 +364,4 @@ def CarbfromTATC(TA, TC, Ks, totals):
 def CarbfromTApH(TA, pH, Ks, totals):
     """Calculate carbonate ion from total alkalinity and pH."""
     TC = TCfromTApH(TA, pH, Ks, totals)
-    return CarbfromTCpH(TC, pH, Ks['K1'], Ks['K2'])
+    return CarbfromTCpH(TC, pH, Ks["K1"], Ks["K2"])
