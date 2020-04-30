@@ -1,5 +1,6 @@
-<!-- HTML for table generated with examples/round-robin.py --><table>
-<tr><th style="text-align:right">Variable</th><th style="text-align:center">Mean result</th><th style="text-align:center">Max. abs. diff.</th></tr>
+<!-- HTML for table generated with examples/round-robin.py -->
+<table>
+<tr><th style="text-align:right">Carbonate system parameter</th><th style="text-align:center">Mean result</th><th style="text-align:center">Max. abs. diff.</th></tr>
 <tr><td style="text-align:right">Total alkalinity / μmol/kg-sw</td><td style="text-align:center">2300.0</td><td style="text-align:center">9.09·10<sup>−13</sup></td></tr>
 <tr><td style="text-align:right">Dissolved inorganic carbon / μmol/kg-sw</td><td style="text-align:center">1982.2</td><td style="text-align:center">4.55·10<sup>−13</sup></td></tr>
 <tr><td style="text-align:right">pH (Total scale)</td><td style="text-align:center">8.1</td><td style="text-align:center">1.78·10<sup>−15</sup></td></tr>

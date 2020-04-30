@@ -59,9 +59,9 @@ varnames = {
     "CO2in": "Aqueous CO<sub>2</sub> / μmol/kg-sw",
 }
 with open("examples/results/round-robin.md", "w") as f:
-    f.write("<!-- HTML for table generated with examples/round-robin.py -->")
+    f.write("<!-- HTML for table generated with examples/round-robin.py -->\n")
     f.write("<table>\n")
-    f.write('<tr><th style="text-align:right">Variable</th>')
+    f.write('<tr><th style="text-align:right">Carbonate system parameter</th>')
     f.write('<th style="text-align:center">Mean result</th>')
     f.write('<th style="text-align:center">Max. abs. diff.</th></tr>\n')
     for var in keyvars:
