@@ -140,7 +140,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
         * `'explicit'`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `'none'`: not at all.
 
-    For `buffers_mode`, `'auto'` is the recommended and most accurate calculation, but it is a little slower to compute than `'explicit'`.  If `'none'` is selected, then the corresponding outputs have the value `nan`.
+    For `buffers_mode`, `'auto'` is the recommended and most accurate calculation, and it is a little faster to compute than `'explicit'`.  If `'none'` is selected, then the corresponding outputs have the value `nan`.
 
 ## Outputs
 
