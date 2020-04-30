@@ -33,6 +33,7 @@ nav:
   #     - <code>get</code>: modules/get.md
   #     - <code>initialise</code>: modules/initialise.md
   #   - <code>test</code>: modules/test.md
+  - Validation: validate.md
   - References: refs.md
   - Version history: versions.md
 
