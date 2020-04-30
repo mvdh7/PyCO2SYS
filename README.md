@@ -48,10 +48,11 @@ The default API has been kept as close to the MATLAB version as possible, althou
 ```python
 from PyCO2SYS import CO2SYS
 CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
-    SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1)
+    SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0, KFCONSTANT=1,
+    buffers_mode='auto')
 ```
 
-Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`.  The keys to the dict come from the original MATLAB output `HEADERS`.  Vector inputs should be provided as Numpy arrays.  Everything gets flattened with `ravel`.  Single-value inputs are fine, they are automatically cast into correctly-sized arrays.
+Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`.  The keys to the dict come from the original MATLAB output `HEADERS`.  Vector inputs should be provided as Numpy arrays.  Everything gets flattened with `ravel`.  Single-value inputs are fine - they are automatically cast into correctly-sized arrays.  The extra inputs not present in the MATLAB version are all optional and explained [in the documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/#inputs).
 
 It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).
 

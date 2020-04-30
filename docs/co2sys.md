@@ -185,9 +185,11 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
     #### Buffer factors
 
-    * `'RFin'`/`'RFout'`: **Revelle factor** at input/output conditions.
+    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `buffers_mode`.
+
+    * `'RFin'`/`'RFout'`: **Revelle factor** at input/output conditions[^2].
     * `'psi_in'`/`'psi_out'`: *ψ* of [FCG94](../refs/#f) at input/output conditions.
-    * `'gammaTCin'`/`'gammaTCout'`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions[^2].
+    * `'gammaTCin'`/`'gammaTCout'`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions[^3].
     * `'betaTCin'`/`'betaTCout'`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions.
     * `'omegaTCin'`/`'omegaTCout'`: **buffer factor *ω*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions.
     * `'gammaTAin'`/`'gammaTAout'`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
@@ -250,7 +252,9 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
-[^2]: Equations for the buffer factors of [ESM10](../refs/#e) have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
+[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, as in the MATLAB version of CO<sub>2</sub>SYS.
+
+[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `buffers_mode='explicit'` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
 
 ## The original CO<sub>2</sub>SYS clone
 
