@@ -89,6 +89,7 @@ def roundrobin(
         "KFCONSTANT",
         "BORON",
         "pHSCALEIN",
+        "buffers_mode",
     ]
     diff = {k: v - res0[k] if k not in nodiffs else v for k, v in res.items()}
     return res, diff
