@@ -252,7 +252,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
-[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, as in the MATLAB version of CO<sub>2</sub>SYS.
+[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO<sub>2</sub>SYS.
 
 [^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `buffers_mode='explicit'` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
 
