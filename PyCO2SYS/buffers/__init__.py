@@ -23,7 +23,7 @@ def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, WhichKs, Ks, totals):
     )(CARB)
 
 
-def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):  # fastest
+def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):
     """Get all ESM10 buffer factors with automatic differentiation.
 
     This is more efficient than calculating each one separately because the number of
@@ -83,7 +83,7 @@ def psi(Q):
     return -1.0 + 2.0 / Q
 
 
-def RevelleFactor(TA, TC, PH, FC, Ks, totals):  # fastest
+def RevelleFactor(TA, TC, PH, FC, Ks, totals):
     """Revelle factor as defined by BTSP79."""
     dFC_dPH__TA = egrad(lambda PH: solve.get.fCO2fromTApH(TA, PH, Ks, totals))(PH)
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, Ks, totals))(PH)
@@ -95,7 +95,7 @@ def RevelleFactor_ESM10(TC, gammaTC):
     return TC / gammaTC
 
 
-def gammaTC(TA, PH, Ks, totals):  # fastest
+def gammaTC(TA, PH, Ks, totals):
     """(d[ln(CO2)]/d[TC])^-1 with constant TA, i.e. γ_DIC of ESM10."""
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, Ks, totals))(PH)
     dlnFC_dPH__TA = egrad(lambda PH: log(solve.get.fCO2fromTApH(TA, PH, Ks, totals)))(
@@ -104,7 +104,7 @@ def gammaTC(TA, PH, Ks, totals):  # fastest
     return dTC_dPH__TA / dlnFC_dPH__TA
 
 
-def gammaTA(TC, PH, Ks, totals):  # fastest
+def gammaTA(TC, PH, Ks, totals):
     """(d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10."""
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, Ks, totals))(PH)
     dlnFC_dPH__TC = egrad(
@@ -113,7 +113,7 @@ def gammaTA(TC, PH, Ks, totals):  # fastest
     return dTA_dPH__TC / dlnFC_dPH__TC
 
 
-def betaTC(TA, PH, Ks, totals):  # fastest
+def betaTC(TA, PH, Ks, totals):
     """(d[ln(H)]/d[TC])^-1 with constant TA, i.e. β_DIC of ESM10."""
     dTC_dlnH__TA = egrad(
         lambda lnH: solve.get.TCfromTApH(TA, lnH / ilog10e, Ks, totals)
@@ -121,7 +121,7 @@ def betaTC(TA, PH, Ks, totals):  # fastest
     return dTC_dlnH__TA
 
 
-def betaTA(TC, PH, Ks, totals):  # fastest
+def betaTA(TC, PH, Ks, totals):
     """(d[ln(H)]/d[TA])^-1 with constant TC, i.e. β_Alk of ESM10."""
     dTA_dlnH__TC = egrad(
         lambda lnH: solve.get.TAfromTCpH(TC, lnH / ilog10e, Ks, totals)
@@ -129,7 +129,7 @@ def betaTA(TC, PH, Ks, totals):  # fastest
     return dTA_dlnH__TC
 
 
-def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):  # fastest
+def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):
     """(d[ln(OmegaAr)]/d[TC] with constant TA, i.e. ω_DIC of ESM10."""
     dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, Ks, totals))(PH)
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, Ks, totals))(PH)
@@ -138,7 +138,7 @@ def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):  # fastest
     )
 
 
-def omegaTA(TC, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):  # fastest
+def omegaTA(TC, PH, CARB, Sal, TempK, Pbar, WhichKs, Ks, totals):
     """(d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10."""
     dCARB_dPH__TC = egrad(
         lambda PH: solve.get.CarbfromTCpH(TC, PH, Ks["K1"], Ks["K2"])

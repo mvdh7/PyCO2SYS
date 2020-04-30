@@ -191,7 +191,7 @@ def others(
             )
         isoQ = where(F, buffers.isocap(TAPeng, TC, PH, FC, Ks, totals), isoQ)
         Revelle = where(
-            F, buffers.RevelleFactor(TAPeng, TC, PH, FC, Ks, totals), Revelle
+            F, buffers.RevelleFactor_ESM10(TC, allbuffers_ESM10["gammaTC"]), Revelle
         )
     F = buffers_mode == "explicit"
     if any(F):
