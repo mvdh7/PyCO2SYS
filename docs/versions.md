@@ -24,7 +24,7 @@
 
 ## 1.3
 
-Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able.
+Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.
 
 ### 1.3.0 (forthcoming)
 

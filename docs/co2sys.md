@@ -37,7 +37,7 @@ Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This
         K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
         buffers_mode="auto", verbose=True)
 
-!!! warning
+!!! warning "`CO2SYS_wrap`: incomplete functionality"
     In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
 
 This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
