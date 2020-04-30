@@ -58,6 +58,21 @@ With PyCO2SYS v1.3.0, running the round-robin test with the inputs in the exampl
 
 The maximum absolute differences across all the different input pair combinations are negligible in this example, all at least ten orders of magnitude smaller than the accuracy with which any of these variables can be measured.  The differences are not exactly zero because the iterative pH solvers stop once a certain tolerance threshold is reached.  By default, this threshold is set at 10<sup>−8</sup> (in pH units) in PyCO2SYS.
 
+### Buffer factors
+
+**Automatic vs explicit!**
+
 ## External comparisons
 
 ### CO<sub>2</sub>SYS for MATLAB
+
+The code for PyCO2SYS was originally based on [CO<sub>2</sub>SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
+
+One advantage of comparing with this version of CO<sub>2</sub>SYS is that that MATLAB program has itself been rigorously compared with a suite of similar software packages that have been implemented in several different coding languages by [OEG15](../refs/#o).  In this intercomparison, CO<sub>2</sub>SYS was highly regarded:
+
+!!! quote "[OEG15](../refs/#o) on CO<sub>2</sub>SYS"
+    To compare packages, it was necessary to define a common reference.  Although check values exist for most of the equilibrium constants (Dickson et al., 2007), none are available for  computed variables.  Hence we chose CO2SYS as a relative reference for three reasons: (1) it was the first publicly available package; (2) its core routines already serve as the base code for two other packages (CO2calc and ODV); and (3) its documentation and code reveal the intense effort that its developers have put into ferreting out the right coefficients from the literature and the most appropriate version of formulations for the constants.
+
+If the differences between PyCO2SYS and this CO<sub>2</sub>SYS for MATLAB version can be shown to be negligible, then the conclusions drawn about CO<sub>2</sub>SYS for MATLAB by [OEG15](../refs/#o) could arguably be considered to apply to PyCO2SYS too.
+
+However, PyCO2SYS now calculates a wider array of properties than CO<sub>2</sub>SYS for MATLAB, and it has more inputs and options, so not everything can be tested this way.
