@@ -152,6 +152,9 @@ Click on each reference to see more details.
 ??? note "OE15: Orr & Epitalon (2015) *Geosci. Model Dev.*"
     Orr, J. C., and Epitalon, J.-M. (2015). Improved routines to model the ocean carbonate system: mocsy 2.0. *Geoscientific Model Development* 8, 485–499. [doi:10.5194/gmd-8-485-2015](https://doi.org/10.5194/gmd-8-485-2015).
 
+??? note "OEG15: Orr et al. (2015) *Biogeosciences*"
+    Orr, J. C., Epitalon, J.-M., and Gattuso, J.-P. (2015). Comparison of ten packages that compute ocean carbonate chemistry. *Biogeosciences* 12, 1483–1510. [doi:10.5194/bg-12-1483-2015](https://doi.org/10.5194/bg-12-1483-2015).
+
 ??? note "OEDG18: Orr et al. (2018) *Mar. Chem.*"
     Orr, J. C., Epitalon, J.-M., Dickson, A. G., and Gattuso, J.-P. (2018). Routine uncertainty propagation for the marine carbon dioxide system. *Marine Chemistry* 207, 84–107. [doi:10.1016/j.marchem.2018.10.006](https://doi.org/10.1016/j.marchem.2018.10.006).
 
