@@ -103,9 +103,9 @@ def CO2SYS_wrap(
         4  =  NBS scale
     buffers_mode : str
         Which method to use to evaluate buffer factors.
-        'auto'     = automatic differentiation (DEFAULT)
-        'explicit' = explicit equations but without nutrient effects
-        'none'     = do not calculate buffers, return NaNs for them
+        'auto'      =  automatic differentiation (DEFAULT)
+        'explicit'  =  explicit equations but without nutrient effects
+        'none'      =  do not calculate buffers, return NaNs for them
 
     Returns
     -------
@@ -236,11 +236,11 @@ def CO2SYS_wrap(
     # the nans in the data. This will speed up things quite a bit if there
     # are a large number of nans, which may often be the case if you're
     # giving xarray datasets to the function.
-    df_nonan = df.dropna(subset=[df.columns[0], df.columns[1]]).astype(float)
+    df_nonan = df.dropna(subset=[df.columns[0], df.columns[1]])
 
     # COMPUTING CO2sys PARAMETERS
     printv("Computing CO2 parameters")
-    dict_out = CO2SYS(*df_nonan.values.T, buffers_mode=buffers_mode)
+    dict_out = CO2SYS(*df_nonan.values.T)
 
     # CONVERTING DICTIONARY TO PADNAS.DATAFRAME
     # here we convert to a pandas.DataFrame and we use the index
