@@ -15,13 +15,13 @@ Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sy
 
 The citation for PyCO2SYS alone is:
 
-> Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., & Wallace, D.W.R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3746347](http://doi.org/10.5281/zenodo.3746347).
+> Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., & Wallace, D.W.R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
-The DOI above refers to all versions of PyCO2SYS.  Please be sure to update the version number if necessary.  You can find the current version that you are using in Python with:
+The DOI above refers to all versions of PyCO2SYS.  Please be sure to update the version number in the citation if necessary.  You can find the current version that you are using in Python with:
 
 ```python
 import PyCO2SYS as pyco2
-print(pyco2.__version__)
+pyco2.say_hello()
 ```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
