@@ -15,21 +15,28 @@ authors = " and ".join(authorlist)
 
 
 def say_hello():
-    print(" ")
-    print("   Program PyCO2SYS, version {}.".format(version))
-    print(" ")
-    print(" ")
-    print("  Py  CCCC       OOOOO        222        SSS      YY      YY      SSS  ")
-    print("     CC   C     OO   OO     22   22    SS   SS     YY    YY     SS   SS")
-    print("    CC         OO     OO         22    SS           YY  YY      SS     ")
-    print("    CC         OO     OO        22        S           YY          SSS  ")
-    print("    CC         OO     OO       22           SS        YY             SS")
-    print("     CC   C     OO   OO      22        SS   SS        YY        SS   SS")
-    print("      CCCC       OOOOO      2222222      SSS          YY          SSS  ")
-    print(" ")
-    print(" ")
-    print("   Lasciate ogni speranza, voi ch' entrate!")
-    #         (All hope abandon, ye who enter here.)
-    print("                                    Dante, Inferno iii, 9 ")
-    print("                                    sign on the entrance gates of hell")
-    print(" ")
+    print(
+        """
+ MP Humphreys, L Gregor, D Pierrot, SMAC van Heuven, E Lewis & D Wallace
+  
+                             ~~~ present ~~~
+                                  
+        PyCO2SYS: marine carbonate system calculations in Python.       
+            Version {}. Zenodo. doi:10.5281/zenodo.3744275
+
+
+  Py  CCCC       OOOOO        222        SSS      YY      YY      SSS
+     CC   C     OO   OO     22   22    SS   SS     YY    YY     SS   SS
+    CC         OO     OO         22    SS           YY  YY      SS
+    CC         OO     OO        22        S           YY          SSS
+    CC         OO     OO       22           SS        YY             SS
+     CC   C     OO   OO      22        SS   SS        YY        SS   SS
+      CCCC       OOOOO      2222222      SSS          YY          SSS
+
+
+   Lasciate ogni speranza, voi ch' entrate!
+                                    Dante, Inferno iii, 9
+                                    sign on the entrance gates of hell""".format(
+            version
+        )
+    )  # (All hope abandon, ye who enter here!)
