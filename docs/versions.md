@@ -32,16 +32,19 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     ***New features***
 
-    * Added bicarbonate ion (type `7`) and aqueous CO<sub>2</sub> (type `8`) as options for initial marine carbonate system variables.
+    * Added bicarbonate ion (type `7`) and aqueous CO<sub>2</sub> (type `8`) as options for known input marine carbonate system variables.
     * Added module `test` with functions to perform internal consistency checks on `PyCO2SYS.CO2SYS` calculations and compare results with those from other sources.
-    * Added module `api` with a wrapper for the `CO2SYS` function to allow inputs as Pandas Series and/or Xarray DataArrays.
+    * Added module `api` with a wrapper for `PyCO2SYS.CO2SYS` to allow inputs as Pandas Series and/or Xarray DataArrays.
 
     ***Improved calculations***
 
     * The Revelle factor and all other buffer factors added in v1.2 are now evaluated using automatic differentiation, which means that the effects of all equilibrating species are taken into account.
         * The original, non-automatic functions that do not account for nutrient effects are still available in `buffers.explicit`.
         * Can switch between calculation methods using new optional input `buffers_mode`.
-    * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO<sub>2</sub>SYS for MATLAB!*
+    * Corrected Revelle factor calculations:
+        * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO2SYS for MATLAB!*
+        * Decreased DIC perturbation size for more accurate finite-difference "explicit" evaluation.
+        *
     * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
     * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
@@ -77,11 +80,12 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     ***Miscellaneous***
 
     * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
+        * Validation section added with internal consistency checks and an external comparison of PyCO2SYS calculations.
     * All code now formatted with [Black](https://github.com/psf/black) (except for module `original`).
 
 ## 1.2
 
-Adds additional buffer factor calculations that are not currently included in CO<sub>2</sub>SYS for MATLAB.  New releases are henceforth assigned DOIs from Zenodo.
+Adds additional buffer factor calculations that are not currently included in CO2SYS for MATLAB.  New releases are henceforth assigned DOIs from Zenodo.
 
 ### 1.2.1 (9 Apr 2020)
 

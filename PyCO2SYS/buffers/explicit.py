@@ -57,9 +57,12 @@ def psi(CO2, pH, K1, K2, KB, KW, TB):
     return -1 + 2 / Q
 
 
-def RevelleFactor(TA, TC, Ks, totals):
-    """Calculate the Revelle Factor from total alkalinity and dissolved
-    inorganic carbon.
+def RevelleFactor_MATLAB(TA, TC, Ks, totals):
+    """Calculate the Revelle Factor from total alkalinity and dissolved inorganic
+    carbon using the exact method of CO2SYS for MATLAB.
+    
+    This includes an error whereby `TC_minus = TC - dTC` is used instead of just `TC`
+    in the final evaluation of the Revelle factor.
 
     This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
     It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the 
@@ -79,6 +82,33 @@ def RevelleFactor(TA, TC, Ks, totals):
     fCO2_minus = solve.get.fCO2fromTCpH(
         TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
     )
-    # Calculate Revelle Factor
+    # Calculate Revelle Factor (`TC_minus` should be just `TC`)
     Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC_minus)
+    return Revelle
+
+
+def RevelleFactor(TA, TC, Ks, totals):
+    """Calculate the Revelle Factor from total alkalinity and dissolved inorganic 
+    carbon using the corrected method of CO2SYS for MATLAB.
+
+    This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
+    It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the 
+    given K(), which may be at pressure <> 1 atm. Care must thus be used to see if there 
+    is any validity to the number computed.
+
+    Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
+    """
+    dTC = 0.01e-6  # 0.01 umol/kg-SW
+    # Find fCO2 at TA, TC+dTC
+    TC_plus = TC + dTC
+    pH_plus = solve.get.pHfromTATC(TA, TC_plus, Ks, totals)
+    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
+    # Find fCO2 at TA, TC-dTC
+    TC_minus = TC - dTC
+    pH_minus = solve.get.pHfromTATC(TA, TC_minus, Ks, totals)
+    fCO2_minus = solve.get.fCO2fromTCpH(
+        TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
+    )
+    # Calculate Revelle Factor (`TC` replaces `TC_minus` of `RevelleFactor_MATLAB`)
+    Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC)
     return Revelle
