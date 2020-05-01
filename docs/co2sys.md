@@ -2,7 +2,7 @@
 
 ## Syntax
 
-The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO<sub>2</sub>SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
+The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
 
     :::python
     # Import the function
@@ -48,7 +48,7 @@ You can see some working examples of PyCO2SYS in action on Github at [mvdh7/PyCO
 
 ## Inputs
 
-Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
+Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
 
 !!! info "`PyCO2SYS.CO2SYS` inputs"
     #### Carbonate system parameters
@@ -127,12 +127,12 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
         * `3`: [D90a](../refs/#d) for bisulfate dissociation and [LKB10](../refs/#l) for borate:salinity.
         * `4`: [KRCB77](../refs/#k) for bisulfate dissociation and [LKB10](../refs/#l) for borate:salinity.
 
-    The somewhat inelegant approach for combining these into a single option is inherited from CO<sub>2</sub>SYS for MATLAB and retained here for consistency.
+    The somewhat inelegant approach for combining these into a single option is inherited from CO2SYS for MATLAB and retained here for consistency.
 
     *Optional:*
 
     * `KFCONSTANT`: which equilibrium constant to use for **hydrogen fluoride dissociation:**
-        * `1`: [DR79](../refs/#d) (default, consistent with CO<sub>2</sub>SYS for MATLAB).
+        * `1`: [DR79](../refs/#d) (default, consistent with CO2SYS for MATLAB).
         * `2`: [PF87](../refs/#p).
 
     * `buffers_mode`: how to calculate the various buffer factors (or not).
@@ -144,7 +144,7 @@ Most of the inputs should be familiar to previous users of CO<sub>2</sub>SYS for
 
 ## Outputs
 
-The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). The keys to the dict are the same as the entries in the output `HEADERS` in CO<sub>2</sub>SYS for MATLAB and are listed in the section below.
+The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). The keys to the dict are the same as the entries in the output `HEADERS` in CO2SYS for MATLAB and are listed in the section below.
 
 !!! abstract "`PyCO2SYS.CO2SYS` outputs"
     The only output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). Its keys are as follows:
@@ -252,13 +252,13 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
-[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO<sub>2</sub>SYS.
+[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
 
 [^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `buffers_mode='explicit'` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
 
-## The original CO<sub>2</sub>SYS clone
+## The original CO2SYS clone
 
-Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO<sub>2</sub>SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
+Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO2SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
 
 !!! warning
     We strongly recommend that you use the Pythonised version [described above](#syntax)!

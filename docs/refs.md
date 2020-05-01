@@ -56,6 +56,9 @@ Click on each reference to see more details.
 
 ### G
 
+<!-- ??? note "GELO19: Gattuso et al. (2019) *seacarb: seawater carbonate...*"
+    Gattuso J.-P., Epitalon J.-M., Lavigne H. and Orr J., 2019. seacarb: seawater carbonate chemistry. R package version 3.2.12. https://CRAN.R-project.org/package=seacarb. -->
+
 ??? note "GG46: Goff & Gratch (1946) *Trans. Am. Heat. Vent. Eng.*"
     Goff, J. A., and Gratch, S. (1946). Low-pressure properties of water from -160 to 212 °F. *Transactions of the American Society of Heating and Ventilating Engineers* 52, 95–122.
 
@@ -76,7 +79,7 @@ Click on each reference to see more details.
 ??? note "HGP20: Humphreys et al. (2020) *"PyCO2SYS: marine carbonate...""*"
     Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0. *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
-??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB program..."*"
+??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
 
 ### I
@@ -116,6 +119,9 @@ Click on each reference to see more details.
 
 ??? note "M13: Munhoven (2013) *Geosci. Model Dev.*"
     Munhoven, G. (2013). Mathematics of the total alkalinity–pH equation – pathway to robust and universal solution algorithms: the SolveSAPHE package v1.0.1. *Geoscientific Model Development* 6, 1367–1388. [doi:10.5194/gmd-6-1367-2013](https://doi.org/10.5194/gmd-6-1367-2013).
+
+??? note "M16: Maclaurin (2016) *Autograd: Automatic Differentiation...*"
+    Maclaurin, D. (2016). “Autograd: Automatic Differentiation for Python,” in *Modeling, Inference and Optimization with Composable Differentiable Procedures* (PhD thesis, Harvard University, Cambridge, MA), 41–57.
 
 ??? note "M79: Millero (1979) *Geochim. Cosmochim. Acta*"
     Millero, F. J. (1979). The thermodynamics of the carbonate system in seawater. *Geochimica et Cosmochimica Acta* 43, 1651–1661. <a href='https://doi.org/10.1016/0016-7037(79)90184-4'>doi:10.1016/0016-7037(79)90184-4</a>.
@@ -176,6 +182,9 @@ Click on each reference to see more details.
 
 ??? note "RAH18: Richier et al. (2018) *Glob. Change Biol.*"
     Richier, S., Achterberg, E. P., Humphreys, M. P., Poulton, A. J., Suggett, D. J., Tyrrell, T., et al. (2018). Geographical CO<sub>2</sub> sensitivity of phytoplankton correlates with ocean buffer capacity. *Global Change Biology* 24, 4438–4452. [doi:10.1111/gcb.14324](https://doi.org/10.1111/gcb.14324).
+
+<!-- ??? note "RG20: Raitzsch & Gattuso (2020) *ScarFace - seacarb calculations...*"
+    Raitzsch, M. and Gattuso, J.-P. (2020). ScarFace - seacarb calculations with R Shiny user interface. Version 1.1.0. *Zenodo.* [doi:10.5281/zenodo.3662139](https://doi.org/10.5281/zenodo.3662139). -->
 
 ??? note "RRV93: Roy et al. (1993) *Mar. Chem.*"
     Roy, R. N., Roy, L. N., Vogel, K. M., Porter-Moore, C., Pearson, T., Good, C. E., et al. (1993). The dissociation constants of carbonic acid in seawater at salinities 5 to 45 and temperatures 0 to 45°C. *Marine Chemistry* 44, 249–267. <a href='https://doi.org/10.1016/0304-4203(93)90207-5'>doi:10.1016/0304-4203(93)90207-5</a>.

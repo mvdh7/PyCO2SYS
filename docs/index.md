@@ -1,6 +1,6 @@
 # PyCO2SYS
 
-PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  Its core is a Python implementation of CO<sub>2</sub>SYS for MATLAB[^1].
+PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  Its core is a Python implementation of CO2SYS for MATLAB[^1].
 
 ## Installation
 
@@ -22,7 +22,7 @@ The import convention for PyCO2SYS will be:
 However, the modules and functions contained within are not yet fully documented.  We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
 
 !!! tip "Do it like in MATLAB"
-    If you are familiar with CO<sub>2</sub>SYS for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
+    If you are familiar with CO2SYS for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
 
         :::python
         from PyCO2SYS import CO2SYS
@@ -54,17 +54,17 @@ Additionally, for the MATLAB programs:
 
 ## About
 
-PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
+PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://mvdh.xyz/) of [NIOZ Royal Netherlands Institute for Sea Research](https://www.nioz.nl/en)/[Utrecht University](https://www.uu.nl/en) with support from the main developers of all previous versions of CO2SYS.
 
 ### History
 
-The original CO<sub>2</sub>SYS program for DOS was written by Ernie Lewis and Doug Wallace.  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven.  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program.  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys.  Further (ongoing) modifications and additions to PyCO2SYS have been made by Matthew Humphreys and Luke Gregor.
+The original CO2SYS program for DOS was written by Ernie Lewis and Doug Wallace.  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven.  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program.  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys.  Further (ongoing) modifications and additions to PyCO2SYS have been made by Matthew Humphreys and Luke Gregor.
 
 ### License
 
 PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
-[^1]: For CO<sub>2</sub>SYS for MATLAB refer to [LW98](refs/#l), [HPR11](refs/#h) and [OEDG18](refs/#o).
+[^1]: For CO2SYS for MATLAB refer to [LW98](refs/#l), [HPR11](refs/#h) and [OEDG18](refs/#o).
 
 ## Contributing
 

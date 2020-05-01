@@ -27,7 +27,7 @@ co2inputs = [
     ]
 ]
 go = time()
-co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="auto")
+co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="explicit")
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
 
@@ -42,3 +42,11 @@ cvars = list(co2matlab.keys())
 co2py_pyo = co2py.subtract(co2pyo)  # PyCO2SYS.CO2SYS vs PyCO2SYS.original.CO2SYS
 co2py_matlab = co2py.subtract(co2matlab)  # PyCO2SYS.CO2SYS vs MATLAB
 co2pyo_matlab = co2pyo.subtract(co2matlab)  # PyCO2SYS.original.CO2SYS vs MATLAB
+
+# Get maximum absolute differences in each variable
+mad_co2py_matlab = co2py_matlab.abs().max()
+mad_co2pyo_matlab = co2pyo_matlab.abs().max()
+
+# Max. abs. diff. as a percentage
+pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
+pmad_co2pyo_matlab = 100 * mad_co2pyo_matlab / co2matlab.mean()

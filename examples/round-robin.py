@@ -60,14 +60,15 @@ varnames = {
 }
 with open("examples/results/round-robin.md", "w") as f:
     f.write("<!-- HTML for table generated with examples/round-robin.py -->\n")
-    f.write("<table>\n")
-    f.write('<tr><th style="text-align:right">Carbonate system parameter</th>')
-    f.write('<th style="text-align:center">Mean result</th>')
+    f.write("<table><tr>\n")
+    f.write('<th style="text-align:right">Carbonate system parameter</th>\n')
+    f.write('<th style="text-align:center">Mean result</th>\n')
     f.write('<th style="text-align:center">Max. abs. diff.</th></tr>\n')
     for var in keyvars:
+        f.write("</tr><tr>\n")
         vmad = "{:.2e}".format(max_abs_diff[var])
         vmad = vmad.replace("e-", "·10<sup>−") + "</sup>"
-        f.write('<tr><td style="text-align:right">{}</td>'.format(varnames[var]))
-        f.write('<td style="text-align:center">{:.1f}</td>'.format(mean_res[var]))
-        f.write('<td style="text-align:center">{}</td></tr>\n'.format(vmad))
-    f.write("</table>\n")
+        f.write('<td style="text-align:right">{}</td>\n'.format(varnames[var]))
+        f.write('<td style="text-align:center">{:.1f}</td>\n'.format(mean_res[var]))
+        f.write('<td style="text-align:center">{}</td>\n'.format(vmad))
+    f.write("</tr></table>\n")
