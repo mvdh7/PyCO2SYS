@@ -1,13 +1,15 @@
 from PyCO2SYS import CO2SYS
 
-print(" ")
-print("Here is another example:")
-print(" ")
-print("What is the pH on the Seawater Scale at 2 degrees, 4000 meters deep of a sample")
-print("that has a pH of 7.8 on the Total Scale at 25 degrees at atmospheric pressure?")
-print(" ")
-print("(Addional info: alk=2400, si=50, po4=2, dissociation constats: Mehrbach Refit)")
-print(" ")
+print(
+    """
+Here is another example:
+
+What is the pH on the Seawater Scale at 2 degrees, 4000 meters deep of a sample
+that has a pH of 7.8 on the Total Scale at 25 degrees at atmospheric pressure?
+
+Addional info: alk=2400, si=50, po4=2, dissociation constants: Mehrbach Refit)
+"""
+)
 
 par1type = 1  # The first parameter supplied is of type "1", which means "alkalinity"
 par1 = 2400  # value of the first parameter
@@ -42,8 +44,10 @@ CO2dict = CO2SYS(
     kso4c,
 )
 
-print("The answer:")  # It is the 38th element of the output of CO2SYS (pHoutSWS)
+print("The answer:")
 print(CO2dict["pHoutSWS"][0])
-print(" ")
-print("See CO2SystemExample2.jl to see what the syntax for this calculation was.")
-print(" ")
+print(
+    """
+See CO2SystemExample2.jl to see what the syntax for this calculation was.
+"""
+)

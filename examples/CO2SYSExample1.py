@@ -7,15 +7,17 @@ from PyCO2SYS import CO2SYS
 #
 # Converted to Python by Matthew P. Humphreys [2020-01-31]
 
-print(" ")
-print("This is an example of the use of CO2SYS.m")
-print("that uses its ability to process vectors of data.")
-print(" ")
-print("We will generate a figure that shows the sensitivity of pH and pCO2")
-print(" to changes in DIC, while keeping everything else constant")
-print(" ")
-print("(Addional info: alk=2400, si=50, po4=2, dissociation constats: Mehrbach Refit)")
-print(" ")
+print(
+    """
+This is an example of the use of CO2SYS
+that uses its ability to process vectors of data.
+
+We will generate a figure that shows the sensitivity of pH and pCO2
+to changes in DIC, while keeping everything else constant
+
+Addional info: alk=2400, si=50, po4=2, dissociation constats: Mehrbach Refit)
+"""
+)
 
 par1type = 1  # The first parameter supplied is of type "1", which is "alkalinity"
 par1 = 2400  # value of the first parameter
@@ -65,7 +67,9 @@ ax[1].plot(par2, CO2dict["pHin"], c="r", marker="o")
 ax[1].set_xlabel("DIC")
 ax[1].set_ylabel("pH")
 
-print("DONE!")
-print(" ")
-print("See CO2SYSExample1.py to see what the syntax for this calculation was.")
-print(" ")
+print(
+    """DONE!
+
+See CO2SYSExample1.py to see what the syntax for this calculation was.
+"""
+)
