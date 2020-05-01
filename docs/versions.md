@@ -79,8 +79,8 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     ***Miscellaneous***
 
-    * Documentation substantially expanded and switched to using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
-        * Validation section added with internal consistency checks and an external comparison of PyCO2SYS calculations.
+    * Documentation substantially expanded and switched to using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+        * Validation section added with internal consistency checks and an external comparison of PyCO2SYS calculations with CO2SYS for MATLAB.
     * All code now formatted with [Black](https://github.com/psf/black) (except for module `original`).
 
 ## 1.2

@@ -12,7 +12,7 @@ PyCO2SYS can solve the marine carbonate system from any valid pair of total alka
     * The differences arising from using different input pair combinations for the same composition are negligible.
     * Any differences are at least 10<sup>10</sup> times smaller than the best measurement accuracy for any of the variables.
 
-We can conveniently run a round-robin test with PyCO2SYS for any given set of input conditions using `PyCO2SYS.test.roundrobin` ([script file available here](https://github.com/mvdh7/PyCO2SYS/blob/master/examples/round-robin.py)):
+We can conveniently run a round-robin test with PyCO2SYS for any given set of input conditions using `PyCO2SYS.test.roundrobin` ([script available here](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/round_robin.py)):
 
     :::python
     # Import PyCO2SYS
@@ -98,7 +98,7 @@ The "automatic" approach is PyCO2SYS's default behaviour and is taken by the fun
   * If the function in `PyCO2SYS.solve.get` is correct, then its derivatives are also accurate.
   * All equilibrating solutes accounted for in the main alkalinity equation are automatically included in all derivatives too (not just carbonate, borate and water).
 
-Comparing the results of these two independent methods with each other therefore supports that both are being executed correctly.  [For example](https://github.com/mvdh7/PyCO2SYS/blob/master/examples/buffers-auto-explicit.py), under typical open ocean conditions[^2] and with zero nutrients:
+Comparing the results of these two independent methods with each other therefore supports that both are being executed correctly.  [For example](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_auto_explicit.py), under typical open ocean conditions[^2] and with zero nutrients:
 
 <!-- HTML for table generated with examples/buffers-auto-explicit.py -->
 <table><tr><th></th>
@@ -148,10 +148,10 @@ Comparing the results of these two independent methods with each other therefore
 
 We consider these differences all small enough to be negligible.
 
-Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffersESM10.py]() to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
+Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffers_ESM10.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_ESM10.py) to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
 
 <p style='text-align:center'>
-<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/examples/buffersESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
+<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/examples/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
 </p>
 
 Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
@@ -175,7 +175,7 @@ However, PyCO2SYS now calculates a wider array of properties than CO2SYS for MAT
 
     We also cannot test the [PF87](../refs/#p) option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
 
-You can run the comparisons that the following discussion is based on yourself with `compare_MATLABv2_0_5.m` (in MATLAB[^4]) and `compare_MATLABv2_0_5.py` (in Python), which are available [on Github](https://github.com/mvdh7/PyCO2SYS/tree/master/compare).
+You can run the comparisons that the following discussion is based on yourself with [compare_MATLABv2_0_5.m](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in MATLAB[^4]) and [compare_MATLABv2_0_5.py](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in Python).
 
 In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](../co2sys/#carbonate-system-parameters) and [CO2SYS settings](../co2sys/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
 
@@ -192,7 +192,7 @@ We've also compared the [original CO2SYS clone](../co2sys/#the-original-co2sys-c
 
 #### Revelle factor discrepancy
 
-Under the fairly typical open-ocean conditions used for these tests (for specifics, see the `compare_MATLAB_v2_0_5` scripts [on Github](https://github.com/mvdh7/PyCO2SYS/tree/master/compare)), the maximum absolute differences between the Revelle factor under input and output conditions respectively were 0.09 and 0.11, which are almost 1% of the average calculated Revelle factor of ~12.  While probably negligible in most real-world applications, these are too big to be acceptable from a software perspective.
+Under the fairly typical open-ocean conditions used for these tests (for specifics, see the [*compare_MATLABv2_0_5* scripts](https://github.com/mvdh7/PyCO2SYS/tree/master/validate)), the maximum absolute differences between the Revelle factor under input and output conditions respectively were 0.09 and 0.11, which are almost 1% of the average calculated Revelle factor of ~12.  While probably negligible in most real-world applications, these are too big to be acceptable from a software perspective.
 
 !!! failure "Inconsistency between PyCO2SYS and CO2SYS-MATLAB"
     * The Revelle factor is about 1% different in PyCO2SYS compared with CO2SYS v2.0.5 for MATLAB.
@@ -216,4 +216,4 @@ With `buffers_mode='explicit'`, PyCO2SYS does use the finite-difference approach
 
 [^3]: The [OEG15](../refs/#o) intercomparison used CO2SYS v1.1 of [HPR11](../refs/#HPR11), but the only difference between v2.0.5 and this in terms of solving the marine carbonate system is the addition of an extra set of carbonic acid dissociation constants.
 
-[^4]: The output of `compare_MATLABv2_0_5.m` is saved as [a CSV file](https://github.com/mvdh7/PyCO2SYS/blob/master/compare/data/MATLAB_CO2SYSv2_0_5.csv) that can be directly imported by `compare_MATLABv2_0_5.py`, in case you do not have access to MATLAB.
+[^4]: The output of [compare_MATLABv2_0_5.m](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/compare_MATLABv2_0_5.m) is saved as [a CSV file](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/results/MATLAB_CO2SYSv2_0_5.csv) that can be directly imported by [compare_MATLABv2_0_5.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/compare_MATLABv2_0_5.py), in case you do not have access to MATLAB.

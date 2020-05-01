@@ -58,7 +58,7 @@ varnames = {
     "HCO3in": "Bicarbonate ion / μmol/kg-sw",
     "CO2in": "Aqueous CO<sub>2</sub> / μmol/kg-sw",
 }
-with open("examples/results/round-robin.md", "w") as f:
+with open("validate/html/round_robin.md", "w") as f:
     f.write("<!-- HTML for table generated with examples/round-robin.py -->\n")
     f.write("<table><tr>\n")
     f.write('<th style="text-align:right">Carbonate system parameter</th>\n')

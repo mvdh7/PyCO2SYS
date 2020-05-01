@@ -42,7 +42,7 @@ compare = pd.concat(
 )
 
 # Generate HTML table for docs
-with open("examples/results/buffers-auto-explicit.md", "w") as f:
+with open("validate/html/buffers_auto_explicit.md", "w") as f:
     f.write(
         "<!-- HTML for table generated with examples/buffers-auto-explicit.py -->\n"
     )

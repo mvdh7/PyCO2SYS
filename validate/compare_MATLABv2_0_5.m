@@ -43,4 +43,4 @@ co2s.PAR2 = P2;
 co2s.PAR1TYPE = P1type;
 co2s.PAR2TYPE = P2type;
 co2s = struct2table(co2s);
-writetable(co2s, 'data/compare_MATLABv2_0_5.csv')
+writetable(co2s, 'results/compare_MATLABv2_0_5.csv')
