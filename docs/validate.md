@@ -8,7 +8,9 @@ There are no "certified" results of marine carbonate system calculations against
 
 PyCO2SYS can solve the marine carbonate system from any valid pair of total alkalinity, dissolved inorganic carbon, pH, partial pressure or fugacity or molinity of aqueous CO<sub>2</sub>, bicarbonate ion molinity, and carbonate ion molinity.  In a "round robin" test, we first determine all of these core variables from one given input pair, and then solve the system again from the results using every possible combination of pairs as the input.  We expect to find exactly the same results from every input pair combination.
 
-#### Do it yourself
+!!! success "Internal consistency of PyCO2SYS"
+    * The differences arising from using different input pair combinations for the same composition are negligible.
+    * Any differences are at least 10<sup>10</sup> times smaller than the best measurement accuracy for any of the variables.
 
 We can conveniently run a round-robin test with PyCO2SYS for any given set of input conditions using `PyCO2SYS.test.roundrobin` ([script file available here](https://github.com/mvdh7/PyCO2SYS/blob/master/examples/round-robin.py)):
 
@@ -37,9 +39,7 @@ We can conveniently run a round-robin test with PyCO2SYS for any given set of in
         sal, temp, pres, si, phos, pHscale, k1k2c, kso4c, NH3=nh3, H2S=h2s,
         buffers_mode="none")
 
-#### Results
-
-With PyCO2SYS v1.3.0, running the round-robin test with the inputs in the example code above gave the following maximum absolute differences across all input pair combinations:
+Running the round-robin test with the inputs in the example code above gave the following maximum absolute differences across all input pair combinations:
 
 <div style="text-align:center">
 <!-- HTML for table generated with examples/round-robin.py -->
@@ -87,6 +87,9 @@ The maximum absolute differences across all the different input pair combination
 ### Buffer factors
 
 PyCO2SYS offers two independent ways to evaluate the various buffer factors of the marine carbonate system: with explicit equations and by automatic differentation.
+
+!!! success "Independent approaches give the same results"
+    Differences between buffer factors calculated with explicit equations and by automatic differentiation are negligible.
 
 The "explicit" approach is taken by functions in `PyCO2SYS.buffers.explicit`.  These use the equations for each buffer factor that have been reported in the literature, corrected for typographical errors where known.  These functions typically only include the effects of carbonate, borate and water alkalinity on each buffer, because the other components of alkalinity complicate the equations but usually only make a small difference to the result.
 
@@ -145,6 +148,14 @@ Comparing the results of these two independent methods with each other therefore
 
 We consider these differences all small enough to be negligible.
 
+Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffersESM10.py]() to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
+
+<p style='text-align:center'>
+<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/examples/buffersESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
+</p>
+
+Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
+
 ## External comparisons
 
 ### CO2SYS for MATLAB
@@ -164,7 +175,7 @@ However, PyCO2SYS now calculates a wider array of properties than CO2SYS for MAT
 
     We also cannot test the [PF87](../refs/#p) option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
 
-You can run the comparisons that the following discussion is based on yourself with the scripts `compare_MATLABv2_0_5.m` (in MATLAB[^4]) and `compare_MATLABv2_0_5.py` (in Python), which are available [on Github](https://github.com/mvdh7/PyCO2SYS/tree/master/compare).
+You can run the comparisons that the following discussion is based on yourself with `compare_MATLABv2_0_5.m` (in MATLAB[^4]) and `compare_MATLABv2_0_5.py` (in Python), which are available [on Github](https://github.com/mvdh7/PyCO2SYS/tree/master/compare).
 
 In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](../co2sys/#carbonate-system-parameters) and [CO2SYS settings](../co2sys/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
 
@@ -184,8 +195,9 @@ We've also compared the [original CO2SYS clone](../co2sys/#the-original-co2sys-c
 Under the fairly typical open-ocean conditions used for these tests (for specifics, see the `compare_MATLAB_v2_0_5` scripts [on Github](https://github.com/mvdh7/PyCO2SYS/tree/master/compare)), the maximum absolute differences between the Revelle factor under input and output conditions respectively were 0.09 and 0.11, which are almost 1% of the average calculated Revelle factor of ~12.  While probably negligible in most real-world applications, these are too big to be acceptable from a software perspective.
 
 !!! failure "Inconsistency between PyCO2SYS and CO2SYS-MATLAB"
-    * The Revelle factor is different in PyCO2SYS compared with CO2SYS v2.0.5 for MATLAB.
-    * We understand why, and conclude that the PyCO2SYS calculation is more accurate.
+    * The Revelle factor is about 1% different in PyCO2SYS compared with CO2SYS v2.0.5 for MATLAB.
+    * We understand why.
+    * The PyCO2SYS calculation is more accurate.
     * The difference is probably too small to matter for most real-world applications of the Revelle factor.
 
 There are three separate reasons for the difference, the first two of which could be considered as errors in CO2SYS for MATLAB:
@@ -196,7 +208,7 @@ There are three separate reasons for the difference, the first two of which coul
 
 PyCO2SYS corrects errors 1 and 2 above.  By default, PyCO2SYS also evaluates the Revelle factor using automatic differentiation, which is inherently more accurate.
 
-With `buffers_mode='explicit'`, PyCO2SYS does use the finite-difference approach but it reduces the DIC perturbation size from 1 to 0.01 μmol/kg-sw to increase its accuracy.  If we do not make this change and the corrections above, then PyCO2SYS returns Revelle factors that agree with CO2SYS for MATLAB to within 10<sup>−6</sup>%.
+With `buffers_mode='explicit'`, PyCO2SYS does use the finite-difference approach but it reduces the DIC perturbation size from 1 to 0.01 μmol/kg-sw to increase its accuracy.  If we revert both this change and the corrections above, then PyCO2SYS returns Revelle factors that agree with CO2SYS for MATLAB to within 10<sup>−6</sup>%.
 
 [^1]: The pH tolerance threshold for all iterative solvers is controlled by `PyCO2SYS.solve.get.pHTol`.
 
