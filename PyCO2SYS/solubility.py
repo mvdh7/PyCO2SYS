@@ -53,8 +53,20 @@ def k_aragonite_M83(TempK, Sal, Pbar):
 
 
 @errstate(divide="ignore")
+def k_calcite_P0_I75(TempK, Sal):
+    """Calcite solubility constant following ICHP73/I75 with no pressure correction.
+    For use with GEOSECS constants.
+    """
+    return 0.0000001 * (
+        -34.452
+        - 39.866 * Sal ** (1 / 3)
+        + 110.21 * log10(Sal)
+        - 0.0000075752 * TempK ** 2
+    )
+
+
 def k_calcite_I75(TempK, Sal, Pbar):
-    """Calcite solubility following ICHP73 with no pressure correction.
+    """Calcite solubility constant following ICHP73/I75 with pressure correction.
     For use with GEOSECS constants.
     """
     # === CO2SYS.m comments: =======
@@ -63,12 +75,8 @@ def k_calcite_I75(TempK, Sal, Pbar):
     # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982
     # but the fit is actually from Ingle, Marine Chemistry 3:301-319, 1975).
     # This is in (mol/kg-SW)^2
-    KCa = 0.0000001 * (
-        -34.452
-        - 39.866 * Sal ** (1 / 3)
-        + 110.21 * log10(Sal)
-        - 0.0000075752 * TempK ** 2
-    )
+    # ==============================
+    KCa = k_calcite_P0_I75(TempK, Sal)
     # Now add pressure correction
     # === CO2SYS.m comments: =======
     # Culberson and Pytkowicz, Limnology and Oceanography 13:403-417, 1968
@@ -76,6 +84,7 @@ def k_calcite_I75(TempK, Sal, Pbar):
     # but their paper is not even on this topic).
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
+    # ==============================
     TempC = convert.TempK2C(TempK)
     KCa = KCa * exp((36 - 0.2 * TempC) * Pbar / (RGasConstant * TempK))
     return KCa
@@ -89,7 +98,7 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar):
     # *** CalculateKArforGEOSECS:
     # Berner, R. A., American Journal of Science 276:713-730, 1976:
     # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
-    KCa = k_calcite_I75(TempK, Sal, Pbar)
+    KCa = k_calcite_P0_I75(TempK, Sal)
     KAr = 1.45 * KCa  # this is in (mol/kg-SW)^2
     # Berner (p. 722) states that he uses 1.48.
     # It appears that 1.45 was used in the GEOSECS calculations
@@ -105,7 +114,7 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar):
     return KAr
 
 
-def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
+def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs):
     """Calculate calcite solubility.
 
     This calculates omega, the solubility ratio, for calcite.
@@ -122,7 +131,7 @@ def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
     return OmegaCa
 
 
-def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
+def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs):
     """Calculate aragonite solubility.
 
     This calculates omega, the solubility ratio, for aragonite.
@@ -141,7 +150,7 @@ def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2):
     return OmegaAr
 
 
-def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, K1, K2):
+def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs):
     """Calculate calcite and aragonite solubility.
 
     This calculates omega, the solubility ratio, for calcite and aragonite.
@@ -155,6 +164,6 @@ def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, K1, K2):
     TempK = convert.TempC2K(TempC)
     Pbar = convert.Pdbar2bar(Pdbar)
     # Calculate saturation states
-    OmegaCa = calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2)
-    OmegaAr = aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, K1, K2)
+    OmegaCa = calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs)
+    OmegaAr = aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs)
     return OmegaCa, OmegaAr

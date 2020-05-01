@@ -16,9 +16,7 @@ def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, WhichKs, Ks, totals):
     """Function for d[ln(Omega)]/d[CARB].  Identical for calcite and aragonite."""
     return egrad(
         lambda CARB: log(
-            solubility.calcite(
-                Sal, TempK, Pbar, CARB, totals["TCa"], WhichKs, Ks["K1"], Ks["K2"]
-            )
+            solubility.calcite(Sal, TempK, Pbar, CARB, totals["TCa"], WhichKs)
         )
     )(CARB)
 
