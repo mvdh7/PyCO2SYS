@@ -1,0 +1,30 @@
+{
+  "title": "PyCO2SYS: marine carbonate system calculations in Python",
+  "creators": [
+    {
+      "name": "Humphreys, Matthew P.",
+      "affiliation": "NIOZ Royal Netherlands Institute for Sea Research and Utrecht University, Texel, the Netherlands",
+      "orcid": "0000-0002-9371-7128",
+    }, {
+      "name": "Gregor, Luke",
+      "affiliation": "ETH Zürich, Switzerland",
+      "orcid": "0000-0001-6071-1857",
+    }, {
+      "name": "Pierrot, Denis",
+      "affiliation": "University of Miami, Florida, USA",
+      "orcid": "0000-0002-0374-3825",
+    }, {
+      "name": "van Heuven, Steven M. A. C.",
+      "affiliation": "University of Groningen, the Netherlands",
+      "orcid": "0000-0003-2001-8710",
+    }, {
+      "name": "Lewis, Ernie",
+      "affiliation": "Brookhaven National Laboratory, New York, USA",
+      "orcid": "0000-0002-2023-7406",
+    }, {
+      "name": "Wallace, Douglas W. R.",
+      "affiliation": "Dalhousie University, Halifax, Nova Scotia, Canada",
+    }
+  ],
+  "access_right": "open",
+}
