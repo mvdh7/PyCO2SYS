@@ -42,10 +42,6 @@ Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This
 
 This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
 
-## Examples
-
-You can see some working examples of PyCO2SYS in action on Github at [mvdh7/PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).  You can run all of the notebooks there live in your browser without installing anything on your computer via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mvdh7/PyCO2SYS-examples/master).  Additional example notebooks showing different uses of PyCO2SYS are very welcome!
-
 ## Inputs
 
 Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.

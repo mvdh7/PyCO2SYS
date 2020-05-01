@@ -24,7 +24,7 @@
 
 ## 1.3
 
-Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.
+Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.
 
 ### 1.3.0 (forthcoming)
 
@@ -82,6 +82,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
     * Documentation substantially expanded and switched to using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
         * Validation section added with internal consistency checks and an external comparison of PyCO2SYS calculations with CO2SYS for MATLAB.
     * All code now formatted with [Black](https://github.com/psf/black) (except for module `original`).
+    * Version number now reported with `PyCO2SYS.say_hello()` in homage to the original MS-DOS program.
 
 ## 1.2
 
