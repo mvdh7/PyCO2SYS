@@ -169,7 +169,7 @@ The MATLAB program has itself[^3] been rigorously compared with a suite of simil
 
 However, PyCO2SYS now calculates a wider array of properties than CO2SYS for MATLAB, and it has more inputs and options, so not everything can be tested this way.
 
-!!! example "What can be compared?"
+!!! example "What can't be compared?"
     The PyCO2SYS outputs either not calculated or not returned by CO2SYS v2.0.5 for MATLAB are:
 
       * All of the [buffer factors](../co2sys/#buffer-factors) except for the Revelle factor.
@@ -182,14 +182,14 @@ You can run the comparisons that the following discussion is based on yourself w
 
 In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](../co2sys/#carbonate-system-parameters) and [CO2SYS settings](../co2sys/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
 
-!!! success "Results: PyCO2SYS vs CO2SYS-MATLAB"
+!!! success "PyCO2SYS vs CO2SYS-MATLAB"
     * Every variable computed by `PyCO2SYS.CO2SYS` is negligibly different from its counterpart in CO2SYS v2.0.5 for MATLAB, except for the Revelle factor ([see discussion below](#revelle-factor-discrepancy)).
     * The absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum on the order of 10<sup>−6</sup>%.
     * The greatest component of these differences arises from the lower tolerance threshold for the iterative pH solvers in PyCO2SYS (10<sup>−8</sup>) compared with their MATLAB counterparts (10<sup>−4</sup>).
 
 We've also compared the [original CO2SYS clone](../co2sys/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` against CO2SYS for MATLAB.  It is important to remember that this module stands in isolation.  It has its own self-contained set of functions for evaluating equilibrium constants and solving the marine carbonate system that do not interact with the rest of PyCO2SYS.  Agreement between this module and CO2SYS for MATLAB tells us nothing about the performance of `PyCO2SYS.CO2SYS` or any of its underlying functions (and the opposite).
 
-!!! success "Results: the original CO2SYS clone vs CO2SYS-MATLAB"
+!!! success "The original CO2SYS clone vs CO2SYS-MATLAB"
     * Every variable computed by the [original CO2SYS clone](../co2sys/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` is virtually identical to its counterpart in CO2SYS v2.0.5 for MATLAB.
     * The absolute differences in all compared variables under the test conditions range from 0 to a maximum on the order of 10<sup>−10</sup>%.
 
