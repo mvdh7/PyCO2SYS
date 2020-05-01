@@ -18,11 +18,11 @@ def say_hello():
     print(
         """
  MP Humphreys, L Gregor, D Pierrot, SMAC van Heuven, E Lewis & D Wallace
-  
+
                              ~~~ present ~~~
-                                  
-        PyCO2SYS: marine carbonate system calculations in Python.       
-            Version {}. Zenodo. doi:10.5281/zenodo.3744275
+
+        PyCO2SYS: marine carbonate system calculations in Python.
+               Version {} :: doi:10.5281/zenodo.3744275
 
 
   Py  CCCC       OOOOO        222        SSS      YY      YY      SSS
