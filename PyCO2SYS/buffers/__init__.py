@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate various buffer factors of the marine carbonate system."""
 
-from autograd.numpy import exp, log, log10
+from autograd.numpy import errstate, exp, log, log10
 from autograd import elementwise_grad as egrad
 from .. import solubility, solve
 from . import explicit
@@ -12,6 +12,7 @@ __all__ = ["explicit"]
 ilog10e = -1 / log10(exp(1))  # multiplier to convert pH to ln(H)
 
 
+@errstate(all="ignore")
 def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, WhichKs, Ks, totals):
     """Function for d[ln(Omega)]/d[CARB].  Identical for calcite and aragonite."""
     return egrad(
