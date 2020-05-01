@@ -12,8 +12,9 @@ si = 0
 phos = 0
 
 # Run CO2SYS
-cdict = pyco2.CO2SYS(ta, dic, 1, 2, sal, tmp, tmp, prs, prs, si, phos, 1, 10, 3,
-                     buffers_mode='auto')
+cdict = pyco2.CO2SYS(
+    ta, dic, 1, 2, sal, tmp, tmp, prs, prs, si, phos, 1, 10, 3, buffers_mode="auto"
+)
 
 # Recreate ESM10 Fig. 2
 fvars = ["gammaTCin", "gammaTAin", "betaTCin", "betaTAin", "omegaTCin", "omegaTAin"]
