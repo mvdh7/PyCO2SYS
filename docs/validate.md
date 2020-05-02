@@ -163,7 +163,7 @@ Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SY
 
 ### CO2SYS for MATLAB
 
-The code for PyCO2SYS was originally based on [CO2SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
+PyCO2SYS was originally based on [CO2SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
 
 The MATLAB program has itself[^3] been rigorously compared with a suite of similar software packages that have been implemented in several different coding languages by [OEG15](../refs/#o).  Indeed, it was used as the reference against which all other packages were compared, while noting that this does not guarantee it is error-free.  Thanks to the work of [OEG15](../refs/#o), comparisons with CO2SYS for MATLAB allow us to assess the accuracy of PyCO2SYS in the context of all the software packages that they tested.
 
