@@ -170,7 +170,7 @@ The MATLAB program has itself[^3] been rigorously compared with a suite of simil
 However, PyCO2SYS now calculates a wider array of properties than CO2SYS for MATLAB, and it has more inputs and options, so not everything can be tested this way.
 
 !!! example "What can't be compared?"
-    We cannot compare calculations with carbonate ion, bicarbonate ion or aqueous CO<sub>2</sub> as the input marine carbonate system parameters, because these are not available in CO2SYS v2.0.5 for MATLAB.
+    We cannot compare calculations with carbonate ion, bicarbonate ion or aqueous CO<sub>2</sub> as one of the input marine carbonate system parameters, because these options are not available in CO2SYS v2.0.5 for MATLAB.
 
     We also cannot test the [PF87](../refs/#p) input option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
 
