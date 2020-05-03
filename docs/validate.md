@@ -154,7 +154,7 @@ We consider these differences all small enough to be negligible.
 Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffers_ESM10.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_ESM10.py) to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
 
 <p style='text-align:center'>
-<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/examples/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
+<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/validate/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
 </p>
 
 Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
