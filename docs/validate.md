@@ -154,7 +154,7 @@ We consider these differences all small enough to be negligible.
 Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffers_ESM10.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_ESM10.py) to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
 
 <p style='text-align:center'>
-<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/examples/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
+<img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/validate/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
 </p>
 
 Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
@@ -163,33 +163,35 @@ Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SY
 
 ### CO2SYS for MATLAB
 
-The code for PyCO2SYS was originally based on [CO2SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
+PyCO2SYS was originally based on [CO2SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
 
 The MATLAB program has itself[^3] been rigorously compared with a suite of similar software packages that have been implemented in several different coding languages by [OEG15](../refs/#o).  Indeed, it was used as the reference against which all other packages were compared, while noting that this does not guarantee it is error-free.  Thanks to the work of [OEG15](../refs/#o), comparisons with CO2SYS for MATLAB allow us to assess the accuracy of PyCO2SYS in the context of all the software packages that they tested.
 
 However, PyCO2SYS now calculates a wider array of properties than CO2SYS for MATLAB, and it has more inputs and options, so not everything can be tested this way.
 
-!!! example "What can be compared?"
+!!! example "What can't be compared?"
+    We cannot compare calculations with carbonate ion, bicarbonate ion or aqueous CO<sub>2</sub> as one of the input marine carbonate system parameters, because these options are not available in CO2SYS v2.0.5 for MATLAB.
+
+    We also cannot test the [PF87](../refs/#p) input option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
+
     The PyCO2SYS outputs either not calculated or not returned by CO2SYS v2.0.5 for MATLAB are:
 
       * All of the [buffer factors](../co2sys/#buffer-factors) except for the Revelle factor.
       * All properties associated with [NH<sub>3</sub> and H<sub>2</sub>S](../co2sys/#alkalinity-and-its-components).
       * [Total calcium](../co2sys/#totals-estimated-from-salinity) molinity.
 
-    We also cannot test the [PF87](../refs/#p) option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
-
 You can run the comparisons that the following discussion is based on yourself with [compare_MATLABv2_0_5.m](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in MATLAB[^4]) and [compare_MATLABv2_0_5.py](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in Python).
 
 In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](../co2sys/#carbonate-system-parameters) and [CO2SYS settings](../co2sys/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
 
-!!! success "Results: PyCO2SYS vs CO2SYS-MATLAB"
+!!! success "PyCO2SYS vs CO2SYS-MATLAB"
     * Every variable computed by `PyCO2SYS.CO2SYS` is negligibly different from its counterpart in CO2SYS v2.0.5 for MATLAB, except for the Revelle factor ([see discussion below](#revelle-factor-discrepancy)).
     * The absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum on the order of 10<sup>−6</sup>%.
     * The greatest component of these differences arises from the lower tolerance threshold for the iterative pH solvers in PyCO2SYS (10<sup>−8</sup>) compared with their MATLAB counterparts (10<sup>−4</sup>).
 
 We've also compared the [original CO2SYS clone](../co2sys/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` against CO2SYS for MATLAB.  It is important to remember that this module stands in isolation.  It has its own self-contained set of functions for evaluating equilibrium constants and solving the marine carbonate system that do not interact with the rest of PyCO2SYS.  Agreement between this module and CO2SYS for MATLAB tells us nothing about the performance of `PyCO2SYS.CO2SYS` or any of its underlying functions (and the opposite).
 
-!!! success "Results: the original CO2SYS clone vs CO2SYS-MATLAB"
+!!! success "The original CO2SYS clone vs CO2SYS-MATLAB"
     * Every variable computed by the [original CO2SYS clone](../co2sys/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` is virtually identical to its counterpart in CO2SYS v2.0.5 for MATLAB.
     * The absolute differences in all compared variables under the test conditions range from 0 to a maximum on the order of 10<sup>−10</sup>%.
 
