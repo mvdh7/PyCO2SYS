@@ -7,9 +7,11 @@
 
 **PyCO2SYS** is a Python implementation of CO<sub>2</sub>SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for tentatively forthcoming MATLAB v1.21 as well as some additional related calculations. This software calculates the full marine carbonate system from values of any two of its variables.
 
-Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible). See the scripts in the [compare](compare) directory to see how and check this for yourself. **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
+Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible). See the scripts in [validate](validate) to see how and check this for yourself. **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
 
 Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
+
+Examples are available at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
 
 ## Citation
 
@@ -24,12 +26,12 @@ import PyCO2SYS as pyco2
 pyco2.say_hello()
 ```
 
-As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#LW98).
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
 
 Additionally, for the MATLAB programs:
 
-  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#HPR11).
-  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#OEDG18).
+  * If you use `CO2SYS.m`, please cite [van Heuven et al. (2011)](https://pyco2sys.readthedocs.io/en/latest/refs/#h).
+  * If you use `errors.m` or `derivnum.m`, please cite [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o).
 
 ## Installation
 
