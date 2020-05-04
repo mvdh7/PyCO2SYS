@@ -11,7 +11,7 @@ Every combination of input parameters has been tested, with differences in the r
 
 Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
 
-Examples are available at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
+Examples are available at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples#pyco2sys-examples).
 
 ## Citation
 
