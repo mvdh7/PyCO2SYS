@@ -225,29 +225,40 @@ Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFaci, Kis, totals = _CO2SYSprep(
 
 # Problem is to do with ordering - first `if any()` does egrad, second doesn't
 def solvetest(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFaci, Kis, totals):
+    
     K0 = Kis['K0']
     K1 = Kis['K1']
     K2 = Kis['K2']
     
+    print(" ")
+    print(FC)
+    
     F = Icase == 12  # input TA, TC
     if any(F):
-        # PH = np.where(F, pyco2.solve.get.pHfromTATC(TA, TC, Kis, totals), PH)
-        PH = np.where(F, TA, PH)
+        PH = np.where(F, pyco2.solve.get.pHfromTATC(TA, TC, Kis, totals), PH)
+        # PH = np.where(F, TC + TA, PH)  # works
+        # print(PH)
+        # PH = np.where(F, TC * TA, PH)  # doesn't work
+        # print(PH)
         # ^pH is returned on the same scale as `Ks`
-        # FC = np.where(F, pyco2.solve.get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
-        FC = np.where(F, TA, FC)
-        # CARB = np.where(F, pyco2.solve.get.CarbfromTCpH(TC, PH, K1, K2), CARB)
-        # HCO3 = np.where(F, pyco2.solve.get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
-        
-    F = Icase == 13  # input TA, pH
-    if any(F):
-        TC = np.where(F, pyco2.solve.get.TCfromTApH(TA, PH, Kis, totals), TC)
-        # FC = np.where(F, pyco2.solve.get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
-        FC = np.where(F, TA, FC)
+        FC = np.where(F, pyco2.solve.get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        print(FC)
+        # FC = np.where(F, TA, FC)
         # CARB = np.where(F, pyco2.solve.get.CarbfromTCpH(TC, PH, K1, K2), CARB)
         # HCO3 = np.where(F, pyco2.solve.get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
     
-    return TC
+    F = Icase == 13  # input TA, pH
+    if any(F):
+        TC = np.where(F, pyco2.solve.get.TCfromTApH(TA, PH, Kis, totals), TC)
+        FC = np.where(F, pyco2.solve.get.fCO2fromTCpH(TC, PH, K0, K1, K2), FC)
+        print(FC)
+        # FC = np.where(F, TA, FC)
+        # CARB = np.where(F, pyco2.solve.get.CarbfromTCpH(TC, PH, K1, K2), CARB)
+        # HCO3 = np.where(F, pyco2.solve.get.HCO3fromTCpH(TC, PH, K1, K2), HCO3)
+    
+    print(FC)
+    
+    return PH
 
 testout = solvetest(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFaci, Kis, totals)
 
@@ -255,7 +266,7 @@ testgrad = egrad(lambda TA: solvetest(
     Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFaci, Kis, totals))(TA)
 
 print(Icase)
-print(testout)
+# print(testout)
 print(testgrad)
 
 
