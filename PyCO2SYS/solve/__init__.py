@@ -4,7 +4,7 @@
 
 from . import delta, initialise, get
 from autograd.numpy import full, isin, log10, nan, size, where
-from .. import buffers, convert, gas, solubility
+from .. import bio, buffers, convert, gas, solubility
 
 __all__ = ["delta", "initialise", "get"]
 
@@ -222,6 +222,8 @@ def others(
         )
         # psi of FCG94 following HDW18
         psi = where(F, buffers.psi(isoQ), psi)
+    # Substrate:inhibitor ratio of B15
+    SIR = bio.SIratio(HCO3, pHF)
     return {
         "pK1": pK1,
         "pK2": pK2,
@@ -252,4 +254,6 @@ def others(
         "isoQ": isoQ,
         "isoQx": isoQx,
         "psi": psi,
+        # Added in v1.4.0
+        "SIR": SIR,
     }

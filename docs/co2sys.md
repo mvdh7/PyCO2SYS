@@ -194,6 +194,12 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'isoQin'`/`'isoQout'`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `'isoQapprox_in'`/`'isoQapprox_out'`: **approximate isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
 
+    #### Biological properties
+
+    Seawater properties related to the marine carbonate system that have a primarily biological application.
+
+    * `'SIRin'`/`'SIRout'`: **substrate:inhibitor ratio** of [B15](../refs/#b) at input/output conditions in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+
     #### Totals estimated from salinity
 
     * `'TB'`: **total borate** in μmol·kg<sup>−1</sup>.

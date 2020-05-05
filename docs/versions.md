@@ -31,6 +31,7 @@ Adds uncertainty propagation.
 !!! example "Changes in v1.4.0"
 
     * Added basic sanity checking to prevent invalid marine carbonate system parameter input values.
+    * Added substrate:inhibitor ratio (SIR) of [B15](../refs/#b) as a standard output, calculated with `SIratio` in new module `bio`.
 
 ## 1.3
 

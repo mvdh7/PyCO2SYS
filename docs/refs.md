@@ -4,6 +4,9 @@ Click on each reference to see more details.
 
 ### B
 
+??? note "B15: Bach (2015) *Biogeosciences*"
+    Bach, L. T. (2015). Reconsidering the role of carbonate ion concentration in calcification by marine organisms. *Biogeosciences* 12(16), 4939–4951. [doi:10.5194/bg-12-4939-2015](https://doi.org/10.5194/bg-12-4939-2015).
+
 ??? note "B76: Berner (1976) *Am. J. Sci.*"
     Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. *American Journal of Science* 276, 713–730. [doi:10.2475/ajs.276.6.713](https://doi.org/10.2475/ajs.276.6.713).
 

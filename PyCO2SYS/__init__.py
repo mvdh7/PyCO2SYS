@@ -17,6 +17,7 @@
 
 from . import (
     api,
+    bio,
     buffers,
     constants,
     convert,
@@ -33,6 +34,7 @@ from . import (
 
 __all__ = [
     "api",
+    "bio",
     "buffers",
     "constants",
     "convert",

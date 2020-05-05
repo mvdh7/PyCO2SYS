@@ -402,6 +402,9 @@ def _CO2SYS(
         # Added in v1.3.0:
         "TCa": totals["TCa"] * 1e6,
         "buffers_mode": buffers_mode,
+        # Added in v1.4.0:
+        "SIRin": others_in["SIR"],
+        "SIRout": others_out["SIR"],
     }
     return CO2dict
 
