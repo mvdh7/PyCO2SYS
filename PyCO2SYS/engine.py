@@ -211,81 +211,11 @@ def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
     }
 
 
-def _CO2SYS(
-    PAR1,
-    PAR2,
-    PAR1TYPE,
-    PAR2TYPE,
-    SAL,
-    TEMPIN,
-    TEMPOUT,
-    PRESIN,
-    PRESOUT,
-    SI,
-    PO4,
-    NH3,
-    H2S,
-    pHSCALEIN,
-    K1K2CONSTANTS,
-    KSO4CONSTANT,
-    KFCONSTANT,
-    BORON,
-    buffers_mode,
-    KSO4CONSTANTS=0,
+def _outputdict(
+    args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
 ):
-    # Condition inputs and assign input values to the 'historical' variable names
-    args, ntps = inputs(locals())
-    PAR1 = args["PAR1"]
-    PAR2 = args["PAR2"]
-    p1 = args["PAR1TYPE"]
-    p2 = args["PAR2TYPE"]
-    Sal = args["SAL"]
-    TempCi = args["TEMPIN"]
-    TempCo = args["TEMPOUT"]
-    Pdbari = args["PRESIN"]
-    Pdbaro = args["PRESOUT"]
-    TSi = args["SI"]
-    TP = args["PO4"]
-    TNH3 = args["NH3"]
-    TH2S = args["H2S"]
-    pHScale = args["pHSCALEIN"]
-    WhichKs = args["K1K2CONSTANTS"]
-    WhoseKSO4 = args["KSO4CONSTANT"]
-    WhoseKF = args["KFCONSTANT"]
-    WhoseTB = args["BORON"]
-    buffers_mode = args["buffers_mode"]
-    # Prepare to solve the core marine carbonate system at input conditions
-    totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
-    Sal = totals["Sal"]
-    Kis = equilibria.assemble(
-        TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
-    )
-    # Calculate fugacity factor
-    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
-    # Solve the core marine carbonate system at input conditions
-    core_in = solvecore(PAR1, PAR2, p1, p2, totals, FugFaci, Kis, True)
-    # Calculate all other results at input conditions
-    others_in = solve.others(
-        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs, buffers_mode,
-    )
-    # Prepare to solve the core MCS at output conditions
-    Kos = equilibria.assemble(
-        TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
-    )
-    # Calculate fugacity factor
-    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
-    TAtype = full(ntps, 1)
-    TCtype = full(ntps, 2)
-    # Solve the core MCS at output conditions
-    core_out = solvecore(
-        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, FugFaco, Kos, False,
-    )
-    # Calculate all other results at output conditions
-    others_out = solve.others(
-        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
-    )
-    # Save data directly as a dict to avoid ordering issues
-    CO2dict = {
+    """Assemble CO2SYS's output dict."""
+    return {
         "TAlk": core_in["TA"] * 1e6,
         "TCO2": core_in["TC"] * 1e6,
         "pHin": core_in["PH"],
@@ -406,7 +336,85 @@ def _CO2SYS(
         "SIRin": others_in["SIR"],
         "SIRout": others_out["SIR"],
     }
-    return CO2dict
+
+
+def _CO2SYS(
+    PAR1,
+    PAR2,
+    PAR1TYPE,
+    PAR2TYPE,
+    SAL,
+    TEMPIN,
+    TEMPOUT,
+    PRESIN,
+    PRESOUT,
+    SI,
+    PO4,
+    NH3,
+    H2S,
+    pHSCALEIN,
+    K1K2CONSTANTS,
+    KSO4CONSTANT,
+    KFCONSTANT,
+    BORON,
+    buffers_mode,
+    KSO4CONSTANTS=0,
+):
+    # Condition inputs and assign input values to the 'historical' variable names
+    args, ntps = inputs(locals())
+    PAR1 = args["PAR1"]
+    PAR2 = args["PAR2"]
+    p1 = args["PAR1TYPE"]
+    p2 = args["PAR2TYPE"]
+    Sal = args["SAL"]
+    TempCi = args["TEMPIN"]
+    TempCo = args["TEMPOUT"]
+    Pdbari = args["PRESIN"]
+    Pdbaro = args["PRESOUT"]
+    TSi = args["SI"]
+    TP = args["PO4"]
+    TNH3 = args["NH3"]
+    TH2S = args["H2S"]
+    pHScale = args["pHSCALEIN"]
+    WhichKs = args["K1K2CONSTANTS"]
+    WhoseKSO4 = args["KSO4CONSTANT"]
+    WhoseKF = args["KFCONSTANT"]
+    WhoseTB = args["BORON"]
+    buffers_mode = args["buffers_mode"]
+    # Prepare to solve the core marine carbonate system at input conditions
+    totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
+    Sal = totals["Sal"]
+    Kis = equilibria.assemble(
+        TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+    )
+    # Calculate fugacity factor
+    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
+    # Solve the core marine carbonate system at input conditions
+    core_in = solvecore(PAR1, PAR2, p1, p2, totals, FugFaci, Kis, True)
+    # Calculate all other results at input conditions
+    others_in = solve.others(
+        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs, buffers_mode,
+    )
+    # Prepare to solve the core MCS at output conditions
+    Kos = equilibria.assemble(
+        TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+    )
+    # Calculate fugacity factor
+    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
+    TAtype = full(ntps, 1)
+    TCtype = full(ntps, 2)
+    # Solve the core MCS at output conditions
+    core_out = solvecore(
+        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, FugFaco, Kos, False,
+    )
+    # Calculate all other results at output conditions
+    others_out = solve.others(
+        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
+    )
+    # Save data directly as a dict to avoid ordering issues
+    return _outputdict(
+        args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
+    )
 
 
 def CO2SYS(
