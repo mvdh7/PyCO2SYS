@@ -9,7 +9,7 @@ from autograd.numpy import errstate, log10, sqrt, where
 def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with fCO2 as the second variable, assuming
     that CBAlk is within a suitable range.
-    
+
     Inspired by M13, section 3.2.2.
     """
     c2 = KB - (TB * KB + K1 * CO2) / CBAlk
@@ -30,7 +30,7 @@ def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
 @errstate(invalid="ignore")
 def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with fCO2 as the second variable.
-    
+
     Inspired by M13, section 3.2.2.
     """
     H0 = where(
@@ -45,7 +45,7 @@ def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
 def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with TC as the second variable, assuming that
     CBAlk is within a suitable range.
-    
+
     Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
     c2 = KB * (1 - TB / CBAlk) + K1 * (1 - TC / CBAlk)
@@ -66,7 +66,7 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
 @errstate(invalid="ignore")
 def fromTC(CBAlk, TC, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with TC as the second variable.
-    
+
     Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
     # Logical conditions and defaults from mocsy phsolvers.f90
@@ -82,9 +82,9 @@ def fromTC(CBAlk, TC, TB, K1, K2, KB):
 
 
 def _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB):
-    """Find initial value for TA-pH solver with carbonate ion as the second variable, 
+    """Find initial value for TA-pH solver with carbonate ion as the second variable,
     assuming that CBAlk is within a suitable range.
-    
+
     Inspired by M13, section 3.2.2.
     """
     a = CARB
@@ -97,7 +97,7 @@ def _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB):
 @errstate(invalid="ignore")
 def fromCO3(CBAlk, CARB, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with carbonate ion as the second variable.
-    
+
     Inspired by M13, section 3.2.2.
     """
     H0 = where(
@@ -109,9 +109,9 @@ def fromCO3(CBAlk, CARB, TB, K1, K2, KB):
 
 
 def _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
-    """Find initial value for TA-pH solver with bicarbonate ion as the second variable, 
+    """Find initial value for TA-pH solver with bicarbonate ion as the second variable,
     assuming that CBAlk is within a suitable range.
-    
+
     Inspired by M13, section 3.2.2.
     """
     a = HCO3 - CBAlk
@@ -124,7 +124,7 @@ def _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
 @errstate(invalid="ignore")
 def fromHCO3(CBAlk, HCO3, TB, K1, K2, KB):
     """Find initial value for TA-pH solver with bicarbonate ion as the second variable.
-    
+
     Inspired by M13, section 3.2.2.
     """
     H0 = where(
