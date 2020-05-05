@@ -2,7 +2,18 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Helpers for the main CO2SYS program."""
 
-from autograd.numpy import array, full, isin, nan, shape, size, unique, where
+from autograd.numpy import (
+    array,
+    errstate,
+    full,
+    isin,
+    isnan,
+    nan,
+    shape,
+    size,
+    unique,
+    where,
+)
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
@@ -18,7 +29,7 @@ def inputs(input_locals):
         size(unique(veclengths[veclengths != 1])) <= 1
     ), "CO2SYS function inputs must all be of same length, or of length 1."
     # Make vectors of all inputs
-    ntps = max(veclengths)
+    ntps = np_max(veclengths)
     args = {
         k: full(ntps, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
     }
@@ -42,9 +53,35 @@ def inputs(input_locals):
     return args, ntps
 
 
+@errstate(invalid="ignore")
+def _core_sanity(TC, PC, FC, CARB, HCO3, CO2):
+    """Run basic sanity checks on core marine carbonate system parameter values."""
+    assert np_all(
+        (TC >= 0) | isnan(TC)
+    ), "Dissolved inorganic carbon cannot be negative."
+    assert np_all((PC >= 0) | isnan(PC)), "CO2 partial pressure cannot be negative."
+    assert np_all((FC >= 0) | isnan(FC)), "CO2 fugacity cannot be negative."
+    assert np_all(
+        (CARB >= 0) | isnan(CARB)
+    ), "Carbonate ion molinity cannot be negative."
+    assert np_all(
+        (HCO3 >= 0) | isnan(HCO3)
+    ), "Bicarbonate ion molinity cannot be negative."
+    assert np_all((CO2 >= 0) | isnan(CO2)), "Aqueous CO2 molinity cannot be negative."
+    assert np_all(
+        (CARB < TC) | isnan(CARB) | isnan(TC)
+    ), "Carbonate ion molinity must be less than DIC."
+    assert np_all(
+        (HCO3 < TC) | isnan(HCO3) | isnan(TC)
+    ), "Bicarbonate ion molinity must be less than DIC."
+    assert np_all(
+        (CO2 < TC) | isnan(CO2) | isnan(TC)
+    ), "Aqueous CO2 molinity must be less than DIC."
+
+
 def pair2core(par1, par2, par1type, par2type, convertunits):
     """Expand `par1` and `par2` inputs into one array per core variable of the marine
-    carbonate system and convert units from microX to X if requested with the input
+    carbonate system.  Convert units from microX to X if requested with the input
     logical `convertunits`.
     """
     assert (
@@ -82,6 +119,7 @@ def pair2core(par1, par2, par1type, par2type, convertunits):
     CARB = where(par2type == 6, par2 * cfac, CARB)
     HCO3 = where(par2type == 7, par2 * cfac, HCO3)
     CO2 = where(par2type == 8, par2 * cfac, CO2)
+    _core_sanity(TC, PC, FC, CARB, HCO3, CO2)
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 

@@ -22,6 +22,16 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
+## 1.4
+
+Adds uncertainty propagation.
+
+### 1.4.0 (forthcoming)
+
+!!! example "Changes in v1.4.0"
+
+    * Added basic sanity checking to prevent invalid marine carbonate system parameter input values.
+
 ## 1.3
 
 Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.
