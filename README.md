@@ -9,15 +9,15 @@
 
 Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible).  See the scripts in [validate](validate) to see how and check this for yourself.  **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
 
-Documentation is under construction at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
+Documentation is available online at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
 
-Examples are available at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples#pyco2sys-examples).
+There are also some usage examples that you can either download or run live in your web browser (with no Python installation required) at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples#pyco2sys-examples).
 
 ## Citation
 
 The citation for PyCO2SYS alone is:
 
-> Humphreys, M.P., Gregor, L., Pierrot, D., van Heuven, S.M.A.C., Lewis, E., and Wallace, D.W.R. (2020).  PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+> Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020).  PyCO2SYS: marine carbonate system calculations in Python. Version 1.3.0.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 The DOI above refers to all versions of PyCO2SYS.  Please be sure to update the version number in the citation if necessary.  You can find the current version that you are using in Python with:
 
