@@ -211,10 +211,8 @@ def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
     }
 
 
-def _outputdict(
-    args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
-):
-    """Assemble CO2SYS's output dict."""
+def _outputs_grad(args, core_in, core_out, others_in, others_out, Kis, Kos, totals):
+    """Assemble Autograd-able portion of CO2SYS's output dict."""
     return {
         "TAlk": core_in["TA"] * 1e6,
         "TCO2": core_in["TC"] * 1e6,
@@ -264,14 +262,6 @@ def _outputdict(
         "TEMPOUT": args["TEMPOUT"],
         "PRESIN": args["PRESIN"],
         "PRESOUT": args["PRESOUT"],
-        "PAR1TYPE": args["PAR1TYPE"],
-        "PAR2TYPE": args["PAR2TYPE"],
-        "K1K2CONSTANTS": args["K1K2CONSTANTS"],
-        "KSO4CONSTANTS": args["KSO4CONSTANTS"],
-        "KSO4CONSTANT": args["KSO4CONSTANT"],
-        "KFCONSTANT": args["KFCONSTANT"],
-        "BORON": args["BORON"],
-        "pHSCALEIN": args["pHSCALEIN"],
         "SAL": args["SAL"],
         "PO4": args["PO4"],
         "SI": args["SI"],
@@ -331,11 +321,40 @@ def _outputdict(
         "psi_out": others_out["psi"],
         # Added in v1.3.0:
         "TCa": totals["TCa"] * 1e6,
-        "buffers_mode": buffers_mode,
         # Added in v1.4.0:
         "SIRin": others_in["SIR"],
         "SIRout": others_out["SIR"],
+        "PAR1": args["PAR1"],
+        "PAR2": args["PAR2"],
     }
+
+
+def _outputs_nograd(args, buffers_mode):
+    """Assemble non-Autograd-able portion of CO2SYS's output dict."""
+    return {
+        "PAR1TYPE": args["PAR1TYPE"],
+        "PAR2TYPE": args["PAR2TYPE"],
+        "K1K2CONSTANTS": args["K1K2CONSTANTS"],
+        "KSO4CONSTANTS": args["KSO4CONSTANTS"],
+        "KSO4CONSTANT": args["KSO4CONSTANT"],
+        "KFCONSTANT": args["KFCONSTANT"],
+        "BORON": args["BORON"],
+        "pHSCALEIN": args["pHSCALEIN"],
+        # Added in v1.3.0:
+        "buffers_mode": buffers_mode,
+    }
+
+
+def _outputdict(
+    args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
+):
+    """Assemble CO2SYS's output dict."""
+    outputs_grad = _outputs_grad(
+            args, core_in, core_out, others_in, others_out, Kis, Kos, totals
+        )
+    outputs_nograd = _outputs_nograd(args, buffers_mode)
+    gradable = outputs_grad.keys()
+    return {**outputs_grad, **outputs_nograd}, gradable
 
 
 def _CO2SYS(
@@ -412,9 +431,31 @@ def _CO2SYS(
         core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
-    return _outputdict(
+    outputdict, gradable =  _outputdict(
         args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
     )
+    return outputdict, gradable
+
+
+def _convertoptions(KSO4CONSTANTS):
+    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
+    if shape(KSO4CONSTANTS) == ():
+        KSO4CONSTANTS = array([KSO4CONSTANTS])
+    only2KSO4 = {
+        1: 1,
+        2: 2,
+        3: 1,
+        4: 2,
+    }
+    only2BORON = {
+        1: 1,
+        2: 1,
+        3: 2,
+        4: 2,
+    }
+    KSO4CONSTANT = array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
+    BORON = array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
+    return KSO4CONSTANT, BORON
 
 
 def CO2SYS(
@@ -446,22 +487,7 @@ def CO2SYS(
     subsequently extended by M.P. Humphreys.
     """
     # Convert traditional inputs to new format before running CO2SYS
-    if shape(KSO4CONSTANTS) == ():
-        KSO4CONSTANTS = array([KSO4CONSTANTS])
-    only2KSO4 = {
-        1: 1,
-        2: 2,
-        3: 1,
-        4: 2,
-    }
-    only2BORON = {
-        1: 1,
-        2: 1,
-        3: 2,
-        4: 2,
-    }
-    KSO4CONSTANT = array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
-    BORON = array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
+    KSO4CONSTANT, BORON = _convertoptions(KSO4CONSTANTS)
     return _CO2SYS(
         PAR1,
         PAR2,
@@ -483,4 +509,4 @@ def CO2SYS(
         BORON,
         buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
-    )
+    )[0]

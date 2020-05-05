@@ -229,6 +229,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
     #### Function inputs
 
+    * `'PAR1'`/`'PAR2'`: inputs `PAR1`/`PAR2`.
     * `'TEMPIN'`/`'TEMPOUT'`: inputs `TEMPIN`/`TEMPOUT`.
     * `'PRESIN'`/`'PRESOUT'`: inputs `PRESIN`/`PRESOUT`.
     * `'PAR1TYPE'`/`'PAR2TYPE'`: inputs `PAR1TYPE`/`PAR2TYPE`.

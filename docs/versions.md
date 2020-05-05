@@ -32,6 +32,7 @@ Adds uncertainty propagation.
 
     * Added basic sanity checking to prevent invalid marine carbonate system parameter input values.
     * Added substrate:inhibitor ratio (SIR) of [B15](../refs/#b) as a standard output, calculated with `SIratio` in new module `bio`.
+    * Added inputs `PAR1` and `PAR2` as outputs to `CO2SYS`.
 
 ## 1.3
 
