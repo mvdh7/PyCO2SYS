@@ -2,13 +2,15 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Correct equilibrium constants for pressure."""
 
-from autograd.numpy import full, nan, size, where
+from autograd.numpy import full, isin, nan, size, where
+from autograd.numpy import all as np_all
 from . import p1atm, pcx
 from .. import convert
 
 
 def KSO4(TempK, Sal, Pbar, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
+    assert np_all(isin(WhoseKSO4, [1, 2])), "Valid `WhoseKSO4` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
     KSO4 = full(size(TempK), nan)
     KSO4 = where(WhoseKSO4 == 1, p1atm.kHSO4_FREE_D90a(TempK, Sal), KSO4)
@@ -20,6 +22,7 @@ def KSO4(TempK, Sal, Pbar, WhoseKSO4):
 
 def KF(TempK, Sal, Pbar, WhoseKF):
     """Calculate HF dissociation constant for the given options."""
+    assert np_all(isin(WhoseKF, [1, 2])), "Valid `WhoseKF` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
     KF = full(size(TempK), nan)
     KF = where(WhoseKF == 1, p1atm.kHF_FREE_DR79(TempK, Sal), KF)
