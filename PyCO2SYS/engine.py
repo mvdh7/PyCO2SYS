@@ -46,6 +46,20 @@ def inputs(input_locals):
         "H2S",
         "PAR1",
         "PAR2",
+        "TA",
+        "TC",
+        "PH",
+        "PC",
+        "FC",
+        "CARB",
+        "HCO3",
+        "CO2",
+        "TempC",
+        "Pdbar",
+        "TSi",
+        "TPO4",
+        "TNH3",
+        "TH2S",
     ]
     for k in args.keys():
         if k in float_vars:
