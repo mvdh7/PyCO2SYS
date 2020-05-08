@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Alternative APIs for executing the main CO2SYS function."""
 
-from .engine import CO2SYS
+from ..engine import CO2SYS
 
 
 def CO2SYS_wrap(
@@ -242,7 +242,7 @@ def CO2SYS_wrap(
     printv("Computing CO2 parameters")
     dict_out = CO2SYS(*df_nonan.values.T)
 
-    # CONVERTING DICTIONARY TO PADNAS.DATAFRAME
+    # CONVERTING DICTIONARY TO PANDAS.DATAFRAME
     # here we convert to a pandas.DataFrame and we use the index
     # from the data without nans (that was passed to CO2SYS).
     df_out = pd.DataFrame(dict_out, index=df_nonan.index.values)
