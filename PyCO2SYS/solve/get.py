@@ -401,3 +401,39 @@ def CarbfrompHHCO3(pH, HCO3, K2):
     """Calculate bicarbonate ion from pH and carbonate ion."""
     H = 10.0 ** -pH
     return K2 * HCO3 / H
+
+
+def TAfromfCO2Carb(fCO2, CARB, totals, Ks):
+    """Total alkalinity from CO2 fugacity and carbonate ion."""
+    pH = pHfromfCO2Carb(fCO2, CARB, Ks["K0"], Ks["K1"], Ks["K2"])
+    return TAfrompHfCO2(pH, fCO2, totals, Ks)
+
+
+def TCfromfCO2Carb(fCO2, CARB, K0, K1, K2):
+    """Dissolved inorganic carbon from CO2 fugacity and carbonate ion."""
+    pH = pHfromfCO2Carb(fCO2, CARB, K0, K1, K2)
+    return TCfrompHCarb(pH, CARB, K1, K2)
+
+
+def HCO3fromfCO2Carb(fCO2, CARB, K0, K1, K2):
+    """Bicarbonate ion from CO2 fugacity and carbonate ion."""
+    pH = pHfromfCO2Carb(fCO2, CARB, K0, K1, K2)
+    return HCO3frompHCarb(pH, CARB, K2)
+
+
+def TAfromfCO2HCO3(fCO2, HCO3, totals, Ks):
+    """Total alkalinity from CO2 fugacity and bicarbonate ion."""
+    CARB = CarbfromfCO2HCO3(fCO2, HCO3, Ks["K0"], Ks["K1"], Ks["K2"])
+    return TAfromfCO2Carb(fCO2, CARB, totals, Ks)
+
+
+def TCfromfCO2HCO3(fCO2, HCO3, K0, K1, K2):
+    """Dissolved inorganic carbon from CO2 fugacity and bicarbonate ion."""
+    CARB = CarbfromfCO2HCO3(fCO2, HCO3, K0, K1, K2)
+    return K0 * fCO2 + HCO3 + CARB
+
+
+def pHfromfCO2HCO3(fCO2, HCO3, K0, K1):
+    """pH from CO2 fugacity and bicarbonate ion."""
+    H = K0 * K1 * fCO2 / HCO3
+    return -log10(H)
