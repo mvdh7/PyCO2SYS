@@ -57,16 +57,16 @@ def psi(CO2, pH, K1, K2, KB, KW, TB):
     return -1 + 2 / Q
 
 
-def RevelleFactor_MATLAB(TA, TC, Ks, totals):
+def RevelleFactor_MATLAB(TA, TC, totals, Ks):
     """Calculate the Revelle Factor from total alkalinity and dissolved inorganic
     carbon using the exact method of CO2SYS for MATLAB.
-    
+
     This includes an error whereby `TC_minus = TC - dTC` is used instead of just `TC`
     in the final evaluation of the Revelle factor.
 
     This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
-    It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the 
-    given K(), which may be at pressure <> 1 atm. Care must thus be used to see if there 
+    It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the
+    given K(), which may be at pressure <> 1 atm. Care must thus be used to see if there
     is any validity to the number computed.
 
     Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
@@ -74,11 +74,11 @@ def RevelleFactor_MATLAB(TA, TC, Ks, totals):
     dTC = 1e-6  # 1 umol/kg-SW
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
-    pH_plus = solve.get.pHfromTATC(TA, TC_plus, Ks, totals)
+    pH_plus = solve.get.pHfromTATC(TA, TC_plus, totals, Ks)
     fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
-    pH_minus = solve.get.pHfromTATC(TA, TC_minus, Ks, totals)
+    pH_minus = solve.get.pHfromTATC(TA, TC_minus, totals, Ks)
     fCO2_minus = solve.get.fCO2fromTCpH(
         TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
     )
@@ -87,13 +87,13 @@ def RevelleFactor_MATLAB(TA, TC, Ks, totals):
     return Revelle
 
 
-def RevelleFactor(TA, TC, Ks, totals):
-    """Calculate the Revelle Factor from total alkalinity and dissolved inorganic 
+def RevelleFactor(TA, TC, totals, Ks):
+    """Calculate the Revelle Factor from total alkalinity and dissolved inorganic
     carbon using the corrected method of CO2SYS for MATLAB.
 
     This calculates the Revelle factor (dfCO2/dTC)|TA/(fCO2/TC).
-    It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the 
-    given K(), which may be at pressure <> 1 atm. Care must thus be used to see if there 
+    It only makes sense to talk about it at pTot = 1 atm, but it is computed here at the
+    given K(), which may be at pressure <> 1 atm. Care must thus be used to see if there
     is any validity to the number computed.
 
     Based on RevelleFactor, version 01.03, 01-07-97, by Ernie Lewis.
@@ -101,11 +101,11 @@ def RevelleFactor(TA, TC, Ks, totals):
     dTC = 0.01e-6  # 0.01 umol/kg-SW
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
-    pH_plus = solve.get.pHfromTATC(TA, TC_plus, Ks, totals)
+    pH_plus = solve.get.pHfromTATC(TA, TC_plus, totals, Ks)
     fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
-    pH_minus = solve.get.pHfromTATC(TA, TC_minus, Ks, totals)
+    pH_minus = solve.get.pHfromTATC(TA, TC_minus, totals, Ks)
     fCO2_minus = solve.get.fCO2fromTCpH(
         TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
     )

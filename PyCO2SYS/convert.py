@@ -2,7 +2,8 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Convert units and calculate conversion factors."""
 
-from autograd.numpy import full, log10, nan, size, where
+from autograd.numpy import array, full, log10, nan, shape, size, where
+from .api import oo
 from .constants import Tzero
 
 
@@ -73,3 +74,39 @@ def pH2allscales(pH, pHScale, KSO4, KF, TSO4, TF, fH):
     pHfree = pHtot + log10(FREEtoTOT)
     pHsws = pHtot + log10(SWStoTOT)
     return pHtot, pHsws, pHfree, pHNBS
+
+
+def options_old2new(KSO4CONSTANTS):
+    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
+    if shape(KSO4CONSTANTS) == ():
+        KSO4CONSTANTS = array([KSO4CONSTANTS])
+    only2KSO4 = {
+        1: 1,
+        2: 2,
+        3: 1,
+        4: 2,
+    }
+    only2BORON = {
+        1: 1,
+        2: 1,
+        3: 2,
+        4: 2,
+    }
+    KSO4CONSTANT = array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
+    BORON = array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
+    return KSO4CONSTANT, BORON
+
+
+def options_new2old(KSO4CONSTANT, BORON):
+    """Convert separated `KSO4CONSTANT` and `BORON` options into traditional CO2SYS
+    `KSO4CONSTANTS` input.
+    """
+    pair2one = {
+        (1, 1): 1,
+        (2, 1): 2,
+        (1, 2): 3,
+        (2, 2): 4,
+    }
+    KSO4CONSTANT, BORON = oo._flattenfirst((KSO4CONSTANT, BORON), int)[0]
+    pairs = zip(KSO4CONSTANT, BORON)
+    return array([pair2one[pair] for pair in pairs])

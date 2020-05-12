@@ -25,7 +25,7 @@ def CO2SYS(
     getgrads=[],
 ):
     # Convert traditional inputs to new format before running CO2SYS
-    KSO4CONSTANT, BORON = pyco2.engine._convertoptions(KSO4CONSTANTS)
+    KSO4CONSTANT, BORON = pyco2.convert.options_old2new(KSO4CONSTANTS)
     # Make list of non-gradable CO2SYS inputs for convenience
     ngargs = [
         pHSCALEIN,

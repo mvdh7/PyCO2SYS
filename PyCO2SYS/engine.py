@@ -4,21 +4,16 @@
 
 from autograd.numpy import (
     array,
-    errstate,
     full,
-    isin,
-    isnan,
     nan,
-    shape,
     size,
     unique,
     where,
 )
-from autograd.numpy import all as np_all
-from autograd.numpy import any as np_any
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from . import equilibria, gas, salts, solve
+from autograd import elementwise_grad as egrad
+from . import convert, equilibria, gas, salts, solve
 
 
 def inputs(input_locals):
@@ -67,165 +62,7 @@ def inputs(input_locals):
     return args, ntps
 
 
-@errstate(invalid="ignore")
-def _core_sanity(TC, PC, FC, CARB, HCO3, CO2):
-    """Run basic sanity checks on core marine carbonate system parameter values."""
-    assert np_all(
-        (TC >= 0) | isnan(TC)
-    ), "Dissolved inorganic carbon cannot be negative."
-    assert np_all((PC >= 0) | isnan(PC)), "CO2 partial pressure cannot be negative."
-    assert np_all((FC >= 0) | isnan(FC)), "CO2 fugacity cannot be negative."
-    assert np_all(
-        (CARB >= 0) | isnan(CARB)
-    ), "Carbonate ion molinity cannot be negative."
-    assert np_all(
-        (HCO3 >= 0) | isnan(HCO3)
-    ), "Bicarbonate ion molinity cannot be negative."
-    assert np_all((CO2 >= 0) | isnan(CO2)), "Aqueous CO2 molinity cannot be negative."
-    assert np_all(
-        (CARB < TC) | isnan(CARB) | isnan(TC)
-    ), "Carbonate ion molinity must be less than DIC."
-    assert np_all(
-        (HCO3 < TC) | isnan(HCO3) | isnan(TC)
-    ), "Bicarbonate ion molinity must be less than DIC."
-    assert np_all(
-        (CO2 < TC) | isnan(CO2) | isnan(TC)
-    ), "Aqueous CO2 molinity must be less than DIC."
-
-
-def pair2core(par1, par2, par1type, par2type, convertunits):
-    """Expand `par1` and `par2` inputs into one array per core variable of the marine
-    carbonate system.  Convert units from microX to X if requested with the input
-    logical `convertunits`.
-    """
-    assert (
-        size(par1) == size(par2) == size(par1type) == size(par2type)
-    ), "`par1`, `par2`, `par1type` and `par2type` must all be the same size."
-    ntps = size(par1)
-    # Generate empty vectors for...
-    TA = full(ntps, nan)  # total alkalinity
-    TC = full(ntps, nan)  # DIC
-    PH = full(ntps, nan)  # pH
-    PC = full(ntps, nan)  # CO2 partial pressure
-    FC = full(ntps, nan)  # CO2 fugacity
-    CARB = full(ntps, nan)  # carbonate ions
-    HCO3 = full(ntps, nan)  # bicarbonate ions
-    CO2 = full(ntps, nan)  # aqueous CO2
-    # Assign values to empty vectors & convert micro[mol|atm] to [mol|atm] if requested
-    assert type(convertunits) == bool, "`convertunits` must be `True` or `False`."
-    if convertunits:
-        cfac = 1e-6
-    else:
-        cfac = 1.0
-    TA = where(par1type == 1, par1 * cfac, TA)
-    TC = where(par1type == 2, par1 * cfac, TC)
-    PH = where(par1type == 3, par1, PH)
-    PC = where(par1type == 4, par1 * cfac, PC)
-    FC = where(par1type == 5, par1 * cfac, FC)
-    CARB = where(par1type == 6, par1 * cfac, CARB)
-    HCO3 = where(par1type == 7, par1 * cfac, HCO3)
-    CO2 = where(par1type == 8, par1 * cfac, CO2)
-    TA = where(par2type == 1, par2 * cfac, TA)
-    TC = where(par2type == 2, par2 * cfac, TC)
-    PH = where(par2type == 3, par2, PH)
-    PC = where(par2type == 4, par2 * cfac, PC)
-    FC = where(par2type == 5, par2 * cfac, FC)
-    CARB = where(par2type == 6, par2 * cfac, CARB)
-    HCO3 = where(par2type == 7, par2 * cfac, HCO3)
-    CO2 = where(par2type == 8, par2 * cfac, CO2)
-    _core_sanity(TC, PC, FC, CARB, HCO3, CO2)
-    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
-
-
-def getIcase(par1type, par2type, checks=True):
-    """Generate vector describing the combination of input parameters.
-
-    Options for `par1type` and `par2type`:
-
-      * `1` = total alkalinity
-      * `2` = dissolved inorganic carbon
-      * `3` = pH
-      * `4` = partial pressure of CO2
-      * `5` = fugacity of CO2
-      * `6` = carbonate ion
-      * `7` = bicarbonate ion
-      * `8` = aqueous CO2
-
-    `Icase` is `10*parXtype + parYtype` where `parXtype` is whichever of `par1type` or
-    `par2type` is greater.
-
-    Noting that a pair of any two from pCO2, fCO2 and CO2(aq) is not allowed, the valid
-    `Icase` options are therefore:
-
-        12, 13, 14, 15, 16, 17, 18,
-            23, 24, 25, 26, 27, 28,
-                34, 35, 36, 37, 38,
-                        46, 47,
-                        56, 57,
-                            67, 68,
-                                78.
-
-    The optional input `checks` allows you to decide whether the function should test
-    the validity of the entered combinations or not.
-    """
-    # Check validity of separate `par1type` and `par2type` inputs
-    Iarr = array([par1type, par2type])
-    if checks:
-        assert np_all(
-            isin(Iarr, [1, 2, 3, 4, 5, 6, 7, 8])
-        ), "All `par1type` and `par2type` values must be integers from 1 to 8."
-        assert ~np_any(
-            par1type == par2type
-        ), "`par1type` and `par2type` must be different from each other."
-    # Combine inputs into `Icase` and check its validity
-    Icase = 10 * np_min(Iarr, axis=0) + np_max(Iarr, axis=0)
-    if checks:
-        assert ~np_any(
-            isin(Icase, [45, 48, 58])
-        ), "Combinations of pCO2, fCO2 and CO2(aq) are not valid input pairs."
-    return Icase
-
-
-def solvecore(par1, par2, par1type, par2type, totals, FugFac, Ks, convertunits):
-    """Solve the core marine carbonate system (MCS) from any 2 of its variables.
-
-    The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
-
-      * Type `1`, `TA`: total alkalinity in mol/kg-sw.
-      * Type `2`, `TC`: dissolved inorganic carbon in mol/kg-sw.
-      * Type `3`, `PH`: pH on whichever scale(s) the constants in `Ks` are provided.
-      * Type `4`, `PC`: partial pressure of CO2 in atm.
-      * Type `5`, `FC`: fugacity of CO2 in atm.
-      * Type `6`, `CARB`: carbonate ion in mol/kg-sw.
-      * Type `7`, `HCO3`: bicarbonate ion in mol/kg-sw.
-      * Type `8`, `CO2`: aqueous CO2 in mol/kg-sw.
-
-    The input `convertunits` specifies whether the inputs `par1` and `par2` are in
-    micro-mol/kg and micro-atm units (`True`) or mol/kg and atm units (`False`).
-    """
-    # Expand inputs `par1` and `par2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pair2core(
-        par1, par2, par1type, par2type, convertunits
-    )
-    # Generate vector describing the combination(s) of input parameters
-    Icase = getIcase(par1type, par2type)
-    # Solve the core marine carbonate system
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = solve.core(
-        Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, FugFac, Ks, totals
-    )
-    return {
-        "TA": TA,
-        "TC": TC,
-        "PH": PH,
-        "PC": PC,
-        "FC": FC,
-        "CARB": CARB,
-        "HCO3": HCO3,
-        "CO2": CO2,
-    }
-
-
-def _outputs_grad(args, core_in, core_out, others_in, others_out, Kis, Kos, totals):
+def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, Kos):
     """Assemble Autograd-able portion of CO2SYS's output dict."""
     return {
         "TAlk": core_in["TA"] * 1e6,
@@ -360,12 +197,12 @@ def _outputs_nograd(args, buffers_mode):
 
 
 def _outputdict(
-    args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
+    args, core_in, core_out, others_in, others_out, totals, Kis, Kos, buffers_mode
 ):
-    """Assemble CO2SYS's output dict."""
+    """Assemble CO2SYS's complete output dict."""
     outputs_grad = _outputs_grad(
-            args, core_in, core_out, others_in, others_out, Kis, Kos, totals
-        )
+        args, core_in, core_out, others_in, others_out, totals, Kis, Kos
+    )
     outputs_nograd = _outputs_nograd(args, buffers_mode)
     gradable = outputs_grad.keys()
     return {**outputs_grad, **outputs_nograd}, gradable
@@ -420,56 +257,30 @@ def _CO2SYS(
     Kis = equilibria.assemble(
         TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
-    # Calculate fugacity factor
-    FugFaci = gas.fugacityfactor(TempCi, WhichKs)
     # Solve the core marine carbonate system at input conditions
-    core_in = solvecore(PAR1, PAR2, p1, p2, totals, FugFaci, Kis, True)
+    core_in = solve.core(PAR1, PAR2, p1, p2, totals, Kis, True)
     # Calculate all other results at input conditions
     others_in = solve.others(
-        core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs, buffers_mode,
+        core_in, Sal, TempCi, Pdbari, totals, Kis, pHScale, WhichKs, buffers_mode,
     )
-    # Prepare to solve the core MCS at output conditions
+    # Solve the core MCS at output conditions
     Kos = equilibria.assemble(
         TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
-    # Calculate fugacity factor
-    FugFaco = gas.fugacityfactor(TempCo, WhichKs)
     TAtype = full(ntps, 1)
     TCtype = full(ntps, 2)
-    # Solve the core MCS at output conditions
-    core_out = solvecore(
-        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, FugFaco, Kos, False,
+    core_out = solve.core(
+        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, Kos, False,
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
-        core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
+        core_out, Sal, TempCo, Pdbaro, totals, Kos, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
-    outputdict, gradable =  _outputdict(
-        args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
+    outputdict, gradable = _outputdict(
+        args, core_in, core_out, others_in, others_out, totals, Kis, Kos, buffers_mode
     )
     return outputdict, gradable
-
-
-def _convertoptions(KSO4CONSTANTS):
-    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
-    if shape(KSO4CONSTANTS) == ():
-        KSO4CONSTANTS = array([KSO4CONSTANTS])
-    only2KSO4 = {
-        1: 1,
-        2: 2,
-        3: 1,
-        4: 2,
-    }
-    only2BORON = {
-        1: 1,
-        2: 1,
-        3: 2,
-        4: 2,
-    }
-    KSO4CONSTANT = array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
-    BORON = array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
-    return KSO4CONSTANT, BORON
 
 
 def CO2SYS(
@@ -501,7 +312,7 @@ def CO2SYS(
     subsequently extended by M.P. Humphreys.
     """
     # Convert traditional inputs to new format before running CO2SYS
-    KSO4CONSTANT, BORON = _convertoptions(KSO4CONSTANTS)
+    KSO4CONSTANT, BORON = convert.options_old2new(KSO4CONSTANTS)
     return _CO2SYS(
         PAR1,
         PAR2,
@@ -524,3 +335,224 @@ def CO2SYS(
         buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
     )[0]
+
+
+# def _CO2SYS_u(
+#     PAR1,
+#     PAR2,
+#     PAR1TYPE,
+#     PAR2TYPE,
+#     SAL,
+#     TEMPIN,
+#     TEMPOUT,
+#     PRESIN,
+#     PRESOUT,
+#     SI,
+#     PO4,
+#     NH3,
+#     H2S,
+#     pHSCALEIN,
+#     K1K2CONSTANTS,
+#     KSO4CONSTANT,
+#     KFCONSTANT,
+#     BORON,
+#     buffers_mode,
+#     KSO4CONSTANTS=0,
+#     uncertainty=True,
+#     PAR1_U=0,
+#     PAR2_U=0,
+# ):
+#     # Condition inputs and assign input values to the 'historical' variable names
+#     args, ntps = inputs(locals())
+#     PAR1 = args["PAR1"]
+#     PAR2 = args["PAR2"]
+#     p1 = args["PAR1TYPE"]
+#     p2 = args["PAR2TYPE"]
+#     Sal = args["SAL"]
+#     TempCi = args["TEMPIN"]
+#     TempCo = args["TEMPOUT"]
+#     Pdbari = args["PRESIN"]
+#     Pdbaro = args["PRESOUT"]
+#     TSi = args["SI"]
+#     TP = args["PO4"]
+#     TNH3 = args["NH3"]
+#     TH2S = args["H2S"]
+#     pHScale = args["pHSCALEIN"]
+#     WhichKs = args["K1K2CONSTANTS"]
+#     WhoseKSO4 = args["KSO4CONSTANT"]
+#     WhoseKF = args["KFCONSTANT"]
+#     WhoseTB = args["BORON"]
+#     buffers_mode = args["buffers_mode"]
+#     PAR1_U = args["PAR1_U"]
+#     PAR2_U = args["PAR2_U"]
+#     # Expand inputs `PAR1` and `PAR2` and their uncertainties into one array per core
+#     # MCS variable
+#     TA, TC, PHi, PCi, FCi, CARBi, HCO3i, CO2i = pair2core(
+#         PAR1, PAR2, PAR1TYPE, PAR2TYPE, convert_units=True, checks=True
+#     )
+#     if uncertainty:
+#         TA_U, TC_U, PHi_U, PCi_U, FCi_U, CARBi_U, HCO3i_U, CO2i_U = pair2core(
+#             PAR1_U, PAR2_U, PAR1TYPE, PAR2TYPE, convert_units=True, checks=False
+#         )
+#     # Generate vector describing the combination(s) of input parameters
+#     Icase = getIcase(PAR1TYPE, PAR2TYPE)
+#     # Do the rest
+#     uparsargs = (
+#         Icase,
+#         Sal,
+#         TempCi,
+#         TempCo,
+#         Pdbari,
+#         Pdbaro,
+#         TSi,
+#         TP,
+#         TNH3,
+#         TH2S,
+#         pHScale,
+#         WhichKs,
+#         WhoseKSO4,
+#         WhoseKF,
+#         WhoseTB,
+#         buffers_mode,
+#         ntps,
+#         args,
+#     )
+#     outputdict, gradables = _co2sys_u_pars(
+#         TA, TC, PHi, PCi, FCi, CARBi, HCO3i, CO2i, *uparsargs
+#     )
+#     if uncertainty:
+#
+#         # Define input variables to get derivatives with respect to
+#         pars = [TA, TC, PHi, PCi, FCi, CARBi, HCO3i, CO2i]
+#         pars_names = [
+#             "TAlk",
+#             "TCO2",
+#             "pHin",
+#             "pCO2in",
+#             "fCO2in",
+#             "CO3in",
+#             "HCO3in",
+#             "CO2in",
+#         ]
+#         # Work out which outputs we want to calculate derivatives for based on user input
+#         getgrads = ["pHout", "CO2in"]
+#         allgrads = {}
+#         if type(getgrads) == str:
+#             if getgrads == "all":
+#                 getgrads = gradables
+#             elif getgrads == "none":
+#                 getgrads = []
+#             else:
+#                 getgrads = [getgrads]
+#         # Loop through all outputs and calculate derivatives w.r.t. all inputs
+#         for gradable in gradables:
+#             if gradable in getgrads:
+#                 print("Getting derivatives of {}...".format(gradable))
+#                 par_grads = egrad(
+#                     lambda pars: _co2sys_u_pars(*pars, *uparsargs)[0][gradable]
+#                 )(pars)
+#                 allgrads[gradable] = {
+#                     pars_names[i]: par_grad for i, par_grad in enumerate(par_grads)
+#                 }
+#                 # Reassemble uncertainties in terms of original `PAR1` and `PAR2`
+#                 allgrads[gradable]["PAR1"] = full(ntps, nan)
+#                 for i, par in enumerate( pars_names):
+#                     allgrads[gradable]["PAR1"] = where(PAR1TYPE == 1,
+#                                                        allgrads[gradable][par],
+#                                                        allgrads[gradable]["PAR1"])
+#                 allgrads[gradable]["PAR2"] = full(ntps, nan)
+#
+#
+#     return outputdict, allgrads
+#
+#
+# def _co2sys_u_pars(
+#     TA,
+#     TC,
+#     PHi,
+#     PCi,
+#     FCi,
+#     CARBi,
+#     HCO3i,
+#     CO2i,
+#     Icase,
+#     Sal,
+#     TempCi,
+#     TempCo,
+#     Pdbari,
+#     Pdbaro,
+#     TSi,
+#     TP,
+#     TNH3,
+#     TH2S,
+#     pHScale,
+#     WhichKs,
+#     WhoseKSO4,
+#     WhoseKF,
+#     WhoseTB,
+#     buffers_mode,
+#     ntps,
+#     args,
+# ):
+#     # Prepare to solve the core marine carbonate system at input conditions
+#     totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
+#     Sal = totals["Sal"]
+#     Kis = equilibria.assemble(
+#         TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+#     )
+#     # Calculate fugacity factor
+#     FugFaci = gas.fugacityfactor(TempCi, WhichKs)
+#     # Solve the core marine carbonate system at input conditions
+#     TA, TC, PHi, PCi, FCi, CARBi, HCO3i, CO2i = solve.core(
+#         Icase, TA, TC, PHi, PCi, FCi, CARBi, HCO3i, CO2i, FugFaci, Kis, totals
+#     )
+#     core_in = {
+#         "TA": TA,
+#         "TC": TC,
+#         "PH": PHi,
+#         "PC": PCi,
+#         "FC": FCi,
+#         "CARB": CARBi,
+#         "HCO3": HCO3i,
+#         "CO2": CO2i,
+#     }
+#     # Calculate all other results at input conditions
+#     others_in = solve.others(
+#         core_in, Sal, TempCi, Pdbari, Kis, totals, pHScale, WhichKs, buffers_mode,
+#     )
+#     # Prepare to solve the core MCS at output conditions - get equilibrium constants
+#     Kos = equilibria.assemble(
+#         TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+#     )
+#     # Calculate fugacity factor
+#     FugFaco = gas.fugacityfactor(TempCo, WhichKs)
+#     # Expand inputs `par1` and `par2` into one array per core MCS variable
+#     TAtype = full(ntps, 1)
+#     TCtype = full(ntps, 2)
+#     _, _, PHo, PCo, FCo, CARBo, HCO3o, CO2o = pair2core(
+#         TA, TC, TAtype, TCtype, convert_units=False, checks=True
+#     )
+#     # Solve the core MCS at output conditions
+#     Icase_out = getIcase(TAtype, TCtype, checks=False)
+#     TA, TC, PHo, PCo, FCo, CARBo, HCO3o, CO2o = solve.core(
+#         Icase_out, TA, TC, PHo, PCo, FCo, CARBo, HCO3o, CO2o, FugFaco, Kos, totals
+#     )
+#     core_out = {
+#         "TA": TA,
+#         "TC": TC,
+#         "PH": PHo,
+#         "PC": PCo,
+#         "FC": FCo,
+#         "CARB": CARBo,
+#         "HCO3": HCO3o,
+#         "CO2": CO2o,
+#     }
+#     # Calculate all other results at output conditions
+#     others_out = solve.others(
+#         core_out, Sal, TempCo, Pdbaro, Kos, totals, pHScale, WhichKs, buffers_mode,
+#     )
+#     # Save data directly as a dict to avoid ordering issues
+#     outputdict, gradable = _outputdict(
+#         args, core_in, core_out, others_in, others_out, Kis, Kos, totals, buffers_mode
+#     )
+#     return outputdict, gradable

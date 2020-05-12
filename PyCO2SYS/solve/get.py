@@ -38,7 +38,7 @@ def HCO3fromTCpH(TC, pH, K1, K2):
 
 
 @errstate(invalid="ignore")
-def AlkParts(TC, pH, FREEtoTOT, Ks, totals):
+def AlkParts(TC, pH, FREEtoTOT, totals, Ks):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
 
@@ -84,7 +84,7 @@ def AlkParts(TC, pH, FREEtoTOT, Ks, totals):
     }
 
 
-def TAfromTCpH(TC, pH, Ks, totals):
+def TAfromTCpH(TC, pH, totals, Ks):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -95,7 +95,7 @@ def TAfromTCpH(TC, pH, Ks, totals):
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    alks = AlkParts(TC, pH, FREEtoTOT, Ks, totals)
+    alks = AlkParts(TC, pH, FREEtoTOT, totals, Ks)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
@@ -112,10 +112,10 @@ def TAfromTCpH(TC, pH, Ks, totals):
     return TA
 
 
-def TAfrompHfCO2(pH, fCO2, Ks, totals):
+def TAfrompHfCO2(pH, fCO2, totals, Ks):
     """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
     TC = TCfrompHfCO2(pH, fCO2, Ks["K0"], Ks["K1"], Ks["K2"])
-    return TAfromTCpH(TC, pH, Ks, totals)
+    return TAfromTCpH(TC, pH, totals, Ks)
 
 
 def TCfrompHHCO3(pH, HCO3, K1, K2):
@@ -136,28 +136,28 @@ def TCfrompHCarb(pH, CARB, K1, K2):
     return CARB * (1 + H / K2 + H ** 2 / (K1 * K2))
 
 
-def TAfrompHCarb(pH, CARB, Ks, totals):
+def TAfrompHCarb(pH, CARB, totals, Ks):
     """Calculate total alkalinity from dissolved inorganic carbon and carbonate ion."""
     TC = TCfrompHCarb(pH, CARB, Ks["K1"], Ks["K2"])
-    return TAfromTCpH(TC, pH, Ks, totals)
+    return TAfromTCpH(TC, pH, totals, Ks)
 
 
-def TAfrompHHCO3(pH, HCO3, Ks, totals):
+def TAfrompHHCO3(pH, HCO3, totals, Ks):
     """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion.
     """
     TC = TCfrompHHCO3(pH, HCO3, Ks["K1"], Ks["K2"])
-    return TAfromTCpH(TC, pH, Ks, totals)
+    return TAfromTCpH(TC, pH, totals, Ks)
 
 
 @errstate(invalid="ignore")
-def _pHfromTAVX(TA, VX, Ks, totals, initialfunc, deltafunc):
+def _pHfromTAVX(TA, VX, totals, Ks, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
     Newton-Raphson iterative method.
-    
+
     Although it is coded for H on the total pH scale, for the pH values occuring in
     seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as
     long as the K Constants are on that scale.
-    
+
     Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
@@ -166,7 +166,7 @@ def _pHfromTAVX(TA, VX, Ks, totals, initialfunc, deltafunc):
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
     while np_any(np_abs(deltapH) >= pHTol):
         pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = deltafunc(pH, TA, VX, FREEtoTOT, Ks, totals)  # the pH jump
+        deltapH = deltafunc(pH, TA, VX, FREEtoTOT, totals, Ks)  # the pH jump
         # To keep the jump from being too big:
         abs_deltapH = np_abs(deltapH)
         sign_deltapH = sign(deltapH)
@@ -180,20 +180,20 @@ def _pHfromTAVX(TA, VX, Ks, totals, initialfunc, deltafunc):
     return pH
 
 
-def pHfromTATC(TA, TC, Ks, totals):
+def pHfromTATC(TA, TC, totals, Ks):
     """Calculate pH from total alkalinity and dissolved inorganic carbon."""
-    return _pHfromTAVX(TA, TC, Ks, totals, initialise.fromTC, delta.pHfromTATC)
+    return _pHfromTAVX(TA, TC, totals, Ks, initialise.fromTC, delta.pHfromTATC)
 
 
-def pHfromTAfCO2(TA, fCO2, Ks, totals):
+def pHfromTAfCO2(TA, fCO2, totals, Ks):
     """Calculate pH from total alkalinity and CO2 fugacity."""
     # Slightly more convoluted than the others because initialise.fromCO2 takes CO2 as
     # an input, while delta.pHfromTAfCO2 takes fCO2.
     return _pHfromTAVX(
         TA,
         fCO2,
-        Ks,
         totals,
+        Ks,
         lambda TA, fCO2, TB, K1, K2, KB: initialise.fromCO2(
             TA, Ks["K0"] * fCO2, TB, K1, K2, KB
         ),  # this just transforms initalise.fromCO2 to take fCO2 in place of CO2
@@ -201,14 +201,14 @@ def pHfromTAfCO2(TA, fCO2, Ks, totals):
     )
 
 
-def pHfromTACarb(TA, CARB, Ks, totals):
+def pHfromTACarb(TA, CARB, totals, Ks):
     """Calculate pH from total alkalinity and carbonate ion molinity."""
-    return _pHfromTAVX(TA, CARB, Ks, totals, initialise.fromCO3, delta.pHfromTACarb)
+    return _pHfromTAVX(TA, CARB, totals, Ks, initialise.fromCO3, delta.pHfromTACarb)
 
 
-def pHfromTAHCO3(TA, HCO3, Ks, totals):
+def pHfromTAHCO3(TA, HCO3, totals, Ks):
     """Calculate pH from total alkalinity and bicarbonate ion molinity."""
-    return _pHfromTAVX(TA, HCO3, Ks, totals, initialise.fromHCO3, delta.pHfromTAHCO3)
+    return _pHfromTAVX(TA, HCO3, totals, Ks, initialise.fromHCO3, delta.pHfromTAHCO3)
 
 
 def fCO2fromTCpH(TC, pH, K0, K1, K2):
@@ -221,7 +221,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
 
 
 @errstate(invalid="ignore")
-def TCfromTApH(TA, pH, Ks, totals):
+def TCfromTApH(TA, pH, totals, Ks):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
     This calculates TC from TA and pH.
@@ -231,7 +231,7 @@ def TCfromTApH(TA, pH, Ks, totals):
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
-    TA_TC0_pH = TAfromTCpH(0.0, pH, Ks, totals)
+    TA_TC0_pH = TAfromTCpH(0.0, pH, totals, Ks)
     F = TA_TC0_pH > TA
     if any(F):
         print("Some input pH values are impossibly high given the input alkalinity;")
@@ -343,25 +343,25 @@ def fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2):
     return HCO3 ** 2 * K2 / (CARB * K1 * K0)
 
 
-def fCO2fromTATC(TA, TC, Ks, totals):
+def fCO2fromTATC(TA, TC, totals, Ks):
     """Calculate CO2 fugacity from total alkalinity and dissolved inorganic carbon."""
-    pH = pHfromTATC(TA, TC, Ks, totals)
+    pH = pHfromTATC(TA, TC, totals, Ks)
     return fCO2fromTCpH(TC, pH, Ks["K0"], Ks["K1"], Ks["K2"])
 
 
-def fCO2fromTApH(TA, pH, Ks, totals):
+def fCO2fromTApH(TA, pH, totals, Ks):
     """Calculate CO2 fugacity from total alkalinity and pH."""
-    TC = TCfromTApH(TA, pH, Ks, totals)
+    TC = TCfromTApH(TA, pH, totals, Ks)
     return fCO2fromTCpH(TC, pH, Ks["K0"], Ks["K1"], Ks["K2"])
 
 
-def CarbfromTATC(TA, TC, Ks, totals):
+def CarbfromTATC(TA, TC, totals, Ks):
     """Calculate carbonate ion from total alkalinity and dissolved inorganic carbon."""
-    pH = pHfromTATC(TA, TC, Ks, totals)
+    pH = pHfromTATC(TA, TC, totals, Ks)
     return CarbfromTCpH(TC, pH, Ks["K1"], Ks["K2"])
 
 
-def CarbfromTApH(TA, pH, Ks, totals):
+def CarbfromTApH(TA, pH, totals, Ks):
     """Calculate carbonate ion from total alkalinity and pH."""
-    TC = TCfromTApH(TA, pH, Ks, totals)
+    TC = TCfromTApH(TA, pH, totals, Ks)
     return CarbfromTCpH(TC, pH, Ks["K1"], Ks["K2"])

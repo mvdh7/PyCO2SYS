@@ -50,3 +50,5 @@ mad_co2pyo_matlab = co2pyo_matlab.abs().max()
 # Max. abs. diff. as a percentage
 pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
 pmad_co2pyo_matlab = 100 * mad_co2pyo_matlab / co2matlab.mean()
+
+print(co2py["OmegaARout"][0])
