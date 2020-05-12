@@ -302,6 +302,12 @@ def fCO2frompHCarb(pH, CARB, K0, K1, K2):
     return CARB * H ** 2 / (K0 * K1 * K2)
 
 
+def fCO2frompHHCO3(pH, HCO3, K0, K1):
+    """Calculate CO2 fugacity from pH and bicarbonate ion."""
+    H = 10.0 ** -pH
+    return HCO3 * H / (K0 * K1)
+
+
 def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     """Calculate pH from CO2 fugacity and carbonate ion.
 
@@ -365,3 +371,33 @@ def CarbfromTApH(TA, pH, totals, Ks):
     """Calculate carbonate ion from total alkalinity and pH."""
     TC = TCfromTApH(TA, pH, totals, Ks)
     return CarbfromTCpH(TC, pH, Ks["K1"], Ks["K2"])
+
+
+def HCO3fromTApH(TA, pH, totals, Ks):
+    """Calculate carbonate ion from total alkalinity and pH."""
+    TC = TCfromTApH(TA, pH, totals, Ks)
+    return HCO3fromTCpH(TC, pH, Ks["K1"], Ks["K2"])
+
+
+def CarbfrompHfCO2(pH, fCO2, K0, K1, K2):
+    """Calculate carbonate ion from pH and CO2 fugacity."""
+    TC = TCfrompHfCO2(pH, fCO2, K0, K1, K2)
+    return CarbfromTCpH(TC, pH, K1, K2)
+
+
+def HCO3frompHfCO2(pH, fCO2, K0, K1):
+    """Calculate bicarbonate ion from pH and CO2 fugacity."""
+    H = 10.0 ** -pH
+    return K0 * K1 * fCO2 / H
+
+
+def HCO3frompHCarb(pH, CARB, K2):
+    """Calculate bicarbonate ion from pH and carbonate ion."""
+    H = 10.0 ** -pH
+    return CARB * H / K2
+
+
+def CarbfrompHHCO3(pH, HCO3, K2):
+    """Calculate bicarbonate ion from pH and carbonate ion."""
+    H = 10.0 ** -pH
+    return K2 * HCO3 / H
