@@ -385,16 +385,18 @@ def dict2Ks(co2dict):
 
 def uCO2SYS(co2dict, uncertainties={}):
     """Do uncertainty propagation."""
+    # Extract results from the `co2dict`
     totals = dict2totals(co2dict)
     Kis, Kos = dict2Ks(co2dict)
     par1type = co2dict["PAR1TYPE"]
     par2type = co2dict["PAR2TYPE"]
     TA = co2dict["TAlk"] * 1e-6
     TC = co2dict["TCO2"] * 1e-6
-    PHi = co2dict["pHin"] * 1e-6
+    PHi = co2dict["pHin"]
     FCi = co2dict["fCO2in"] * 1e-6
     CARBi = co2dict["CO3in"] * 1e-6
     HCO3i = co2dict["HCO3in"] * 1e-6
+    # Get par1/part derivatives
     if "PAR1" in uncertainties:
         dcore_dp1__i = uncertainty.dcore_dparX__parY(
             par1type, par2type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
