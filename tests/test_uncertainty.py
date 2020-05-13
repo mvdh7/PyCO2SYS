@@ -56,7 +56,8 @@ def test_parX_TA():
     parX = np.full(npts, 2250e-6)
     parXtype = np.full(npts, 1)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
@@ -120,7 +121,8 @@ def test_parX_TC():
     parX = np.full(npts, 2100e-6)
     parXtype = np.full(npts, 2)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
@@ -184,7 +186,8 @@ def test_parX_PH():
     parX = np.full(npts, 8.1)
     parXtype = np.full(npts, 3)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
@@ -248,7 +251,8 @@ def test_parX_PC():
     parX = np.full(npts, 400e-6)
     parXtype = np.full(npts, 4)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
@@ -312,7 +316,8 @@ def test_parX_CARB():
     parX = np.full(npts, 350e-6)
     parXtype = np.full(npts, 6)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
@@ -376,7 +381,8 @@ def test_parX_HCO3():
     parX = np.full(npts, 1800e-6)
     parXtype = np.full(npts, 7)
     TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks = prep(
-        parX, parY, parXtype, parYtype)
+        parX, parY, parXtype, parYtype
+    )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
     (
