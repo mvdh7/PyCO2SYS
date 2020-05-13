@@ -30,9 +30,17 @@ Adds uncertainty propagation.
 
 !!! example "Changes in v1.4.0"
 
+    ***General improvements***
+
     * Added basic sanity checking to prevent invalid marine carbonate system parameter input values.
-    * Added substrate:inhibitor ratio (SIR) of [B15](../refs/#b) as a standard output, calculated with `SIratio` in new module `bio`.
-    * Added inputs `PAR1` and `PAR2` as outputs to `CO2SYS`.
+
+    ***New outputs***
+
+    * Substrate:inhibitor ratio (SIR) of [B15](../refs/#b) as a standard output, calculated with `SIratio` in new module `bio`.
+    * Inputs `PAR1` and `PAR2` also returned as outputs in the `CO2dict`.
+    * The "Peng correction" factor.
+    * The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.
+    * The activity coefficient of the H<sup>+</sup> ion for NBS pH scale conversions.
 
 ## 1.3
 

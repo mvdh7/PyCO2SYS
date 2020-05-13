@@ -154,6 +154,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'pCO2in'`/`'pCO2out'`: **seawater partial pressure of CO<sub>2</sub>** at input/output conditions in μatm.
     * `'fCO2in'`/`'fCO2out'`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
     * `'xCO2in'`/`'xCO2out'`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
+    * `'FugFacinput'`/`'FugFacoutput'`: **fugacity factor** at input/output conditions for converting between CO<sub>2</sub> partial pressure and fugacity.
 
     #### Alkalinity and its components
 
@@ -163,6 +164,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'SiAlkin'`/`'SiAlkout'`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'NH3Alkin'`/`'NH3Alkout'`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'H2SAlkin'`/`'H2SAlkout'`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `'PengCorrection'`: the **"Peng correction"** for alkalinity (applies only for `K1K2CONSTANTS = 7`) in μmol·kg<sup>−1</sup>.
 
     #### pH and water
 
@@ -173,6 +175,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `'pHinNBS'`/`'pHoutNBS'`: **pH** at input/output conditions on the **NBS scale**.
     * `'HFreein'`/`'HFreeout'`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `'OHin'`/`'OHout'`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `fHinput`/`'fHoutput'`: **activity coefficient of H<sup>+</sup>** at input/output conditions for pH-scale conversions to and from the NBS scale.
 
     #### Carbonate mineral saturation
 
