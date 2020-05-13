@@ -2,6 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://zenodo.org/badge/latestdoi/237243120)
+[![Build Status](https://travis-ci.org/mvdh7/PyCO2SYS.svg?branch=develop)](https://travis-ci.org/mvdh7/PyCO2SYS)
 ![Coverage](https://raw.githubusercontent.com/mvdh7/PyCO2SYS/ed7b392a8900c6507e5a5ef734059e2f03316307/tests/coverage.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
