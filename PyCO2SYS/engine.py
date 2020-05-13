@@ -5,15 +5,11 @@
 from autograd.numpy import (
     array,
     full,
-    nan,
     size,
     unique,
-    where,
 )
-from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
-from autograd import elementwise_grad as egrad
-from . import convert, equilibria, gas, salts, solve, uncertainty
+from . import convert, equilibria, salts, solve, uncertainty
 
 
 def inputs(input_locals):
@@ -177,6 +173,12 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "SIRout": others_out["SIR"],
         "PAR1": args["PAR1"],
         "PAR2": args["PAR2"],
+        # need to add to docs below here!
+        "PengCorrection": totals["PengCorrection"] * 1e6,
+        "FugFacinput": Kis["FugFac"],
+        "FugFacoutput": Kos["FugFac"],
+        "fHinput": Kis["fH"],
+        "fHoutput": Kos["fH"],
     }
 
 
@@ -337,11 +339,71 @@ def CO2SYS(
     )[0]
 
 
-def uCO2SYS(CO2dict, uncertainties={}):
-    totals_vars = []
-    Kis_vars = []
+def dict2totals(co2dict):
+    """Extract `totals` dict from the `CO2SYS` output dict."""
+    return dict(
+        # from salinity
+        TB=co2dict["TB"] * 1e-6,
+        TF=co2dict["TF"] * 1e-6,
+        TSO4=co2dict["TS"] * 1e-6,
+        TCa=co2dict["TCa"] * 1e-6,
+        # from inputs
+        TPO4=co2dict["PO4"] * 1e-6,
+        TSi=co2dict["SI"] * 1e-6,
+        TNH3=co2dict["NH3"] * 1e-6,
+        TH2S=co2dict["H2S"] * 1e-6,
+        # misc.
+        Sal=co2dict["SAL"],
+        PengCorrection=co2dict["PengCorrection"] * 1e-6,
+    )
+
+
+def dict2Ks(co2dict):
+    """Extract `Kis` and `Kos` dicts from the `CO2SYS` output dict."""
+    Kvars = [
+        "K0",
+        "K1",
+        "K2",
+        "KW",
+        "KB",
+        "KF",
+        "KP1",
+        "KP2",
+        "KP3",
+        "KSi",
+        "KNH3",
+        "KH2S",
+        "FugFac",
+        "fH",
+    ]
+    Kis = {Kvar: co2dict[Kvar + "input"] for Kvar in Kvars}
+    Kis["KSO4"] = co2dict["KSinput"]
+    Kos = {Kvar: co2dict[Kvar + "output"] for Kvar in Kvars}
+    Kos["KSO4"] = co2dict["KSoutput"]
+    return Kis, Kos
+
+
+def uCO2SYS(co2dict, uncertainties={}):
+    """Do uncertainty propagation."""
+    totals = dict2totals(co2dict)
+    Kis, Kos = dict2Ks(co2dict)
+    par1type = co2dict["PAR1TYPE"]
+    par2type = co2dict["PAR2TYPE"]
+    TA = co2dict["TAlk"] * 1e-6
+    TC = co2dict["TCO2"] * 1e-6
+    PHi = co2dict["pHin"] * 1e-6
+    FCi = co2dict["fCO2in"] * 1e-6
+    CARBi = co2dict["CO3in"] * 1e-6
+    HCO3i = co2dict["HCO3in"] * 1e-6
     if "PAR1" in uncertainties:
-        dcore_dpar1__par2 = dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks)
+        dcore_dp1__i = uncertainty.dcore_dparX__parY(
+            par1type, par2type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
+        )
+    if "PAR2" in uncertainties:
+        dcore_dp2__i = uncertainty.dcore_dparX__parY(
+            par2type, par1type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
+        )
+    return dcore_dp1__i, dcore_dp2__i
 
 
 # def _CO2SYS_u(
