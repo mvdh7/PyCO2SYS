@@ -8,6 +8,11 @@ from autograd import elementwise_grad as egrad
 # from . import solve
 from .solve import get
 
+# to do here:
+# - add bicarbonate and carbonate ion as parXtypes
+# - simplify top end of dcore_dparX__parY (derivative getting)
+# - integrate into main engine._CO2SYS function (or a wrapper for it)
+
 
 def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks):
     """Derivatives of all core MCS variables w.r.t. parX at constant parY."""
@@ -157,6 +162,72 @@ def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
         dTC_dFC__HCO3 = egrad(lambda FC: get.TCfromfCO2HCO3(FC, HCO3, K0, K1, K2))(FC)
         dPH_dFC__HCO3 = egrad(lambda FC: get.pHfromfCO2HCO3(FC, HCO3, K0, K1))(FC)
         dCARB_dFC__HCO3 = egrad(lambda FC: get.CarbfromfCO2HCO3(FC, HCO3, K0, K1, K2))(FC)
+    if np_any((parXtype == 6) & (parYtype == 1)):  # dvar_dCARB__TA
+        dTC_dPH__TA = egrad(lambda PH: get.TCfromTApH(TA, PH, totals, Ks))(PH)
+        dFC_dPH__TA = egrad(lambda PH: get.fCO2fromTApH(TA, PH, totals, Ks))(PH)
+        dCARB_dPH__TA = egrad(lambda PH: get.CarbfromTApH(TA, PH, totals, Ks))(PH)
+        dHCO3_dPH__TA = egrad(lambda PH: get.HCO3fromTApH(TA, PH, totals, Ks))(PH)
+        dTC_dCARB__TA = dTC_dPH__TA / dCARB_dPH__TA
+        dPH_dCARB__TA = 1 / dCARB_dPH__TA
+        dFC_dCARB__TA = dFC_dPH__TA / dCARB_dPH__TA
+        dHCO3_dCARB__TA = dHCO3_dPH__TA / dCARB_dPH__TA
+    if np_any((parXtype == 6) & (parYtype == 2)):  # dvar_dCARB__TC
+        dTA_dPH__TC = egrad(lambda PH: get.TAfromTCpH(TC, PH, totals, Ks))(PH)
+        dFC_dPH__TC = egrad(lambda PH: get.fCO2fromTCpH(TC, PH, K0, K1, K2))(PH)
+        dCARB_dPH__TC = egrad(lambda PH: get.CarbfromTCpH(TC, PH, K1, K2))(PH)
+        dHCO3_dPH__TC = egrad(lambda PH: get.HCO3fromTCpH(TC, PH, K1, K2))(PH)
+        dTA_dCARB__TC = dTA_dPH__TC / dCARB_dPH__TC
+        dPH_dCARB__TC = 1 / dCARB_dPH__TC
+        dFC_dCARB__TC = dFC_dPH__TC / dCARB_dPH__TC
+        dHCO3_dCARB__TC = dHCO3_dPH__TC / dCARB_dPH__TC
+    if np_any((parXtype == 6) & (parYtype == 3)):  # dvar_dCARB__PH
+        dTA_dCARB__PH = egrad(lambda CARB: get.TAfrompHCarb(PH, CARB, totals, Ks))(CARB)
+        dTC_dCARB__PH = egrad(lambda CARB: get.TCfrompHCarb(PH, CARB, K1, K2))(CARB)
+        dFC_dCARB__PH = egrad(lambda CARB: get.fCO2frompHCarb(PH, CARB, K0, K1, K2))(CARB)
+        dHCO3_dCARB__PH = egrad(lambda CARB: get.HCO3frompHCarb(PH, CARB, K2))(CARB)
+    if np_any((parXtype == 6) & isin(parYtype, [4, 5, 8])):  # dvar_dCARB__FC
+        dTA_dCARB__FC = egrad(lambda CARB: get.TAfromfCO2Carb(FC, CARB, totals, Ks))(CARB)
+        dTC_dCARB__FC = egrad(lambda CARB: get.TCfromfCO2Carb(FC, CARB, K0, K1, K2))(CARB)
+        dPH_dCARB__FC = egrad(lambda CARB: get.pHfromfCO2Carb(FC, CARB, K0, K1, K2))(CARB)
+        dHCO3_dCARB__FC = egrad(lambda CARB: get.HCO3fromfCO2Carb(FC, CARB, K0, K1, K2))(CARB)
+    if np_any((parXtype == 6) & (parYtype == 7)):  # dvar_dCARB__HCO3
+        dTA_dCARB__HCO3 = egrad(lambda CARB: get.TAfromCarbHCO3(CARB, HCO3, totals, Ks))(CARB)
+        dTC_dCARB__HCO3 = egrad(lambda CARB: get.TCfromCarbHCO3(CARB, HCO3, K1, K2))(CARB)
+        dPH_dCARB__HCO3 = egrad(lambda CARB: get.pHfromCarbHCO3(CARB, HCO3, K2))(CARB)
+        dFC_dCARB__HCO3 = egrad(lambda CARB: get.fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2))(CARB)
+    if np_any((parXtype == 7) & (parYtype == 1)):  # dvar_dHCO3__TA
+        dTC_dPH__TA = egrad(lambda PH: get.TCfromTApH(TA, PH, totals, Ks))(PH)
+        dFC_dPH__TA = egrad(lambda PH: get.fCO2fromTApH(TA, PH, totals, Ks))(PH)
+        dCARB_dPH__TA = egrad(lambda PH: get.CarbfromTApH(TA, PH, totals, Ks))(PH)
+        dHCO3_dPH__TA = egrad(lambda PH: get.HCO3fromTApH(TA, PH, totals, Ks))(PH)
+        dTC_dHCO3__TA = dTC_dPH__TA / dHCO3_dPH__TA
+        dPH_dHCO3__TA = 1 / dHCO3_dPH__TA
+        dFC_dHCO3__TA = dFC_dPH__TA / dHCO3_dPH__TA
+        dCARB_dHCO3__TA = dCARB_dPH__TA / dHCO3_dPH__TA
+    if np_any((parXtype == 7) & (parYtype == 2)):  # dvar_dHCO3__TC
+        dTA_dPH__TC = egrad(lambda PH: get.TAfromTCpH(TC, PH, totals, Ks))(PH)
+        dFC_dPH__TC = egrad(lambda PH: get.fCO2fromTCpH(TC, PH, K0, K1, K2))(PH)
+        dCARB_dPH__TC = egrad(lambda PH: get.CarbfromTCpH(TC, PH, K1, K2))(PH)
+        dHCO3_dPH__TC = egrad(lambda PH: get.HCO3fromTCpH(TC, PH, K1, K2))(PH)
+        dTA_dHCO3__TC = dTA_dPH__TC / dHCO3_dPH__TC
+        dPH_dHCO3__TC = 1 / dHCO3_dPH__TC
+        dFC_dHCO3__TC = dFC_dPH__TC / dHCO3_dPH__TC
+        dCARB_dHCO3__TC = dCARB_dPH__TC / dHCO3_dPH__TC
+    if np_any((parXtype == 7) & (parYtype == 3)):  # dvar_dHCO3__PH
+        dTC_dHCO3__PH = egrad(lambda HCO3: get.TCfrompHHCO3(PH, HCO3, K1, K2))(HCO3)
+        dTA_dHCO3__PH = egrad(lambda HCO3: get.TAfrompHHCO3(PH, HCO3, totals, Ks))(HCO3)
+        dFC_dHCO3__PH = egrad(lambda HCO3: get.fCO2frompHHCO3(PH, HCO3, K0, K1))(HCO3)
+        dCARB_dHCO3__PH = egrad(lambda HCO3: get.CarbfrompHHCO3(PH, HCO3, K2))(HCO3)
+    if np_any((parXtype == 7) & isin(parYtype, [4, 5, 8])):  # dvar_dHCO3__FC
+        dTA_dHCO3__FC = egrad(lambda HCO3: get.TAfromfCO2HCO3(FC, HCO3, totals, Ks))(HCO3)
+        dTC_dHCO3__FC = egrad(lambda HCO3: get.TCfromfCO2HCO3(FC, HCO3, K0, K1, K2))(HCO3)
+        dPH_dHCO3__FC = egrad(lambda HCO3: get.pHfromfCO2HCO3(FC, HCO3, K0, K1))(HCO3)
+        dCARB_dHCO3__FC = egrad(lambda HCO3: get.CarbfromfCO2HCO3(FC, HCO3, K0, K1, K2))(HCO3)
+    if np_any((parXtype == 7) & (parYtype == 6)):  # dvar_dHCO3__CARB
+        dTA_dHCO3__CARB = egrad(lambda HCO3: get.TAfromCarbHCO3(CARB, HCO3, totals, Ks))(HCO3)
+        dTC_dHCO3__CARB = egrad(lambda HCO3: get.TCfromCarbHCO3(CARB, HCO3, K1, K2))(HCO3)
+        dPH_dHCO3__CARB = egrad(lambda HCO3: get.pHfromCarbHCO3(CARB, HCO3, K2))(HCO3)
+        dFC_dHCO3__CARB = egrad(lambda HCO3: get.fCO2fromCarbHCO3(CARB, HCO3, K0, K1, K2))(HCO3)
     # Preallocate empty arrays for derivatives
     dTA_dX__Y = full(size(parXtype), nan)
     dTC_dX__Y = full(size(parXtype), nan)
@@ -317,6 +388,82 @@ def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
             dPH_dX__Y = where(XY, dPH_dFC__HCO3, dPH_dX__Y)
             dCARB_dX__Y = where(XY, dCARB_dFC__HCO3, dCARB_dX__Y)
             dHCO3_dX__Y = where(XY, 0.0, dHCO3_dX__Y)
+    X = parXtype == 6  # CARB - carbonate ion
+    if np_any(X):
+        dCARB_dX__Y = where(X, 1.0, dCARB_dX__Y)
+        XY = X & (parYtype == 1)  # CARB, TA
+        if np_any(XY):
+            dTA_dX__Y = where(XY, 0.0, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dCARB__TA, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dCARB__TA, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dCARB__TA, dFC_dX__Y)
+            dHCO3_dX__Y = where(XY, dHCO3_dCARB__TA, dHCO3_dX__Y)
+        XY = X & (parYtype == 2)  # CARB, TC
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dCARB__TC, dTA_dX__Y)
+            dTC_dX__Y = where(XY, 0.0, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dCARB__TC, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dCARB__TC, dFC_dX__Y)
+            dHCO3_dX__Y = where(XY, dHCO3_dCARB__TC, dHCO3_dX__Y)
+        XY = X & (parYtype == 3)  # CARB, PH
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dCARB__PH, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dCARB__PH, dTC_dX__Y)
+            dPH_dX__Y = where(XY, 0.0, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dCARB__PH, dFC_dX__Y)
+            dHCO3_dX__Y = where(XY, dHCO3_dCARB__PH, dHCO3_dX__Y)
+        XY = X & isin(parYtype, [4, 5, 8])  # CARB, (PC | FC | CO2)
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dCARB__FC, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dCARB__FC, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dCARB__FC, dPH_dX__Y)
+            dFC_dX__Y = where(XY, 0.0, dFC_dX__Y)
+            dHCO3_dX__Y = where(XY, dHCO3_dCARB__FC, dHCO3_dX__Y)
+        XY = X & (parYtype == 7)  # CARB, HCO3
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dCARB__HCO3, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dCARB__HCO3, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dCARB__HCO3, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dCARB__HCO3, dFC_dX__Y)
+            dHCO3_dX__Y = where(XY, 0.0, dHCO3_dX__Y)
+    X = parXtype == 7  # HCO3 - bicarbonate ion
+    if np_any(X):
+        dHCO3_dX__Y = where(X, 1.0, dHCO3_dX__Y)
+        XY = X & (parYtype == 1)  # HCO3, TA
+        if np_any(XY):
+            dTA_dX__Y = where(XY, 0.0, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dHCO3__TA, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dHCO3__TA, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dHCO3__TA, dFC_dX__Y)
+            dCARB_dX__Y = where(XY, dCARB_dHCO3__TA, dCARB_dX__Y)
+        XY = X & (parYtype == 2)  # HCO3, TC
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dHCO3__TC, dTA_dX__Y)
+            dTC_dX__Y = where(XY, 0.0, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dHCO3__TC, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dHCO3__TC, dFC_dX__Y)
+            dCARB_dX__Y = where(XY, dCARB_dHCO3__TC, dCARB_dX__Y)
+        XY = X & (parYtype == 3)  # HCO3, PH
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dHCO3__PH, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dHCO3__PH, dTC_dX__Y)
+            dPH_dX__Y = where(XY, 0.0, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dHCO3__PH, dFC_dX__Y)
+            dCARB_dX__Y = where(XY, dCARB_dHCO3__PH, dCARB_dX__Y)
+        XY = X & isin(parYtype, [4, 5, 8])  # HCO3, (PC | FC | CO2)
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dHCO3__FC, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dHCO3__FC, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dHCO3__FC, dPH_dX__Y)
+            dFC_dX__Y = where(XY, 0.0, dFC_dX__Y)
+            dCARB_dX__Y = where(XY, dCARB_dHCO3__FC, dCARB_dX__Y)
+        XY = X & (parYtype == 6)  # HCO3, CARB
+        if np_any(XY):
+            dTA_dX__Y = where(XY, dTA_dHCO3__CARB, dTA_dX__Y)
+            dTC_dX__Y = where(XY, dTC_dHCO3__CARB, dTC_dX__Y)
+            dPH_dX__Y = where(XY, dPH_dHCO3__CARB, dPH_dX__Y)
+            dFC_dX__Y = where(XY, dFC_dHCO3__CARB, dFC_dX__Y)
+            dCARB_dX__Y = where(XY, 0.0, dCARB_dX__Y)
     # Get pCO2 and CO2(aq) derivatives from fCO2
     dPC_dX__Y = dFC_dX__Y / Ks["FugFac"]
     dCO2_dX__Y = dFC_dX__Y * K0

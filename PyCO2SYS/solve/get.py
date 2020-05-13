@@ -437,3 +437,21 @@ def pHfromfCO2HCO3(fCO2, HCO3, K0, K1):
     """pH from CO2 fugacity and bicarbonate ion."""
     H = K0 * K1 * fCO2 / HCO3
     return -log10(H)
+
+
+def pHfromCarbHCO3(CARB, HCO3, K2):
+    """pH from carbonate ion and carbonate ion."""
+    H = K2 * HCO3 / CARB
+    return -log10(H)
+
+
+def TAfromCarbHCO3(CARB, HCO3, totals, Ks):
+    """Total alkalinity from carbonate ion and carbonate ion."""
+    pH = pHfromCarbHCO3(CARB, HCO3, Ks["K2"])
+    return TAfrompHCarb(pH, CARB, totals, Ks)
+
+
+def TCfromCarbHCO3(CARB, HCO3, K1, K2):
+    """Dissolved inorganic carbon from carbonate ion and carbonate ion."""
+    pH = pHfromCarbHCO3(CARB, HCO3, K2)
+    return TCfrompHCarb(pH, CARB, K1, K2)
