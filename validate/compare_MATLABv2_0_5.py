@@ -1,5 +1,6 @@
 from time import time
 import pandas as pd
+import numpy as np
 import PyCO2SYS as pyco2
 
 # Import input conditions: "compare_MATLABv2_0_5.csv" was generated in MATLAB
@@ -51,4 +52,14 @@ mad_co2pyo_matlab = co2pyo_matlab.abs().max()
 pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
 pmad_co2pyo_matlab = 100 * mad_co2pyo_matlab / co2matlab.mean()
 
-print(co2py["OmegaARout"][0])
+
+def test_co2pyo_matlab():
+    assert pmad_co2pyo_matlab.max() < 1e-9
+
+
+def test_co2py_matlab():
+    checkcols = [col for col in pmad_co2py_matlab.index if col not in ["RFin", "RFout"]]
+    assert np.all(
+        (pmad_co2py_matlab[checkcols] < 1e-5).values
+        | np.isnan(pmad_co2py_matlab[checkcols].values)
+    )

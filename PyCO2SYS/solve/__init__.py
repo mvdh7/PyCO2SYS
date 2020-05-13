@@ -48,7 +48,7 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     ntps = size(par1)
     # Generate empty vectors for...
     TA = full(ntps, nan)  # total alkalinity
-    TC = full(ntps, nan)  # DIC
+    TC = full(ntps, nan)  # dissolved inorganic carbon
     PH = full(ntps, nan)  # pH
     PC = full(ntps, nan)  # CO2 partial pressure
     FC = full(ntps, nan)  # CO2 fugacity

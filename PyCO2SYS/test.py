@@ -5,7 +5,7 @@ other software tools.
 """
 
 from autograd.numpy import hstack, isin, isscalar, meshgrid
-from . import engine
+from . import engine, solve
 
 
 # Define parameter type numbers and their names in the CO2SYS output dict
@@ -32,8 +32,8 @@ def _rr_parcombos(par1type, par2type):
     par1s = par1s.ravel()
     par2s = par2s.ravel()
     # Select only valid combinations and cut out input combination
-    allIcases = engine.getIcase(par1s, par2s, checks=False)
-    inputIcase = engine.getIcase(par1type, par2type, checks=False)
+    allIcases = solve.getIcase(par1s, par2s, checks=False)
+    inputIcase = solve.getIcase(par1type, par2type, checks=False)
     valid = (par1s != par2s) & ~isin(allIcases, [45, 48, 58, inputIcase])
     par1s = par1s[valid]
     par2s = par2s[valid]

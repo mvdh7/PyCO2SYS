@@ -3,9 +3,6 @@
 """Alternative APIs for executing the main CO2SYS function."""
 
 from ..engine import CO2SYS
-from . import oo
-
-__all__ = ["oo"]
 
 
 def CO2SYS_wrap(

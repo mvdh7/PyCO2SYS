@@ -41,23 +41,28 @@ compare = pd.concat(
     )
 )
 
-# Generate HTML table for docs
-with open("validate/html/buffers_auto_explicit.md", "w") as f:
-    f.write(
-        "<!-- HTML for table generated with examples/buffers-auto-explicit.py -->\n"
-    )
-    f.write("<table><tr><th></th>\n")
-    for b in compare.columns:
-        f.write('<th style="text-align:center">{}</th>\n'.format(buffers[b]))
-    for ctype in ["Explicit", "Automatic"]:
-        f.write('</tr><tr>\n<th style="text-align:center">{}</th>\n'.format(ctype))
+# Generate HTML table for docs, if requested
+if False:
+    with open("validate/html/buffers_auto_explicit.md", "w") as f:
+        f.write(
+            "<!-- HTML for table generated with examples/buffers-auto-explicit.py -->\n"
+        )
+        f.write("<table><tr><th></th>\n")
         for b in compare.columns:
-            bval = "{:.4f}".format(compare.loc[ctype][b])
-            bval = bval.replace("-", "−")
-            f.write('<td style="text-align:center">{}</td>\n'.format(bval))
-    f.write('</tr><tr>\n<th style="text-align:center">Difference</th>\n')
-    for b in compare.columns:
-        bdiff = "{:.2e}".format(compare.loc["Difference"][b])
-        bdiff = bdiff.replace("e-0", "·10<sup>−").replace("-", "−") + "</sup>"
-        f.write('<td style="text-align:center">{}</td>\n'.format(bdiff))
-    f.write("</tr></table>\n")
+            f.write('<th style="text-align:center">{}</th>\n'.format(buffers[b]))
+        for ctype in ["Explicit", "Automatic"]:
+            f.write('</tr><tr>\n<th style="text-align:center">{}</th>\n'.format(ctype))
+            for b in compare.columns:
+                bval = "{:.4f}".format(compare.loc[ctype][b])
+                bval = bval.replace("-", "−")
+                f.write('<td style="text-align:center">{}</td>\n'.format(bval))
+        f.write('</tr><tr>\n<th style="text-align:center">Difference</th>\n')
+        for b in compare.columns:
+            bdiff = "{:.2e}".format(compare.loc["Difference"][b])
+            bdiff = bdiff.replace("e-0", "·10<sup>−").replace("-", "−") + "</sup>"
+            f.write('<td style="text-align:center">{}</td>\n'.format(bdiff))
+        f.write("</tr></table>\n")
+
+
+def test_auto_explicit():
+    assert compare.loc["Difference"].abs().max() < 1e-6
