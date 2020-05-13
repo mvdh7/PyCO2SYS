@@ -131,3 +131,6 @@ dmypy.json
 # Documents
 *.docx
 archive/
+
+# Testing
+junit.xml
