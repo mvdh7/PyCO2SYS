@@ -13,7 +13,7 @@ from autograd.numpy import (
 from autograd.numpy import min as np_min
 from autograd.numpy import max as np_max
 from autograd import elementwise_grad as egrad
-from . import convert, equilibria, gas, salts, solve
+from . import convert, equilibria, gas, salts, solve, uncertainty
 
 
 def inputs(input_locals):
@@ -335,6 +335,13 @@ def CO2SYS(
         buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
     )[0]
+
+
+def uCO2SYS(CO2dict, uncertainties={}):
+    totals_vars = []
+    Kis_vars = []
+    if "PAR1" in uncertainties:
+        dcore_dpar1__par2 = dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks)
 
 
 # def _CO2SYS_u(
