@@ -134,3 +134,6 @@ archive/
 
 # Testing
 junit.xml
+
+# VSCodium
+.vscode
