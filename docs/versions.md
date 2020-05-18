@@ -24,11 +24,15 @@
 
 ## 1.4
 
-Adds uncertainty propagation.
+Supports uncertainty propagation by central difference derivatives.
 
 ### 1.4.0 (forthcoming)
 
 !!! example "Changes in v1.4.0"
+
+    ***New features***
+
+    * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs.
 
     ***General improvements***
 
@@ -36,7 +40,7 @@ Adds uncertainty propagation.
 
     ***New outputs***
 
-    * Substrate:inhibitor ratio (SIR) of [B15](../refs/#b) as a standard output, calculated with `SIratio` in new module `bio`.
+    * Substrate:inhibitor ratio (SIR) of [B15](../refs/#b), calculated with `SIratio` in new module `bio`.
     * Inputs `PAR1` and `PAR2` also returned as outputs in the `CO2dict`.
     * The "Peng correction" factor.
     * The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.

@@ -13,6 +13,7 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 nav:
   - Overview: index.md
   - Calculate everything!: co2sys.md
+  - Uncertainties: uncertainty.md
   # - Module reference:
   #   - <code>buffers</code>: modules/buffers.md
   #     - <code>explicit</code>: modules/explicit.md
