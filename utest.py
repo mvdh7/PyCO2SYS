@@ -1,9 +1,10 @@
 import PyCO2SYS as pyco2
 import numpy as np
+from scipy.misc import derivative
 
-par1 = np.array([2150, 2150])
+par1 = np.array([2150, 8.1])
 par2 = np.array([2300, 2300])
-par1type = 2
+par1type = np.array([2, 3])
 par2type = 1
 sal = 32
 tempin = 10
@@ -36,6 +37,8 @@ co2dict = pyco2.CO2SYS(
     kso4c,
     KFCONSTANT=kfc,
 )
+
+test = pyco2.uncertainty.inputs(co2dict, "OmegaARout", ["PAR1", "PAR2"])
 
 co2u = pyco2.engine.uCO2SYS(
     co2dict, uncertainties={"PAR1": [], "PAR2": [], "TEMPIN": []}
