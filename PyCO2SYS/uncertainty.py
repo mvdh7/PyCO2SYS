@@ -25,7 +25,7 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
         if verbose:
             print(*args, **kwargs)
 
-    can_grad_wrt = [
+    inputs_wrt = [
         "PAR1",
         "PAR2",
         "SAL",
@@ -39,13 +39,13 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
         "H2S",
     ]
     if isinstance(grads_wrt, str):
-        assert (grads_wrt == "all") or grads_of in can_grad_wrt
+        assert (grads_wrt == "all") or grads_of in inputs_wrt
         if grads_wrt == "all":
-            grads_wrt = can_grad_wrt
+            grads_wrt = inputs_wrt
         else:
             grads_wrt = [grads_wrt]
     assert np_all(
-        isin(list(grads_wrt), can_grad_wrt,)
+        isin(list(grads_wrt), inputs_wrt,)
     ), "Invalid `grads_wrt` requested."
     if isinstance(grads_of, str):
         assert (grads_of == "all") or grads_of in engine.gradables

@@ -9,7 +9,6 @@ from autograd.numpy import (
     unique,
 )
 from autograd.numpy import max as np_max
-from autograd import elementwise_grad as egrad
 from . import convert, equilibria, salts, solve, uncertainty
 
 
