@@ -1,7 +1,8 @@
 import PyCO2SYS as pyco2
+import numpy as np
 
-par1 = 2150
-par2 = 2300
+par1 = np.array([2150, 2150])
+par2 = np.array([2300, 2300])
 par1type = 2
 par2type = 1
 sal = 32
@@ -36,4 +37,6 @@ co2dict = pyco2.CO2SYS(
     KFCONSTANT=kfc,
 )
 
-Uncert = pyco2.engine.uCO2SYS(co2dict, uncertainties={"PAR1": [], "PAR2": [],})
+co2u = pyco2.engine.uCO2SYS(
+    co2dict, uncertainties={"PAR1": [], "PAR2": [], "TEMPIN": []}
+)

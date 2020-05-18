@@ -9,6 +9,7 @@ from autograd.numpy import (
     unique,
 )
 from autograd.numpy import max as np_max
+from autograd import elementwise_grad as egrad
 from . import convert, equilibria, salts, solve, uncertainty
 
 
@@ -206,8 +207,8 @@ def _outputdict(
         args, core_in, core_out, others_in, others_out, totals, Kis, Kos
     )
     outputs_nograd = _outputs_nograd(args, buffers_mode)
-    gradable = outputs_grad.keys()
-    return {**outputs_grad, **outputs_nograd}, gradable
+    gradables = outputs_grad.keys()
+    return {**outputs_grad, **outputs_nograd}, gradables
 
 
 def _CO2SYS(
@@ -279,10 +280,10 @@ def _CO2SYS(
         core_out, Sal, TempCo, Pdbaro, totals, Kos, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
-    outputdict, gradable = _outputdict(
+    outputdict, gradables = _outputdict(
         args, core_in, core_out, others_in, others_out, totals, Kis, Kos, buffers_mode
     )
-    return outputdict, gradable
+    return outputdict, gradables
 
 
 def CO2SYS(
@@ -385,27 +386,68 @@ def dict2Ks(co2dict):
 
 def uCO2SYS(co2dict, uncertainties={}):
     """Do uncertainty propagation."""
-    # Extract results from the `co2dict`
+    # Extract results from the `co2dict` for convenience
     totals = dict2totals(co2dict)
     Kis, Kos = dict2Ks(co2dict)
+    # par1 = co2dict["PAR1"]
+    # par2 = co2dict["PAR2"]
     par1type = co2dict["PAR1TYPE"]
     par2type = co2dict["PAR2TYPE"]
+    # psal = co2dict["SAL"]
     TA = co2dict["TAlk"] * 1e-6
     TC = co2dict["TCO2"] * 1e-6
     PHi = co2dict["pHin"]
     FCi = co2dict["fCO2in"] * 1e-6
     CARBi = co2dict["CO3in"] * 1e-6
     HCO3i = co2dict["HCO3in"] * 1e-6
+    PHo = co2dict["pHout"]
+    FCo = co2dict["fCO2out"] * 1e-6
+    CARBo = co2dict["CO3out"] * 1e-6
+    HCO3o = co2dict["HCO3out"] * 1e-6
     # Get par1/part derivatives
+    par1type_TA = full(size(par1type), 1)
+    par2type_TC = full(size(par2type), 2)
+    dcoreo_dTA__TC = uncertainty.dcore_dparX__parY(
+        par1type_TA, par2type_TC, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
+    )
+    dcoreo_dTC__TA = uncertainty.dcore_dparX__parY(
+        par2type_TC, par1type_TA, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
+    )
     if "PAR1" in uncertainties:
-        dcore_dp1__i = uncertainty.dcore_dparX__parY(
+        dcorei_dp1 = uncertainty.dcore_dparX__parY(
             par1type, par2type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
         )
+        dcoreo_dp1 = {
+            k: dcorei_dp1["TA"] * dcoreo_dTA__TC[k]
+            + dcorei_dp1["TC"] * dcoreo_dTC__TA[k]
+            for k in dcorei_dp1
+        }
     if "PAR2" in uncertainties:
-        dcore_dp2__i = uncertainty.dcore_dparX__parY(
+        dcorei_dp2 = uncertainty.dcore_dparX__parY(
             par2type, par1type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
         )
-    return dcore_dp1__i, dcore_dp2__i
+        dcoreo_dp2 = {
+            k: dcorei_dp2["TA"] * dcoreo_dTA__TC[k]
+            + dcorei_dp2["TC"] * dcoreo_dTC__TA[k]
+            for k in dcorei_dp2
+        }
+    # Merge everything into output dicts
+    iosame = ["TA", "TC"]
+    dvars_dp1 = {k: dcorei_dp1[k] for k in iosame}
+    dvars_dp1.update(
+        {"{}i".format(k): v for k, v in dcorei_dp1.items() if k not in iosame}
+    )
+    dvars_dp1.update(
+        {"{}o".format(k): v for k, v in dcoreo_dp1.items() if k not in iosame}
+    )
+    dvars_dp2 = {k: dcorei_dp2[k] for k in iosame}
+    dvars_dp2.update(
+        {"{}i".format(k): v for k, v in dcorei_dp2.items() if k not in iosame}
+    )
+    dvars_dp2.update(
+        {"{}o".format(k): v for k, v in dcoreo_dp2.items() if k not in iosame}
+    )
+    return {"_dPAR1": dvars_dp1, "_dPAR2": dvars_dp2}
 
 
 # def _CO2SYS_u(

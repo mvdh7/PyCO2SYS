@@ -449,13 +449,13 @@ def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
         dCARB_dX__Y = where(X, dCARB_dX__Y / K0, dCARB_dX__Y)
         dHCO3_dX__Y = where(X, dHCO3_dX__Y / K0, dHCO3_dX__Y)
         dCO2_dX__Y = where(X, dCO2_dX__Y / K0, dCO2_dX__Y)
-    return (
-        dTA_dX__Y,
-        dTC_dX__Y,
-        dPH_dX__Y,
-        dPC_dX__Y,
-        dFC_dX__Y,
-        dCARB_dX__Y,
-        dHCO3_dX__Y,
-        dCO2_dX__Y,
-    )
+    return {
+        "TA": dTA_dX__Y,
+        "TC": dTC_dX__Y,
+        "PH": dPH_dX__Y,
+        "PC": dPC_dX__Y,
+        "FC": dFC_dX__Y,
+        "CARB": dCARB_dX__Y,
+        "HCO3": dHCO3_dX__Y,
+        "CO2": dCO2_dX__Y,
+    }
