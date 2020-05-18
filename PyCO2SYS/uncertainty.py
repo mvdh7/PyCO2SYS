@@ -11,7 +11,7 @@ from . import engine
 from .solve import get
 
 
-def inputs(co2dict, grads_of, grads_wrt, verbose=True):
+def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
     """Get derivatives of `co2dict` values w.r.t. the main function inputs.
     
     `co2dict` is output by `PyCO2SYS.CO2SYS`.
