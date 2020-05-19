@@ -11,7 +11,7 @@ from .. import engine
 __all__ = ["automatic"]
 
 
-def co2inputs(co2dict, grads_of, grads_wrt, dx=1e-8, use_explicit=True, verbose=True):
+def jacobians(co2dict, grads_of, grads_wrt, dx=1e-8, use_explicit=True, verbose=True):
     """Get derivatives of `co2dict` values w.r.t. the main function inputs.
 
     `co2dict` is output by `PyCO2SYS.CO2SYS`.
@@ -103,7 +103,7 @@ def co2inputs(co2dict, grads_of, grads_wrt, dx=1e-8, use_explicit=True, verbose=
                 co2deriv[grad][output] = derivative(
                     kfunc, co2args[grad], dx=dx, args=[co2args]
                 )
-    # Convert derivatives arrays to Jacobians
+    # Convert derivatives arrays to Jacobian matrices
     co2jacs = {}
     for output in grads_of:
         co2jacs[output] = array([co2deriv[grad][output] for grad in grads_wrt]).T

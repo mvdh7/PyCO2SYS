@@ -37,7 +37,7 @@ co2dict = pyco2.CO2SYS(
     KFCONSTANT=kfc,
 )
 
-co2j, co2j_cols = pyco2.uncertainty.co2inputs(
+co2j, co2j_cols = pyco2.uncertainty.jacobians(
     co2dict, ["CO2out", "OmegaARin"], ["PAR1", "TEMPIN"])
 print(co2j)
 
