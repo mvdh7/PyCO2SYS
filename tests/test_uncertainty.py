@@ -8,7 +8,7 @@ import PyCO2SYS as pyco2
 
 
 def test_uncert_is_function():
-    assert type(pyco2.uncertainty.dcore_dparX__parY).__name__ == "function"
+    assert type(pyco2.uncertainty.automatic.dcore_dparX__parY).__name__ == "function"
 
 
 def close_enough(a, b, tol=1e-10):
@@ -60,19 +60,18 @@ def test_parX_TA():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
@@ -125,19 +124,18 @@ def test_parX_TC():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
@@ -190,19 +188,18 @@ def test_parX_PH():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
@@ -255,19 +252,18 @@ def test_parX_PC():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
@@ -320,19 +316,18 @@ def test_parX_CARB():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
@@ -385,19 +380,18 @@ def test_parX_HCO3():
     )
     # Get uncertainty derivatives with the uncertainty module
     go = time()
-    (
-        dTA_uncert,
-        dTC_uncert,
-        dPH_uncert,
-        dPC_uncert,
-        dFC_uncert,
-        dCARB_uncert,
-        dHCO3_uncert,
-        dCO2_uncert,
-    ) = pyco2.uncertainty.dcore_dparX__parY(
+    uncert = pyco2.uncertainty.automatic.dcore_dparX__parY(
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
+    dTA_uncert = uncert["TA"]
+    dTC_uncert = uncert["TC"]
+    dPH_uncert = uncert["PH"]
+    dPC_uncert = uncert["PC"]
+    dFC_uncert = uncert["FC"]
+    dCARB_uncert = uncert["CARB"]
+    dHCO3_uncert = uncert["HCO3"]
+    dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
     Icase = pyco2.solve.getIcase(parXtype, parYtype)
 
