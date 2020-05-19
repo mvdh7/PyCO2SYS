@@ -11,7 +11,7 @@ from .. import engine
 __all__ = ["automatic"]
 
 
-def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
+def co2inputs(co2dict, grads_of, grads_wrt, dx=1e-8, use_explicit=True, verbose=True):
     """Get derivatives of `co2dict` values w.r.t. the main function inputs.
 
     `co2dict` is output by `PyCO2SYS.CO2SYS`.
@@ -77,21 +77,22 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
             "KSO4CONSTANTS",
         ]
     }
-    # Define gradients that we have explicit methods for
+    # Get the gradients
     co2deriv = {}
-    # Automatic derivatives for PAR1/PAR2 propagation into core MCS
-    pars_requested = [grad for grad in grads_wrt if grad in ["PAR1", "PAR2"]]
-    p1p2u = automatic.pars2core(co2dict, pars_requested)
-    for p in pars_requested:
-        co2deriv[p] = {}
-        for k, v in p1p2u[p].items():
-            co2deriv[p][k] = v
+    # Define gradients that we have explicit methods for, if requested
+    if use_explicit:
+        # Automatic derivatives for PAR1/PAR2 propagation into core MCS
+        pars_requested = [grad for grad in grads_wrt if grad in ["PAR1", "PAR2"]]
+        p1p2u = automatic.pars2core(co2dict, pars_requested)
+        for p in pars_requested:
+            co2deriv[p] = {}
+            for k, v in p1p2u[p].items():
+                co2deriv[p][k] = v
     # Get central difference derivatives for the rest
     for grad in grads_wrt:
         printv("Computing derivatives w.r.t. {}...".format(grad))
         if grad not in co2deriv:
             co2deriv[grad] = {}
-
         for output in grads_of:
             if output not in co2deriv[grad]:
 
@@ -100,7 +101,7 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
                     return engine._CO2SYS(**co2args)[output]
 
                 co2deriv[grad][output] = derivative(
-                    kfunc, co2args[grad], dx=1e-8, args=[co2args]
+                    kfunc, co2args[grad], dx=dx, args=[co2args]
                 )
     # Convert derivatives arrays to Jacobians
     co2jacs = {}

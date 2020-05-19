@@ -510,18 +510,23 @@ def pars2core(co2dict, uncertainties):
         }
     # Merge everything into output dicts
     iosame = ["TAlk", "TCO2"]
-    dvars_dp1 = {k: dcorei_dp1[k] for k in iosame}
-    dvars_dp1.update(
-        {"{}in".format(k): v for k, v in dcorei_dp1.items() if k not in iosame}
-    )
-    dvars_dp1.update(
-        {"{}out".format(k): v for k, v in dcoreo_dp1.items() if k not in iosame}
-    )
-    dvars_dp2 = {k: dcorei_dp2[k] for k in iosame}
-    dvars_dp2.update(
-        {"{}in".format(k): v for k, v in dcorei_dp2.items() if k not in iosame}
-    )
-    dvars_dp2.update(
-        {"{}out".format(k): v for k, v in dcoreo_dp2.items() if k not in iosame}
-    )
-    return {"PAR1": dvars_dp1, "PAR2": dvars_dp2}
+    uout = {}
+    if "PAR1" in uncertainties:
+        dvars_dp1 = {k: dcorei_dp1[k] for k in iosame}
+        dvars_dp1.update(
+            {"{}in".format(k): v for k, v in dcorei_dp1.items() if k not in iosame}
+        )
+        dvars_dp1.update(
+            {"{}out".format(k): v for k, v in dcoreo_dp1.items() if k not in iosame}
+        )
+        uout.update({"PAR1": dvars_dp1})
+    if "PAR2" in uncertainties:
+        dvars_dp2 = {k: dcorei_dp2[k] for k in iosame}
+        dvars_dp2.update(
+            {"{}in".format(k): v for k, v in dcorei_dp2.items() if k not in iosame}
+        )
+        dvars_dp2.update(
+            {"{}out".format(k): v for k, v in dcoreo_dp2.items() if k not in iosame}
+        )
+        uout.update({"PAR2": dvars_dp2})
+    return uout

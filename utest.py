@@ -1,9 +1,9 @@
 import PyCO2SYS as pyco2
 import numpy as np
 
-par1 = np.array([2150, 8.1])
-par2 = np.array([2300, 2300])
-par1type = np.array([2, 3])
+par1 = np.array([2150, 2150, 2020])
+par2 = np.array([2300, 2200, 2100])
+par1type = np.array([2, 2, 2])
 par2type = 1
 sal = 32
 tempin = 10
@@ -37,7 +37,8 @@ co2dict = pyco2.CO2SYS(
     KFCONSTANT=kfc,
 )
 
-co2j, co2j_cols = pyco2.uncertainty.co2inputs(co2dict, "CO2out", ["PAR1", "PAR2"])
+co2j, co2j_cols = pyco2.uncertainty.co2inputs(
+    co2dict, ["CO2out", "OmegaARin"], ["PAR1", "TEMPIN"])
 print(co2j)
 
 co2u = pyco2.uncertainty.automatic.pars2core(co2dict, uncertainties=["PAR1", "PAR2"])
