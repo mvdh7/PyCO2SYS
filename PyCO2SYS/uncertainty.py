@@ -3,7 +3,7 @@
 """Uncertainty propagation."""
 
 from scipy.misc import derivative
-from autograd.numpy import full, isin, nan, size, where
+from autograd.numpy import array, full, isin, nan, size, where
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd import elementwise_grad as egrad
@@ -93,7 +93,13 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
             co2deriv[grad][output] = derivative(
                 kfunc, co2args[grad], dx=1e-8, args=[co2args]
             )
-    return co2deriv
+    # Convert derivatives arrays to Jacobians
+    co2jacs = {}
+    for output in grads_of:
+        co2jacs[output] = array([
+            co2deriv[grad][output] for grad in grads_wrt
+        ]).T
+    return co2jacs, grads_wrt
 
 
 def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks):
