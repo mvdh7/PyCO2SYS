@@ -37,8 +37,7 @@ co2dict = pyco2.CO2SYS(
     KFCONSTANT=kfc,
 )
 
-co2j, co2j_cols = pyco2.uncertainty.co2inputs(co2dict, "OmegaARout", ["PAR1", "PAR2"])
+co2j, co2j_cols = pyco2.uncertainty.co2inputs(co2dict, "CO2out", ["PAR1", "PAR2"])
+print(co2j)
 
-co2u = pyco2.engine.uCO2SYS(
-    co2dict, uncertainties={"PAR1": [], "PAR2": [], "TEMPIN": []}
-)
+co2u = pyco2.uncertainty.automatic.pars2core(co2dict, uncertainties=["PAR1", "PAR2"])

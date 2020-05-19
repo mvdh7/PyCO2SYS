@@ -13,7 +13,7 @@ __all__ = ["automatic"]
 
 def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
     """Get derivatives of `co2dict` values w.r.t. the main function inputs.
-    
+
     `co2dict` is output by `PyCO2SYS.CO2SYS`.
     `grads_of` is a list of keys from `co2dict` that you want to calculate the
     derivatives of, or a single key, or `"all"`.
@@ -44,9 +44,7 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
             grads_wrt = inputs_wrt
         else:
             grads_wrt = [grads_wrt]
-    assert np_all(
-        isin(list(grads_wrt), inputs_wrt,)
-    ), "Invalid `grads_wrt` requested."
+    assert np_all(isin(list(grads_wrt), inputs_wrt,)), "Invalid `grads_wrt` requested."
     if isinstance(grads_of, str):
         assert (grads_of == "all") or grads_of in engine.gradables
         if grads_of == "all":
@@ -79,24 +77,33 @@ def co2inputs(co2dict, grads_of, grads_wrt, verbose=True):
             "KSO4CONSTANTS",
         ]
     }
+    # Define gradients that we have explicit methods for
     co2deriv = {}
+    # Automatic derivatives for PAR1/PAR2 propagation into core MCS
+    pars_requested = [grad for grad in grads_wrt if grad in ["PAR1", "PAR2"]]
+    p1p2u = automatic.pars2core(co2dict, pars_requested)
+    for p in pars_requested:
+        co2deriv[p] = {}
+        for k, v in p1p2u[p].items():
+            co2deriv[p][k] = v
+    # Get central difference derivatives for the rest
     for grad in grads_wrt:
         printv("Computing derivatives w.r.t. {}...".format(grad))
-        co2deriv[grad] = {}
+        if grad not in co2deriv:
+            co2deriv[grad] = {}
 
         for output in grads_of:
+            if output not in co2deriv[grad]:
 
-            def kfunc(v, co2args):
-                co2args[grad] = v
-                return engine._CO2SYS(**co2args)[output]
+                def kfunc(v, co2args):
+                    co2args[grad] = v
+                    return engine._CO2SYS(**co2args)[output]
 
-            co2deriv[grad][output] = derivative(
-                kfunc, co2args[grad], dx=1e-8, args=[co2args]
-            )
+                co2deriv[grad][output] = derivative(
+                    kfunc, co2args[grad], dx=1e-8, args=[co2args]
+                )
     # Convert derivatives arrays to Jacobians
     co2jacs = {}
     for output in grads_of:
-        co2jacs[output] = array([
-            co2deriv[grad][output] for grad in grads_wrt
-        ]).T
+        co2jacs[output] = array([co2deriv[grad][output] for grad in grads_wrt]).T
     return co2jacs, grads_wrt

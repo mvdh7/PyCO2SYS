@@ -64,12 +64,12 @@ def test_parX_TA():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
@@ -128,12 +128,12 @@ def test_parX_TC():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
@@ -192,12 +192,12 @@ def test_parX_PH():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
@@ -256,12 +256,12 @@ def test_parX_PC():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
@@ -320,12 +320,12 @@ def test_parX_CARB():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly
@@ -384,12 +384,12 @@ def test_parX_HCO3():
         parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
     )
     print("  Uncertainty module runtime = {:.5f} s".format(time() - go))
-    dTA_uncert = uncert["TA"]
-    dTC_uncert = uncert["TC"]
-    dPH_uncert = uncert["PH"]
-    dPC_uncert = uncert["PC"]
-    dFC_uncert = uncert["FC"]
-    dCARB_uncert = uncert["CARB"]
+    dTA_uncert = uncert["TAlk"]
+    dTC_uncert = uncert["TCO2"]
+    dPH_uncert = uncert["pH"]
+    dPC_uncert = uncert["pCO2"]
+    dFC_uncert = uncert["fCO2"]
+    dCARB_uncert = uncert["CO3"]
     dHCO3_uncert = uncert["HCO3"]
     dCO2_uncert = uncert["CO2"]
     # Get corresponding uncertainty derivatives directly

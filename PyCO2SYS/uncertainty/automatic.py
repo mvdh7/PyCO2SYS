@@ -5,7 +5,9 @@
 from autograd.numpy import full, isin, nan, size, where
 from autograd.numpy import any as np_any
 from autograd import elementwise_grad as egrad
+from .. import engine
 from ..solve import get
+
 
 def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks):
     """Efficient automatic derivatives of all core MCS variables w.r.t. parX
@@ -451,12 +453,75 @@ def dcore_dparX__parY(parXtype, parYtype, TA, TC, PH, FC, CARB, HCO3, totals, Ks
         dHCO3_dX__Y = where(X, dHCO3_dX__Y / K0, dHCO3_dX__Y)
         dCO2_dX__Y = where(X, dCO2_dX__Y / K0, dCO2_dX__Y)
     return {
-        "TA": dTA_dX__Y,
-        "TC": dTC_dX__Y,
-        "PH": dPH_dX__Y,
-        "PC": dPC_dX__Y,
-        "FC": dFC_dX__Y,
-        "CARB": dCARB_dX__Y,
+        "TAlk": dTA_dX__Y,
+        "TCO2": dTC_dX__Y,
+        "pH": dPH_dX__Y,
+        "pCO2": dPC_dX__Y,
+        "fCO2": dFC_dX__Y,
+        "CO3": dCARB_dX__Y,
         "HCO3": dHCO3_dX__Y,
         "CO2": dCO2_dX__Y,
     }
+
+
+def pars2core(co2dict, uncertainties):
+    """Do uncertainty propagation."""
+    # Extract results from the `co2dict` for convenience
+    totals = engine.dict2totals(co2dict)
+    Kis, Kos = engine.dict2Ks(co2dict)
+    par1type = co2dict["PAR1TYPE"]
+    par2type = co2dict["PAR2TYPE"]
+    TA = co2dict["TAlk"] * 1e-6
+    TC = co2dict["TCO2"] * 1e-6
+    PHi = co2dict["pHin"]
+    FCi = co2dict["fCO2in"] * 1e-6
+    CARBi = co2dict["CO3in"] * 1e-6
+    HCO3i = co2dict["HCO3in"] * 1e-6
+    PHo = co2dict["pHout"]
+    FCo = co2dict["fCO2out"] * 1e-6
+    CARBo = co2dict["CO3out"] * 1e-6
+    HCO3o = co2dict["HCO3out"] * 1e-6
+    # Get par1/part derivatives
+    par1type_TA = full(size(par1type), 1)
+    par2type_TC = full(size(par2type), 2)
+    dcoreo_dTA__TC = dcore_dparX__parY(
+        par1type_TA, par2type_TC, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
+    )
+    dcoreo_dTC__TA = dcore_dparX__parY(
+        par2type_TC, par1type_TA, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
+    )
+    if "PAR1" in uncertainties:
+        dcorei_dp1 = dcore_dparX__parY(
+            par1type, par2type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
+        )
+        dcoreo_dp1 = {
+            k: dcorei_dp1["TAlk"] * dcoreo_dTA__TC[k]
+            + dcorei_dp1["TCO2"] * dcoreo_dTC__TA[k]
+            for k in dcorei_dp1
+        }
+    if "PAR2" in uncertainties:
+        dcorei_dp2 = dcore_dparX__parY(
+            par2type, par1type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
+        )
+        dcoreo_dp2 = {
+            k: dcorei_dp2["TAlk"] * dcoreo_dTA__TC[k]
+            + dcorei_dp2["TCO2"] * dcoreo_dTC__TA[k]
+            for k in dcorei_dp2
+        }
+    # Merge everything into output dicts
+    iosame = ["TAlk", "TCO2"]
+    dvars_dp1 = {k: dcorei_dp1[k] for k in iosame}
+    dvars_dp1.update(
+        {"{}in".format(k): v for k, v in dcorei_dp1.items() if k not in iosame}
+    )
+    dvars_dp1.update(
+        {"{}out".format(k): v for k, v in dcoreo_dp1.items() if k not in iosame}
+    )
+    dvars_dp2 = {k: dcorei_dp2[k] for k in iosame}
+    dvars_dp2.update(
+        {"{}in".format(k): v for k, v in dcorei_dp2.items() if k not in iosame}
+    )
+    dvars_dp2.update(
+        {"{}out".format(k): v for k, v in dcoreo_dp2.items() if k not in iosame}
+    )
+    return {"PAR1": dvars_dp1, "PAR2": dvars_dp2}
