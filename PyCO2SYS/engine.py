@@ -524,14 +524,14 @@ def uCO2SYS(co2dict, uncertainties={}):
     # Get par1/part derivatives
     par1type_TA = full(size(par1type), 1)
     par2type_TC = full(size(par2type), 2)
-    dcoreo_dTA__TC = uncertainty.dcore_dparX__parY(
+    dcoreo_dTA__TC = uncertainty.automatic.dcore_dparX__parY(
         par1type_TA, par2type_TC, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
     )
-    dcoreo_dTC__TA = uncertainty.dcore_dparX__parY(
+    dcoreo_dTC__TA = uncertainty.automatic.dcore_dparX__parY(
         par2type_TC, par1type_TA, TA, TC, PHo, FCo, CARBo, HCO3o, totals, Kos
     )
     if "PAR1" in uncertainties:
-        dcorei_dp1 = uncertainty.dcore_dparX__parY(
+        dcorei_dp1 = uncertainty.automatic.dcore_dparX__parY(
             par1type, par2type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
         )
         dcoreo_dp1 = {
@@ -540,7 +540,7 @@ def uCO2SYS(co2dict, uncertainties={}):
             for k in dcorei_dp1
         }
     if "PAR2" in uncertainties:
-        dcorei_dp2 = uncertainty.dcore_dparX__parY(
+        dcorei_dp2 = uncertainty.automatic.dcore_dparX__parY(
             par2type, par1type, TA, TC, PHi, FCi, CARBi, HCO3i, totals, Kis
         )
         dcoreo_dp2 = {

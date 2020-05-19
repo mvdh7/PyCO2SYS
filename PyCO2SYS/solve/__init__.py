@@ -2,10 +2,10 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Solve the marine carbonate system from any two of its variables."""
 
-from . import delta, initialise, get
 from autograd.numpy import errstate, full, isin, isnan, log10, nan, size, where
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
+from . import delta, initialise, get
 from .. import bio, buffers, convert, gas, solubility
 
 __all__ = ["delta", "initialise", "get"]

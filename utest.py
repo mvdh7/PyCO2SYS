@@ -1,6 +1,5 @@
 import PyCO2SYS as pyco2
 import numpy as np
-from scipy.misc import derivative
 
 par1 = np.array([2150, 8.1])
 par2 = np.array([2300, 2300])
