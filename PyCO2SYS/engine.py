@@ -9,10 +9,10 @@ from autograd.numpy import (
     unique,
 )
 from autograd.numpy import max as np_max
-from . import convert, equilibria, salts, solve, uncertainty
+from . import convert, equilibria, salts, solve
 
 
-def inputs(input_locals):
+def inputs(input_locals, npts=None):
     """Condition inputs for use with CO2SYS (sub)functions."""
     # Determine and check lengths of input vectors
     veclengths = array([size(v) for v in input_locals.values()])
@@ -20,9 +20,13 @@ def inputs(input_locals):
         size(unique(veclengths[veclengths != 1])) <= 1
     ), "CO2SYS function inputs must all be of same length, or of length 1."
     # Make vectors of all inputs
-    ntps = np_max(veclengths)
+    npts_in = np_max(veclengths)
+    if npts is None:
+        npts = npts_in
+    else:
+        assert npts == npts_in, "Input `npts` does not agree with input array sizes."
     args = {
-        k: full(ntps, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
+        k: full(npts, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
     }
     # Convert to float where appropriate
     float_vars = [
@@ -55,7 +59,7 @@ def inputs(input_locals):
     for k in args.keys():
         if k in float_vars:
             args[k] = args[k].astype("float64")
-    return args, ntps
+    return args, npts
 
 
 # Define all gradable outputs
@@ -352,7 +356,7 @@ def _CO2SYS(
     KSO4CONSTANTS=0,
 ):
     # Condition inputs and assign input values to the 'historical' variable names
-    args, ntps = inputs(locals())
+    args, npts = inputs(locals())
     PAR1 = args["PAR1"]
     PAR2 = args["PAR2"]
     p1 = args["PAR1TYPE"]
@@ -388,8 +392,8 @@ def _CO2SYS(
     Kos = equilibria.assemble(
         TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
-    TAtype = full(ntps, 1)
-    TCtype = full(ntps, 2)
+    TAtype = full(npts, 1)
+    TCtype = full(npts, 2)
     core_out = solve.core(
         core_in["TA"], core_in["TC"], TAtype, TCtype, totals, Kos, False,
     )

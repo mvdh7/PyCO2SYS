@@ -2,7 +2,9 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Convert units and calculate conversion factors."""
 
-from autograd.numpy import array, full, log10, nan, shape, size, where
+from autograd.numpy import array, full, isin, log10, nan, shape, size, unique, where
+from autograd.numpy import all as np_all
+from autograd.numpy import max as np_max
 from .constants import Tzero
 
 
@@ -148,6 +150,6 @@ def options_new2old(KSO4CONSTANT, BORON):
         (1, 2): 3,
         (2, 2): 4,
     }
-    KSO4CONSTANT, BORON = oo._flattenfirst((KSO4CONSTANT, BORON), int)[0]
+    KSO4CONSTANT, BORON = _flattenfirst((KSO4CONSTANT, BORON), int)[0]
     pairs = zip(KSO4CONSTANT, BORON)
     return array([pair2one[pair] for pair in pairs])

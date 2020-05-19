@@ -1,9 +1,9 @@
 import PyCO2SYS as pyco2
 import numpy as np
 
-par1 = np.array([2150, 2150, 2020])
-par2 = np.array([2300, 2200, 2100])
-par1type = np.array([2, 2, 2])
+par1 = np.array([2150, 2150, 2020, 2000])
+par2 = np.array([2300, 2200, 2100, 2400])
+par1type = np.array([2, 2, 2, 2])
 par2type = 1
 sal = 32
 tempin = 10
@@ -37,8 +37,8 @@ co2dict = pyco2.CO2SYS(
     KFCONSTANT=kfc,
 )
 
-co2j, co2j_cols = pyco2.uncertainty.jacobians(
-    co2dict, ["CO2out", "OmegaARin"], ["PAR1", "TEMPIN"])
-print(co2j)
-
-co2u = pyco2.uncertainty.automatic.pars2core(co2dict, uncertainties=["PAR1", "PAR2"])
+uncertainties, components = pyco2.uncertainty.propagate(
+    co2dict,
+    {"PAR1": np.array([1.0, 1.0, 2.0, 3.0]), "TEMPIN": 1.0},
+    ["CO2out", "OmegaARin", "RFout"],
+)
