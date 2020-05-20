@@ -24,7 +24,7 @@
 
 ## 1.4
 
-Supports uncertainty propagation by central difference derivatives.
+Supports uncertainty propagation.
 
 ### 1.4.0 (forthcoming)
 
