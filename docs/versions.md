@@ -33,15 +33,17 @@ Supports uncertainty propagation by central difference derivatives.
     ***New features***
 
     * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs.
+    * Specific input values can optionally be provided for all total concentrations and equilibrium constants that are estimated internally from salinity, temperature and pressure.
 
     ***General improvements***
 
-    * Added basic sanity checking to prevent invalid marine carbonate system parameter input values.
+    * Added basic sanity checking to prevent some invalid marine carbonate system parameter input values.
+    * Nutrient concentrations are set to zero internally for `K1K2CONSTANTS` options `6` and `8`, and salinity too for `8`.  This is now reflected in the output values of these variables in the `CO2dict`.
 
     ***New outputs***
 
     * Substrate:inhibitor ratio (SIR) of [B15](../refs/#b), calculated with `SIratio` in new module `bio`.
-    * Inputs `PAR1` and `PAR2` also returned as outputs in the `CO2dict`.
+    * Inputs `PAR1` and `PAR2`.
     * The "Peng correction" factor.
     * The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.
     * The activity coefficient of the H<sup>+</sup> ion for NBS pH scale conversions.
