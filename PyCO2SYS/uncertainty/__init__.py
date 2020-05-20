@@ -125,7 +125,7 @@ def propagate(
         verbose=verbose,
     )
     npts = size(co2dict["PAR1"])
-    uncertainties_from = engine.inputs(uncertainties_from, npts=npts)[0]
+    uncertainties_from = engine.condition(uncertainties_from, npts=npts)[0]
     components = {
         u_into: {
             u_from: co2derivs[u_into][u_from] * v_from

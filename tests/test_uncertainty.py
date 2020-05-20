@@ -34,7 +34,7 @@ def prep(parX, parY, parXtype, parYtype):
     WhoseKSO4 = np.full(npts, 1)
     WhoseKF = np.full(npts, 1)
     Ks = pyco2.equilibria.assemble(
-        TempC, Pdbar, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+        TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
     )
     # Expand and solve MCS parameters
     Icase = pyco2.solve.getIcase(parXtype, parYtype, checks=True)

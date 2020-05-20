@@ -58,7 +58,11 @@ def test_co2pyo_matlab():
 
 
 def test_co2py_matlab():
-    checkcols = [col for col in pmad_co2py_matlab.index if col not in ["RFin", "RFout"]]
+    checkcols = [
+        col
+        for col in pmad_co2py_matlab.index
+        if col not in ["RFin", "RFout", "PO4", "SAL", "SI"]
+    ]
     assert np.all(
         (pmad_co2py_matlab[checkcols] < 1e-5).values
         | np.isnan(pmad_co2py_matlab[checkcols].values)

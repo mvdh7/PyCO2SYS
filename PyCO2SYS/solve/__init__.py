@@ -56,7 +56,7 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     HCO3 = full(ntps, nan)  # bicarbonate ions
     CO2 = full(ntps, nan)  # aqueous CO2
     # Assign values to empty vectors & convert micro[mol|atm] to [mol|atm] if requested
-    assert type(convert_units) == bool, "`convert_units` must be `True` or `False`."
+    assert isinstance(convert_units, bool), "`convert_units` must be `True` or `False`."
     if convert_units:
         cfac = 1e-6
     else:
@@ -284,10 +284,11 @@ def core(par1, par2, par1type, par2type, totals, Ks, convert_units):
 
 
 def others(
-    core_solved, Sal, TempC, Pdbar, totals, Ks, pHScale, WhichKs, buffers_mode,
+    core_solved, TempC, Pdbar, totals, Ks, pHScale, WhichKs, buffers_mode,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
+    Sal = totals["Sal"]
     TA = core_solved["TA"]
     TC = core_solved["TC"]
     PH = core_solved["PH"]

@@ -12,7 +12,7 @@ from autograd.numpy import max as np_max
 from . import convert, equilibria, salts, solve
 
 
-def inputs(input_locals, npts=None):
+def condition(input_locals, npts=None):
     """Condition inputs for use with CO2SYS (sub)functions."""
     # Determine and check lengths of input vectors
     veclengths = array([size(v) for v in input_locals.values()])
@@ -24,7 +24,10 @@ def inputs(input_locals, npts=None):
     if npts is None:
         npts = npts_in
     else:
-        assert npts == npts_in, "Input `npts` does not agree with input array sizes."
+        assert npts_in in (
+            1,
+            npts,
+        ), "Input `npts` does not agree with input array sizes."
     args = {
         k: full(npts, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
     }
@@ -234,11 +237,11 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "TEMPOUT": args["TEMPOUT"],
         "PRESIN": args["PRESIN"],
         "PRESOUT": args["PRESOUT"],
-        "SAL": args["SAL"],
-        "PO4": args["PO4"],
-        "SI": args["SI"],
-        "NH3": args["NH3"],
-        "H2S": args["H2S"],
+        "SAL": totals["Sal"],  # v1.4.0: take from totals, not args
+        "PO4": totals["TPO4"],  # v1.4.0: take from totals, not args
+        "SI": totals["TSi"],  # v1.4.0: take from totals, not args
+        "NH3": totals["TNH3"],  # v1.4.0: take from totals, not args
+        "H2S": totals["TH2S"],  # v1.4.0: take from totals, not args
         "K0input": Kis["K0"],
         "K1input": Kis["K1"],
         "K2input": Kis["K2"],
@@ -354,14 +357,39 @@ def _CO2SYS(
     BORON,
     buffers_mode,
     KSO4CONSTANTS=0,
+    totals=None,
+    Kis=None,
+    Kos=None,
 ):
     # Condition inputs and assign input values to the 'historical' variable names
-    args, npts = inputs(locals())
+    args, npts = condition(
+        {
+            "PAR1": PAR1,
+            "PAR2": PAR2,
+            "PAR1TYPE": PAR1TYPE,
+            "PAR2TYPE": PAR2TYPE,
+            "SAL": SAL,
+            "TEMPIN": TEMPIN,
+            "TEMPOUT": TEMPOUT,
+            "PRESIN": PRESIN,
+            "PRESOUT": PRESOUT,
+            "SI": SI,
+            "PO4": PO4,
+            "NH3": NH3,
+            "H2S": H2S,
+            "pHSCALEIN": pHSCALEIN,
+            "K1K2CONSTANTS": K1K2CONSTANTS,
+            "KSO4CONSTANT": KSO4CONSTANT,
+            "KFCONSTANT": KFCONSTANT,
+            "BORON": BORON,
+            "buffers_mode": buffers_mode,
+            "KSO4CONSTANTS": KSO4CONSTANTS,
+        }
+    )
     PAR1 = args["PAR1"]
     PAR2 = args["PAR2"]
     p1 = args["PAR1TYPE"]
     p2 = args["PAR2TYPE"]
-    Sal = args["SAL"]
     TempCi = args["TEMPIN"]
     TempCo = args["TEMPOUT"]
     Pdbari = args["PRESIN"]
@@ -377,21 +405,28 @@ def _CO2SYS(
     WhoseTB = args["BORON"]
     buffers_mode = args["buffers_mode"]
     # Prepare to solve the core marine carbonate system at input conditions
-    totals = salts.assemble(Sal, TSi, TP, TNH3, TH2S, WhichKs, WhoseTB)
-    Sal = totals["Sal"]
+    if totals is not None:
+        totals = condition(totals, npts=npts)[0]
+    totals = salts.assemble(
+        args["SAL"], TSi, TP, TNH3, TH2S, WhichKs, WhoseTB, totals=totals
+    )
+    if Kis is not None:
+        Kis = condition(Kis, npts=npts)[0]
     Kis = equilibria.assemble(
-        TempCi, Pdbari, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
+        TempCi, Pdbari, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=Kis
+    )
+    if Kos is not None:
+        Kos = condition(Kos, npts=npts)[0]
+    Kos = equilibria.assemble(
+        TempCo, Pdbaro, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=Kos
     )
     # Solve the core marine carbonate system at input conditions
     core_in = solve.core(PAR1, PAR2, p1, p2, totals, Kis, True)
     # Calculate all other results at input conditions
     others_in = solve.others(
-        core_in, Sal, TempCi, Pdbari, totals, Kis, pHScale, WhichKs, buffers_mode,
+        core_in, TempCi, Pdbari, totals, Kis, pHScale, WhichKs, buffers_mode,
     )
     # Solve the core MCS at output conditions
-    Kos = equilibria.assemble(
-        TempCo, Pdbaro, Sal, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF
-    )
     TAtype = full(npts, 1)
     TCtype = full(npts, 2)
     core_out = solve.core(
@@ -399,7 +434,7 @@ def _CO2SYS(
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
-        core_out, Sal, TempCo, Pdbaro, totals, Kos, pHScale, WhichKs, buffers_mode,
+        core_out, TempCo, Pdbaro, totals, Kos, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
     return _outputdict(
@@ -426,6 +461,9 @@ def CO2SYS(
     H2S=0.0,
     KFCONSTANT=1,
     buffers_mode="auto",
+    totals=None,
+    Kis=None,
+    Kos=None,
 ):
     """Solve the carbonate system using the input parameters.
 
@@ -458,6 +496,9 @@ def CO2SYS(
         BORON,
         buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
+        totals=totals,
+        Kis=Kis,
+        Kos=Kos,
     )
 
 
