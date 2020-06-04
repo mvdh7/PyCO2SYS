@@ -12,12 +12,12 @@ The simplest way to use PyCO2SYS is to follow the approach of previous versions 
     CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
         NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
-        totals=None, Kis=None, Kos=None)
+        totals=None, equilibria_input=None, equilibria_output=None)
 
     # Get (e.g.) aragonite saturation state, output conditions
     OmegaARout = CO2dict["OmegaARout"]
 
-Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
+Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values, with the excepton of the optional `totals`, `equilibria_input` and `equilibria_output` inputs, which should be dicts of scalars or arrays (if provided, see [Internal overrides](#internal-overrides)).  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
 
 ### Using the Pythonic API
 
@@ -42,7 +42,7 @@ Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This
     
     In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
 
-    `CO2SYS_wrap` also does not yet support the `totals`, `Kis` and `Kos` optional inputs to `CO2SYS`.
+    `CO2SYS_wrap` also does not yet support the `totals`, `equilibria_input` and `equilibria_output` optional inputs to `CO2SYS`.
 
 This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
 
@@ -144,11 +144,11 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
     #### Internal overrides
 
-    You can optionally use the `totals`, `Kis` and `Kos` inputs to override some or all parameter values that PyCO2SYS normally estimates internally from salinity, temperature and pressure.  If used, these inputs should each be a dict containing one or more of the following items.
+    You can optionally use the `totals`, `equilibria_input` and `equilibria_output` inputs to override some or all parameter values that PyCO2SYS normally estimates internally from salinity, temperature and pressure.  If used, these inputs should each be a dict containing one or more of the following items.
 
       * `totals`: any of the output variables listed below in [Totals estimated from salinity](#totals-estimated-from-salinity), but with units in **mol·kg<sup>−1</sup>**.
-      * `Kis`: any of the output variables listed below in [Equilibrium constants](#equilibrium-constants), the [fugacity factor](#dissolved-inorganic-carbon) and/or the [activitiy coefficient of H<sup>+</sup>](#ph-and-water), all at input conditions and with the word `input` removed from the end of each dict key.
-      * `Kos`: like `Kis`, but for the output conditions.
+      * `equilibria_input`: any of the output variables listed below in [Equilibrium constants](#equilibrium-constants), the [fugacity factor](#dissolved-inorganic-carbon) and/or the [activitiy coefficient of H<sup>+</sup>](#ph-and-water), all at input conditions and with the word `input` removed from the end of each dict key.
+      * `equilibria_output`: like `equilibria_input`, but for the output conditions.
 
     Like all other `PyCO2SYS.CO2SYS` input parameters, each field in these dicts can be either a single value or a NumPy array the same size as all other input arrays.
 

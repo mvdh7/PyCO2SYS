@@ -4,7 +4,7 @@ PyCO2SYS provides tools to propagate uncertainties both in input parameters and 
 
 !!! question "Evaluating the derivatives"
 
-    All derivatives needed for uncertainty propagation can be calculated numerically using central differences, as implemented by [`scipy.misc.derivative`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.misc.derivative.html).  This approach is quick and easy to implement but slow to compute.  We are therefore also developing more efficient (and negligibly more accurate) approaches using automatic differentiation, but it will take some time to achieve full coverage or all the inputs and outputs.  For now, PyCO2SYS uses these more efficient methods where available, and central differences in all other cases, to immediately enable all possible uncertainty propagation combinations.
+    All derivatives needed for uncertainty propagation can be calculated numerically using central differences, as implemented by [`scipy.misc.derivative`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.misc.derivative.html).  This approach is quick and easy to implement but relatively slow to compute.  We are therefore also developing more efficient (and negligibly more accurate) approaches using automatic differentiation, but it will take some time to achieve full coverage or all the inputs and outputs.  For now, PyCO2SYS uses these more efficient methods where available, and central differences in all other cases, to immediately enable all possible uncertainty propagation combinations.
 
 ## Independent uncertainties
 

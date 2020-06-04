@@ -36,7 +36,7 @@ co2dict = pyco2.CO2SYS(
     kso4c,
     KFCONSTANT=kfc,
     totals={"TB": 100e-6},
-    Kis={"K1": 10.0 ** -6},
+    equilibria_input={"K1": 10.0 ** -6},
 )
 
 uncertainties, components = pyco2.uncertainty.propagate(
