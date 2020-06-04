@@ -5,7 +5,7 @@ import PyCO2SYS as pyco2
 
 # Import input conditions: "compare_MATLABv2_0_5.csv" was generated in MATLAB
 # using "compare_MATLABv2_0_5.m".
-co2matlab = pd.read_csv("validate/results/compare_MATLABv2_0_5x.csv")
+co2matlab = pd.read_csv("validate/results/compare_MATLABv2_0_5.csv")
 
 # Run PyCO2SYS.CO2SYS under the same conditions
 co2inputs = [
