@@ -8,7 +8,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**PyCO2SYS** is a Python implementation of CO2SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for the forthcoming MATLAB CO2SYS v3 as well as some additional related calculations.  This software calculates the full marine carbonate system from values of any two of its variables.
+**PyCO2SYS** is a Python implementation of CO2SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for the forthcoming [MATLAB CO2SYS v3](https://github.com/jonathansharp/CO2-System-Extd) as well as some additional related calculations.  This software calculates the full marine carbonate system from values of any two of its variables.
 
 Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible).  See the scripts in [validate](validate) to see how and check this for yourself.  **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
 
