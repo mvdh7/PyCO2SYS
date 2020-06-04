@@ -47,7 +47,9 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
       * `uncertainties_from`: a dict of the **input parameter uncertainties** to propagate through `PyCO2SYS.CO2SYS`.
 
-    The keys of `uncertainties_from` must come from the [inputs of `PyCO2SYS.CO2SYS`](../co2sys/#inputs) that can have an uncertainty.  Therefore any combination of `"PAR1"`, `"PAR2"`, `"SAL"`, `"TEMPIN"`, `"TEMPOUT"`, `"PRESIN"`, `"PRESOUT"`, `"SI"`, `"PO4"`, `"NH3"`, and `"H2S"` is valid.  Any parameters not included are assumed to have zero uncertainty.
+    The keys of `uncertainties_from` may come from the [inputs of `PyCO2SYS.CO2SYS`](../co2sys/#inputs) that can have an uncertainty.  Therefore any combination of `"PAR1"`, `"PAR2"`, `"SAL"`, `"TEMPIN"`, `"TEMPOUT"`, `"PRESIN"`, `"PRESOUT"`, `"SI"`, `"PO4"`, `"NH3"`, and `"H2S"` is valid.  Any parameters not included are assumed to have zero uncertainty.
+
+    Additionally, the uncertainty in any parameter that can be provided as an [internal override](../co2sys/#internal-overrides) can be included within the `uncertainties_from` dict.  The keys for these parameters should be the same as the corresponding key in the main [`PyCO2SYS.CO2SYS` output dict](../co2sys/#outputs).
     
     The values of `uncertainties_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.
 
