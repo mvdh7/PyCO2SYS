@@ -32,7 +32,7 @@ Supports uncertainty propagation.
 
     ***New features***
 
-    * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs.
+    * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs, along with corresponding [documentation](../uncertainty).
     * Specific input values can optionally be provided for all total concentrations and equilibrium constants that are estimated internally from salinity, temperature and pressure.
 
     ***General improvements***

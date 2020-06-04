@@ -20,11 +20,13 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
     # Get the CO2dict from CO2SYS
     CO2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto")
+        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
+        totals=None, equilibria_input=None, equilibria_output=None)
     
     # Propagate uncertainties
     uncertainties, components = pyco2.uncertainties.propagate(CO2dict,
-        uncertainties_from, uncertainties_into,
+        uncertainties_into, uncertainties_from,
+        totals=None, equilibria_input=None, equilibria_output=None,
         dx=1e-8, use_explicit=True, verbose=True)
 
 ### Inputs
@@ -37,17 +39,21 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
     #### Uncertainties
 
+      * `uncertainties_into`: a list of strings of the **output variable names** to propagate the uncertainties into.
+
+    The `uncertainties_into` list can contain any of the [outputs of `PyCO2SYS.CO2SYS`](../co2sys/#outputs) that can have an uncertainty (i.e. all aside from those relating to input settings).
+
+    You can use `uncertainties_into="all"` to get propagate uncertainties through into every output variable at once, but this can be slow.
+
       * `uncertainties_from`: a dict of the **input parameter uncertainties** to propagate through `PyCO2SYS.CO2SYS`.
 
     The keys of `uncertainties_from` must come from the [inputs of `PyCO2SYS.CO2SYS`](../co2sys/#inputs) that can have an uncertainty.  Therefore any combination of `"PAR1"`, `"PAR2"`, `"SAL"`, `"TEMPIN"`, `"TEMPOUT"`, `"PRESIN"`, `"PRESOUT"`, `"SI"`, `"PO4"`, `"NH3"`, and `"H2S"` is valid.  Any parameters not included are assumed to have zero uncertainty.
     
     The values of `uncertainties_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.
 
-      * `uncertainties_into`: a list of strings of the **output variable names** to propagate the uncertainties into.
+    #### Internal overrides
 
-    The `uncertainties_into` list can contain any of the [outputs of `PyCO2SYS.CO2SYS`](../co2sys/#outputs) that can have an uncertainty (i.e. all aside from those relating to input settings).
-
-    You can use `uncertainties_into="all"` to get propagate uncertainties through into every output variable at once, but this can be slow.
+    If you provided values for any of the optional [internal overrides](../co2sys/#internal-overrides) (`totals`, `equilibria_input` or `equilibria_output`) when running `PyCO2SYS.CO2SYS`, then you must provide exactly the same inputs again here.
 
     #### Settings
 
@@ -66,7 +72,7 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
     Both outputs are dicts with keys the same as `uncertainties_into`.
 
-    Each entry in `components` is itself a dict with keys the same as `uncertainties_from`, containing the uncertainty in the output variable from each input parameter separately.
+    Each entry in `components` is itself a dict with keys the same as `uncertainties_from`, containing the uncertainty in the output variable from each input parameter separately.  For example, the uncertainty in total borate arising from the uncertainty in input salinity could be accesed with `components["TB"]["SAL"]`.
 
     Each entry in `uncertainties` is the Pythagorean sum of all the different uncertainty components for each variable.  This calculation assumes that all uncertainties are independent from each other.
 
@@ -76,11 +82,12 @@ PyCO2SYS does not currently have a generalised function for the complete process
 
     :::python
     co2derivs = pyco2.uncertainty.derivatives(co2dict, grads_of, grads_wrt,
+        totals=None, equilibria_input=None, equilibria_output=None,
         dx=1e-8, use_explicit=True, verbose=True)
 
 The inputs to `PyCO2SYS.uncertainty.derivatives` are the same as [described above](#inputs) for `PyCO2SYS.uncertainty.propagate` with the following notes:
 
-  * `grads_of` is the same as `list(uncertainties_from.keys())`.
+  * `grads_of` can be the same as `uncertainties_from`, in which case the values are ignored, or more simply just `list(uncertainties_from.keys())`.
   * `grads_wrt` is the same as `uncertainties_into`.
 
 The single output `co2derivs` is a dict with the same structure as the [`components` output](#outputs) of `PyCO2SYS.uncertainty.propagate`, containing the derivatives of each output variable in `grads_of` with respect to each input parameter in `grads_wrt`.

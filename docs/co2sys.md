@@ -146,7 +146,7 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
     You can optionally use the `totals`, `equilibria_input` and `equilibria_output` inputs to override some or all parameter values that PyCO2SYS normally estimates internally from salinity, temperature and pressure.  If used, these inputs should each be a dict containing one or more of the following items.
 
-      * `totals`: any of the output variables listed below in [Totals estimated from salinity](#totals-estimated-from-salinity), but with units in **mol·kg<sup>−1</sup>**.
+      * `totals`: any of the output variables listed below in [Totals estimated from salinity](#totals-estimated-from-salinity) in μmol·kg<sup>−1</sup>.
       * `equilibria_input`: any of the output variables listed below in [Equilibrium constants](#equilibrium-constants), the [fugacity factor](#dissolved-inorganic-carbon) and/or the [activitiy coefficient of H<sup>+</sup>](#ph-and-water), all at input conditions and with the word `input` removed from the end of each dict key.
       * `equilibria_output`: like `equilibria_input`, but for the output conditions.
 

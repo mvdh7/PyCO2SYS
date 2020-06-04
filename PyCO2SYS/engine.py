@@ -32,7 +32,7 @@ def condition(input_locals, npts=None):
         k: full(npts, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
     }
     # Convert to float where appropriate
-    float_vars = [
+    float_vars = {
         "SAL",
         "TEMPIN",
         "TEMPOUT",
@@ -58,7 +58,24 @@ def condition(input_locals, npts=None):
         "TPO4",
         "TNH3",
         "TH2S",
-    ]
+        "TB",
+        "TF",
+        "TS",
+        "TCa",
+        "K0",
+        "K1",
+        "K2",
+        "KW",
+        "KB",
+        "KF",
+        "KS",
+        "KP1",
+        "KP2",
+        "KP3",
+        "KSi",
+        "KNH3",
+        "KH2S",
+    }
     for k in args.keys():
         if k in float_vars:
             args[k] = args[k].astype("float64")
@@ -410,6 +427,7 @@ def _CO2SYS(
     # Prepare to solve the core marine carbonate system at input conditions
     if totals is not None:
         totals = condition(totals, npts=npts)[0]
+        totals = {k: v * 1e-6 for k, v in totals.items() if k != "SAL"}
     totals = salts.assemble(
         args["SAL"], TSi, TP, TNH3, TH2S, WhichKs, WhoseTB, totals=totals
     )
@@ -506,21 +524,40 @@ def CO2SYS(
 
 
 def dict2totals(co2dict):
-    """Extract `totals` dict from the `CO2SYS` output dict."""
+    """Extract `totals` dict from the `CO2SYS` output dict with mol/kg units."""
     return dict(
-        # from salinity
+        # From salinity
         TB=co2dict["TB"] * 1e-6,
         TF=co2dict["TF"] * 1e-6,
         TSO4=co2dict["TS"] * 1e-6,
         TCa=co2dict["TCa"] * 1e-6,
-        # from inputs
+        # From inputs
         TPO4=co2dict["PO4"] * 1e-6,
         TSi=co2dict["SI"] * 1e-6,
         TNH3=co2dict["NH3"] * 1e-6,
         TH2S=co2dict["H2S"] * 1e-6,
-        # misc.
+        # Miscellaneous
         Sal=co2dict["SAL"],
         PengCorrection=co2dict["PengCorrection"] * 1e-6,
+    )
+
+
+def dict2totals_umol(co2dict):
+    """Extract `totals` dict from the `CO2SYS` output dict with μmol/kg units."""
+    return dict(
+        # From salinity
+        TB=co2dict["TB"],
+        TF=co2dict["TF"],
+        TSO4=co2dict["TS"],
+        TCa=co2dict["TCa"],
+        # From inputs
+        TPO4=co2dict["PO4"],
+        TSi=co2dict["SI"],
+        TNH3=co2dict["NH3"],
+        TH2S=co2dict["H2S"],
+        # Miscellaneous
+        Sal=co2dict["SAL"],
+        PengCorrection=co2dict["PengCorrection"],
     )
 
 
