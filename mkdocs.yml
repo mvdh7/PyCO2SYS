@@ -43,11 +43,12 @@ theme:
   name: material
   language: en
   palette:
+    scheme: default
     primary: white
     accent: deep orange
   font:
-    text: Roboto
-    code: Roboto Mono
+    text: Noto Sans
+    code: Noto Sans Mono
 
 # Extensions
 markdown_extensions:
