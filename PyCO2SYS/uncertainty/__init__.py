@@ -18,8 +18,8 @@ def derivatives(
     grads_of,
     grads_wrt,
     totals=None,
-    equilibria_input=None,
-    equilibria_output=None,
+    equilibria_in=None,
+    equilibria_out=None,
     dx=1e-8,
     use_explicit=True,
     verbose=True,
@@ -126,11 +126,11 @@ def derivatives(
         ]
     }
     co2args["totals"] = totals
-    co2args["equilibria_input"] = equilibria_input
-    co2args["equilibria_output"] = equilibria_output
+    co2args["equilibria_in"] = equilibria_in
+    co2args["equilibria_out"] = equilibria_out
     # Get totals/Ks values from the `co2dict` too
     co2dict_totals = engine.dict2totals_umol(co2dict)
-    co2dict_Kis, co2dict_Kos = engine.dict2Ks(co2dict)
+    co2dict_Kis, co2dict_Kos = engine.dict2equilibria(co2dict)
     # Preallocate output dict to store the gradients
     co2derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
     # Define gradients that we have explicit methods for, if not unrequested
@@ -173,38 +173,32 @@ def derivatives(
                 elif wrt in Kis_wrt:
                     tco2args = deepcopy(co2args)
                     twrt = wrt.replace("input", "")
-                    if equilibria_input is None:
-                        tco2args["equilibria_input"] = {}
-                    if wrt not in tco2args["equilibria_input"]:
-                        tco2args["equilibria_input"][twrt] = co2dict_Kis[twrt]
+                    if equilibria_in is None:
+                        tco2args["equilibria_in"] = {}
+                    if wrt not in tco2args["equilibria_in"]:
+                        tco2args["equilibria_in"][twrt] = co2dict_Kis[twrt]
 
                     def kfunc(v, tco2args):
-                        tco2args["equilibria_input"][twrt] = v
+                        tco2args["equilibria_in"][twrt] = v
                         return engine._CO2SYS(**tco2args)[of]
 
                     co2derivs[of][wrt] = derivative(
-                        kfunc,
-                        tco2args["equilibria_input"][twrt],
-                        dx=dx,
-                        args=[tco2args],
+                        kfunc, tco2args["equilibria_in"][twrt], dx=dx, args=[tco2args],
                     )
                 elif wrt in Kos_wrt:
                     tco2args = deepcopy(co2args)
                     twrt = wrt.replace("output", "")
-                    if equilibria_input is None:
-                        tco2args["equilibria_output"] = {}
-                    if wrt not in tco2args["equilibria_output"]:
-                        tco2args["equilibria_output"][twrt] = co2dict_Kos[twrt]
+                    if equilibria_in is None:
+                        tco2args["equilibria_out"] = {}
+                    if wrt not in tco2args["equilibria_out"]:
+                        tco2args["equilibria_out"][twrt] = co2dict_Kos[twrt]
 
                     def kfunc(v, tco2args):
-                        tco2args["equilibria_output"][twrt] = v
+                        tco2args["equilibria_out"][twrt] = v
                         return engine._CO2SYS(**tco2args)[of]
 
                     co2derivs[of][wrt] = derivative(
-                        kfunc,
-                        tco2args["equilibria_output"][twrt],
-                        dx=dx,
-                        args=[tco2args],
+                        kfunc, tco2args["equilibria_out"][twrt], dx=dx, args=[tco2args],
                     )
     return co2derivs
 
@@ -214,8 +208,8 @@ def propagate(
     uncertainties_into,
     uncertainties_from,
     totals=None,
-    equilibria_input=None,
-    equilibria_output=None,
+    equilibria_in=None,
+    equilibria_out=None,
     dx=1e-8,
     use_explicit=True,
     verbose=True,
@@ -226,8 +220,8 @@ def propagate(
         uncertainties_into,
         uncertainties_from,
         totals=totals,
-        equilibria_input=equilibria_input,
-        equilibria_output=equilibria_output,
+        equilibria_in=equilibria_in,
+        equilibria_out=equilibria_out,
         dx=dx,
         use_explicit=use_explicit,
         verbose=verbose,

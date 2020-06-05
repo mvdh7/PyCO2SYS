@@ -21,12 +21,12 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
     CO2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
         NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
-        totals=None, equilibria_input=None, equilibria_output=None)
+        totals=None, equilibria_in=None, equilibria_out=None)
     
     # Propagate uncertainties
     uncertainties, components = pyco2.uncertainties.propagate(CO2dict,
         uncertainties_into, uncertainties_from,
-        totals=None, equilibria_input=None, equilibria_output=None,
+        totals=None, equilibria_in=None, equilibria_out=None,
         dx=1e-8, use_explicit=True, verbose=True)
 
 ### Inputs
@@ -55,7 +55,7 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
     #### Internal overrides
 
-    If you provided values for any of the optional [internal overrides](../co2sys/#internal-overrides) (`totals`, `equilibria_input` or `equilibria_output`) when running `PyCO2SYS.CO2SYS`, then you must provide exactly the same inputs again here.
+    If you provided values for any of the optional [internal overrides](../co2sys/#internal-overrides) (`totals`, `equilibria_in` or `equilibria_out`) when running `PyCO2SYS.CO2SYS`, then you must provide exactly the same inputs again here.
 
     #### Settings
 
@@ -84,7 +84,7 @@ PyCO2SYS does not currently have a generalised function for the complete process
 
     :::python
     co2derivs = pyco2.uncertainty.derivatives(co2dict, grads_of, grads_wrt,
-        totals=None, equilibria_input=None, equilibria_output=None,
+        totals=None, equilibria_in=None, equilibria_out=None,
         dx=1e-8, use_explicit=True, verbose=True)
 
 The inputs to `PyCO2SYS.uncertainty.derivatives` are the same as [described above](#inputs) for `PyCO2SYS.uncertainty.propagate` with the following notes:

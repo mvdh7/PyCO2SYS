@@ -468,7 +468,7 @@ def pars2core(co2dict, uncertainties):
     """Do uncertainty propagation."""
     # Extract results from the `co2dict` for convenience
     totals = engine.dict2totals(co2dict)
-    Kis, Kos = engine.dict2Ks(co2dict)
+    Kis, Kos = engine.dict2equilibria(co2dict)
     par1type = co2dict["PAR1TYPE"]
     par2type = co2dict["PAR2TYPE"]
     TA = co2dict["TAlk"] * 1e-6

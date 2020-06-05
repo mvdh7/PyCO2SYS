@@ -375,12 +375,12 @@ def _CO2SYS(
     buffers_mode,
     KSO4CONSTANTS=0,
     totals=None,
-    equilibria_input=None,
-    equilibria_output=None,
+    equilibria_in=None,
+    equilibria_out=None,
 ):
     # Aliases
-    Kis = equilibria_input
-    Kos = equilibria_output
+    Kis = equilibria_in
+    Kos = equilibria_out
     # Condition inputs and assign input values to the 'historical' variable names
     args, npts = condition(
         {
@@ -483,8 +483,8 @@ def CO2SYS(
     KFCONSTANT=1,
     buffers_mode="auto",
     totals=None,
-    equilibria_input=None,
-    equilibria_output=None,
+    equilibria_in=None,
+    equilibria_out=None,
 ):
     """Solve the carbonate system using the input parameters.
 
@@ -518,8 +518,8 @@ def CO2SYS(
         buffers_mode,
         KSO4CONSTANTS=KSO4CONSTANTS,
         totals=totals,
-        equilibria_input=equilibria_input,
-        equilibria_output=equilibria_output,
+        equilibria_in=equilibria_in,
+        equilibria_out=equilibria_out,
     )
 
 
@@ -561,8 +561,8 @@ def dict2totals_umol(co2dict):
     )
 
 
-def dict2Ks(co2dict):
-    """Extract `Kis`/`equilibria_input` and `Kos`/`equilibria_output` dicts from the
+def dict2equilibria(co2dict):
+    """Extract `Kis`/`equilibria_in` and `Kos`/`equilibria_out` dicts from the
     `CO2SYS` output dict.
     """
     Kvars = [

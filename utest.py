@@ -19,7 +19,7 @@ k1k2c = 10
 kso4c = 3
 kfc = 1
 totals = {"TB": 100}
-equilibria_input = {"K1": 10.0 ** -6}
+equilibria_in = {"K1": 10.0 ** -6}
 
 co2dict = pyco2.CO2SYS(
     par1,
@@ -38,7 +38,7 @@ co2dict = pyco2.CO2SYS(
     kso4c,
     KFCONSTANT=kfc,
     totals=totals,
-    equilibria_input=equilibria_input,
+    equilibria_in=equilibria_in,
 )
 
 grads_of = ["CO2out", "OmegaARin", "RFout", "TB", "TF", "K1input", "K1output"]
@@ -57,8 +57,8 @@ co2derivs = pyco2.uncertainty.derivatives(
     grads_wrt,
     dx=1e-8,
     totals=totals,
-    equilibria_input=equilibria_input,
-    equilibria_output=None,
+    equilibria_in=equilibria_in,
+    equilibria_out=None,
     use_explicit=True,
     verbose=True,
 )
@@ -68,6 +68,6 @@ uncertainties, components = pyco2.uncertainty.propagate(
     grads_of,
     grads_wrt,
     totals=totals,
-    equilibria_input=equilibria_input,
-    equilibria_output=None,
+    equilibria_in=equilibria_in,
+    equilibria_out=None,
 )
