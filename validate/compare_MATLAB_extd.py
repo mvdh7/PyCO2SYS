@@ -56,6 +56,6 @@ def test_co2py_matlab():
         if col not in ["RFin", "RFout", "PO4", "SAL", "SI", "H2S", "NH3"]
     ]
     assert np.all(
-        (pmad_co2py_matlab[checkcols] < 1e-3).values
+        (pmad_co2py_matlab[checkcols] < 1e-6).values
         | np.isnan(pmad_co2py_matlab[checkcols].values)
     )

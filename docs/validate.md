@@ -203,8 +203,8 @@ In these tests, the marine carbonate system is solved from every possible combin
 
 !!! success "PyCO2SYS vs CO2SYS-MATLAB"
     * Every variable computed by `PyCO2SYS.CO2SYS` is negligibly different from its counterpart in CO2SYS v2.0.5 for MATLAB, except for the Revelle factor ([see discussion below](#revelle-factor-discrepancy)).
-    * For CO2SYS-MATLAB v2.0.5, the absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum less than 10<sup>−6</sup>%.  The greatest component of these differences arises from the lower tolerance threshold for the iterative pH solvers in PyCO2SYS (10<sup>−8</sup>) compared with their MATLAB counterparts (10<sup>−4</sup>).
-    * For CO2SYS-MATLAB v3, the absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum less than 10<sup>−3</sup>%.
+    * For CO2SYS-MATLAB v2.0.5, the absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum less than 10<sup>−6</sup>%.
+    * For CO2SYS-MATLAB v3, the absolute differences in all compared variables (except the Revelle factor) under the test conditions range from 0 to a maximum less than 10<sup>−6</sup>%.
 
 !!! warning "Nutrients not set to zero in MATLAB outputs"
     * Internally, both PyCO2SYS and CO2SYS-MATLAB set nutrients to zero for `K1K2CONSTANTS` options `6` and `8`, and salinity too for `8`, because these variables should not be taken into account with these parameterisations.
