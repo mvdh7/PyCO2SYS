@@ -48,6 +48,10 @@ Supports uncertainty propagation.
     * The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.
     * The activity coefficient of the H<sup>+</sup> ion for NBS pH scale conversions.
 
+    ***Validation***
+
+    * Calculations compare very favourably against the forthcoming [CO2SYS for MATLAB v3](https://github.com/jonathansharp/CO2-System-Extd) - see [Validation](../validation/#co2sys-for-matlab) for discussion of the results.
+
 ## 1.3
 
 Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.

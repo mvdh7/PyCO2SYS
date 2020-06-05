@@ -4,8 +4,10 @@
 
 from copy import deepcopy
 from scipy.misc import derivative
-from autograd.numpy import array, isin, size, sqrt
+from autograd.numpy import array, isin, ones, size, sqrt
+from autograd.numpy import abs as np_abs
 from autograd.numpy import all as np_all
+from autograd.numpy import any as np_any
 from autograd.numpy import sum as np_sum
 from . import automatic
 from .. import convert, engine
@@ -20,8 +22,8 @@ def derivatives(
     totals=None,
     equilibria_in=None,
     equilibria_out=None,
-    dx=1e-8,
-    use_explicit=True,
+    dx=1e-10,
+    use_explicit=False,
     verbose=True,
 ):
     """Get derivatives of `co2dict` values w.r.t. the main function inputs.
@@ -32,6 +34,10 @@ def derivatives(
     `grads_wrt` is a list of `PyCO2SYS.CO2SYS` input variable names that you want to
     calculate the derivatives with respect to, or a single name, or `"all"`.
     """
+    if use_explicit:
+        print(
+            "Warning - `use_explicit=True` does not always return the correct answer!"
+        )
 
     def printv(*args, **kwargs):
         if verbose:
@@ -141,7 +147,14 @@ def derivatives(
         for wrt in pars_requested:
             for of, v in p1p2u[wrt].items():
                 if of in grads_of:
-                    co2derivs[of][wrt] = v
+                    # Convert units from mol to micromol where needed
+                    vmult = ones(size(v))
+                    x = co2dict["{}TYPE".format(wrt)] == 3  # i.e. PAR w.r.t. is pH
+                    if np_any(x):
+                        vmult[x] = 1e6
+                    if of in ["pHin", "pHout"]:
+                        vmult *= 1e-6
+                    co2derivs[of][wrt] = v * vmult
     # Get central difference derivatives for the rest
     for of in grads_of:
         printv("Computing derivatives of {}...".format(of))
@@ -211,7 +224,7 @@ def propagate(
     equilibria_in=None,
     equilibria_out=None,
     dx=1e-8,
-    use_explicit=True,
+    use_explicit=False,
     verbose=True,
 ):
     """Propagate uncertainties from requested inputs to outputs."""
@@ -230,7 +243,7 @@ def propagate(
     uncertainties_from = engine.condition(uncertainties_from, npts=npts)[0]
     components = {
         u_into: {
-            u_from: co2derivs[u_into][u_from] * v_from
+            u_from: np_abs(co2derivs[u_into][u_from]) * v_from
             for u_from, v_from in uncertainties_from.items()
         }
         for u_into in uncertainties_into

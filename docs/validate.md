@@ -159,6 +159,12 @@ Although explicit check values are not available, we can attempt to recreate fig
 
 Switching between `buffers_mode='explicit'` and `buffers_mode='auto'` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
 
+### Uncertainty propagation
+
+The uncertainty propagation calculations have been tested by comparing the directly calculated results with those of Monte-Carlo simulations (also conducted using PyCO2SYS).  The tests have not identified any significant differences between these independent approaches.
+
+You can see the tests that have been conducted, and run them for yourself, with the [test scripts on GitHub](https://github.com/mvdh7/PyCO2SYS/tree/master/tests).
+
 ## External comparisons
 
 ### CO2SYS for MATLAB
