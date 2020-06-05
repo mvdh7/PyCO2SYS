@@ -192,7 +192,7 @@ PyCO2SYS now calculates a wider array of properties than this version of CO2SYS 
     
     The new extended MATLAB version includes the full range of input marine carbonate system parameters, NH<sub>3</sub> and H<sub>2</sub>S, and the [PF87](../refs/#p) input option for the hydrogen fluoride [dissociation constant](../co2sys/#settings).
 
-    However, it still cannot be used to validate the [buffer factors](../co2sys/#buffer-factors) (again, except for the Revelle factor), nor the [total calcium](../co2sys/#totals-estimated-from-salinity) molinity.
+    However, it still cannot be used to validate the [buffer factors](../co2sys/#buffer-factors) (again, except for the Revelle factor), nor directly the [total calcium](../co2sys/#totals-estimated-from-salinity) molinity.
 
 !!! tip "Do it yourself"
 
