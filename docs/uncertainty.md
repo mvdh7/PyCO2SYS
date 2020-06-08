@@ -61,6 +61,8 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
     If you provided values for any of the optional [internal overrides](../co2sys/#internal-overrides) (`totals`, `equilibria_in` or `equilibria_out`) when running `PyCO2SYS.CO2SYS`, then you must provide exactly the same inputs again here.
 
+    You do not need to provide an internal override value in order to propagate uncertainty in that variable.
+
     #### Settings
 
     These are all optional.
