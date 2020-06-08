@@ -255,10 +255,10 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "PRESIN": args["PRESIN"],
         "PRESOUT": args["PRESOUT"],
         "SAL": totals["Sal"],  # v1.4.0: take from totals, not args
-        "PO4": totals["TPO4"],  # v1.4.0: take from totals, not args
-        "SI": totals["TSi"],  # v1.4.0: take from totals, not args
-        "NH3": totals["TNH3"],  # v1.4.0: take from totals, not args
-        "H2S": totals["TH2S"],  # v1.4.0: take from totals, not args
+        "PO4": totals["TPO4"] * 1e6,  # v1.4.0: take from totals, not args
+        "SI": totals["TSi"] * 1e6,  # v1.4.0: take from totals, not args
+        "NH3": totals["TNH3"] * 1e6,  # v1.4.0: take from totals, not args
+        "H2S": totals["TH2S"] * 1e6,  # v1.4.0: take from totals, not args
         "K0input": Kis["K0"],
         "K1input": Kis["K1"],
         "K2input": Kis["K2"],
@@ -323,9 +323,9 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "FugFacoutput": Kos["FugFac"],
         "fHinput": Kis["fH"],
         "fHoutput": Kos["fH"],
-        "TSO4": totals["TSO4"] * 1e6,
-        "KSO4input": Kis["KSO4"],
-        "KSO4output": Kos["KSO4"],
+        "TSO4": totals["TSO4"] * 1e6,  # will eventually replace "TS"
+        "KSO4input": Kis["KSO4"],  # will eventually replace "KSinput"
+        "KSO4output": Kos["KSO4"],  # will eventually replace "KSoutput"
     }
 
 

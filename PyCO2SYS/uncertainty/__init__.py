@@ -3,8 +3,7 @@
 """Propagate uncertainties through marine carbonate system calculations."""
 
 from copy import deepcopy
-from scipy.misc import derivative
-from autograd.numpy import array, isin, ones, size, sqrt
+from autograd.numpy import array, isin, median, ones, size, sqrt
 from autograd.numpy import abs as np_abs
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
@@ -15,35 +14,63 @@ from .. import engine
 __all__ = ["automatic"]
 
 
-def derivatives(
+def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
+    assert dx_scaling in [
+        "none",
+        "median",
+        "custom",
+    ], "`dx_scaling` must be 'none' or 'median'."
+    if dx_scaling == "none":
+        dx_wrt = dx
+    elif dx_scaling == "median":
+        median_var = median(var)
+        if median_var == 0:
+            dx_wrt = dx
+        else:
+            dx_wrt = dx * np_abs(median_var)
+    elif dx_scaling == "custom":
+        dx_wrt = dx_func(var)
+    return dx_wrt
+
+
+def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func):
+    if kwarg == "equilibria_in":
+        wrt_stem = wrt.replace("input", "")
+    elif kwarg == "equilibria_out":
+        wrt_stem = wrt.replace("output", "")
+    else:
+        wrt_stem = wrt
+    if co2kwargs_plus[kwarg] is None:
+        co2kwargs_plus[kwarg] = {wrt_stem: co2dict[wrt]}
+    if wrt not in co2kwargs_plus[kwarg]:
+        co2kwargs_plus[kwarg].update({wrt_stem: co2dict[wrt]})
+    dx_wrt = _get_dx_wrt(
+        dx, co2kwargs_plus[kwarg][wrt_stem], dx_scaling, dx_func=dx_func
+    )
+    co2kwargs_plus[kwarg][wrt_stem] = co2kwargs_plus[kwarg][wrt_stem] + dx_wrt
+    return co2kwargs_plus, dx_wrt
+
+
+def forward(
     co2dict,
     grads_of,
     grads_wrt,
     totals=None,
     equilibria_in=None,
     equilibria_out=None,
-    dx=1e-10,
-    use_explicit=False,
-    verbose=True,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
 ):
-    """Get derivatives of `co2dict` values w.r.t. the main function inputs.
+    """Get forward finite-difference derivatives of CO2SYS outputs w.r.t. inputs.
 
-    `co2dict` is output by `PyCO2SYS.CO2SYS`.
+    `co2dict` must first be generated with `PyCO2SYS.CO2SYS`.
     `grads_of` is a list of keys from `co2dict` that you want to calculate the
     derivatives of, or a single key, or `"all"`.
     `grads_wrt` is a list of `PyCO2SYS.CO2SYS` input variable names that you want to
     calculate the derivatives with respect to, or a single name, or `"all"`.
     """
-    if use_explicit:
-        print(
-            "Warning - `use_explicit=True` does not always return the correct answer!"
-        )
-
-    def printv(*args, **kwargs):
-        if verbose:
-            print(*args, **kwargs)
-
-    # Derivatives can be calculated w.r.t. these inputs only
+    # Derivatives can be calculated wrt. these inputs only
     inputs_wrt = [
         "PAR1",
         "PAR2",
@@ -77,7 +104,7 @@ def derivatives(
     ]
     Kis_wrt = ["{}input".format(K) for K in Ks_wrt]
     Kos_wrt = ["{}output".format(K) for K in Ks_wrt]
-    # If only a single w.r.t. is requested, check it's allowed & convert to list
+    # If only a single `grads_wrt` is requested, check it's allowed & convert to list
     groups_wrt = ["all", "measurements", "totals", "equilibria_in", "equilibria_out"]
     all_wrt = groups_wrt + inputs_wrt + totals_wrt + Kis_wrt + Kos_wrt
     if isinstance(grads_wrt, str):
@@ -94,18 +121,19 @@ def derivatives(
             grads_wrt = Kos_wrt
         else:
             grads_wrt = [grads_wrt]
-    # Make sure all requested w.r.t.'s are allowed
+    # Make sure all requested `grads_wrt` are allowed
     assert np_all(isin(list(grads_wrt), all_wrt)), "Invalid `grads_wrt` requested."
-    # If only a single grad of is requested, check it's allowed & convert to list
+    # If only a single `grads_of` is requested, check it's allowed & convert to list
     if isinstance(grads_of, str):
-        assert grads_of in ["all"] + engine.gradables
+        assert grads_of in ["all"] + list(engine.gradables)
         if grads_of == "all":
             grads_of = engine.gradables
         else:
             grads_of = [grads_of]
-    # Make sure all requested grads of are allowed
+    # Final validity checks
     assert np_all(isin(grads_of, engine.gradables)), "Invalid `grads_of` requested."
-    # Assemble dict of input arguments for engine._CO2SYS()
+    assert dx > 0, "`dx` must be positive."
+    # Assemble input arguments for engine._CO2SYS()
     co2args = {
         arg: co2dict[arg]
         for arg in [
@@ -128,92 +156,63 @@ def derivatives(
             "KFCONSTANT",
             "BORON",
             "buffers_mode",
-            "KSO4CONSTANTS",
         ]
     }
-    co2args["totals"] = totals
-    co2args["equilibria_in"] = equilibria_in
-    co2args["equilibria_out"] = equilibria_out
-    # Get totals/Ks values from the `co2dict` too
-    co2dict_totals = engine.dict2totals_umol(co2dict)
-    co2dict_Kis, co2dict_Kos = engine.dict2equilibria(co2dict)
+    co2kwargs = {
+        "KSO4CONSTANTS": co2dict["KSO4CONSTANTS"],
+        "totals": totals,
+        "equilibria_in": equilibria_in,
+        "equilibria_out": equilibria_out,
+    }
     # Preallocate output dict to store the gradients
     co2derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
-    # Define gradients that we have explicit methods for, if not unrequested
-    if use_explicit:
-        # Use automatic derivatives for PAR1/PAR2 propagation into core MCS
-        pars_requested = [wrt for wrt in grads_wrt if wrt in ["PAR1", "PAR2"]]
-        p1p2u = automatic.pars2core(co2dict, pars_requested)
-        for wrt in pars_requested:
-            for of, v in p1p2u[wrt].items():
-                if of in grads_of:
-                    # Convert units from mol to micromol where needed
-                    vmult = ones(size(v))
-                    x = co2dict["{}TYPE".format(wrt)] == 3  # i.e. PAR w.r.t. is pH
-                    if np_any(x):
-                        vmult[x] = 1e6
-                    if of in ["pHin", "pHout"]:
-                        vmult *= 1e-6
-                    co2derivs[of][wrt] = v * vmult
-    # Get central difference derivatives for the rest
-    for of in grads_of:
-        printv("Computing derivatives of {}...".format(of))
-        for wrt in grads_wrt:
-            if co2derivs[of][wrt] is None:
-                if wrt in inputs_wrt:
-
-                    def kfunc(v, co2args):
-                        co2args[wrt] = v
-                        return engine._CO2SYS(**co2args)[of]
-
-                    co2derivs[of][wrt] = derivative(
-                        kfunc, co2args[wrt], dx=dx, args=[co2args]
-                    )
-                elif wrt in totals_wrt:
-                    tco2args = deepcopy(co2args)
-                    if totals is None:
-                        tco2args["totals"] = {}
-                    if wrt not in tco2args["totals"]:
-                        tco2args["totals"][wrt] = co2dict_totals[wrt]
-
-                    def kfunc(v, tco2args):
-                        tco2args["totals"][wrt] = v
-                        return engine._CO2SYS(**tco2args)[of]
-
-                    co2derivs[of][wrt] = derivative(
-                        kfunc, tco2args["totals"][wrt], dx=dx, args=[tco2args]
-                    )
-                elif wrt in Kis_wrt:
-                    tco2args = deepcopy(co2args)
-                    twrt = wrt.replace("input", "")
-                    if equilibria_in is None:
-                        tco2args["equilibria_in"] = {}
-                    if wrt not in tco2args["equilibria_in"]:
-                        tco2args["equilibria_in"][twrt] = co2dict_Kis[twrt]
-
-                    def kfunc(v, tco2args):
-                        tco2args["equilibria_in"][twrt] = v
-                        return engine._CO2SYS(**tco2args)[of]
-
-                    co2derivs[of][wrt] = derivative(
-                        kfunc, tco2args["equilibria_in"][twrt], dx=dx, args=[tco2args],
-                    )
-                elif wrt in Kos_wrt:
-                    tco2args = deepcopy(co2args)
-                    twrt = wrt.replace("output", "")
-                    if equilibria_in is None:
-                        tco2args["equilibria_out"] = {}
-                    if wrt not in tco2args["equilibria_out"]:
-                        tco2args["equilibria_out"][twrt] = co2dict_Kos[twrt]
-
-                    def kfunc(v, tco2args):
-                        tco2args["equilibria_out"][twrt] = v
-                        return engine._CO2SYS(**tco2args)[of]
-
-                    co2derivs[of][wrt] = derivative(
-                        kfunc, tco2args["equilibria_out"][twrt], dx=dx, args=[tco2args],
-                    )
-    return co2derivs
+    dxs = {wrt: None for wrt in grads_wrt}
+    # Estimate the gradients with central differences
+    for wrt in grads_wrt:
+        # Make copies of input args to modify
+        co2args_plus = deepcopy(co2args)
+        co2kwargs_plus = deepcopy(co2kwargs)
+        # Perturb if `wrt` is one of the main inputs to CO2SYS
+        if wrt in inputs_wrt:
+            dx_wrt = _get_dx_wrt(
+                dx, median(co2args_plus[wrt]), dx_scaling, dx_func=dx_func
+            )
+            co2args_plus[wrt] = co2args_plus[wrt] + dx_wrt
+        # Perturb if `wrt` is one of the `totals` internal overrides
+        elif wrt in totals_wrt:
+            co2kwargs_plus, dx_wrt = _overridekwargs(
+                co2dict, co2kwargs_plus, "totals", wrt, dx, dx_scaling, dx_func=dx_func
+            )
+        # Perturb if `wrt` is one of the `equilibria_in` internal overrides
+        elif wrt in Kis_wrt:
+            co2kwargs_plus, dx_wrt = _overridekwargs(
+                co2dict,
+                co2kwargs_plus,
+                "equilibria_in",
+                wrt,
+                dx,
+                dx_scaling,
+                dx_func=dx_func,
+            )
+        # Perturb if `wrt` is one of the `equilibria_out` internal overrides
+        elif wrt in Kos_wrt:
+            co2kwargs_plus, dx_wrt = _overridekwargs(
+                co2dict,
+                co2kwargs_plus,
+                "equilibria_out",
+                wrt,
+                dx,
+                dx_scaling,
+                dx_func=dx_func,
+            )
+        # Solve CO2SYS with the perturbation applied
+        co2dict_plus = engine._CO2SYS(**co2args_plus, **co2kwargs_plus)
+        dxs[wrt] = dx_wrt
+        # Extract results and calculate forward finite difference derivatives
+        for of in grads_of:
+            if co2derivs[of][wrt] is None:  # don't overwrite existing derivatives
+                co2derivs[of][wrt] = (co2dict_plus[of] - co2dict[of]) / dx_wrt
+    return co2derivs, dxs
 
 
 def propagate(
@@ -223,12 +222,12 @@ def propagate(
     totals=None,
     equilibria_in=None,
     equilibria_out=None,
-    dx=1e-8,
-    use_explicit=False,
-    verbose=True,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
 ):
     """Propagate uncertainties from requested inputs to outputs."""
-    co2derivs = derivatives(
+    co2derivs = forward(
         co2dict,
         uncertainties_into,
         uncertainties_from,
@@ -236,9 +235,9 @@ def propagate(
         equilibria_in=equilibria_in,
         equilibria_out=equilibria_out,
         dx=dx,
-        use_explicit=use_explicit,
-        verbose=verbose,
-    )
+        dx_scaling=dx_scaling,
+        dx_func=dx_func,
+    )[0]
     npts = size(co2dict["PAR1"])
     uncertainties_from = engine.condition(uncertainties_from, npts=npts)[0]
     components = {

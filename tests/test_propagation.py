@@ -30,12 +30,12 @@ kwargs = {"NH3": nh3, "H2S": h2s, "KFCONSTANT": kfc, "buffers_mode": buffers_mod
 # def compare_Kunc_in(p1, p2, Kstr):
 #     mcsize = 10000
 #     Kunc_pct = 0.05
-#     co2d = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2], 
+#     co2d = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2],
 #                         partypes[p1], partypes[p2], *args, **kwargs)
 #     equilibria_in = {Kstr: np.random.normal(loc=co2d["{}input".format(Kstr)][0],
 #                                             scale=co2d["{}input".format(Kstr)][0]*Kunc_pct,
 #                                             size=mcsize)}
-#     co2d_mcsim = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2], 
+#     co2d_mcsim = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2],
 #                         partypes[p1], partypes[p2], *args, **kwargs,
 #                         equilibria_in=equilibria_in)
 #     testvar = "OmegaARin"
@@ -48,7 +48,7 @@ kwargs = {"NH3": nh3, "H2S": h2s, "KFCONSTANT": kfc, "buffers_mode": buffers_mod
 #     print(uncertainties[testvar][0])
 #     print(comparison)
 #     assert comparison < 5
-    
+
 
 # compare_Kunc_in(1, 2, "K2")
 

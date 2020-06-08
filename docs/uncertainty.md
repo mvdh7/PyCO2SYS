@@ -4,7 +4,11 @@ PyCO2SYS provides tools to propagate uncertainties both in input parameters and 
 
 !!! question "Evaluating the derivatives"
 
-    All derivatives needed for uncertainty propagation are calculated numerically using central differences, as implemented by [`scipy.misc.derivative`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.misc.derivative.html).
+    All derivatives needed for uncertainty propagation are calculated using *forward finite-differences*.  Explicity, the derivative of output variable $f$ with respect to input $x$ is estimated with:
+
+    $f'(x) \approx \frac{f(x + \Delta x) - f(x)}{\Delta x}$
+
+    As the input variables span many orders of magnitude, PyCO2SYS by default uses $\Delta x = 10^{-6} \cdot \mathrm{median}(x)$, which is different for each input variable.  However, this behaviour can be adjusted (see [Settings](#settings) below).
 
 ## Independent uncertainties
 
@@ -27,7 +31,7 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
     uncertainties, components = pyco2.uncertainty.propagate(
         CO2dict, uncertainties_into, uncertainties_from,
         totals=None, equilibria_in=None, equilibria_out=None,
-        dx=1e-8, verbose=True)
+        dx=1e-6, dx_scaling="median", dx_func=None)
 
 ### Inputs
 
@@ -61,8 +65,12 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 
     These are all optional.
 
-      * `dx`: controls the spacing for central difference derivatives (default = 10<sup>−8</sup>).  Passed to [`scipy.misc.derivative`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.misc.derivative.html).
-      * `verbose`: controls whether progress in calculating derivatives is printed out (`True`, default) or not (`False`).
+      * `dx`: controls the spacing multiplier for forward finite-difference derivatives (default = 10<sup>−6</sup>).  Can be either a single value or a one-dimensional array the same size as each entry of the `co2dict`.
+      * `dx_scaling`: determines the method used to scale `dx`.  Options are, for each input variable `var`:
+        - `"median"` (default): `dx[var] = dx * median(var)`.
+        - `"none"`: `dx[var] = dx`.
+        - `"custom"`: `dx[var] = dx_func(var)`, where:
+      * `dx_func`: user-provided function to calculate `dx[var]` from `var` values; only used if `dx_scaling="custom"`.
 
 ### Outputs
 
@@ -82,13 +90,15 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
 PyCO2SYS does not currently have a generalised function for the complete process of propagating uncertainties that co-vary.  However, you can easily calculate the derivative of any output with respect to any input and use these to propagate uncertainties in any specific case:
 
     :::python
-    co2derivs = pyco2.uncertainty.derivatives(co2dict, grads_of, grads_wrt,
+    co2derivs, dxs = pyco2.uncertainty.forward(co2dict, grads_of, grads_wrt,
         totals=None, equilibria_in=None, equilibria_out=None,
-        dx=1e-8, use_explicit=True, verbose=True)
+        dx=1e-6, dx_scaling="median", dx_func=None)
 
-The inputs to `PyCO2SYS.uncertainty.derivatives` are the same as [described above](#inputs) for `PyCO2SYS.uncertainty.propagate` with the following notes:
+The inputs to `PyCO2SYS.uncertainty.forward` are the same as [described above](#inputs) for `PyCO2SYS.uncertainty.propagate` with the following notes:
 
   * `grads_of` can be the same as `uncertainties_from`, in which case the values are ignored, or more simply just `list(uncertainties_from.keys())`.
   * `grads_wrt` is the same as `uncertainties_into`.
 
-The single output `co2derivs` is a dict with the same structure as the [`components` output](#outputs) of `PyCO2SYS.uncertainty.propagate`, containing the derivatives of each output variable in `grads_of` with respect to each input parameter in `grads_wrt`.
+The output `co2derivs` is a dict with the same structure as the [`components` output](#outputs) of `PyCO2SYS.uncertainty.propagate`, containing the derivatives of each output variable in `grads_of` with respect to each input parameter in `grads_wrt`.
+
+The output `dxs` is a dict containing the actual `dx` values used for each variable after scaling.
