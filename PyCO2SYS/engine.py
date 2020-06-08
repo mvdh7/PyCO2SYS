@@ -267,7 +267,7 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "KWinput": Kis["KW"],
         "KBinput": Kis["KB"],
         "KFinput": Kis["KF"],
-        "KSinput": Kis["KSO4"],
+        "KSinput": Kis["KSO4"],  # to be replaced by "KSO4input"
         "KP1input": Kis["KP1"],
         "KP2input": Kis["KP2"],
         "KP3input": Kis["KP3"],
@@ -282,7 +282,7 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "KWoutput": Kos["KW"],
         "KBoutput": Kos["KB"],
         "KFoutput": Kos["KF"],
-        "KSoutput": Kos["KSO4"],
+        "KSoutput": Kos["KSO4"],  # to be replaced by "KSO4output"
         "KP1output": Kos["KP1"],
         "KP2output": Kos["KP2"],
         "KP3output": Kos["KP3"],
@@ -291,7 +291,7 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "KH2Soutput": Kos["KH2S"],
         "TB": totals["TB"] * 1e6,
         "TF": totals["TF"] * 1e6,
-        "TS": totals["TSO4"] * 1e6,
+        "TS": totals["TSO4"] * 1e6,  # to be replaced by "TSO4"
         # Added in v1.2.0:
         "gammaTCin": others_in["gammaTC"],
         "betaTCin": others_in["betaTC"],
@@ -323,6 +323,9 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "FugFacoutput": Kos["FugFac"],
         "fHinput": Kis["fH"],
         "fHoutput": Kos["fH"],
+        "TSO4": totals["TSO4"] * 1e6,
+        "KSO4input": Kis["KSO4"],
+        "KSO4output": Kos["KSO4"],
     }
 
 
@@ -524,12 +527,12 @@ def CO2SYS(
 
 
 def dict2totals(co2dict):
-    """Extract `totals` dict from the `CO2SYS` output dict with mol/kg units."""
+    """Extract `totals` dict in mol/kg from the `CO2SYS` output dict."""
     return dict(
         # From salinity
         TB=co2dict["TB"] * 1e-6,
         TF=co2dict["TF"] * 1e-6,
-        TSO4=co2dict["TS"] * 1e-6,
+        TSO4=co2dict["TSO4"] * 1e-6,
         TCa=co2dict["TCa"] * 1e-6,
         # From inputs
         TPO4=co2dict["PO4"] * 1e-6,
@@ -543,12 +546,12 @@ def dict2totals(co2dict):
 
 
 def dict2totals_umol(co2dict):
-    """Extract `totals` dict from the `CO2SYS` output dict with μmol/kg units."""
+    """Extract `totals` dict in μmol/kg from the `CO2SYS` output dict."""
     return dict(
         # From salinity
         TB=co2dict["TB"],
         TF=co2dict["TF"],
-        TSO4=co2dict["TS"],
+        TSO4=co2dict["TSO4"],
         TCa=co2dict["TCa"],
         # From inputs
         TPO4=co2dict["PO4"],
@@ -572,6 +575,7 @@ def dict2equilibria(co2dict):
         "KW",
         "KB",
         "KF",
+        "KSO4",
         "KP1",
         "KP2",
         "KP3",
@@ -582,7 +586,5 @@ def dict2equilibria(co2dict):
         "fH",
     ]
     Kis = {Kvar: co2dict[Kvar + "input"] for Kvar in Kvars}
-    Kis["KSO4"] = co2dict["KSinput"]
     Kos = {Kvar: co2dict[Kvar + "output"] for Kvar in Kvars}
-    Kos["KSO4"] = co2dict["KSoutput"]
     return Kis, Kos
