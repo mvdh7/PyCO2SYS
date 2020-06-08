@@ -26,12 +26,12 @@ PyCO2SYS/uncertainty/__init__.py      113     61    46%
 PyCO2SYS/uncertainty/automatic.py     457     45    90%
 tests/__init__.py                       0      0   100%
 tests/test_api.py                      29      4    86%
-tests/test_overrides.py                14      0   100%
-tests/test_propagation.py              78      2    97%
+tests/test_overrides.py                15      0   100%
+tests/test_propagation.py              75      2    97%
 tests/test_uncertainty.py             262      0   100%
 validate/buffers_auto_explicit.py      16      0   100%
 validate/compare_MATLAB_extd.py        18      0   100%
 validate/compare_MATLABv2_0_5.py       27      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3129    175    94%
+TOTAL                                3127    175    94%
