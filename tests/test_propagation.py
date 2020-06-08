@@ -27,6 +27,32 @@ args = (sal, tempin, tempout, presin, presout, si, po4, phscale, k1k2c, kso4c)
 kwargs = {"NH3": nh3, "H2S": h2s, "KFCONSTANT": kfc, "buffers_mode": buffers_mode}
 
 
+def compare_Kunc_in(p1, p2, Kstr):
+    mcsize = 10000
+    Kunc_pct = 0.05
+    co2d = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2], 
+                        partypes[p1], partypes[p2], *args, **kwargs)
+    equilibria_in = {Kstr: np.random.normal(loc=co2d["{}input".format(Kstr)][0],
+                                            scale=co2d["{}input".format(Kstr)][0]*Kunc_pct,
+                                            size=mcsize)}
+    co2d_mcsim = pyco2.CO2SYS(np.full(mcsize, pars_true[p1]), pars_true[p2], 
+                        partypes[p1], partypes[p2], *args, **kwargs,
+                        equilibria_in=equilibria_in)
+    testvar = "OmegaARin"
+    testunc_Mcsim = np.std(co2d_mcsim[testvar])
+    uncertainties, components = pyco2.uncertainty.propagate(
+        co2d, [testvar], {"{}input".format(Kstr): Kunc_pct * co2d["{}input".format(Kstr)][0]}
+    )
+    comparison = 100 * np.abs((testunc_Mcsim - uncertainties[testvar][0]) / uncertainties[testvar][0])
+    print(testunc_Mcsim)
+    print(uncertainties[testvar][0])
+    print(comparison)
+    assert comparison < 5
+    
+
+compare_Kunc_in(1, 2, "K2")
+
+
 def compare_par1par2(i, fixedpartype, uncertainties_in):
     fixedpar = partypes == fixedpartype
     par1s_true = pars_true[~fixedpar]
@@ -56,9 +82,9 @@ def compare_par1par2(i, fixedpartype, uncertainties_in):
     umc1 = np.std(co2d_par1sim[uncertainties_in[0]])
     umc2 = np.std(co2d_par2sim[uncertainties_in[0]])
     umcBoth = np.std(co2d_bothsim[uncertainties_in[0]])
-    print(umc1, umc2, umcBoth)
-    print(components)
-    print(uncertainties)
+    # print(umc1, umc2, umcBoth)
+    # print(components)
+    # print(uncertainties)
 
     # Get percentage differences between Monte-Carlo and direct
     def get_compare(montecarlo, direct):

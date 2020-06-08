@@ -10,7 +10,7 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import sum as np_sum
 from . import automatic
-from .. import convert, engine
+from .. import engine
 
 __all__ = ["automatic"]
 
