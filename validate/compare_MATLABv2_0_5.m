@@ -1,3 +1,6 @@
+% Get CO2SYS.m from https://github.com/jamesorr/CO2SYS-MATLAB/blob/master/src/CO2SYS.m
+% and rename to CO2SYSv2_0_5 (both the filename and the main function).
+
 %% Set up input conditions
 PARvalues = [2250 2100 8.1 400 405];
 PARTYPEs = 1:5;
