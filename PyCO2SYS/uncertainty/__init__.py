@@ -3,7 +3,7 @@
 """Propagate uncertainties through marine carbonate system calculations."""
 
 from copy import deepcopy
-from autograd.numpy import array, isin, median, ones, size, sqrt
+from autograd.numpy import array, isin, log10, median, ones, size, sqrt
 from autograd.numpy import abs as np_abs
 from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
@@ -37,6 +37,9 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
 def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func):
     """Generate `co2kwargs_plus` and scale `dx` for internal override derivatives."""
     # Reformat variable names for the kwargs dicts
+    ispK = wrt.startswith("pK")
+    if ispK:
+        wrt = wrt[1:]
     if kwarg == "equilibria_in":
         wrt_stem = wrt.replace("input", "")
     elif kwarg == "equilibria_out":
@@ -50,10 +53,15 @@ def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func
     if wrt not in co2kwargs_plus[kwarg]:
         co2kwargs_plus[kwarg].update({wrt_stem: co2dict[wrt]})
     # Scale dx and add it to the `co2kwargs_plus` dict
-    dx_wrt = _get_dx_wrt(
-        dx, co2kwargs_plus[kwarg][wrt_stem], dx_scaling, dx_func=dx_func
-    )
-    co2kwargs_plus[kwarg][wrt_stem] = co2kwargs_plus[kwarg][wrt_stem] + dx_wrt
+    if ispK:
+        pKvalues = -log10(co2kwargs_plus[kwarg][wrt_stem])
+        dx_wrt = _get_dx_wrt(dx, pKvalues, dx_scaling, dx_func=dx_func)
+        pKvalues_plus = pKvalues + dx_wrt
+        co2kwargs_plus[kwarg][wrt_stem] = 10.0 ** -pKvalues_plus
+    else:
+        Kvalues = co2kwargs_plus[kwarg][wrt_stem]
+        dx_wrt = _get_dx_wrt(dx, Kvalues, dx_scaling, dx_func=dx_func)
+        co2kwargs_plus[kwarg][wrt_stem] = Kvalues + dx_wrt
     return co2kwargs_plus, dx_wrt
 
 
@@ -124,9 +132,11 @@ def forward(
     ]
     Kis_wrt = ["{}input".format(K) for K in Ks_wrt]
     Kos_wrt = ["{}output".format(K) for K in Ks_wrt]
+    pKis_wrt = ["p{}input".format(K) for K in Ks_wrt if K.startswith("K")]
+    pKos_wrt = ["p{}output".format(K) for K in Ks_wrt if K.startswith("K")]
     # If only a single `grads_wrt` is requested, check it's allowed & convert to list
     groups_wrt = ["all", "measurements", "totals", "equilibria_in", "equilibria_out"]
-    all_wrt = inputs_wrt + totals_wrt + Kis_wrt + Kos_wrt
+    all_wrt = inputs_wrt + totals_wrt + Kis_wrt + Kos_wrt + pKis_wrt + pKos_wrt
     if isinstance(grads_wrt, str):
         assert grads_wrt in (all_wrt + groups_wrt)
         if grads_wrt == "all":
@@ -205,6 +215,18 @@ def forward(
             )
         # Perturb if `wrt` is one of the `equilibria_in` internal overrides
         elif wrt in Kis_wrt:
+            co2kwargs_plus, dx_wrt = _overridekwargs(
+                co2dict,
+                co2kwargs_plus,
+                "equilibria_in",
+                wrt,
+                dx,
+                dx_scaling,
+                dx_func=dx_func,
+            )
+        # Perturb if `wrt` is one of the `equilibria_in` internal overrides and the pK
+        # derivative is requested
+        elif wrt in pKis_wrt:
             co2kwargs_plus, dx_wrt = _overridekwargs(
                 co2dict,
                 co2kwargs_plus,
