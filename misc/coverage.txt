@@ -22,11 +22,11 @@ PyCO2SYS/solve/delta.py                33      5    85%
 PyCO2SYS/solve/get.py                 194     12    94%
 PyCO2SYS/solve/initialise.py           55      0   100%
 PyCO2SYS/test.py                       31      0   100%
-PyCO2SYS/uncertainty/__init__.py       93     17    82%
+PyCO2SYS/uncertainty/__init__.py       93     14    85%
 PyCO2SYS/uncertainty/automatic.py     457     45    90%
 tests/__init__.py                       0      0   100%
 tests/test_api.py                      29      4    86%
-tests/test_derivatives.py              29      0   100%
+tests/test_derivatives.py              39      0   100%
 tests/test_overrides.py                15      0   100%
 tests/test_propagation.py             103      0   100%
 tests/test_uncertainty.py             262      0   100%
@@ -35,4 +35,4 @@ validate/compare_MATLAB_extd.py        18      0   100%
 validate/compare_MATLABv2_0_5.py       27      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3162    129    96%
+TOTAL                                3172    126    96%

@@ -1,5 +1,4 @@
 # Test the propagation calculations against Monte-Carlo simulations
-
 import PyCO2SYS as pyco2
 import numpy as np
 
@@ -27,8 +26,8 @@ args = (sal, tempin, tempout, presin, presout, si, po4, phscale, k1k2c, kso4c)
 kwargs = {"NH3": nh3, "H2S": h2s, "KFCONSTANT": kfc, "buffers_mode": buffers_mode}
 
 
-# Get percentage differences between Monte-Carlo and direct
 def get_compare(montecarlo, direct):
+    """Robustly get percentage differences between Monte-Carlo and direct methods."""
     if direct == 0:
         assert montecarlo < 1e-12
         compare = np.array([0.0])
@@ -158,7 +157,6 @@ def compare_par1par2(i, fixedpartype, uncertainties_in):
     uncertainties, components = pyco2.uncertainty.propagate(
         co2d, uncertainties_in, {"PAR1": par1u_true[i], "PAR2": par2u_true[i]}
     )
-
     # Estimate the same with Monte-Carlo simulation
     mcsize = (10000,)
     par1sim = np.random.normal(size=mcsize, loc=par1, scale=par1u_true[i])
@@ -169,7 +167,6 @@ def compare_par1par2(i, fixedpartype, uncertainties_in):
     umc1 = np.std(co2d_par1sim[uncertainties_in[0]])
     umc2 = np.std(co2d_par2sim[uncertainties_in[0]])
     umcBoth = np.std(co2d_bothsim[uncertainties_in[0]])
-
     compare1 = get_compare(umc1, components[uncertainties_in[0]]["PAR1"])
     compare2 = get_compare(umc2, components[uncertainties_in[0]]["PAR2"])
     compareBoth = get_compare(umcBoth, uncertainties[uncertainties_in[0]])

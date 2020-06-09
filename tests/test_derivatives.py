@@ -1,5 +1,4 @@
-# There aren't actually any tests in here right now
-
+# Check that the outputs of PyCO2SYS.uncertainty.forward are all dicts of floats
 import PyCO2SYS as pyco2
 import numpy as np
 
@@ -50,7 +49,21 @@ co2dict = pyco2.CO2SYS(
 )
 # - propagate the uncertainties
 grads_of = "all"
-grads_wrt = ["PAR1", "PAR2", "TB", "K1input"]
+grads_wrt = "all"  # ["PAR1", "PAR2", "TB", "K1input"]
 co2derivs, dxs = pyco2.uncertainty.forward(
     co2dict, grads_of, grads_wrt, totals=None, equilibria_in=None, equilibria_out=None,
 )
+
+
+def test_derivs_are_floats():
+    assert isinstance(co2derivs, dict)
+    for of in co2derivs.values():
+        assert isinstance(of, dict)
+        for wrt in of.values():
+            assert isinstance(wrt[0], float)
+
+
+def test_dxs_are_floats():
+    assert isinstance(dxs, dict)
+    for dx in dxs.values():
+        assert isinstance(dx, float)

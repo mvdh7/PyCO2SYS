@@ -8,14 +8,15 @@
       * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may alter the results of calculations with default settings.
 
 !!! warning
-    *Will (not) break your code* refers **only** to how you use the main `CO2SYS` function as imported with:
+    *Will (not) break your code* refers **only** to the functions covered in this documentation.
 
-    ```python
-    from PyCO2SYS import CO2SYS
-    CO2dict = CO2SYS(*args, **kwargs)
-    ```
+    For the main CO2SYS function as imported with
 
-    The only things that may change in this function, in at least a *minor* version release, are:
+        :::python
+        from PyCO2SYS import CO2SYS
+        CO2dict = CO2SYS(*args, **kwargs)
+
+    the only things that may change, in at least a *minor* version release, are:
 
       1. Additional inputs may be added to the `kwargs`, but always with default values such that the results do not change if they are not explicitly set.
       2. Additional calculated variables may be returned in the output `CO2dict`.
@@ -24,7 +25,7 @@
 
 ## 1.4
 
-Supports uncertainty propagation.
+Supports uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.0 (forthcoming)
 
@@ -38,7 +39,7 @@ Supports uncertainty propagation.
     ***General improvements***
 
     * Added basic sanity checking to prevent some invalid marine carbonate system parameter input values.
-    * Nutrient concentrations are set to zero internally for `K1K2CONSTANTS` options `6` and `8`, and salinity too for `8`.  This is now reflected in the output values of these variables in the `CO2dict`.
+    * Nutrient concentrations have always been set to zero internally for `K1K2CONSTANTS` options `6` and `8`, and salinity too for `8`, regardless of the input values.  This is now reflected in the output values of these variables in the `CO2dict`.
 
     ***New outputs***
 
@@ -54,7 +55,7 @@ Supports uncertainty propagation.
 
 ## 1.3
 
-Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.
+Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes almost everything [Autograd](https://github.com/HIPS/autograd)-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.
 
 ### 1.3.0 (1 May 2020)
 

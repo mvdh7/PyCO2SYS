@@ -221,12 +221,12 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
     * `"TB"`: **total borate** in μmol·kg<sup>−1</sup>.
     * `"TF"`: **total fluoride** μmol·kg<sup>−1</sup>.
-    * `"TS"`: **total sulfate** in μmol·kg<sup>−1</sup>.
+    * `"TSO4"`: **total sulfate** in μmol·kg<sup>−1</sup> (or `"TS"`, deprecated).
     * `"TCa"`: **total calcium** in μmol·kg<sup>−1</sup>.
 
     #### Equilibrium constants
 
-    All equilibrium constants are returned on the pH scale of input `pHSCALEIN` except for `"KFinput"`/`"KFoutput"` and `"KSinput"`/`"KSoutput"`, which are always on the Free scale.
+    All equilibrium constants are returned on the pH scale of input `pHSCALEIN` except for `"KFinput"`/`"KFoutput"` and `"KSO4input"`/`"KSO4output"`, which are always on the Free scale.
 
     * `"K0input"`/`"K0output"`: **Henry's constant for CO<sub>2</sub>** at input/output conditions.
     * `"K1input"`/`"K1output"`: **first carbonic acid** dissociation constant at input/output conditions.
@@ -236,7 +236,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"KWinput"`/`"KWoutput"`: **water** dissociation constant at input/output conditions.
     * `"KBinput"`/`"KBoutput"`: **boric acid** dissociation constant at input/output conditions.
     * `"KFinput"`/`"KFoutput"`: **hydrogen fluoride** dissociation constant at input/output conditions.
-    * `"KSinput"`/`"KSoutput"`: **bisulfate** dissociation constant at input/output conditions.
+    * `"KSO4input"`/`"KSO4output"`: **bisulfate** dissociation constant at input/output conditions (or `"KSinput"`/`"KSoutput"`, deprecated).
     * `"KP1input"`/`"KP1output"`: **first phosphoric acid** dissociation constant at input/output conditions.
     * `"KP2input"`/`"KP2output"`: **second phosphoric acid** dissociation constant at input/output conditions.
     * `"KP3input"`/`"KP3output"`: **third phosphoric acid** dissociation constant at input/output conditions.
