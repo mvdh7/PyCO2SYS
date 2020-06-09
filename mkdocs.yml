@@ -13,6 +13,7 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 nav:
   - Overview: index.md
   - Calculate everything!: co2sys.md
+  - Uncertainties: uncertainty.md
   # - Module reference:
   #   - <code>buffers</code>: modules/buffers.md
   #     - <code>explicit</code>: modules/explicit.md
@@ -42,11 +43,12 @@ theme:
   name: material
   language: en
   palette:
+    scheme: default
     primary: white
     accent: deep orange
   font:
-    text: Roboto
-    code: Roboto Mono
+    text: Noto Sans
+    code: Noto Sans Mono
 
 # Extensions
 markdown_extensions:

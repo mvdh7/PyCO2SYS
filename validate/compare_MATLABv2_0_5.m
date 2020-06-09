@@ -1,3 +1,6 @@
+% Get CO2SYS.m from https://github.com/jamesorr/CO2SYS-MATLAB/blob/master/src/CO2SYS.m
+% and rename to CO2SYSv2_0_5 (both the filename and the main function).
+
 %% Set up input conditions
 PARvalues = [2250 2100 8.1 400 405];
 PARTYPEs = 1:5;
@@ -42,5 +45,21 @@ co2s.PAR1 = P1;
 co2s.PAR2 = P2;
 co2s.PAR1TYPE = P1type;
 co2s.PAR2TYPE = P2type;
-co2s = struct2table(co2s);
-writetable(co2s, 'results/compare_MATLABv2_0_5.csv')
+% % Easy MATLAB saving...
+% co2s = struct2table(co2s);
+% writetable(co2s, 'results/compare_MATLABv2_0_5.csv')
+%
+% ... or, prepare for Octave-compatible saving
+co2fields = fieldnames(co2s);
+for f = 1:(numel(co2fields) - 1)
+  co2fields{f} = [co2fields{f} ','];
+end
+co2fields = [co2fields{:}];
+% Create and save file (Octave version)
+co2file = 'results/compare_MATLABv2_0_5.csv';
+fid = fopen(co2file, 'w');
+fdisp(fid, co2fields);
+fclose(fid);
+co2array = struct2cell(co2s);
+co2array = [co2array{:}];
+csvwrite(co2file, co2array, '-append');

@@ -44,14 +44,10 @@ Any changes that you make should be added to appropriate set of release notes in
 
 A very approximate plan of future additions to the code, and the person leading their implementation (get in touch with them to contribute):
 
-### v1.4 (release during May)
-
-  * Error propagation à la [Orr et al. (2018)](https://pyco2sys.readthedocs.io/en/latest/refs/#o) ([mvdh7](https://github.com/mvdh7)).
-
 ### Non-version specific
 
-  * Add validity checker for temperature, salinity and pressure conditions https://github.com/mvdh7/PyCO2SYS/issues/25
-  * Add spreadsheet-to-spreadsheet functionality https://github.com/mvdh7/PyCO2SYS/issues/30
+  * Add validity checker for temperature, salinity and pressure conditions (see https://github.com/mvdh7/PyCO2SYS/issues/25).
+  * Add spreadsheet-to-spreadsheet functionality (see https://github.com/mvdh7/PyCO2SYS/issues/30).
   * Integrate with [Pytzer](https://github.com/mvdh7/pytzer) ([mvdh7](https://github.com/mvdh7)).
   
 ### Things that will not be added

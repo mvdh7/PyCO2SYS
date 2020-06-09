@@ -17,6 +17,7 @@
 
 from . import (
     api,
+    bio,
     buffers,
     constants,
     convert,
@@ -29,10 +30,12 @@ from . import (
     solubility,
     solve,
     test,
+    uncertainty,
 )
 
 __all__ = [
     "api",
+    "bio",
     "buffers",
     "constants",
     "convert",
@@ -45,6 +48,7 @@ __all__ = [
     "solubility",
     "solve",
     "test",
+    "uncertainty",
 ]
 __author__ = meta.authors
 __version__ = meta.version

@@ -1,10 +1,15 @@
 from time import time
+import numpy as np
 import pandas as pd
 import PyCO2SYS as pyco2
 
 # Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
 # using "compare_MATLAB_extd.m".
 co2matlab = pd.read_csv("validate/results/compare_MATLAB_extd.csv")
+
+# Convert constants options
+co2matlab["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
+    co2matlab["KSO4CONSTANT"].values, co2matlab["BORON"].values)
 
 # Run PyCO2SYS.CO2SYS under the same conditions
 co2inputs = [
@@ -26,6 +31,7 @@ co2inputs = [
         "KSO4CONSTANTS",
         "NH3",
         "H2S",
+        "KFCONSTANT",
     ]
 ]
 go = time()
@@ -42,3 +48,14 @@ mad_co2py_matlab = co2py_matlab.abs().max()
 
 # Max. abs. diff. as a percentage
 pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
+
+def test_co2py_matlab():
+    checkcols = [
+        col
+        for col in pmad_co2py_matlab.index
+        if col not in ["RFin", "RFout", "PO4", "SAL", "SI", "H2S", "NH3"]
+    ]
+    assert np.all(
+        (pmad_co2py_matlab[checkcols] < 1e-6).values
+        | np.isnan(pmad_co2py_matlab[checkcols].values)
+    )

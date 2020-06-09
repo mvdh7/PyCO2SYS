@@ -2,13 +2,13 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Define metadata about the PyCO2SYS package."""
 
-version = "1.3.0"
+version = "1.4.0"
 authorlist = [
     "Humphreys, Matthew P.",
     "Gregor, Luke",
     "Pierrot, Denis",
     "van Heuven, Steven M. A. C.",
-    "Lewis, Ernie",
+    "Lewis, Ernie R.",
     "Wallace, Douglas W. R.",
 ]
 authors = " and ".join(authorlist)
@@ -17,7 +17,8 @@ authors = " and ".join(authorlist)
 def say_hello():
     print(
         """
- MP Humphreys, L Gregor, D Pierrot, SMAC van Heuven, E Lewis & D Wallace
+       M.P. Humphreys, L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
+                       E.R. Lewis & D.W.R. Wallace
 
                              ~~~ present ~~~
 
@@ -36,7 +37,8 @@ def say_hello():
 
    Lasciate ogni speranza, voi ch' entrate!
                                     Dante, Inferno iii, 9
-                                    sign on the entrance gates of hell""".format(
+                                    sign on the entrance gates of hell
+""".format(
             version
         )
     )  # (All hope abandon, ye who enter here!)

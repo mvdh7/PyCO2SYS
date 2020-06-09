@@ -2,6 +2,9 @@
 import PyCO2SYS as pyco2
 import pandas as pd
 
+# Why not
+pyco2.say_hello()
+
 # Define test conditions
 par1 = 2300  # parameter 1, here total alkalinity in μmol/kg-sw
 par2 = 8.1  # parameter 2, here pH on the Total scale
@@ -47,28 +50,33 @@ mean_res = res[keyvars].mean()
 max_abs_diff = diff[keyvars].abs().max()
 print(max_abs_diff)  # biggest differences across all input pair combinations
 
-# Generate the HTML table for the docs
-varnames = {
-    "TAlk": "Total alkalinity / μmol/kg-sw",
-    "TCO2": "Dissolved inorganic carbon / μmol/kg-sw",
-    "pHin": "pH (Total scale)",
-    "pCO2in": "<i>p</i>CO<sub>2</sub> / μatm",
-    "fCO2in": "<i>f</i>CO<sub>2</sub> / μatm",
-    "CO3in": "Carbonate ion / μmol/kg-sw",
-    "HCO3in": "Bicarbonate ion / μmol/kg-sw",
-    "CO2in": "Aqueous CO<sub>2</sub> / μmol/kg-sw",
-}
-with open("validate/html/round_robin.md", "w") as f:
-    f.write("<!-- HTML for table generated with examples/round-robin.py -->\n")
-    f.write("<table><tr>\n")
-    f.write('<th style="text-align:right">Carbonate system parameter</th>\n')
-    f.write('<th style="text-align:center">Mean result</th>\n')
-    f.write('<th style="text-align:center">Max. abs. diff.</th></tr>\n')
-    for var in keyvars:
-        f.write("</tr><tr>\n")
-        vmad = "{:.2e}".format(max_abs_diff[var])
-        vmad = vmad.replace("e-", "·10<sup>−") + "</sup>"
-        f.write('<td style="text-align:right">{}</td>\n'.format(varnames[var]))
-        f.write('<td style="text-align:center">{:.1f}</td>\n'.format(mean_res[var]))
-        f.write('<td style="text-align:center">{}</td>\n'.format(vmad))
-    f.write("</tr></table>\n")
+# Generate the HTML table for the docs if requested
+if False:
+    varnames = {
+        "TAlk": "Total alkalinity / μmol/kg-sw",
+        "TCO2": "Dissolved inorganic carbon / μmol/kg-sw",
+        "pHin": "pH (Total scale)",
+        "pCO2in": "<i>p</i>CO<sub>2</sub> / μatm",
+        "fCO2in": "<i>f</i>CO<sub>2</sub> / μatm",
+        "CO3in": "Carbonate ion / μmol/kg-sw",
+        "HCO3in": "Bicarbonate ion / μmol/kg-sw",
+        "CO2in": "Aqueous CO<sub>2</sub> / μmol/kg-sw",
+    }
+    with open("validate/html/round_robin.md", "w") as f:
+        f.write("<!-- HTML for table generated with examples/round-robin.py -->\n")
+        f.write("<table><tr>\n")
+        f.write('<th style="text-align:right">Carbonate system parameter</th>\n')
+        f.write('<th style="text-align:center">Mean result</th>\n')
+        f.write('<th style="text-align:center">Max. abs. diff.</th></tr>\n')
+        for var in keyvars:
+            f.write("</tr><tr>\n")
+            vmad = "{:.2e}".format(max_abs_diff[var])
+            vmad = vmad.replace("e-", "·10<sup>−") + "</sup>"
+            f.write('<td style="text-align:right">{}</td>\n'.format(varnames[var]))
+            f.write('<td style="text-align:center">{:.1f}</td>\n'.format(mean_res[var]))
+            f.write('<td style="text-align:center">{}</td>\n'.format(vmad))
+        f.write("</tr></table>\n")
+
+
+def test_roundrobin():
+    assert max_abs_diff.max() < 1e-10

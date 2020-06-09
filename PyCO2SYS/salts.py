@@ -91,20 +91,29 @@ def _co2sys_TCa(Sal, WhichKs):
     return TCa
 
 
-def fromSal(Sal, WhichKs, WhoseTB):
+def fromSal(Sal, WhichKs, WhoseTB, totals=None):
     """Estimate total molinities of calcium, borate, fluoride and sulfate from salinity.
 
     Subfunctions based on Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    TB = _co2sys_TB(Sal, WhichKs, WhoseTB)
-    TF = fluoride_R65(Sal)
-    TS = sulfate_MR66(Sal)
-    TCa = _co2sys_TCa(Sal, WhichKs)
-    # Return equilibrating results as a dict for stability
-    return {"TB": TB, "TF": TF, "TSO4": TS, "TCa": TCa}
+    if totals is None:
+        totals = {}
+    if "TB" not in totals:
+        TB = _co2sys_TB(Sal, WhichKs, WhoseTB)
+        totals["TB"] = TB
+    if "TF" not in totals:
+        TF = fluoride_R65(Sal)
+        totals["TF"] = TF
+    if "TSO4" not in totals:
+        TSO4 = sulfate_MR66(Sal)
+        totals["TSO4"] = TSO4
+    if "TCa" not in totals:
+        TCa = _co2sys_TCa(Sal, WhichKs)
+        totals["TCa"] = TCa
+    return totals
 
 
-def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB):
+def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB, totals=None):
     """Estimate total molinities from salinity and assemble along with other salts and
     related variables.
     """
@@ -121,7 +130,7 @@ def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB):
     TSi = TSi * 1e-6
     TNH3 = TNH3 * 1e-6
     TH2S = TH2S * 1e-6
-    totals = fromSal(Sal, WhichKs, WhoseTB)
+    totals = fromSal(Sal, WhichKs, WhoseTB, totals=totals)
     # The vector `PengCorrection` is used to modify the value of TA, for those
     # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.

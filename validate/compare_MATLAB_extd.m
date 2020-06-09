@@ -7,7 +7,7 @@ PARTYPEs = 1:8;
 pHSCALEIN_opts = 1:4;
 K1K2CONSTANTS_opts = 1:15;
 KSO4CONSTANTS_opts = 1:4;
-KFCONSTANT_opts = 1;
+KFCONSTANT_opts = 1:2;
 SALvalue = 33.1;
 [P1, P2, P1type, P2type, sal, pHscales, K1K2, KSO4_only, KSO4, KF, ...
     BSal] = CO2SYSigen(PARvalues, PARTYPEs, SALvalue, pHSCALEIN_opts, ...
@@ -43,13 +43,13 @@ KSO4_only = KSO4_only(xrow);
 tic
 [DATA, HEADERS] = ...
     CO2SYS_extd(P1, P2, P1type_ext, P2type_ext, sal, tempin, tempout, ...
-    presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4_only);
+    presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal);
 toc
 
 %% Extract and save outputs
 clear co2s
 for V = 1:numel(HEADERS)
-    co2s.(HEADERS{V}) = DATA(:, V);
+  co2s.(HEADERS{V}) = DATA(:, V);
 end % for V
 co2s.PAR1 = P1;
 co2s.PAR2 = P2;
@@ -64,5 +64,23 @@ co2s.KNH3input = co2s.KNH4input;
 co2s.KNH3output = co2s.KNH4output;
 co2s.NH3 = co2s.TNH4;
 co2s.H2S = co2s.TH2S;
-co2s = struct2table(co2s);
-writetable(co2s, 'results/compare_MATLAB_extd.csv')
+co2s = rmfield(co2s, {'HSAlkin' 'HSAlkout' 'AmmAlkin' 'AmmAlkout' ...
+  'KNH4input' 'KNH4output'});
+% % Easy MATLAB saving...
+% co2s = struct2table(co2s);
+% writetable(co2s, 'results/compare_MATLAB_extd.csv')
+%
+% ... or, prepare for Octave-compatible saving
+co2fields = fieldnames(co2s);
+for f = 1:(numel(co2fields) - 1)
+  co2fields{f} = [co2fields{f} ','];
+end
+co2fields = [co2fields{:}];
+% Create and save file (Octave version)
+co2file = 'results/compare_MATLAB_extd.csv';
+fid = fopen(co2file, 'w');
+fdisp(fid, co2fields);
+fclose(fid);
+co2array = struct2cell(co2s);
+co2array = [co2array{:}];
+csvwrite(co2file, co2array, '-append');
