@@ -87,7 +87,7 @@ There are some examples of using the uncertainty propagation function in the [Py
 
     Each entry in `components` is itself a dict with keys the same as `uncertainties_from`, containing the uncertainty in the output variable from each input parameter separately.  For example, the uncertainty in total borate arising from the uncertainty in input salinity could be accesed with `components["TB"]["SAL"]`.
 
-    Each entry in `uncertainties` is the Pythagorean sum of all the different uncertainty components for each variable.  This calculation assumes that all uncertainties are independent from each other.
+    Each entry in `uncertainties` is the Pythagorean sum of all the different uncertainty components for each variable.  This calculation assumes that all uncertainties are independent from each other and that they are provided in terms of single standard deviations.
 
 ## Uncertainties with covariances
 
