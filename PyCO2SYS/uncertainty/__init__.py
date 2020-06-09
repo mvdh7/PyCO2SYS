@@ -9,6 +9,9 @@ from autograd.numpy import all as np_all
 from autograd.numpy import any as np_any
 from autograd.numpy import sum as np_sum
 from .. import engine
+from . import automatic
+
+__all__ = ["automatic"]
 
 
 def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
