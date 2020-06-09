@@ -97,7 +97,7 @@ def compare_Kunc(p1, p2, Kstr, io):
         print(testunc_Mcsim)
         print(uncertainties[testvar][0])
         print(comparison)
-    assert (comparison < 3) or (uncertainties[testvar][0] < 1e-10)
+    assert (comparison < 4) or (uncertainties[testvar][0] < 1e-10)
     # ^ either the comparison is acceptable or the effect is so small that differences
     # due to pH solver tolerance make large percentage errors.  Both are acceptable.
 
