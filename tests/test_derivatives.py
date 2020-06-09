@@ -30,10 +30,10 @@ kso4c = 3
 phscale = 3
 # - get the co2dict
 co2dict = pyco2.CO2SYS(
-    np.array([par1[0]]),
-    par2[0],
-    par1type[0],
-    par2type[0],
+    par1,
+    par2,
+    par1type,
+    par2type,
     sal,
     tempin,
     tempout,
@@ -49,7 +49,7 @@ co2dict = pyco2.CO2SYS(
 )
 # - propagate the uncertainties
 grads_of = "all"
-grads_wrt = "all"  # ["PAR1", "PAR2", "TB", "K1input"]
+grads_wrt = "all"
 co2derivs, dxs = pyco2.uncertainty.forward(
     co2dict, grads_of, grads_wrt, totals=None, equilibria_in=None, equilibria_out=None,
 )
@@ -60,6 +60,7 @@ def test_derivs_are_floats():
     for of in co2derivs.values():
         assert isinstance(of, dict)
         for wrt in of.values():
+            assert isinstance(wrt, np.ndarray)
             assert isinstance(wrt[0], float)
 
 
