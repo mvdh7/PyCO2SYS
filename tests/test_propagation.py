@@ -37,6 +37,9 @@ def get_compare(montecarlo, direct):
 
 
 def compare_Kunc(p1, p2, Kstr, io):
+    """Compare uncertainty propagation from the equilibrium constant internal overrides
+    vs Monte-Carlo simulations.
+    """
     mcsize = 10000
     Kunc_pct = 0.05
     co2d = pyco2.CO2SYS(
