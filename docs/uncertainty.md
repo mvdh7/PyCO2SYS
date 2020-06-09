@@ -33,6 +33,8 @@ You must run `PyCO2SYS.CO2SYS` first (see [Calculate everything!](../co2sys) for
         totals=None, equilibria_in=None, equilibria_out=None,
         dx=1e-6, dx_scaling="median", dx_func=None)
 
+There are some examples of using the uncertainty propagation function in the [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples/) repo on GitHub.
+
 ### Inputs
 
 !!! info "`PyCO2SYS.uncertainty.propagate` inputs"

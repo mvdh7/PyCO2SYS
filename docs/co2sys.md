@@ -2,7 +2,7 @@
 
 ## Syntax
 
-The simplest way to use PyCO2SYS is to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
+The simplest and safest way to use PyCO2SYS is to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
 
     :::python
     # Import the function
