@@ -25,9 +25,9 @@
 
 ## 1.4
 
-Supports uncertainty propagation with forward finite-difference derivatives.
+Enables uncertainty propagation with forward finite-difference derivatives.
 
-### 1.4.0 (forthcoming)
+### 1.4.0 (9 June 2020)
 
 !!! example "Changes in v1.4.0"
 
