@@ -32,9 +32,9 @@ Anyone making a substantial contribution will be invited to join the list of aut
 
 ## Documentation
 
-Documentation is under construction at [pyco2sys.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/master/docs) directory on *master* using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+Documentation is available at [pyco2sys.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/master/docs) directory on *master* using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [pyco2sys.readthedocs.io/en/develop](https://pyco2sys.readthedocs.io/en/develop/).
 
-There is also a repo of PyCO2SYS examples as [Jupyter Notebooks](https://jupyter.org/), which you can add to at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
+There is a repo of PyCO2SYS examples as [Jupyter Notebooks](https://jupyter.org/), which you can add to at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
 
 If you add new features to PyCO2SYS, please also propose some sort of documentation for them in one of these formats.
 
