@@ -51,7 +51,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***Validation***
 
-    * Calculations compare very favourably against the forthcoming [CO2SYS for MATLAB v3](https://github.com/jonathansharp/CO2-System-Extd) - see [Validation](../validation/#co2sys-for-matlab) for discussion of the results.
+    * Calculations compare very favourably against the forthcoming [CO2SYS for MATLAB v3](https://github.com/jonathansharp/CO2-System-Extd) - see [Validation](../validate/#co2sys-for-matlab) for discussion of the results.
 
 ## 1.3
 
