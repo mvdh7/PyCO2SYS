@@ -27,6 +27,14 @@
 
 Enables uncertainty propagation with forward finite-difference derivatives.
 
+### 1.4.1 (forthcoming)
+
+!!! example "Changes in v1.4.1"
+
+    ***Changed calculations***
+
+    * Switched to the [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) value for the universal gas constant *R* for consistency with forthcoming CO2SYS-MATLAB v3.
+
 ### 1.4.0 (9 June 2020)
 
 !!! example "Changes in v1.4.0"
