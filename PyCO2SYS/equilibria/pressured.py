@@ -8,7 +8,7 @@ from . import p1atm, pcx
 from .. import convert
 
 
-def KSO4(TempK, Sal, Pbar, WhoseKSO4):
+def KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
     assert np_all(isin(WhoseKSO4, [1, 2])), "Valid `WhoseKSO4` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
@@ -16,11 +16,11 @@ def KSO4(TempK, Sal, Pbar, WhoseKSO4):
     KSO4 = where(WhoseKSO4 == 1, p1atm.kHSO4_FREE_D90a(TempK, Sal), KSO4)
     KSO4 = where(WhoseKSO4 == 2, p1atm.kHSO4_FREE_KRCB77(TempK, Sal), KSO4)
     # Now correct for seawater pressure
-    KSO4 = KSO4 * pcx.KSO4fac(TempK, Pbar)
+    KSO4 = KSO4 * pcx.KSO4fac(TempK, Pbar, RGas)
     return KSO4
 
 
-def KF(TempK, Sal, Pbar, WhoseKF):
+def KF(TempK, Sal, Pbar, RGas, WhoseKF):
     """Calculate HF dissociation constant for the given options."""
     assert np_all(isin(WhoseKF, [1, 2])), "Valid `WhoseKF` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
@@ -28,7 +28,7 @@ def KF(TempK, Sal, Pbar, WhoseKF):
     KF = where(WhoseKF == 1, p1atm.kHF_FREE_DR79(TempK, Sal), KF)
     KF = where(WhoseKF == 2, p1atm.kHF_FREE_PF87(TempK, Sal), KF)
     # Now correct for seawater pressure
-    KF = KF * pcx.KFfac(TempK, Pbar)
+    KF = KF * pcx.KFfac(TempK, Pbar, RGas)
     return KF
 
 
@@ -41,7 +41,7 @@ def fH(TempK, Sal, WhichKs):
     return fH
 
 
-def KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
+def KB(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     """Calculate boric acid dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
     KB = full(size(TempK), nan)
@@ -55,11 +55,11 @@ def KB(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
         KB,
     )  # convert TOT to SWS
     # Now correct for seawater pressure
-    KB = KB * pcx.KBfac(TempK, Pbar, WhichKs)
+    KB = KB * pcx.KBfac(TempK, Pbar, RGas, WhichKs)
     return KB
 
 
-def KW(TempK, Sal, Pbar, WhichKs):
+def KW(TempK, Sal, Pbar, RGas, WhichKs):
     """Calculate water dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
     KW = full(size(TempK), nan)
@@ -72,11 +72,11 @@ def KW(TempK, Sal, Pbar, WhichKs):
         KW,
     )
     # Now correct for seawater pressure
-    KW = KW * pcx.KWfac(TempK, Pbar, WhichKs)
+    KW = KW * pcx.KWfac(TempK, Pbar, RGas, WhichKs)
     return KW
 
 
-def KP(TempK, Sal, Pbar, WhichKs, fH):
+def KP(TempK, Sal, Pbar, RGas, WhichKs, fH):
     """Calculate phosphoric acid dissociation constants for the given options."""
     # Evaluate at atmospheric pressure
     KP1 = full(size(TempK), nan)
@@ -108,13 +108,13 @@ def KP(TempK, Sal, Pbar, WhichKs, fH):
     # they are the same as for the other choices (WhichKs = 1 to 5).
     # The corrections for KP1, KP2, and KP3 are from Millero, 1995, which are
     # the same as Millero, 1983.
-    KP1 = KP1 * pcx.KP1fac(TempK, Pbar)
-    KP2 = KP2 * pcx.KP2fac(TempK, Pbar)
-    KP3 = KP3 * pcx.KP3fac(TempK, Pbar)
+    KP1 = KP1 * pcx.KP1fac(TempK, Pbar, RGas)
+    KP2 = KP2 * pcx.KP2fac(TempK, Pbar, RGas)
+    KP3 = KP3 * pcx.KP3fac(TempK, Pbar, RGas)
     return KP1, KP2, KP3
 
 
-def KSi(TempK, Sal, Pbar, WhichKs, fH):
+def KSi(TempK, Sal, Pbar, RGas, WhichKs, fH):
     """Calculate silicate dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
     KSi = full(size(TempK), nan)
@@ -130,11 +130,11 @@ def KSi(TempK, Sal, Pbar, WhichKs, fH):
         KSi,
     )
     # Now correct for seawater pressure
-    KSi = KSi * pcx.KSifac(TempK, Pbar)
+    KSi = KSi * pcx.KSifac(TempK, Pbar, RGas)
     return KSi
 
 
-def KH2S(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
+def KH2S(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
     """Calculate hydrogen disulfide dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
     KH2S = where(
@@ -143,11 +143,11 @@ def KH2S(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
         p1atm.kH2S_TOT_YM95(TempK, Sal) / SWStoTOT0,
     )  # convert TOT to SWS
     # Now correct for seawater pressure
-    KH2S = KH2S * pcx.KH2Sfac(TempK, Pbar)
+    KH2S = KH2S * pcx.KH2Sfac(TempK, Pbar, RGas)
     return KH2S
 
 
-def KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
+def KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
     """Calculate ammonium dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
     KNH3 = where(
@@ -156,7 +156,7 @@ def KNH3(TempK, Sal, Pbar, WhichKs, SWStoTOT0):
         p1atm.kNH3_TOT_CW95(TempK, Sal) / SWStoTOT0,
     )  # convert TOT to SWS
     # Now correct for seawater pressure
-    KNH3 = KNH3 * pcx.KNH3fac(TempK, Pbar)
+    KNH3 = KNH3 * pcx.KNH3fac(TempK, Pbar, RGas)
     return KNH3
 
 
@@ -169,7 +169,7 @@ def _getKC(F, Kfunc, pHcx, K1, K2, ts):
     return K1, K2
 
 
-def KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
+def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     """Calculate carbonic acid dissociation constants for the given options."""
     # Evaluate at atmospheric pressure
     K1 = full(size(TempK), nan)
@@ -192,8 +192,8 @@ def KC(TempK, Sal, Pbar, WhichKs, fH, SWStoTOT0):
     K1, K2 = _getKC(WhichKs == 14, p1atm.kH2CO3_SWS_M10, 1.0, K1, K2, ts)
     K1, K2 = _getKC(WhichKs == 15, p1atm.kH2CO3_SWS_WMW14, 1.0, K1, K2, ts)
     # Now correct for seawater pressure
-    K1 = K1 * pcx.K1fac(TempK, Pbar, WhichKs)
-    K2 = K2 * pcx.K2fac(TempK, Pbar, WhichKs)
+    K1 = K1 * pcx.K1fac(TempK, Pbar, RGas, WhichKs)
+    K2 = K2 * pcx.K2fac(TempK, Pbar, RGas, WhichKs)
     return K1, K2
 
 

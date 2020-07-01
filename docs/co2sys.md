@@ -142,6 +142,11 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
     For `buffers_mode`, `"auto"` is the recommended and most accurate calculation, and it is a little faster to compute than `"explicit"`.  If `"none"` is selected, then the corresponding outputs have the value `nan`.
 
+    * `WhichR`: what value to use for the ideal gas constant *R*:
+        * `1`: DOEv2 (default, consistent with all previous CO2SYS software).
+        * `2`: DOEv3.
+        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r).
+
     #### Internal overrides
 
     You can optionally use the `totals`, `equilibria_in` and `equilibria_out` inputs to override some or all parameter values that PyCO2SYS normally estimates internally from salinity, temperature and pressure.  If used, these inputs should each be a dict containing one or more of the following items.
@@ -244,6 +249,10 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"KNH3input"`/`"KNH3output"`: **ammonium** equilibrium constant at input/output conditions.
     * `"KH2Sinput"`/`"KH2Soutput"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
 
+    The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
+
+    * `"RGas"`: **ideal gas constant** in ml·bar<sup>−1</sup>·mol<sup>−1</sup>·K<sup>−1</sup>.
+
     #### Function inputs
 
     * `"PAR1"`/`"PAR2"`: inputs `PAR1`/`PAR2`.
@@ -259,6 +268,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"SI"`: input `SI`.
     * `"NH3"`: input `NH3`.
     * `"H2S"`: input `H2S`.
+    * `"WhichR"`: input `WhichR`.
 
     Finally, `CO2SYS` splits up the input `KSO4CONSTANTS` into two separate settings variables internally, which are also returned in the `CO2dict` output:
 

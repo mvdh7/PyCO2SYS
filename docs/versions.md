@@ -33,7 +33,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***Changed calculations***
 
-    * Switched to the [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) value for the universal gas constant *R* for consistency with forthcoming CO2SYS-MATLAB v3.
+    * Added the [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) value for the universal gas constant *R* as an option for consistency with forthcoming CO2SYS-MATLAB v3.  The original DOEv2 version remains default.
 
 ### 1.4.0 (9 June 2020)
 
