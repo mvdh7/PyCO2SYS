@@ -186,6 +186,7 @@ def forward(
             "KFCONSTANT",
             "BORON",
             "buffers_mode",
+            "WhichR",
         ]
     }
     co2kwargs = {

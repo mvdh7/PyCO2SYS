@@ -5,10 +5,10 @@ PyCO2SYS/api/__init__.py               60      4    93%
 PyCO2SYS/bio.py                         4      0   100%
 PyCO2SYS/buffers/__init__.py           59     19    68%
 PyCO2SYS/buffers/explicit.py           43     11    74%
-PyCO2SYS/constants.py                   3      0   100%
+PyCO2SYS/constants.py                  18      2    89%
 PyCO2SYS/convert.py                    60      7    88%
-PyCO2SYS/engine.py                     77      1    99%
-PyCO2SYS/equilibria/__init__.py        56      0   100%
+PyCO2SYS/engine.py                     81      1    99%
+PyCO2SYS/equilibria/__init__.py        58      0   100%
 PyCO2SYS/equilibria/p1atm.py          186      2    99%
 PyCO2SYS/equilibria/pcx.py            108      0   100%
 PyCO2SYS/equilibria/pressured.py      106      0   100%
@@ -29,10 +29,10 @@ tests/test_api.py                      29      4    86%
 tests/test_derivatives.py              40      0   100%
 tests/test_overrides.py                15      0   100%
 tests/test_propagation.py             103      0   100%
-tests/test_uncertainty.py             262      0   100%
+tests/test_uncertainty.py             263      0   100%
 validate/buffers_auto_explicit.py      16      0   100%
 validate/compare_MATLAB_extd.py        18      0   100%
 validate/compare_MATLABv2_0_5.py       27      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3186    126    96%
+TOTAL                                3208    128    96%

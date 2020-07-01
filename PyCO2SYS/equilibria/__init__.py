@@ -4,12 +4,14 @@
 
 from autograd.numpy import full, nan, size, where
 from . import p1atm, pcx, pressured
-from .. import convert, gas
+from .. import constants, convert, gas
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
 
-def assemble(TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=None):
+def assemble(
+    TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=None
+):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
 
@@ -95,4 +97,6 @@ def assemble(TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=None
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs)
+    if "RGas" not in Ks:
+        Ks["RGas"] = constants.RGasConstant_(WhichR)
     return Ks
