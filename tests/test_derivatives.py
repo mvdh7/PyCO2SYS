@@ -25,7 +25,7 @@ si = 13
 phos = 3
 h2s = 0.12
 nh3 = 0.5
-k1k2c = 12
+k1k2c = 16
 kso4c = 3
 phscale = 3
 # - get the co2dict

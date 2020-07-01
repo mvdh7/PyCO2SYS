@@ -3,7 +3,7 @@
 There are no "certified" results of marine carbonate system calculations against which software like PyCO2SYS can be unambiguously validated.  But we can evaluate its performance by testing its internal consistency and by comparing its outputs with those from other programs.
 
 !!! info "PyCO2SYS v1.4.0"
-    All the comparisons, numbers and figures shown on this page apply to PyCO2SYS v1.4.0.
+    All the comparisons, numbers and figures shown on this page were carried out with PyCO2SYS v1.4.0.
 
 ## Internal consistency
 

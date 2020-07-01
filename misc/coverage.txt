@@ -9,9 +9,9 @@ PyCO2SYS/constants.py                  18      2    89%
 PyCO2SYS/convert.py                    60      7    88%
 PyCO2SYS/engine.py                     81      1    99%
 PyCO2SYS/equilibria/__init__.py        59      0   100%
-PyCO2SYS/equilibria/p1atm.py          186      2    99%
+PyCO2SYS/equilibria/p1atm.py          192      2    99%
 PyCO2SYS/equilibria/pcx.py            107      0   100%
-PyCO2SYS/equilibria/pressured.py      106      0   100%
+PyCO2SYS/equilibria/pressured.py      107      0   100%
 PyCO2SYS/gas.py                        21      0   100%
 PyCO2SYS/meta.py                        6      0   100%
 PyCO2SYS/original.py                  636      2    99%
@@ -35,4 +35,4 @@ validate/compare_MATLAB_extd.py        18      0   100%
 validate/compare_MATLABv2_0_5.py       27      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3208    128    96%
+TOTAL                                3215    128    96%

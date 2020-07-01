@@ -197,6 +197,9 @@ Click on each reference to see more details.
 
 ### S
 
+??? note "SLH20: Sulpis et al. (2020) *Ocean Sci.*"
+    Sulpis, O., Lauvset, S. K., and Hagens, M. (2020). Current estimates of K<sub>1</sub><sup>&ast;</sup> and K<sub>2</sub><sup>&ast;</sup> appear inconsistent with measured CO<sub>2</sub> system parameters in cold oceanic regions. *Ocean Science*, in press. [doi:10.5194/os-2020-19](https://doi.org/10.5194/os-2020-19).
+
 ??? note "SMB64: Sillén et al. (1964) *Chem. Soc. London*"
     Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.
 
