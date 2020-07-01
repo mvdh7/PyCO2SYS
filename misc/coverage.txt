@@ -12,11 +12,11 @@ PyCO2SYS/equilibria/__init__.py        58      0   100%
 PyCO2SYS/equilibria/p1atm.py          186      2    99%
 PyCO2SYS/equilibria/pcx.py            108      0   100%
 PyCO2SYS/equilibria/pressured.py      106      0   100%
-PyCO2SYS/gas.py                        22      0   100%
+PyCO2SYS/gas.py                        21      0   100%
 PyCO2SYS/meta.py                        6      0   100%
 PyCO2SYS/original.py                  636      2    99%
 PyCO2SYS/salts.py                      65      0   100%
-PyCO2SYS/solubility.py                 62      0   100%
+PyCO2SYS/solubility.py                 61      0   100%
 PyCO2SYS/solve/__init__.py            214      0   100%
 PyCO2SYS/solve/delta.py                33      5    85%
 PyCO2SYS/solve/get.py                 194     12    94%
@@ -35,4 +35,4 @@ validate/compare_MATLAB_extd.py        18      0   100%
 validate/compare_MATLABv2_0_5.py       27      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3208    128    96%
+TOTAL                                3206    128    96%

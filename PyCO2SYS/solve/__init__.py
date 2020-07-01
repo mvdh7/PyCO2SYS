@@ -307,7 +307,9 @@ def others(
     alks = get.AlkParts(TC, PH, FREEtoTOT, totals, Ks)
     alks["PAlk"] = alks["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
-    OmegaCa, OmegaAr = solubility.CaCO3(Sal, TempC, Pdbar, CARB, totals["TCa"], WhichKs)
+    OmegaCa, OmegaAr = solubility.CaCO3(
+        Sal, TempC, Pdbar, CARB, totals["TCa"], WhichKs, Ks["RGas"]
+    )
     # Dry mole fraction of CO2
     VPFac = gas.vpfactor(TempC, Sal)
     xCO2dry = PC / VPFac  # this assumes pTot = 1 atm

@@ -95,8 +95,8 @@ def assemble(
     # K0 for CO2 dissolution - no pressure or pH scale corrections
     if "K0" not in Ks:
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
-    if "FugFac" not in Ks:
-        Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs)
     if "RGas" not in Ks:
         Ks["RGas"] = constants.RGasConstant_(WhichR)
+    if "FugFac" not in Ks:
+        Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, Ks["RGas"])
     return Ks
