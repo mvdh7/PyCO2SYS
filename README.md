@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://zenodo.org/badge/latestdoi/237243120)
-[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=master&style=flat)](https://pyco2sys.readthedocs.io/en/master/)
+[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://pyco2sys.readthedocs.io/en/latest/)
 [![Build Status](https://travis-ci.org/mvdh7/PyCO2SYS.svg?branch=master)](https://travis-ci.org/mvdh7/PyCO2SYS)
 [![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/master/misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/master/misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
