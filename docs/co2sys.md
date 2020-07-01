@@ -12,7 +12,7 @@ The simplest and safest way to use PyCO2SYS is to follow the approach of previou
     CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
         PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
         NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
-        totals=None, equilibria_in=None, equilibria_out=None)
+        totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
 
     # Get (e.g.) aragonite saturation state, output conditions
     OmegaARout = CO2dict["OmegaARout"]
@@ -103,7 +103,7 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
     * `K1K2CONSTANTS`: which set of equilibrium constants to use to model **carbonic acid dissociation:**
         * `1`: [RRV93](../refs/#r) (0 < *T* < 45 °C, 5 < *S* < 45, Total scale, artificial seawater).
-        * `2`: [GP89](../refs/#g) (-1 < *T* < 40 °C, 10 < *S* < 50, Seawater scale, artificial seawater).
+        * `2`: [GP89](../refs/#g) (−1 < *T* < 40 °C, 10 < *S* < 50, Seawater scale, artificial seawater).
         * `3`: [H73a](../refs/#h) and [H73b](../refs/#h) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
         * `4`: [MCHP73](../refs/#m) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
         * `5`: [H73a](../refs/#h), [H73b](../refs/#h) and [MCHP73](../refs/#m) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
@@ -113,10 +113,11 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
         * `9`: [CW98](../refs/#c) (2 < *T* < 35 °C, 0 < *S* < 49, NBS scale, real and artificial seawater).
         * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater).
         * `11`: [MM02](../refs/#m) (0 < *T* < 45 °C, 5 < *S* < 42, Seawater scale, real seawater).
-        * `12`: [MPL02](../refs/#m) (-1.6 < *T* < 35 °C, 34 < *S* < 37, Seawater scale, field measurements).
+        * `12`: [MPL02](../refs/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, Seawater scale, field measurements).
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
+        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
@@ -141,6 +142,11 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
         * `"none"`: not at all.
 
     For `buffers_mode`, `"auto"` is the recommended and most accurate calculation, and it is a little faster to compute than `"explicit"`.  If `"none"` is selected, then the corresponding outputs have the value `nan`.
+
+    * `WhichR`: what value to use for the ideal gas constant *R*:
+        * `1`: DOEv2 (default, consistent with all previous CO2SYS software).
+        * `2`: DOEv3.
+        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r).
 
     #### Internal overrides
 
@@ -244,6 +250,10 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"KNH3input"`/`"KNH3output"`: **ammonium** equilibrium constant at input/output conditions.
     * `"KH2Sinput"`/`"KH2Soutput"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
 
+    The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
+
+    * `"RGas"`: **ideal gas constant** in ml·bar<sup>−1</sup>·mol<sup>−1</sup>·K<sup>−1</sup>.
+
     #### Function inputs
 
     * `"PAR1"`/`"PAR2"`: inputs `PAR1`/`PAR2`.
@@ -259,6 +269,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"SI"`: input `SI`.
     * `"NH3"`: input `NH3`.
     * `"H2S"`: input `H2S`.
+    * `"WhichR"`: input `WhichR`.
 
     Finally, `CO2SYS` splits up the input `KSO4CONSTANTS` into two separate settings variables internally, which are also returned in the `CO2dict` output:
 

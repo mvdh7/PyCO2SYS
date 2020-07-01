@@ -27,6 +27,15 @@
 
 Enables uncertainty propagation with forward finite-difference derivatives.
 
+### 1.4.1 (1 July 2020)
+
+!!! example "Changes in v1.4.1"
+
+    ***Extra calculation options***
+
+    * Added the [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) value for the universal gas constant *R* as an option for consistency with forthcoming CO2SYS-MATLAB v3.  The original DOEv2 version remains default.
+    * Added the [SLH20](../refs/#s) equations as option `16` for the carbonic acid dissociation constants.
+
 ### 1.4.0 (9 June 2020)
 
 !!! example "Changes in v1.4.0"

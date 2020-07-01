@@ -611,6 +611,28 @@ def kH2CO3_SWS_WMW14(TempK, Sal):
     return K1, K2
 
 
+def kH2CO3_TOT_SLH20(TempK, Sal):
+    """Carbonic acid dissociation constants following SLH20."""
+    # Coefficients and their 95% confidence intervals from SLH20 Table 1.
+    pK1 = (
+        8510.63 / TempK  # ±1139.8
+        - 172.4493  # ±26.131
+        + 26.32996 * log(TempK)  # ±3.9161
+        - 0.011555 * Sal
+        + 0.0001152 * Sal ** 2
+    )
+    K1 = 10.0 ** -pK1  # this is on the Total pH scale in mol/kg-SW
+    pK2 = (
+        4226.23 / TempK  # ±1050.8
+        - 59.4636  # ±24.016
+        + 9.60817 * log(TempK)  # ±3.5966
+        - 0.01781 * Sal
+        + 0.0001122 * Sal ** 2
+    )
+    K2 = 10.0 ** -pK2  # this is on the Total pH scale in mol/kg-SW
+    return K1, K2
+
+
 def kH2S_TOT_YM95(TempK, Sal):
     """Hydrogen sulfide dissociation constant following YM95."""
     # === CO2SYS_v1_21.m comments: =======

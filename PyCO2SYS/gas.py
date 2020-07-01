@@ -4,17 +4,16 @@
 
 from autograd.numpy import exp, log, where
 from . import convert
-from .constants import RGasConstant
 
 
-def fugacityfactor(TempC, WhichKs):
+def fugacityfactor(TempC, WhichKs, RGas):
     """Calculate the fugacity factor."""
     # This assumes that the pressure is at one atmosphere, or close to it.
     # Otherwise, the Pres term in the exponent affects the results.
     # Following Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # Delta and B are in cm**3/mol.
     TempK = convert.TempC2K(TempC)
-    RT = RGasConstant * TempK
+    RT = RGas * TempK
     Delta = 57.7 - 0.118 * TempK
     b = (
         -1636.75

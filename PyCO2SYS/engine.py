@@ -75,6 +75,7 @@ def condition(input_locals, npts=None):
         "KSi",
         "KNH3",
         "KH2S",
+        "RGas",
     }
     for k in args.keys():
         if k in float_vars:
@@ -199,6 +200,7 @@ gradables = array(
         "FugFacoutput",
         "fHinput",
         "fHoutput",
+        "RGas",
     ]
 )
 
@@ -326,6 +328,8 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "TSO4": totals["TSO4"] * 1e6,  # will eventually replace "TS"
         "KSO4input": Kis["KSO4"],  # will eventually replace "KSinput"
         "KSO4output": Kos["KSO4"],  # will eventually replace "KSoutput"
+        # Added in v1.4.1:
+        "RGas": Kis["RGas"],
     }
 
 
@@ -342,6 +346,8 @@ def _outputs_nograd(args, buffers_mode):
         "pHSCALEIN": args["pHSCALEIN"],
         # Added in v1.3.0:
         "buffers_mode": buffers_mode,
+        # Added in v1.4.1:
+        "WhichR": args["WhichR"],
     }
 
 
@@ -376,6 +382,7 @@ def _CO2SYS(
     KFCONSTANT,
     BORON,
     buffers_mode,
+    WhichR,
     KSO4CONSTANTS=0,
     totals=None,
     equilibria_in=None,
@@ -407,6 +414,7 @@ def _CO2SYS(
             "BORON": BORON,
             "buffers_mode": buffers_mode,
             "KSO4CONSTANTS": KSO4CONSTANTS,
+            "WhichR": WhichR,
         }
     )
     PAR1 = args["PAR1"]
@@ -427,6 +435,7 @@ def _CO2SYS(
     WhoseKF = args["KFCONSTANT"]
     WhoseTB = args["BORON"]
     buffers_mode = args["buffers_mode"]
+    WhichR = args["WhichR"]
     # Prepare to solve the core marine carbonate system at input conditions
     if totals is not None:
         totals = condition(totals, npts=npts)[0]
@@ -437,12 +446,12 @@ def _CO2SYS(
     if Kis is not None:
         Kis = condition(Kis, npts=npts)[0]
     Kis = equilibria.assemble(
-        TempCi, Pdbari, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=Kis
+        TempCi, Pdbari, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=Kis
     )
     if Kos is not None:
         Kos = condition(Kos, npts=npts)[0]
     Kos = equilibria.assemble(
-        TempCo, Pdbaro, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, Ks=Kos
+        TempCo, Pdbaro, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=Kos
     )
     # Solve the core marine carbonate system at input conditions
     core_in = solve.core(PAR1, PAR2, p1, p2, totals, Kis, True)
@@ -488,6 +497,7 @@ def CO2SYS(
     totals=None,
     equilibria_in=None,
     equilibria_out=None,
+    WhichR=1,
 ):
     """Solve the carbonate system using the input parameters.
 
@@ -519,6 +529,7 @@ def CO2SYS(
         KFCONSTANT,
         BORON,
         buffers_mode,
+        WhichR,
         KSO4CONSTANTS=KSO4CONSTANTS,
         totals=totals,
         equilibria_in=equilibria_in,
@@ -587,4 +598,7 @@ def dict2equilibria(co2dict):
     ]
     Kis = {Kvar: co2dict[Kvar + "input"] for Kvar in Kvars}
     Kos = {Kvar: co2dict[Kvar + "output"] for Kvar in Kvars}
+    RGas = {"RGas": co2dict["RGas"]}
+    Kis.update(RGas)
+    Kos.update(RGas)
     return Kis, Kos

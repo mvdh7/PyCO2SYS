@@ -132,6 +132,8 @@ def forward(
     ]
     Kis_wrt = ["{}input".format(K) for K in Ks_wrt]
     Kos_wrt = ["{}output".format(K) for K in Ks_wrt]
+    Kis_wrt.append("RGas")
+    Kos_wrt.append("RGas")
     pKis_wrt = ["p{}input".format(K) for K in Ks_wrt if K.startswith("K")]
     pKos_wrt = ["p{}output".format(K) for K in Ks_wrt if K.startswith("K")]
     # If only a single `grads_wrt` is requested, check it's allowed & convert to list
@@ -186,6 +188,7 @@ def forward(
             "KFCONSTANT",
             "BORON",
             "buffers_mode",
+            "WhichR",
         ]
     }
     co2kwargs = {

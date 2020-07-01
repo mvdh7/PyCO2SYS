@@ -13,11 +13,11 @@ ilog10e = -1 / log10(exp(1))  # multiplier to convert pH to ln(H)
 
 
 @errstate(all="ignore")
-def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs):
+def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, RGas):
     """Function for d[ln(Omega)]/d[CARB].  Identical for calcite and aragonite."""
     return egrad(
         lambda CARB: log(
-            solubility.calcite(Sal, TempK, Pbar, CARB, totals["TCa"], WhichKs)
+            solubility.calcite(Sal, TempK, Pbar, CARB, totals["TCa"], WhichKs, RGas)
         )
     )(CARB)
 
@@ -49,7 +49,9 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     betaTA = dTA_dPH__TC / ilog10e
     # Saturation state differential w.r.t. carbonate ion is used for both TC and TA
     # buffers.  Doesn't matter whether we use aragonite or calcite because of the log.
-    dlnOmegaAr_dCARB = _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs)
+    dlnOmegaAr_dCARB = _dlnOmega_dCARB(
+        Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"]
+    )
     # omegaTC is (d[ln(OmegaAr)]/d[TC] with constant TA, i.e. ω_DIC of ESM10
     dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, totals, Ks))(PH)
     omegaTC = dTC_dPH__TA / (dlnOmegaAr_dCARB * dCARB_dPH__TA)
@@ -133,7 +135,8 @@ def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
     dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, totals, Ks))(PH)
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, totals, Ks))(PH)
     return dTC_dPH__TA / (
-        dCARB_dPH__TA * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs)
+        dCARB_dPH__TA
+        * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"])
     )
 
 
@@ -144,5 +147,6 @@ def omegaTA(TC, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
     )(PH)
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
     return dTA_dPH__TC / (
-        dCARB_dPH__TC * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs)
+        dCARB_dPH__TC
+        * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"])
     )
