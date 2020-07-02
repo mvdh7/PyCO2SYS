@@ -27,6 +27,14 @@
 
 Enables uncertainty propagation with forward finite-difference derivatives.
 
+### 1.4.2 (forthcoming)
+
+!!! example "Changes in v1.4.2"
+
+    ***Bug fixes***
+
+    * Swapped order of `totals` and `Ks` arguments for all functions in `PyCO2SYS.solve.delta` for consistency with other modules.
+
 ### 1.4.1 (1 July 2020)
 
 !!! example "Changes in v1.4.1"
