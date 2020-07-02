@@ -9,7 +9,7 @@ from . import get
 
 def _pHfromTATC_r(pH, TA, TC, FREEtoTOT, totals, Ks):
     """Calculate residual alkalinity from pH and TC for solver `pHfromTATC`."""
-    return TA - get.TAfromTCpH(TC, pH, totals, Ks)
+    return get.TAfromTCpH(TC, pH, totals, Ks) - TA
 
 
 # Calculate residual alkalinity slope from pH and TC for solver `pHfromTATC`
@@ -43,7 +43,7 @@ def pHfromTATC(pH, TA, TC, FREEtoTOT, totals, Ks):
 
 def _pHfromTAfCO2_r(pH, TA, fCO2, FREEtoTOT, totals, Ks):
     """Calculate residual alkalinity from pH and fCO2 for solver `pHfromTAfCO2`."""
-    return TA - get.TAfrompHfCO2(pH, fCO2, totals, Ks)
+    return get.TAfrompHfCO2(pH, fCO2, totals, Ks) - TA
 
 
 # Calculate residual alkalinity slope from pH and fCO2 for solver `pHfromTAfCO2`
@@ -71,7 +71,7 @@ def pHfromTAfCO2(pH, TA, fCO2, FREEtoTOT, totals, Ks):
 
 def _pHfromTACarb_r(pH, TA, CARB, FREEtoTOT, totals, Ks):
     """Calculate residual alkalinity from pH and CARB for solver `pHfromTACarb`."""
-    return TA - get.TAfrompHCarb(pH, CARB, totals, Ks)
+    return get.TAfrompHCarb(pH, CARB, totals, Ks) - TA
 
 
 # Calculate residual alkalinity slope from pH and CARB for solver `pHfromTACarb`
@@ -99,7 +99,7 @@ def pHfromTACarb(pH, TA, CARB, FREEtoTOT, totals, Ks):
 
 def _pHfromTAHCO3_r(pH, TA, HCO3, FREEtoTOT, totals, Ks):
     """Calculate residual alkalinity from pH and HCO3 for solver `pHfromTAHCO3`."""
-    return TA - get.TAfrompHHCO3(pH, HCO3, totals, Ks)
+    return get.TAfrompHHCO3(pH, HCO3, totals, Ks) - TA
 
 
 # Calculate residual alkalinity slope from pH and HCO3 for solver `pHfromTAHCO3`

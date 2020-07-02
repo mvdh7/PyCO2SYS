@@ -34,6 +34,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
     ***Bug fixes***
 
     * Swapped order of `totals` and `Ks` arguments for all functions in `PyCO2SYS.solve.delta` for consistency with other modules.
+    * Inverted the alkalinity-pH residual equations in `PyCO2SYS.solve.delta`.
 
 ### 1.4.1 (1 July 2020)
 
