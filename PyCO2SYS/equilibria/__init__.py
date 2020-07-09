@@ -9,6 +9,39 @@ from .. import constants, convert, gas
 __all__ = ["p1atm", "pcx", "pressured"]
 
 
+def prepare(TempC, Pdbar, Ks):
+    """Initialise Ks dict if needed and convert temperature/pressure units."""
+    # Extract and convert
+    TempK = convert.TempC2K(TempC)
+    Pbar = convert.Pdbar2bar(Pdbar)
+    # Initialise dict
+    if Ks is None:
+        Ks = {}
+    return TempK, Pbar, Ks
+
+
+def sws2tot_P0(TempK, totals, WhoseKSO4, WhoseKF):
+    """Determine SWS to Total pH scale correction factor at zero pressure."""
+    KSO4_P0 = pressured.KSO4(TempK, totals["Sal"], 0.0, 1.0, WhoseKSO4)
+    KF_P0 = pressured.KF(TempK, totals["Sal"], 0.0, 1.0, WhoseKF)
+    SWStoTOT_P0 = convert.sws2tot(totals["TSO4"], KSO4_P0, totals["TF"], KF_P0)
+    return SWStoTOT_P0
+
+
+def get_pHfactor(TempK, Sal, totals, Ks, pHScale, WhichKs):
+    """Determine pH scale conversion factors to go from input pHScale to SWS."""
+    if "fH" not in Ks:
+        Ks["fH"] = pressured.fH(TempK, Sal, WhichKs)
+    SWStoTOT = convert.sws2tot(totals["TSO4"], Ks["KSO4"], totals["TF"], Ks["KF"])
+    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
+    pHfactor = full(size(pHScale), nan)
+    pHfactor = where(pHScale == 1, SWStoTOT, pHfactor)  # Total
+    pHfactor = where(pHScale == 2, 1.0, pHfactor)  # Seawater (already on this)
+    pHfactor = where(pHScale == 3, SWStoTOT / FREEtoTOT, pHfactor)  # Free
+    pHfactor = where(pHScale == 4, Ks["fH"], pHfactor)  # NBS
+    return pHfactor, Ks
+
+
 def assemble(
     TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=None
 ):
@@ -29,44 +62,28 @@ def assemble(
 
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
-    # Extract and convert
+    TempK, Pbar, Ks = prepare(TempC, Pdbar, Ks)
     Sal = totals["Sal"]
-    TempK = convert.TempC2K(TempC)
-    Pbar = convert.Pdbar2bar(Pdbar)
-    # Initialise dict
-    if Ks is None:
-        Ks = {}
-    # Ideal gas constant
+    # Set ideal gas constant
     if "RGas" not in Ks:
         Ks["RGas"] = constants.RGasConstant(WhichR)
-    RGas = Ks["RGas"]  # for convenience
-    # Calculate pH scale conversion factors - these are NOT pressure-corrected
-    KSO40 = pressured.KSO4(TempK, Sal, 0.0, RGas, WhoseKSO4)
-    KF0 = pressured.KF(TempK, Sal, 0.0, RGas, WhoseKF)
-    SWStoTOT0 = convert.sws2tot(totals["TSO4"], KSO40, totals["TF"], KF0)
-    # Get KSO4 and KF on the Free pH scale
+    RGas = Ks["RGas"]
+    # Get KSO4 and KF, at pressure, and always on the Free pH scale
     if "KSO4" not in Ks:
         Ks["KSO4"] = pressured.KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4)
     if "KF" not in Ks:
         Ks["KF"] = pressured.KF(TempK, Sal, Pbar, RGas, WhoseKF)
     # Correct pH scale conversion factors for pressure.
-    # fH has been assumed to be independent of pressure.
-    SWStoTOT = convert.sws2tot(totals["TSO4"], Ks["KSO4"], totals["TF"], Ks["KF"])
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    if "fH" not in Ks:
-        Ks["fH"] = pressured.fH(TempK, Sal, WhichKs)
+    # Note that fH has been assumed to be independent of pressure.
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor = full(size(TempC), nan)
-    pHfactor = where(pHScale == 1, SWStoTOT, pHfactor)  # Total
-    pHfactor = where(pHScale == 2, 1.0, pHfactor)  # Seawater (already on this)
-    pHfactor = where(pHScale == 3, SWStoTOT / FREEtoTOT, pHfactor)  # Free
-    pHfactor = where(pHScale == 4, Ks["fH"], pHfactor)  # NBS
+    pHfactor, Ks = get_pHfactor(TempK, Sal, totals, Ks, pHScale, WhichKs)
+    SWStoTOT_P0 = sws2tot_P0(TempK, totals, WhoseKSO4, WhoseKF)
     # Borate
     if "KB" not in Ks:
         Ks["KB"] = (
-            pressured.KB(TempK, Sal, Pbar, RGas, WhichKs, Ks["fH"], SWStoTOT0)
+            pressured.KB(TempK, Sal, Pbar, RGas, WhichKs, Ks["fH"], SWStoTOT_P0)
             * pHfactor
         )
     # Water
@@ -86,7 +103,7 @@ def assemble(
         Ks["KSi"] = pressured.KSi(TempK, Sal, Pbar, RGas, WhichKs, Ks["fH"]) * pHfactor
     # Carbonate
     if ("K1" not in Ks) or ("K2" not in Ks):
-        K1, K2 = pressured.KC(TempK, Sal, Pbar, RGas, WhichKs, Ks["fH"], SWStoTOT0)
+        K1, K2 = pressured.KC(TempK, Sal, Pbar, RGas, WhichKs, Ks["fH"], SWStoTOT_P0)
         if "K1" not in Ks:
             Ks["K1"] = K1 * pHfactor
         if "K2" not in Ks:
@@ -94,14 +111,14 @@ def assemble(
     # Sulfide
     if "KH2S" not in Ks:
         Ks["KH2S"] = (
-            pressured.KH2S(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0) * pHfactor
+            pressured.KH2S(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT_P0) * pHfactor
         )
     # Ammonium
     if "KNH3" not in Ks:
         Ks["KNH3"] = (
-            pressured.KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0) * pHfactor
+            pressured.KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT_P0) * pHfactor
         )
-    # K0 for CO2 dissolution - no pressure or pH scale corrections
+    # K0 for CO2 dissolution - no pressure or pH scale corrections applied
     if "K0" not in Ks:
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
