@@ -9,7 +9,8 @@ co2matlab = pd.read_csv("validate/results/compare_MATLAB_extd.csv")
 
 # Convert constants options
 co2matlab["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
-    co2matlab["KSO4CONSTANT"].values, co2matlab["BORON"].values)
+    co2matlab["KSO4CONSTANT"].values, co2matlab["BORON"].values
+)
 
 # Run PyCO2SYS.CO2SYS under the same conditions
 co2inputs = [
@@ -48,6 +49,7 @@ mad_co2py_matlab = co2py_matlab.abs().max()
 
 # Max. abs. diff. as a percentage
 pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
+
 
 def test_co2py_matlab():
     checkcols = [

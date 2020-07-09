@@ -67,3 +67,8 @@ def test_co2py_matlab():
         (pmad_co2py_matlab[checkcols] < 1e-5).values
         | np.isnan(pmad_co2py_matlab[checkcols].values)
     )
+
+
+# Run tests
+test_co2pyo_matlab()
+test_co2py_matlab()
