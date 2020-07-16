@@ -1,11 +1,11 @@
 Name                                Stmts   Miss  Cover
 -------------------------------------------------------
 PyCO2SYS/__init__.py                    7      0   100%
-PyCO2SYS/api/__init__.py               60      4    93%
+PyCO2SYS/api/__init__.py               62      4    94%
 PyCO2SYS/bio.py                         4      0   100%
 PyCO2SYS/buffers/__init__.py           59     19    68%
 PyCO2SYS/buffers/explicit.py           43     11    74%
-PyCO2SYS/constants.py                  18      2    89%
+PyCO2SYS/constants.py                  18      1    94%
 PyCO2SYS/convert.py                    60      7    88%
 PyCO2SYS/engine.py                     81      1    99%
 PyCO2SYS/equilibria/__init__.py        68      0   100%
@@ -18,7 +18,7 @@ PyCO2SYS/original.py                  636      2    99%
 PyCO2SYS/salts.py                      65      0   100%
 PyCO2SYS/solubility.py                 61      0   100%
 PyCO2SYS/solve/__init__.py            214      0   100%
-PyCO2SYS/solve/delta.py                33      5    85%
+PyCO2SYS/solve/delta.py                71     38    46%
 PyCO2SYS/solve/get.py                 194     12    94%
 PyCO2SYS/solve/initialise.py           55      0   100%
 PyCO2SYS/test.py                       31      0   100%
@@ -31,8 +31,8 @@ tests/test_overrides.py                15      0   100%
 tests/test_propagation.py             103      0   100%
 tests/test_uncertainty.py             263      0   100%
 validate/buffers_auto_explicit.py      16      0   100%
-validate/compare_MATLAB_extd.py        18      0   100%
+validate/compare_MATLAB_extd.py        19      0   100%
 validate/compare_MATLABv2_0_5.py       29      0   100%
 validate/round_robin.py                26      0   100%
 -------------------------------------------------------
-TOTAL                                3226    128    96%
+TOTAL                                3267    160    95%
