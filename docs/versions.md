@@ -33,11 +33,15 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***Bug fixes***
 
-    * Corrected missing a pH scale conversion in [SLH20](../refs/#s) option for carbonic acid dissociation.
+    * Corrected missing a pH scale conversion in [SLH20](../refs/#s) option for carbonic acid dissociation.  **Any calculations with this option in PyCO2SYS v1.4.1 or v1.4.2 should be updated!**
 
     ***Validation***
 
-    * Compared vs new release candidate version of CO2SYS-MATLAB v3.
+    * Results validated against new release candidate version of CO2SYS-MATLAB v3.
+
+    ***Internal reorganisation***
+
+    * `_approx` function inputs in `PyCO2SYS.solve.delta` updated to match the exact Autograd functions for easier switching.
 
 
 ### 1.4.2 (9 July 2020)
