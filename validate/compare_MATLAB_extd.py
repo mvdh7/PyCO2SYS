@@ -27,16 +27,18 @@ co2inputs = [
         "PRESOUT",
         "SI",
         "PO4",
-        "pHSCALEIN",
-        "K1K2CONSTANTS",
-        "KSO4CONSTANTS",
         "NH3",
         "H2S",
+        "pHSCALEIN",
+        "K1K2CONSTANTS",
+        "KSO4CONSTANT",
         "KFCONSTANT",
+        "BORON",
     ]
 ]
 go = time()
-co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="auto")
+# co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="auto", WhichR=3)
+co2py = pyco2.api.CO2SYS_MATLABv3(*co2inputs)
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
 
@@ -55,9 +57,13 @@ def test_co2py_matlab():
     checkcols = [
         col
         for col in pmad_co2py_matlab.index
-        if col not in ["RFin", "RFout", "PO4", "SAL", "SI", "H2S", "NH3"]
+        if col
+        not in ["RFin", "RFout", "PO4", "SAL", "SI", "H2S", "NH3", "KSO4CONSTANTS"]
     ]
     assert np.all(
-        (pmad_co2py_matlab[checkcols] < 1e-6).values
+        (pmad_co2py_matlab[checkcols] < 1e-3).values
         | np.isnan(pmad_co2py_matlab[checkcols].values)
     )
+
+
+test_co2py_matlab()

@@ -2,10 +2,10 @@
 addpath('/home/matthew/github/CO2-System-Extd/')
 
 %% Set up input conditions
-PARvalues = [2250 2100 8.1 400 405 380 1800 10];
+PARvalues = [2250 2100 8.1 400 405 200 1800 10];
 PARTYPEs = 1:8;
 pHSCALEIN_opts = 1:4;
-K1K2CONSTANTS_opts = 1:15;
+K1K2CONSTANTS_opts = 1:16;
 KSO4CONSTANTS_opts = 1:4;
 KFCONSTANT_opts = 1:2;
 SALvalue = 33.1;
@@ -42,7 +42,7 @@ K1K2 = K1K2(xrow);
 KSO4_only = KSO4_only(xrow);
 tic
 [DATA, HEADERS] = ...
-    CO2SYS_extd(P1, P2, P1type_ext, P2type_ext, sal, tempin, tempout, ...
+    CO2SYS(P1, P2, P1type_ext, P2type_ext, sal, tempin, tempout, ...
     presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal);
 toc
 

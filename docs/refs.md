@@ -80,7 +80,7 @@ Click on each reference to see more details.
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
 ??? note "HGP20: Humphreys et al. (2020) *"PyCO2SYS: marine carbonate..."*"
-    Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python. Version 1.4.2. *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+    Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 ??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
@@ -202,6 +202,9 @@ Click on each reference to see more details.
 
 ??? note "SMB64: Sillén et al. (1964) *Chem. Soc. London*"
     Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.
+
+??? note "SPH20: Sharp et al. (2020) *CO2-System-Extd*"
+    Sharp, J. D., Pierrot, D., Humphreys, M. P., Epitalon, J.-M., Orr, J. C., Lewis, E., Wallace, D. W. R. (2020). CO2-System-Extd, v3.0.  MATLAB (MathWorks).  Available from [github.com/jonathansharp/CO2-System-Extd](https://github.com/jonathansharp/CO2-System-Extd).
 
 ### T
 

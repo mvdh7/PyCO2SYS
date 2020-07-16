@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Define metadata about the PyCO2SYS package."""
 
-version = "1.4.2"
+version = "1.4.3"
 authorlist = [
     "Humphreys, Matthew P.",
     "Gregor, Luke",

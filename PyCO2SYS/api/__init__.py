@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Alternative APIs for executing the main CO2SYS function."""
 
-from ..engine import CO2SYS
+from ..engine import CO2SYS, _CO2SYS
 
 
 def CO2SYS_wrap(
@@ -267,3 +267,57 @@ def CO2SYS_wrap(
         return xds
     else:
         return dfo
+
+
+def CO2SYS_MATLABv3(
+    PAR1,
+    PAR2,
+    PAR1TYPE,
+    PAR2TYPE,
+    SAL,
+    TEMPIN,
+    TEMPOUT,
+    PRESIN,
+    PRESOUT,
+    SI,
+    PO4,
+    NH3,
+    H2S,
+    pHSCALEIN,
+    K1K2CONSTANTS,
+    KSO4CONSTANT,
+    KFCONSTANT,
+    BORON,
+    buffers_mode="auto",
+    WhichR=3,
+    totals=None,
+    equilibria_in=None,
+    equilibria_out=None,
+):
+    """Run CO2SYS with the new MATLAB v3 syntax and updated gas constant value."""
+    return _CO2SYS(
+        PAR1,
+        PAR2,
+        PAR1TYPE,
+        PAR2TYPE,
+        SAL,
+        TEMPIN,
+        TEMPOUT,
+        PRESIN,
+        PRESOUT,
+        SI,
+        PO4,
+        NH3,
+        H2S,
+        pHSCALEIN,
+        K1K2CONSTANTS,
+        KSO4CONSTANT,
+        KFCONSTANT,
+        BORON,
+        buffers_mode,
+        WhichR,
+        KSO4CONSTANTS=0,
+        totals=totals,
+        equilibria_in=equilibria_in,
+        equilibria_out=equilibria_out,
+    )
