@@ -27,10 +27,17 @@
 
 Enables uncertainty propagation with forward finite-difference derivatives.
 
-### 1.4.3 (forthcoming)
+### 1.4.3 (16 July 2020)
 
 !!! example "Changes in v1.4.3"
 
+    ***Bug fixes***
+
+    * Corrected missing a pH scale conversion in [SLH20](../refs/#s) option for carbonic acid dissociation.
+
+    ***Validation***
+
+    * Compared vs new release candidate version of CO2SYS-MATLAB v3.
 
 
 ### 1.4.2 (9 July 2020)
