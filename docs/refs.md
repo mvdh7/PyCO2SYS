@@ -203,6 +203,9 @@ Click on each reference to see more details.
 ??? note "SMB64: Sillén et al. (1964) *Chem. Soc. London*"
     Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.
 
+??? note "SPH20: Sharp et al. (2020) *CO2-System-Extd*"
+    Sharp, J. D., Pierrot, D., Humphreys, M. P., Epitalon, J.-M., Orr, J. C., Lewis, E., Wallace, D. W. R. (2020). CO2-System-Extd, v3.0.  MATLAB (MathWorks).  Available from [github.com/jonathansharp/CO2-System-Extd](https://github.com/jonathansharp/CO2-System-Extd).
+
 ### T
 
 ??? note "TWB82: Takahashi et al. (1982) in *"GEOSECS Pacific Expedition"*"
