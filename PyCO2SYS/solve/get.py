@@ -2,9 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-from autograd.numpy import errstate, log10, nan, sign, sqrt, where
-from autograd.numpy import abs as np_abs
-from autograd.numpy import any as np_any
+from autograd import numpy as np
 from .. import convert
 from . import delta, initialise
 
@@ -25,7 +23,7 @@ def CarbfromTCpH(TC, pH, K1, K2):
     return CarbfromTCH(TC, H, K1, K2)
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def HCO3fromTCH(TC, H, K1, K2):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+]."""
     return TC * K1 * H / (H ** 2 + K1 * H + K1 * K2)
@@ -37,7 +35,7 @@ def HCO3fromTCpH(TC, pH, K1, K2):
     return HCO3fromTCH(TC, H, K1, K2)
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def AlkParts(TC, pH, FREEtoTOT, totals, Ks):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
@@ -149,7 +147,7 @@ def TAfrompHHCO3(pH, HCO3, totals, Ks):
     return TAfromTCpH(TC, pH, totals, Ks)
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def _pHfromTAVX(TA, VX, totals, Ks, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
     Newton-Raphson iterative method.
@@ -164,19 +162,19 @@ def _pHfromTAVX(TA, VX, totals, Ks, initialfunc, deltafunc):
     pH = initialfunc(TA, VX, totals["TB"], Ks["K1"], Ks["K2"], Ks["KB"])
     deltapH = 1.0 + pHTol
     FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    while np_any(np_abs(deltapH) >= pHTol):
-        pHdone = np_abs(deltapH) < pHTol  # check which rows don't need updating
+    while np.any(np.abs(deltapH) >= pHTol):
+        pHdone = np.abs(deltapH) < pHTol  # check which rows don't need updating
         deltapH = deltafunc(pH, TA, VX, FREEtoTOT, totals, Ks)  # the pH jump
         # To keep the jump from being too big:
-        abs_deltapH = np_abs(deltapH)
-        sign_deltapH = sign(deltapH)
+        abs_deltapH = np.abs(deltapH)
+        np.sign_deltapH = np.sign(deltapH)
         # Jump by 1 instead if `deltapH` > 5
-        deltapH = where(abs_deltapH > 5.0, sign_deltapH, deltapH)
+        deltapH = np.where(abs_deltapH > 5.0, np.sign_deltapH, deltapH)
         # Jump by 0.5 instead if 1 < `deltapH` < 5
-        deltapH = where(
-            (abs_deltapH > 0.5) & (abs_deltapH <= 5.0), 0.5 * sign_deltapH, deltapH,
+        deltapH = np.where(
+            (abs_deltapH > 0.5) & (abs_deltapH <= 5.0), 0.5 * np.sign_deltapH, deltapH,
         )  # assumes that once we're within 1 of the correct pH, we will converge
-        pH = where(pHdone, pH, pH + deltapH)  # only update rows that need it
+        pH = np.where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
@@ -220,7 +218,7 @@ def fCO2fromTCpH(TC, pH, K0, K1, K2):
     return TC * H ** 2 / (H ** 2 + K1 * H + K1 * K2) / K0
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def TCfromTApH(TA, pH, totals, Ks):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
@@ -235,8 +233,8 @@ def TCfromTApH(TA, pH, totals, Ks):
     F = TA_TC0_pH > TA
     if any(F):
         print("Some input pH values are impossibly high given the input alkalinity;")
-        print("returning NaN rather than negative DIC values.")
-    CAlk = where(F, nan, TA - TA_TC0_pH)
+        print("returning np.nan rather than negative DIC values.")
+    CAlk = np.where(F, np.nan, TA - TA_TC0_pH)
     K1 = Ks["K1"]
     K2 = Ks["K2"]
     H = 10.0 ** -pH
@@ -244,13 +242,13 @@ def TCfromTApH(TA, pH, totals, Ks):
     return TC
 
 
-@errstate(divide="ignore", invalid="ignore")
+@np.errstate(divide="ignore", invalid="ignore")
 def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
     This calculates pH from TC and fCO2 using K0, K1, and K2 by solving the quadratic in
     H: fCO2*K0 = TC*H*H/(K1*H + H*H + K1*K2).
-    If there is not a real root, then pH is returned as NaN.
+    If there is not a real root, then pH is returned as np.nan.
 
     Based on CalculatepHfromTCfCO2, version 02.02, 11-12-96, by Ernie Lewis.
     """
@@ -259,9 +257,9 @@ def pHfromTCfCO2(TC, fCO2, K0, K1, K2):
     F = (RR >= 1) | (Discr <= 0)
     if any(F):
         print("Some input fCO2 values are impossibly high given the input DIC;")
-        print("returning NaN.")
-    H = where(F, nan, 0.5 * (K1 * RR + sqrt(Discr)) / (1 - RR))
-    pH = -log10(H)
+        print("returning np.nan.")
+    H = np.where(F, np.nan, 0.5 * (K1 * RR + np.sqrt(Discr)) / (1 - RR))
+    pH = -np.log10(H)
     return pH
 
 
@@ -274,7 +272,7 @@ def TCfrompHfCO2(pH, fCO2, K0, K1, K2):
     return K0 * fCO2 * (H ** 2 + K1 * H + K1 * K2) / H ** 2
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def pHfromTCCarb(TC, CARB, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
@@ -288,9 +286,9 @@ def pHfromTCCarb(TC, CARB, K1, K2):
     F = (CARB >= TC) | (Discr <= 0)
     if any(F):
         print("Some input CO3 values are impossibly high given the input DIC;")
-        print("returning NaN.")
-    H = where(F, nan, (-K1 + sqrt(Discr)) / 2)
-    return -log10(H)
+        print("returning np.nan.")
+    H = np.where(F, np.nan, (-K1 + np.sqrt(Discr)) / 2)
+    return -np.log10(H)
 
 
 def fCO2frompHCarb(pH, CARB, K0, K1, K2):
@@ -317,11 +315,11 @@ def pHfromfCO2Carb(fCO2, CARB, K0, K1, K2):
     Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
     Pierrot.
     """
-    H = sqrt(K0 * K1 * K2 * fCO2 / CARB)
-    return -log10(H)
+    H = np.sqrt(K0 * K1 * K2 * fCO2 / CARB)
+    return -np.log10(H)
 
 
-@errstate(invalid="ignore")
+@np.errstate(invalid="ignore")
 def pHfromTCHCO3(TC, HCO3, K1, K2):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
@@ -334,9 +332,9 @@ def pHfromTCHCO3(TC, HCO3, K1, K2):
     F = (HCO3 >= TC) | (bsq_4ac <= 0)
     if any(F):
         print("Some input HCO3 values are impossibly high given the input DIC;")
-        print("returning NaN.")
-    H = where(F, nan, (-b - sqrt(bsq_4ac)) / (2 * a))
-    return -log10(H)
+        print("returning np.nan.")
+    H = np.where(F, np.nan, (-b - np.sqrt(bsq_4ac)) / (2 * a))
+    return -np.log10(H)
 
 
 def CarbfromfCO2HCO3(fCO2, HCO3, K0, K1, K2):
@@ -436,13 +434,13 @@ def TCfromfCO2HCO3(fCO2, HCO3, K0, K1, K2):
 def pHfromfCO2HCO3(fCO2, HCO3, K0, K1):
     """pH from CO2 fugacity and bicarbonate ion."""
     H = K0 * K1 * fCO2 / HCO3
-    return -log10(H)
+    return -np.log10(H)
 
 
 def pHfromCarbHCO3(CARB, HCO3, K2):
     """pH from carbonate ion and carbonate ion."""
     H = K2 * HCO3 / CARB
-    return -log10(H)
+    return -np.log10(H)
 
 
 def TAfromCarbHCO3(CARB, HCO3, totals, Ks):
