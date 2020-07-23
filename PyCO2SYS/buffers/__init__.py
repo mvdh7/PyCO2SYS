@@ -39,7 +39,7 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     # gammaTA is (d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10
     dlnCO2_dPH__TC = egrad(
         lambda PH: log(
-            Ks["K0"] * solve.get.fCO2fromTCpH(TC, PH, Ks["K0"], Ks["K1"], Ks["K2"])
+            Ks["K0"] * solve.get.fCO2fromTCpH(TC, PH, totals, Ks)
         )
     )(PH)
     gammaTA = dTA_dPH__TC / dlnCO2_dPH__TC
@@ -57,7 +57,7 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     omegaTC = dTC_dPH__TA / (dlnOmegaAr_dCARB * dCARB_dPH__TA)
     # omegaTA is (d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10
     dCARB_dPH__TC = egrad(
-        lambda PH: solve.get.CarbfromTCpH(TC, PH, Ks["K1"], Ks["K2"])
+        lambda PH: solve.get.CarbfromTCpH(TC, PH, totals, Ks)
     )(PH)
     omegaTA = dTA_dPH__TC / (dlnOmegaAr_dCARB * dCARB_dPH__TC)
     return {
@@ -74,7 +74,7 @@ def isocap(TA, TC, PH, FC, totals, Ks):
     """d[TA]/d[TC] at constant fCO2, i.e. Q of HDW18."""
     dTA_dPH__FC = egrad(lambda PH: solve.get.TAfrompHfCO2(PH, FC, totals, Ks))(PH)
     dTC_dPH__FC = egrad(
-        lambda PH: solve.get.TCfrompHfCO2(PH, FC, Ks["K0"], Ks["K1"], Ks["K2"])
+        lambda PH: solve.get.TCfrompHfCO2(PH, FC, totals, Ks)
     )(PH)
     return dTA_dPH__FC / dTC_dPH__FC
 
@@ -109,7 +109,7 @@ def gammaTA(TC, PH, totals, Ks):
     """(d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10."""
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
     dlnFC_dPH__TC = egrad(
-        lambda PH: log(solve.get.fCO2fromTCpH(TC, PH, Ks["K0"], Ks["K1"], Ks["K2"]))
+        lambda PH: log(solve.get.fCO2fromTCpH(TC, PH, totals, Ks))
     )(PH)
     return dTA_dPH__TC / dlnFC_dPH__TC
 
@@ -143,7 +143,7 @@ def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
 def omegaTA(TC, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
     """(d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10."""
     dCARB_dPH__TC = egrad(
-        lambda PH: solve.get.CarbfromTCpH(TC, PH, Ks["K1"], Ks["K2"])
+        lambda PH: solve.get.CarbfromTCpH(TC, PH, totals, Ks)
     )(PH)
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
     return dTA_dPH__TC / (
