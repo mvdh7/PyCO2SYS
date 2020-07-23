@@ -100,4 +100,5 @@ def assemble(
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
+    Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
     return Ks

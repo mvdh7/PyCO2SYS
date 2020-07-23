@@ -92,6 +92,74 @@ def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
     }
 
 
+def phosphate_components(pH, totals, equilibria):
+    """Calculate the components of total phosphate."""
+    tPO4 = totals["TPO4"]
+    KP1 = equilibria["KP1"]
+    KP2 = equilibria["KP2"]
+    KP3 = equilibria["KP3"]
+    h_scale = 10.0 ** -pH
+    denom = h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3
+    return {
+        "PO4": tPO4 * KP1 * KP2 * KP3 / denom,
+        "HPO4": tPO4 * KP1 * KP2 * h_scale / denom,
+        "H2PO4": tPO4 * KP1 * h_scale ** 2 / denom,
+        "H3PO4": tPO4 * h_scale ** 3 / denom,
+    }
+
+
+def alkalinity_phosphate(h_scale, totals, equilibria):
+    """Calculate the contribution of phosphate components to total alkalinity."""
+    # phosphate = phosphate_components(-np.log10(h_scale), totals, equilibria)
+    # return 2 * phosphate["PO4"] + phosphate["HPO4"] - phosphate["H3PO4"]
+    KP1 = equilibria["KP1"]
+    KP2 = equilibria["KP2"]
+    KP3 = equilibria["KP3"]
+    return (
+        totals["TPO4"]
+        * (KP1 * KP2 * h_scale + 2 * KP1 * KP2 * KP3 - h_scale ** 3)
+        / (h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3)
+    )
+
+
+@np.errstate(invalid="ignore")
+def alkalinity_components(TC, pH, totals, equilibria):
+    """Calculate the different components of total alkalinity from dissolved inorganic
+    carbon and pH.
+
+    This is currently not used in the default CO2SYS but it will eventually replace the
+    existing AlkParts function.
+
+    Based on CalculateAlkParts by Ernie Lewis.
+    """
+    h_scale = 10.0 ** -pH  # on the input pH scale
+    HCO3 = HCO3fromTCH(TC, h_scale, totals, equilibria)
+    CO3 = CarbfromTCH(TC, h_scale, totals, equilibria)
+    BAlk = totals["TB"] * equilibria["KB"] / (equilibria["KB"] + h_scale)
+    OH = equilibria["KW"] / h_scale
+    PAlk = alkalinity_phosphate(h_scale, totals, equilibria)
+    SiAlk = totals["TSi"] * equilibria["KSi"] / (equilibria["KSi"] + h_scale)
+    NH3Alk = totals["TNH3"] * equilibria["KNH3"] / (equilibria["KNH3"] + h_scale)
+    H2SAlk = totals["TH2S"] * equilibria["KH2S"] / (equilibria["KH2S"] + h_scale)
+    # KSO4 and KF are always on the Free scale, so:
+    h_free = h_scale * equilibria["pHfactor_to_Free"]
+    HSO4 = totals["TSO4"] / (1 + equilibria["KSO4"] / h_free)
+    HF = totals["TF"] / (1 + equilibria["KF"] / h_free)
+    return {
+        "HCO3": HCO3,
+        "CO3": CO3,
+        "BAlk": BAlk,
+        "OH": OH,
+        "PAlk": PAlk,
+        "SiAlk": SiAlk,
+        "NH3Alk": NH3Alk,
+        "H2SAlk": H2SAlk,
+        "Hfree": h_free,
+        "HSO4": HSO4,
+        "HF": HF,
+    }
+
+
 def TAfromTCpH(TC, pH, totals, equilibria):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
@@ -104,6 +172,7 @@ def TAfromTCpH(TC, pH, totals, equilibria):
     """
     FREEtoTOT = convert.free2tot(totals, equilibria)
     alks = AlkParts(TC, pH, FREEtoTOT, totals, equilibria)
+    # alks = alkalinity_components(TC, pH, totals, equilibria)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
