@@ -34,6 +34,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
     ***Internal reorganisation***
 
     * All 2-to-3 functions in `PyCO2SYS.solve.get` now have a more consistent set of inputs.
+    * Revised pH scale conversion functions for consistency.
 
 ### 1.4.3 (16 July 2020)
 

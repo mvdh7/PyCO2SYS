@@ -301,7 +301,7 @@ def others(
     pK1 = -np.log10(Ks["K1"])
     pK2 = -np.log10(Ks["K2"])
     # Components of alkalinity and DIC
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
+    FREEtoTOT = convert.free2tot(totals, Ks)
     alks = get.AlkParts(TC, PH, FREEtoTOT, totals, Ks)
     alks["PAlk"] = alks["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
@@ -312,9 +312,7 @@ def others(
     VPFac = gas.vpfactor(TempC, Sal)
     xCO2dry = PC / VPFac  # this assumes pTot = 1 atm
     # Just for reference, convert pH at input conditions to the other scales
-    pHT, pHS, pHF, pHN = convert.pH2allscales(
-        PH, pHScale, Ks["KSO4"], Ks["KF"], totals["TSO4"], totals["TF"], Ks["fH"]
-    )
+    pHT, pHS, pHF, pHN = convert.pH2allscales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
     assert all(
         np.isin(buffers_mode, ["auto", "explicit", "none"])

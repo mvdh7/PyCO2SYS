@@ -102,7 +102,7 @@ def TAfromTCpH(TC, pH, totals, equilibria):
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
-    FREEtoTOT = convert.free2tot(totals["TSO4"], equilibria["KSO4"])
+    FREEtoTOT = convert.free2tot(totals, equilibria)
     alks = AlkParts(TC, pH, FREEtoTOT, totals, equilibria)
     TA = (
         alks["HCO3"]
@@ -177,7 +177,7 @@ def _pHfromTAVX(TA, VX, totals, equilibria, initialfunc, deltafunc):
         TA, VX, totals["TB"], equilibria["K1"], equilibria["K2"], equilibria["KB"]
     )
     deltapH = 1.0 + pHTol
-    FREEtoTOT = convert.free2tot(totals["TSO4"], equilibria["KSO4"])
+    FREEtoTOT = convert.free2tot(totals, equilibria)
     while np.any(np.abs(deltapH) >= pHTol):
         pHdone = np.abs(deltapH) < pHTol  # check which rows don't need updating
         deltapH = deltafunc(pH, TA, VX, FREEtoTOT, totals, equilibria)  # the pH jump
