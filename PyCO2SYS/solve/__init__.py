@@ -23,7 +23,9 @@ def _core_sanity(TC, PC, FC, CARB, HCO3, CO2):
     assert np.all(
         (HCO3 >= 0) | np.isnan(HCO3)
     ), "Bicarbonate ion molinity cannot be negative."
-    assert np.all((CO2 >= 0) | np.isnan(CO2)), "Aqueous CO2 molinity cannot be negative."
+    assert np.all(
+        (CO2 >= 0) | np.isnan(CO2)
+    ), "Aqueous CO2 molinity cannot be negative."
     assert np.all(
         (CARB < TC) | np.isnan(CARB) | np.isnan(TC)
     ), "Carbonate ion molinity must be less than DIC."
@@ -329,7 +331,9 @@ def others(
         "betaTA",
         "omegaTA",
     ]
-    allbuffers_ESM10 = {buffer: np.full(np.size(Sal), np.nan) for buffer in esm10buffers}
+    allbuffers_ESM10 = {
+        buffer: np.full(np.size(Sal), np.nan) for buffer in esm10buffers
+    }
     F = buffers_mode == "auto"
     if any(F):
         # Evaluate buffers with automatic differentiation [added v1.3.0]

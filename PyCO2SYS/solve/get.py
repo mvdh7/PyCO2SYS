@@ -57,7 +57,11 @@ def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
     OH = equilibria["KW"] / H
     PAlk = (
         totals["TPO4"]
-        * (equilibria["KP1"] * equilibria["KP2"] * H + 2 * equilibria["KP1"] * equilibria["KP2"] * equilibria["KP3"] - H ** 3)
+        * (
+            equilibria["KP1"] * equilibria["KP2"] * H
+            + 2 * equilibria["KP1"] * equilibria["KP2"] * equilibria["KP3"]
+            - H ** 3
+        )
         / (
             H ** 3
             + equilibria["KP1"] * H ** 2
@@ -69,7 +73,9 @@ def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
     NH3Alk = totals["TNH3"] * equilibria["KNH3"] / (equilibria["KNH3"] + H)
     H2SAlk = totals["TH2S"] * equilibria["KH2S"] / (equilibria["KH2S"] + H)
     Hfree = H / FREEtoTOT  # for H on the Total scale
-    HSO4 = totals["TSO4"] / (1 + equilibria["KSO4"] / Hfree)  # since KSO4 is on the Free scale
+    HSO4 = totals["TSO4"] / (
+        1 + equilibria["KSO4"] / Hfree
+    )  # since KSO4 is on the Free scale
     HF = totals["TF"] / (1 + equilibria["KF"] / Hfree)  # since KF is on the Free scale
     return {
         "HCO3": HCO3,
@@ -167,7 +173,9 @@ def _pHfromTAVX(TA, VX, totals, equilibria, initialfunc, deltafunc):
     Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
-    pH = initialfunc(TA, VX, totals["TB"], equilibria["K1"], equilibria["K2"], equilibria["KB"])
+    pH = initialfunc(
+        TA, VX, totals["TB"], equilibria["K1"], equilibria["K2"], equilibria["KB"]
+    )
     deltapH = 1.0 + pHTol
     FREEtoTOT = convert.free2tot(totals["TSO4"], equilibria["KSO4"])
     while np.any(np.abs(deltapH) >= pHTol):
@@ -209,12 +217,16 @@ def pHfromTAfCO2(TA, fCO2, totals, equilibria):
 
 def pHfromTACarb(TA, CARB, totals, equilibria):
     """Calculate pH from total alkalinity and carbonate ion molinity."""
-    return _pHfromTAVX(TA, CARB, totals, equilibria, initialise.fromCO3, delta.pHfromTACarb)
+    return _pHfromTAVX(
+        TA, CARB, totals, equilibria, initialise.fromCO3, delta.pHfromTACarb
+    )
 
 
 def pHfromTAHCO3(TA, HCO3, totals, equilibria):
     """Calculate pH from total alkalinity and bicarbonate ion molinity."""
-    return _pHfromTAVX(TA, HCO3, totals, equilibria, initialise.fromHCO3, delta.pHfromTAHCO3)
+    return _pHfromTAVX(
+        TA, HCO3, totals, equilibria, initialise.fromHCO3, delta.pHfromTAHCO3
+    )
 
 
 def fCO2fromTCpH(TC, pH, totals, equilibria):
