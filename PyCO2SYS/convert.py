@@ -2,9 +2,10 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Convert units and calculate conversion factors."""
 
+import copy
 from autograd import numpy as np
 from .constants import Tzero
-
+from .equilibria import pressured
 
 def TempC2K(TempC):
     """Convert temperature from degC to K."""
@@ -56,6 +57,36 @@ def tot2sws(totals, equilibria):
     return 1.0 / sws2tot(totals, equilibria)
 
 
+def sws2nbs(totals, equilibria):
+    """Seawater to NBS pH scale conversion factor."""
+    return equilibria["fH"]
+
+
+def nbs2sws(totals, equilibria):
+    """NBS to Seawater pH scale conversion factor."""
+    return 1.0 / sws2nbs(totals, equilibria)
+
+
+def tot2nbs(totals, equilibria):
+    """Total to NBS pH scale conversion factor."""
+    return tot2sws(totals, equilibria) * sws2nbs(totals, equilibria)
+
+
+def nbs2tot(totals, equilibria):
+    """NBS to Total pH scale conversion factor."""
+    return 1.0 / tot2nbs(totals, equilibria)
+
+
+def free2nbs(totals, equilibria):
+    """Free to NBS pH scale conversion factor."""
+    return free2sws(totals, equilibria) * sws2nbs(totals, equilibria)
+
+
+def nbs2free(totals, equilibria):
+    """NBS to Free pH scale conversion factor."""
+    return 1.0 / free2nbs(totals, equilibria)
+
+
 def fH_PTBO87(TempK, Sal):
     """fH following PTBO87."""
     # === CO2SYS.m comments: =======
@@ -95,6 +126,51 @@ def pH2allscales(pH, pHScale, totals, equilibria):
     pHfree = pHtot + np.log10(FREEtoTOT)
     pHsws = pHtot + np.log10(SWStoTOT)
     return pHtot, pHsws, pHfree, pHNBS
+
+
+def sws2tot_P0(TempK, totals, equilibria, WhoseKSO4, WhoseKF):
+    """Determine SWS to Total pH scale correction factor at zero pressure."""
+    equilibria_P0 = copy.deepcopy(equilibria)
+    equilibria_P0["KSO4"] = pressured.KSO4(TempK, totals["Sal"], 0.0, 1.0, WhoseKSO4)
+    equilibria_P0["KF"] = pressured.KF(TempK, totals["Sal"], 0.0, 1.0, WhoseKF)
+    SWStoTOT_P0 = sws2tot(totals, equilibria_P0)
+    return SWStoTOT_P0
+
+
+def get_pHfactor_from_SWS(TempK, Sal, totals, equilibria, pHScale, WhichKs):
+    """Determine pH scale conversion factors to go from SWS to input pHScale(s).
+    The raw K values (not pK) should be multiplied by these to make the conversion.
+    """
+    if "fH" not in equilibria:
+        equilibria["fH"] = pressured.fH(TempK, Sal, WhichKs)
+    SWStoTOT = sws2tot(totals, equilibria)
+    SWStoFREE = sws2free(totals, equilibria)
+    SWStoNBS = sws2nbs(totals, equilibria)
+    pHfactor = np.full(np.size(pHScale), np.nan)
+    pHfactor = np.where(pHScale == 1, SWStoTOT, pHfactor)  # Total
+    pHfactor = np.where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
+    pHfactor = np.where(pHScale == 3, SWStoFREE, pHfactor)  # Free
+    pHfactor = np.where(pHScale == 4, SWStoNBS, pHfactor)  # NBS
+    equilibria["pHfactor_from_SWS"] = pHfactor
+    return equilibria
+
+
+def get_pHfactor_to_Free(TempK, Sal, totals, equilibria, pHScale, WhichKs):
+    """Determine pH scale conversion factors to go from input pHScale(s) to Free.
+    The raw K values (not pK) should be multiplied by these to make the conversion.
+    """
+    if "fH" not in equilibria:
+        equilibria["fH"] = pressured.fH(TempK, Sal, WhichKs)
+    TOTtoFREE = tot2free(totals, equilibria)
+    SWStoFREE = sws2free(totals, equilibria)
+    NBStoFREE = nbs2free(totals, equilibria)
+    pHfactor = np.full(np.size(pHScale), np.nan)
+    pHfactor = np.where(pHScale == 1, TOTtoFREE, pHfactor)  # Total
+    pHfactor = np.where(pHScale == 2, SWStoFREE, pHfactor)  # Seawater (SWS)
+    pHfactor = np.where(pHScale == 3, 1.0, pHfactor)  # Free
+    pHfactor = np.where(pHScale == 4, NBStoFREE, pHfactor)  # NBS
+    equilibria["pHfactor_to_Free"] = pHfactor
+    return equilibria
 
 
 def options_old2new(KSO4CONSTANTS):

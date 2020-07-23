@@ -2,66 +2,20 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
-import copy
-from autograd.numpy import full, nan, size, where
+from autograd import numpy as np
 from . import p1atm, pcx, pressured
 from .. import constants, convert, gas
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
 
-def prepare(TempC, Pdbar, Ks):
-    """Initialise Ks dict if needed and convert temperature/pressure units."""
-    # Extract and convert
+def prepare(TempC, Pdbar, equilibria):
+    """Initialise equilibria dict if needed and convert temperature/pressure units."""
     TempK = convert.TempC2K(TempC)
     Pbar = convert.Pdbar2bar(Pdbar)
-    # Initialise dict
-    if Ks is None:
-        Ks = {}
-    return TempK, Pbar, Ks
-
-
-def sws2tot_P0(TempK, totals, equilibria, WhoseKSO4, WhoseKF):
-    """Determine SWS to Total pH scale correction factor at zero pressure."""
-    equilibria_P0 = copy.deepcopy(equilibria)
-    equilibria_P0["KSO4"] = pressured.KSO4(TempK, totals["Sal"], 0.0, 1.0, WhoseKSO4)
-    equilibria_P0["KF"] = pressured.KF(TempK, totals["Sal"], 0.0, 1.0, WhoseKF)
-    SWStoTOT_P0 = convert.sws2tot(totals, equilibria_P0)
-    return SWStoTOT_P0
-
-
-def get_pHfactor_SWS(TempK, Sal, totals, equilibria, pHScale, WhichKs):
-    """Determine pH scale conversion factors to go from SWS to input pHScale(s).
-    The raw K values (not pK) should be multiplied by these to make the conversion.
-    """
-    if "fH" not in equilibria:
-        equilibria["fH"] = pressured.fH(TempK, Sal, WhichKs)
-    SWStoTOT = convert.sws2tot(totals, equilibria)
-    SWStoFREE = convert.sws2free(totals, equilibria)
-    pHfactor = full(size(pHScale), nan)
-    pHfactor = where(pHScale == 1, SWStoTOT, pHfactor)  # Total
-    pHfactor = where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
-    pHfactor = where(pHScale == 3, SWStoFREE, pHfactor)  # Free
-    pHfactor = where(pHScale == 4, equilibria["fH"], pHfactor)  # NBS
-    equilibria["pHfactor_SWS"] = pHfactor
-    return pHfactor, equilibria
-
-
-def get_pHfactor_Free(TempK, Sal, totals, equilibria, pHScale, WhichKs):
-    """Determine pH scale conversion factors to go from Free to input pHScale(s).
-    The raw K values (not pK) should be multiplied by these to make the conversion.
-    """
-    if "fH" not in equilibria:
-        equilibria["fH"] = pressured.fH(TempK, Sal, WhichKs)
-    FREEtoTOT = convert.free2tot(totals, equilibria)
-    FREEtoSWS = 1.0 / convert.sws2free(totals, equilibria)
-    pHfactor = full(size(pHScale), nan)
-    pHfactor = where(pHScale == 1, FREEtoTOT, pHfactor)  # Total
-    pHfactor = where(pHScale == 2, FREEtoSWS, pHfactor)  # Seawater (SWS)
-    pHfactor = where(pHScale == 3, 1.0, pHfactor)  # Free
-    pHfactor = where(pHScale == 4, FREEtoSWS * equilibria["fH"], pHfactor)  # NBS
-    equilibria["pHfactor_Free"] = pHfactor
-    return pHfactor, equilibria
+    if equilibria is None:
+        equilibria = {}
+    return TempK, Pbar, equilibria
 
 
 def assemble(
@@ -100,8 +54,9 @@ def assemble(
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor, Ks = get_pHfactor_SWS(TempK, Sal, totals, Ks, pHScale, WhichKs)
-    SWStoTOT_P0 = sws2tot_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
+    Ks = convert.get_pHfactor_from_SWS(TempK, Sal, totals, Ks, pHScale, WhichKs)
+    pHfactor = Ks["pHfactor_from_SWS"]  # for convenience
+    SWStoTOT_P0 = convert.sws2tot_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
     # Borate
     if "KB" not in Ks:
         Ks["KB"] = (
