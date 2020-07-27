@@ -4,6 +4,7 @@
 
 from autograd import numpy as np
 from .. import convert, equilibria, salts, solve
+from . import nd
 
 
 def condition(input_locals, npts=None):

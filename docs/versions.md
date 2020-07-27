@@ -23,13 +23,13 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
-## 1.4
+## 1.5
 
-Enables uncertainty propagation with forward finite-difference derivatives.
+Introduces an alternative top-level function that allows calculations directly on multidimensional inputs.
 
-### 1.4.4 (forthcoming)
+### 1.5.0 (forthcoming)
 
-!!! example "Changes in v1.4.4"
+!!! example "Changes in v1.5.0"
 
     ***Internal reorganisation***
 
@@ -38,6 +38,10 @@ Enables uncertainty propagation with forward finite-difference derivatives.
     * Switched preallocations to use `np.shape` not `np.size` in preparation for working with $n$-dimensional inputs.
     * Updated style to import the whole NumPy module as `np` instead of individual functions separately.
     * Converted `PyCO2SYS.engine` to a sub-module.
+
+## 1.4
+
+Enables uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.3 (16 July 2020)
 
