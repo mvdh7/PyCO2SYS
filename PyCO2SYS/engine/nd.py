@@ -22,41 +22,136 @@ input_floats = {
 }
 
 
-def condition(inputs, to_shape=None):
-    """Condition n-d inputs for PyCO2SYS.
+def condition(args, to_shape=None):
+    """Condition n-d args for PyCO2SYS.
     
-    If NumPy can broadcast the inputs together, they are a valid combination, and they
+    If NumPy can broadcast the args together, they are a valid combination, and they
     will be combined following NumPy broadcasting rules.
 
-    All array-like inputs will be broadcast into the same shape.
-    Any scalar inputs will be left as scalars.
+    All array-like args will be broadcast into the same shape.
+    Any scalar args will be left as scalars.
     """
-    try:  # check all inputs can be broadcast together
-        inputs = {k: v for k, v in inputs.items() if v is not None}
-        inputs_broadcast = np.broadcast(*inputs.values())
+    try:  # check all args can be broadcast together
+        args = {k: v for k, v in args.items() if v is not None}
+        args_broadcast = np.broadcast(*args.values())
         if to_shape is not None:
-            try:  # check inputs can be broadcast to to_shape, if provided
-                np.broadcast(np.ones(to_shape), np.ones(inputs_broadcast.shape))
-                inputs_broadcast_shape = to_shape
+            try:  # check args can be broadcast to to_shape, if provided
+                np.broadcast(np.ones(to_shape), np.ones(args_broadcast.shape))
+                args_broadcast_shape = to_shape
             except ValueError:
-                print("PyCO2SYS error: inputs are not broadcastable to to_shape.")
+                print("PyCO2SYS error: args are not broadcastable to to_shape.")
                 return
         else:
-            inputs_broadcast_shape = inputs_broadcast.shape
-        # Broadcast the non-scalar inputs to a consistent shape
-        inputs_conditioned = {
-            k: np.broadcast_to(v, inputs_broadcast_shape) if not np.isscalar(v) else v
-            for k, v in inputs.items()
+            args_broadcast_shape = args_broadcast.shape
+        # Broadcast the non-scalar args to a consistent shape
+        args_conditioned = {
+            k: np.broadcast_to(v, args_broadcast_shape) if not np.isscalar(v) else v
+            for k, v in args.items()
         }
         # Convert to float, where needed
-        inputs_conditioned = {
+        args_conditioned = {
             k: np.float64(v) if k in input_floats else v
-            for k, v in inputs_conditioned.items()
+            for k, v in args_conditioned.items()
         }
     except ValueError:
         print("PyCO2SYS error: input shapes cannot be broadcast together.")
         return
-    return inputs_conditioned
+    return args_conditioned
+
+
+def _get_in_out(core, others, k_constants, suffix=""):
+    return {
+        "pH{}".format(suffix): core["PH"],
+        "pCO2{}".format(suffix): core["PC"] * 1e6,
+        "fCO2{}".format(suffix): core["FC"] * 1e6,
+        "bicarbonate{}".format(suffix): core["HCO3"] * 1e6,
+        "carbonate{}".format(suffix): core["CARB"] * 1e6,
+        "aqueous_CO2{}".format(suffix): core["CO2"] * 1e6,
+        "alkalinity_borate{}".format(suffix): others["BAlk"] * 1e6,
+        "hydroxide{}".format(suffix): others["OH"] * 1e6,
+        "alkalinity_phosphate{}".format(suffix): others["PAlk"] * 1e6,
+        "alkalinity_silicate{}".format(suffix): others["SiAlk"] * 1e6,
+        "alkalinity_ammonia{}".format(suffix): others["NH3Alk"] * 1e6,
+        "alkalinity_sulfide{}".format(suffix): others["H2SAlk"] * 1e6,
+        "hydrogen_free{}".format(suffix): others["Hfree"] * 1e6,
+        "revelle_factor{}".format(suffix): others["Revelle"],
+        "saturation_calcite{}".format(suffix): others["OmegaCa"],
+        "saturation_aragonite{}".format(suffix): others["OmegaAr"],
+        "xCO2{}".format(suffix): others["xCO2dry"] * 1e6,
+        "pH_total{}".format(suffix): others["pHT"],
+        "pH_sws{}".format(suffix): others["pHS"],
+        "pH_free{}".format(suffix): others["pHF"],
+        "pH_nbs{}".format(suffix): others["pHN"],
+        "k_carbon_dioxide{}".format(suffix): k_constants["K0"],
+        "k_carbonic_1{}".format(suffix): k_constants["K1"],
+        "k_carbonic_2{}".format(suffix): k_constants["K2"],
+        "k_water{}".format(suffix): k_constants["KW"],
+        "k_borate{}".format(suffix): k_constants["KB"],
+        "k_bisulfate{}".format(suffix): k_constants["KSO4"],
+        "k_fluoride{}".format(suffix): k_constants["KF"],
+        "k_phosphoric_1{}".format(suffix): k_constants["KP1"],
+        "k_phosphoric_2{}".format(suffix): k_constants["KP2"],
+        "k_phosphoric_3{}".format(suffix): k_constants["KP3"],
+        "k_silicate{}".format(suffix): k_constants["KSi"],
+        "k_ammonia{}".format(suffix): k_constants["KNH3"],
+        "k_sulfide{}".format(suffix): k_constants["KH2S"],
+        "gamma_dic{}".format(suffix): others["gammaTC"],
+        "beta_dic{}".format(suffix): others["betaTC"],
+        "omega_dic{}".format(suffix): others["omegaTC"],
+        "gamma_alk{}".format(suffix): others["gammaTA"],
+        "beta_alk{}".format(suffix): others["betaTA"],
+        "omega_alk{}".format(suffix): others["omegaTA"],
+        "isocapnic_quotient{}".format(suffix): others["isoQ"],
+        "isocapnic_quotient_approx{}".format(suffix): others["isoQx"],
+        "psi{}".format(suffix): others["psi"],
+        "substrate_inhibitor_ratio{}".format(suffix): others["SIR"],
+        "fugacity_factor{}".format(suffix): k_constants["FugFac"],
+        "fH{}".format(suffix): k_constants["fH"],
+    }
+
+
+def _get_results_dict(
+    args,
+    totals,
+    core_in,
+    others_in,
+    k_constants_in,
+    core_out,
+    others_out,
+    k_constants_out,
+):
+    """Assemble the results dict for CO2SYS."""
+    results = {
+        "par1": args["par1"],
+        "par2": args["par2"],
+        "salinity": totals["Sal"],
+        "temperature": args["temperature"],
+        "pressure": args["pressure"],
+        "total_ammonia": totals["TNH3"] * 1e6,
+        "total_borate": totals["TB"] * 1e6,
+        "total_calcium": totals["TCa"] * 1e6,
+        "total_fluoride": totals["TF"] * 1e6,
+        "total_phosphate": totals["TPO4"] * 1e6,
+        "total_silicate": totals["TSi"] * 1e6,
+        "total_sulfate": totals["TSO4"] * 1e6,
+        "total_sulfide": totals["TH2S"] * 1e6,
+        "PengCorrection": totals["PengCorrection"] * 1e6,
+        "gas_constant": k_constants_in["RGas"],
+        "alkalinity": core_in["TA"] * 1e6,
+        "dic": core_in["TC"] * 1e6,
+    }
+    results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
+    if core_out is not None:
+        results.update(
+            {
+                "temperature_out": args["temperature_out"],
+                "pressure_out": args["pressure_out"],
+            }
+        )
+        results.update(
+            _get_in_out(core_out, others_out, k_constants_out, suffix="_out")
+        )
+    return results
 
 
 def CO2SYS(
@@ -115,8 +210,8 @@ def CO2SYS(
     pH_scale_opt=1,
     buffers_mode="auto",
 ):
-    """Efficiently run CO2SYS with n-dimensional inputs allowed."""
-    inputs = condition(locals())
+    """Efficiently run CO2SYS with n-dimensional args allowed."""
+    args = condition(locals())
     # Prepare totals dict
     totals_optional = {
         "total_borate": "TB",
@@ -124,22 +219,22 @@ def CO2SYS(
         "total_fluoride": "TF",
         "total_sulfate": "TSO4",
     }
-    if np.any(np.isin(list(inputs.keys()), list(totals_optional.keys()))):
+    if np.any(np.isin(list(args.keys()), list(totals_optional.keys()))):
         totals = {
             totals_optional[k]: v * 1e-6
-            for k, v in inputs.items()
+            for k, v in args.items()
             if k in totals_optional
         }
     else:
         totals = None
     totals = salts.assemble(
-        inputs["salinity"],
-        inputs["total_silicate"],
-        inputs["total_phosphate"],
-        inputs["total_ammonia"],
-        inputs["total_sulfide"],
-        inputs["carbonic_opt"],
-        inputs["borate_opt"],
+        args["salinity"],
+        args["total_silicate"],
+        args["total_phosphate"],
+        args["total_ammonia"],
+        args["total_sulfide"],
+        args["carbonic_opt"],
+        args["borate_opt"],
         totals=totals,
     )
     # Prepare equilibrium constants dict (input conditions)
@@ -160,31 +255,31 @@ def CO2SYS(
         "k_sulfide": "KH2S",
         "k_water": "KW",
     }
-    if np.any(np.isin(list(inputs.keys()), list(k_constants_optional.keys()))):
+    if np.any(np.isin(list(args.keys()), list(k_constants_optional.keys()))):
         k_constants_in = {
             k_constants_optional[k]: v
-            for k, v in inputs.items()
+            for k, v in args.items()
             if k in k_constants_optional
         }
     else:
         k_constants_in = None
     k_constants_in = equilibria.assemble(
-        inputs["temperature"],
-        inputs["pressure"],
+        args["temperature"],
+        args["pressure"],
         totals,
-        inputs["pH_scale_opt"],
-        inputs["carbonic_opt"],
-        inputs["bisulfate_opt"],
-        inputs["fluoride_opt"],
-        inputs["gas_constant_opt"],
+        args["pH_scale_opt"],
+        args["carbonic_opt"],
+        args["bisulfate_opt"],
+        args["fluoride_opt"],
+        args["gas_constant_opt"],
         Ks=k_constants_in,
     )
     # Solve the core marine carbonate system at input conditions
     core_in = solve.core(
-        inputs["par1"],
-        inputs["par2"],
-        inputs["par1_type"],
-        inputs["par2_type"],
+        args["par1"],
+        args["par2"],
+        args["par1_type"],
+        args["par2_type"],
         totals,
         k_constants_in,
         convert_units=True,
@@ -192,44 +287,44 @@ def CO2SYS(
     # Calculate the rest at input conditions
     others_in = solve.others(
         core_in,
-        inputs["temperature"],
-        inputs["pressure"],
+        args["temperature"],
+        args["pressure"],
         totals,
         k_constants_in,
-        inputs["pH_scale_opt"],
-        inputs["carbonic_opt"],
-        inputs["buffers_mode"],
+        args["pH_scale_opt"],
+        args["carbonic_opt"],
+        args["buffers_mode"],
     )
     # If requested, solve the core marine carbonate system at output conditions
-    if "pressure_out" in inputs.keys() or "temperature_out" in inputs.keys():
+    if "pressure_out" in args.keys() or "temperature_out" in args.keys():
         # Make sure we've got output values for both temperature and pressure
-        if "pressure_out" in inputs.keys():
-            if "temperature_out" not in inputs.keys():
-                inputs["temperature_out"] = inputs["temperature"]
-        if "temperature_out" in inputs.keys():
-            if "pressure_out" not in inputs.keys():
-                inputs["pressure_out"] = inputs["pressure"]
+        if "pressure_out" in args.keys():
+            if "temperature_out" not in args.keys():
+                args["temperature_out"] = args["temperature"]
+        if "temperature_out" in args.keys():
+            if "pressure_out" not in args.keys():
+                args["pressure_out"] = args["pressure"]
         # Prepare equilibrium constants dict (output conditions)
         k_constants_optional_out = {
             "{}_out".format(k): v for k, v in k_constants_optional.items()
         }
-        if np.any(np.isin(list(inputs.keys()), k_constants_optional_out)):
+        if np.any(np.isin(list(args.keys()), k_constants_optional_out)):
             k_constants_out = {
                 k_constants_optional_out[k]: v
-                for k, v in inputs.items()
+                for k, v in args.items()
                 if k in k_constants_optional_out
             }
         else:
             k_constants_out = None
         k_constants_out = equilibria.assemble(
-            inputs["temperature_out"],
-            inputs["pressure_out"],
+            args["temperature_out"],
+            args["pressure_out"],
             totals,
-            inputs["pH_scale_opt"],
-            inputs["carbonic_opt"],
-            inputs["bisulfate_opt"],
-            inputs["fluoride_opt"],
-            inputs["gas_constant_opt"],
+            args["pH_scale_opt"],
+            args["carbonic_opt"],
+            args["bisulfate_opt"],
+            args["fluoride_opt"],
+            args["gas_constant_opt"],
             Ks=k_constants_out,
         )
         # Solve the core marine carbonate system at output conditions
@@ -245,15 +340,24 @@ def CO2SYS(
         # Calculate the rest at output conditions
         others_out = solve.others(
             core_out,
-            inputs["temperature_out"],
-            inputs["pressure_out"],
+            args["temperature_out"],
+            args["pressure_out"],
             totals,
             k_constants_out,
-            inputs["pH_scale_opt"],
-            inputs["carbonic_opt"],
-            inputs["buffers_mode"],
+            args["pH_scale_opt"],
+            args["carbonic_opt"],
+            args["buffers_mode"],
         )
     else:
         core_out = None
         others_out = None
-    return inputs, core_in, others_in, core_out, others_out
+    return _get_results_dict(
+        args,
+        totals,
+        core_in,
+        others_in,
+        k_constants_in,
+        core_out,
+        others_out,
+        k_constants_out,
+    )

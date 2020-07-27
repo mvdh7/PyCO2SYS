@@ -176,7 +176,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
 ## 1.2
 
-Adds additional buffer factor calculations that are not currently included in CO2SYS for MATLAB.  New releases are henceforth assigned DOIs from Zenodo.
+Calculates a wider variety of chemical buffer factors.
 
 ### 1.2.1 (9 Apr 2020)
 
@@ -195,7 +195,7 @@ Adds additional buffer factor calculations that are not currently included in CO
 
 ## 1.1
 
-Adds extra optional inputs for consistency with Pierrot et al.'s forthcoming MATLAB "v1.21".  Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
+Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion molinities for consistency with forthcoming MATLAB "v1.21".
 
 ### 1.1.1 (20 Mar 2020)
 
