@@ -46,13 +46,31 @@ par1 = [2300, 2150, 8.3]
 par2 = [2150]
 par1_type = [1, 1, 3]
 par2_type = 2
-co2nd = pyco2.engine.nd.CO2SYS(
-    par1,
-    par2,
-    par1_type,
-    par2_type,
-    salinity=[[35, 35, 35], [34, 34, 34]],
-    total_sulfate=3,
-    k_carbonic_1=[1e-6],
-    temperature_out=0,
-)
+kwargs = {
+    "salinity": [[35, 31, 0.8], [34, 34, 34]],
+    "total_sulfate": [[3], [5]],
+    "k_carbonic_1": [1e-6, 1.1e-6, 1.2e-6],
+    "temperature_out": 0,
+}
+co2nd = pyco2.engine.nd.CO2SYS(par1, par2, par1_type, par2_type, **kwargs)
+
+
+def test_nd_misc():
+    assert (
+        np.shape(co2nd["k_carbonic_2"])
+        == np.broadcast(par1, par2, par1_type, par2_type, *kwargs.values()).shape
+    )
+
+
+test_nd_misc()
+
+
+# Test with all scalar inputs
+co2nd_scalar = pyco2.CO2SYS_nd(2300, 2150, 1, 2)
+
+
+def test_scalars():
+    assert np.all([np.size(v) == 1 for v in co2nd_scalar.values()])
+
+
+test_scalars()
