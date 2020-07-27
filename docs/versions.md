@@ -25,11 +25,15 @@
 
 ## 1.5
 
-Introduces an alternative top-level function that allows calculations directly on multidimensional inputs.
+Introduces a more Pythonic top-level function that can compute directly on multidimensional inputs and that only returns results at "output" conditions if these are explicitly specified by the user.
 
 ### 1.5.0 (forthcoming)
 
 !!! example "Changes in v1.5.0"
+
+    ***New top-level function***
+
+    * Adds `PyCO2SYS.CO2SYS_nd` top-level function with a more Pythonic interface and with NumPy broadcasting of $n$-dimensional inputs.
 
     ***Internal reorganisation***
 

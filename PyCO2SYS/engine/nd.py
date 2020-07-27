@@ -351,6 +351,7 @@ def CO2SYS(
     else:
         core_out = None
         others_out = None
+        k_constants_out = None
     return _get_results_dict(
         args,
         totals,
