@@ -46,6 +46,13 @@ par1 = [2300, 2150, 8.3]
 par2 = [2150]
 par1_type = [1, 1, 3]
 par2_type = 2
-co2nd = pyco2.engine.nd.CO2SYS(
-    par1, par2, par1_type, par2_type, salinity=[[35, 35, 35], [34, 34, 34]]
+inputs, core_in, others_in, core_out, others_out = pyco2.engine.nd.CO2SYS(
+    par1,
+    par2,
+    par1_type,
+    par2_type,
+    salinity=[[35, 35, 35], [34, 34, 34]],
+    total_sulfate=3,
+    k_carbonic_1=[1e-6],
+    temperature_out=0,
 )

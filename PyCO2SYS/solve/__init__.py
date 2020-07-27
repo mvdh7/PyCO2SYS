@@ -42,10 +42,10 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     carbonate system.  Convert units from microX to X if requested with the input
     logical `convertunits`.
     """
-    assert (
-        np.size(par1) == np.size(par2) == np.size(par1type) == np.size(par2type)
-    ), "`par1`, `par2`, `par1type` and `par2type` must all be the same size."
-    ntps = np.size(par1)
+    # assert (
+    #     np.size(par1) == np.size(par2) == np.size(par1type) == np.size(par2type)
+    # ), "`par1`, `par2`, `par1type` and `par2type` must all be the same size."
+    ntps = np.broadcast(par1, par2, par1type, par2type).shape
     # Generate empty vectors for...
     TA = np.full(ntps, np.nan)  # total alkalinity
     TC = np.full(ntps, np.nan)  # dissolved inorganic carbon
@@ -145,92 +145,92 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
     FC = np.where(CO2given, CO2 / K0, FC)
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTATC(TA - PengCx, TC, totals, Ks), PH)
         # ^pH is returned on the same scale as `Ks`
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 13  # input TA, pH
-    if any(F):
+    if np.any(F):
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = (Icase == 14) | (Icase == 15) | (Icase == 18)  # input TA, [pCO2|fCO2|CO2aq]
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTAfCO2(TA - PengCx, FC, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 16  # input TA, CARB
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTACarb(TA - PengCx, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 17  # input TA, HCO3
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTAHCO3(TA - PengCx, HCO3, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
     F = Icase == 23  # input TC, pH
-    if any(F):
+    if np.any(F):
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = (Icase == 24) | (Icase == 25) | (Icase == 28)  # input TC, [pCO2|fCO2|CO2aq]
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTCfCO2(TC, FC, totals, Ks), PH)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 26  # input TC, CARB
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTCCarb(TC, CARB, totals, Ks), PH)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 27  # input TC, HCO3
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromTCHCO3(TC, HCO3, totals, Ks), PH)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
     F = (Icase == 34) | (Icase == 35) | (Icase == 38)  # input pH, [pCO2|fCO2|CO2aq]
-    if any(F):
+    if np.any(F):
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 36  # input pH, CARB
-    if any(F):
+    if np.any(F):
         FC = np.where(F, get.fCO2frompHCarb(PH, CARB, totals, Ks), FC)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 37  # input pH, HCO3
-    if any(F):
+    if np.any(F):
         TC = np.where(F, get.TCfrompHHCO3(PH, HCO3, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
     F = (Icase == 46) | (Icase == 56) | (Icase == 68)  # input [pCO2|fCO2|CO2aq], CARB
-    if any(F):
+    if np.any(F):
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
     F = Icase == 67  # input CO3, HCO3
-    if any(F):
+    if np.any(F):
         FC = np.where(F, get.fCO2fromCarbHCO3(CARB, HCO3, totals, Ks), FC)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
     F = (Icase == 47) | (Icase == 57) | (Icase == 78)  # input [pCO2|fCO2|CO2aq], HCO3
-    if any(F):
+    if np.any(F):
         CARB = np.where(F, get.CarbfromfCO2HCO3(FC, HCO3, totals, Ks), CARB)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
@@ -242,7 +242,7 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 
-def core(par1, par2, par1type, par2type, totals, Ks, convert_units):
+def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
     """Solve the core marine carbonate system (MCS) from any 2 of its variables.
 
     The core MCS outputs (in a dict) and associated `par1type`/`par2type` inputs are:
@@ -314,7 +314,7 @@ def others(
     # Just for reference, convert pH at input conditions to the other scales
     pHT, pHS, pHF, pHN = convert.pH2allscales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
-    assert all(
+    assert np.all(
         np.isin(buffers_mode, ["auto", "explicit", "none"])
     ), "Valid options for buffers_mode are 'auto', 'explicit' or 'none'."
     isoQx = np.full(np.shape(Sal), np.nan)
@@ -333,7 +333,7 @@ def others(
         buffer: np.full(np.shape(Sal), np.nan) for buffer in esm10buffers
     }
     F = buffers_mode == "auto"
-    if any(F):
+    if np.any(F):
         # Evaluate buffers with automatic differentiation [added v1.3.0]
         auto_ESM10 = buffers.all_ESM10(
             TAPeng,
@@ -356,7 +356,7 @@ def others(
             F, buffers.RevelleFactor_ESM10(TC, allbuffers_ESM10["gammaTC"]), Revelle
         )
     F = buffers_mode == "explicit"
-    if any(F):
+    if np.any(F):
         # Evaluate buffers with explicit equations, but these don't include nutrients
         # (i.e. only carbonate, borate and water alkalinities are accounted for)
         expl_ESM10 = buffers.explicit.all_ESM10(
@@ -377,7 +377,7 @@ def others(
             F, buffers.explicit.RevelleFactor(TAPeng, TC, totals, Ks), Revelle
         )
     F = buffers_mode != "none"
-    if any(F):
+    if np.any(F):
         # Approximate isocapnic quotient of HDW18
         isoQx = np.where(
             F,
