@@ -1,61 +1,62 @@
+# Do it like in MATLAB
+
 # Calculate everything with `CO2SYS`
 
 ## Syntax
 
-From v1.5.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `CO2SYS_nd` function.  The simplest possible syntax is:
+Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  We can do this using the top-level `CO2SYS` function:
 
     :::python
-    # Import the package
-    import PyCO2SYS as pyco2
-
-    # Define seawater conditions
-    par1 = 2300  # total alkalinity in μmol/kg-sw
-    par2 = 2150  # dissolved inorganic carbon (DIC) in μmol/kg-sw
-    par1_type = 1  # "par1 is a total alkalinity value"
-    par2_type = 2  # "par2 is a DIC value"
+    # Import the function
+    from PyCO2SYS import CO2SYS
 
     # Run CO2SYS
-    results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type)
+    CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+        PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
+        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
+        totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
 
-    # Get (e.g.) aragonite saturation state
-    saturation_aragonite = results["saturation_aragonite"]
+    # Get (e.g.) aragonite saturation state, output conditions
+    OmegaARout = CO2dict["OmegaARout"]
 
-Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.
+Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values, with the excepton of the optional `totals`, `equilibria_in` and `equilibria_out` inputs, which should be dicts of scalars or arrays (if provided, see [Internal overrides](#internal-overrides)).  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
 
-Many more optional keyword arguments can be provided to `CO2SYS_nd`.  The full syntax is:
+### Using the Pythonic API
+
+Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This returns a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) in place of the dict, with the same names for the various outputs.  The function uses keyword arguments, meaning that only the specified marine carbonate system parameters have to be entered.
 
     :::python
-    results = pyco2.CO2SYS_nd(
-        # Compulsory arguments:
-        par1, par2, par1_type, par2_type,
-        # Common keyword arguments:
-        salinity=35, temperature=25, temperature_out=None, pressure=0, pressure_out=None,
-        total_ammonia=0, total_phosphate=0, total_silicate=0, total_sulfide=0,
-        pH_scale_opt=1, bisulfate_opt=1, borate_opt=2, carbonic_opt=16,
-        # Advanced keyword arguments:
-        total_borate=None, total_calcium=None, total_fluoride=None, total_sulfate=None,
-        fugacity_factor=None, fugacity_factor_out=None, gas_constant=None,
-        gas_constant_out=None, k_ammonia=None, k_ammonia_out=None, k_borate=None,
-        k_borate_out=None, k_bisulfate=None, k_bisulfate_out=None, k_carbon_dioxide=None,
-        k_carbon_dioxide_out=None, k_carbonic_1=None, k_carbonic_1_out=None,
-        k_carbonic_2=None, k_carbonic_2_out=None, k_fluoride=None, k_fluoride_out=None,
-        k_phosphate_1=None, k_phosphate_1_out=None, k_phosphate_2=None,
-        k_phosphate_2_out=None, k_phosphate_3=None, k_phosphate_3_out=None,
-        k_silicate=None, k_silicate_out=None, k_sulfide=None, k_sulfide_out=None,
-        k_water=None, k_water_out=None, fluoride_opt=1, gas_constant_opt=3,
-        buffers_mode="auto")
+    from PyCO2SYS.api import CO2SYS_wrap as co2sys
 
-## Inputs and outputs, arguments and results
+    # Call with defaults
+    df1 = co2sys(dic=2103, alk=2360)
 
-## Arguments
+    # The above is equivalent to:
+    df1 = co2sys(
+        dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
+        carb=None, bicarb=None, co2aq=None,
+        temp_in=25, temp_out=25, pres_in=0, pres_out=0,
+        sal=35, si=0, po4=0, nh3=0, h2s=0,
+        K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
+        buffers_mode="auto", verbose=True)
 
-Each argument can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+!!! warning "`CO2SYS_wrap`: incomplete functionality"
+    
+    In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
 
-!!! info "`PyCO2SYS.CO2SYS_nd` arguments"
+    `CO2SYS_wrap` also does not yet support the `totals`, `equilibria_in` and `equilibria_out` optional inputs to `CO2SYS`.
+
+This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
+
+## Inputs
+
+Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
+
+!!! info "`PyCO2SYS.CO2SYS` inputs"
     #### Carbonate system parameters
 
-    * `par1` and `par2`: values of two different carbonate system parameters.
-    * `par1_type` and `par2_type`: which types of parameter `par1` and `par2` are.
+    * `PAR1` and `PAR2`: values of two different carbonate system parameters.
+    * `PAR1TYPE` and `PAR2TYPE`: which types of parameter `PAR1` and `PAR2` are.
 
     These can be any pair of:
 
@@ -66,24 +67,27 @@ Each argument can either be a single scalar value, or a [NumPy array](https://do
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
 
-    For all arguments in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* or *amount content* values (as opposed to *concentration* or *molality*).
+    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
 
     #### Hydrographic conditions
 
-    * `salinity`: **practical salinity** (dimensionless).
-    * `temperature`: **temperature** at which `par1` and `par2` arguments are provided in °C ("input conditions").
-    * `temperature_out`: **temperature** at which results will be calculated in °C ("output conditions").
-    * `pressure`: **pressure** at which `PAR1` and `PAR2` arguments are provided in dbar ("input conditions").
-    * `pressure_out`: **pressure** at which results will be calculated in dbar ("output conditions").
+    * `SAL`: **practical salinity** (dimensionless).
+    * `TEMPIN`: **temperature** at which `PAR1` and `PAR2` inputs are provided in °C.
+    * `TEMPOUT`: **temperature** at which output results will be calculated in °C.
+    * `PRESIN`: **pressure** at which `PAR1` and `PAR2` inputs are provided in dbar.
+    * `PRESOUT`: **pressure** at which output results will be calculated in dbar.
 
-    For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `temperature = 25`, `temperature_out = 2.5`, `pressure = 0`, and `pressure_out = 1000`.
-
-    If neither `temperature_out` nor `pressure_out` is provided, then calculations will only be performed at the conditions specified by `temperature` and `pressure`.  None of the results with keys ending with `_out` will be returned in the `CO2_results` dict.  If only one of `temperature_out` nor `pressure_out` is provided, then we assume that the other one has the same values for the input and output calculations.
+    For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `TEMPIN = 25`, `TEMPOUT = 2.5`, `PRESIN = 0`, and `PRESIN = 1000`.
 
     #### Nutrients and other solutes
 
+    *Required:*
+
     * `SI`: **total silicate** in μmol·kg<sup>−1</sup>.
     * `PO4`: **total phosphate** in μmol·kg<sup>−1</sup>.
+
+    *Optional (these default to zero if not specified):*
+
     * `NH3`: **total ammonia** in μmol·kg<sup>−1</sup>.
     * `H2S`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
 
@@ -290,7 +294,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO2SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
 
 !!! warning
-    We strongly recommend that you use the Pythonised version [described above](#syntax)!
+    We strongly recommend that you use a Pythonised version [e.g. described above](#syntax)!
 
 If you do need to use the as-close-as-possible clone instead, this is still available via:
 
