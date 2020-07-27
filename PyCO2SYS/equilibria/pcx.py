@@ -2,13 +2,13 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate presure correction factors for equilibrium constants."""
 
-from autograd.numpy import exp, full, nan, size, where
+from autograd import numpy as np
 from .. import convert
 
 
 def Kfac(deltaV, Kappa, Pbar, TempK, RGas):
     """Calculate pressure correction factor for equilibrium constants."""
-    return exp((-deltaV + 0.5 * Kappa * Pbar) * Pbar / (RGas * TempK))
+    return np.exp((-deltaV + 0.5 * Kappa * Pbar) * Pbar / (RGas * TempK))
 
 
 def KSO4fac(TempK, Pbar, RGas):
@@ -36,11 +36,13 @@ def KFfac(TempK, Pbar, RGas):
 def KBfac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for KB."""
     TempC = convert.TempK2C(TempK)
-    KBfac = full(size(TempK), nan)  # because GEOSECS doesn't use _pcxKfac p1atm.
+    KBfac = np.full(
+        np.shape(TempK), np.nan
+    )  # because GEOSECS doesn't use _pcxKfac p1atm.
     F = WhichKs == 8  # freshwater
     if any(F):
         # this doesn't matter since TB = 0 for this case
-        KBfac = where(F, 1.0, KBfac)
+        KBfac = np.where(F, 1.0, KBfac)
     F = (WhichKs == 6) | (WhichKs == 7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -49,7 +51,9 @@ def KBfac(TempK, Pbar, RGas, WhichKs):
         # but the fits are the same as those in
         # Edmond and Gieskes, GCA, 34:1261-1291, 1970
         # who in turn quote Li, personal communication
-        KBfac = where(F, exp((27.5 - 0.095 * TempC) * Pbar / (RGas * TempK)), KBfac)
+        KBfac = np.where(
+            F, np.exp((27.5 - 0.095 * TempC) * Pbar / (RGas * TempK)), KBfac
+        )
         # This one is handled differently because the equation doesn't fit the
         # standard deltaV & Kappa form of _pcxKfac.
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
@@ -69,20 +73,22 @@ def KBfac(TempK, Pbar, RGas, WhichKs):
         #   Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
         # Millero, 1983 has:
         #   Kappa = (-3 + .0427*TempCi)/1000
-        KBfac = where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), KBfac)
+        KBfac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), KBfac)
     return KBfac
 
 
 def KWfac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for KW."""
     TempC = convert.TempK2C(TempK)
-    deltaV = full(size(TempK), nan)
-    Kappa = full(size(TempK), nan)
+    deltaV = np.full(np.shape(TempK), np.nan)
+    Kappa = np.full(np.shape(TempK), np.nan)
     F = WhichKs == 8  # freshwater case
     if any(F):
         # This is from Millero, 1983.
-        deltaV = where(F, -25.6 + 0.2324 * TempC - 0.0036246 * TempC ** 2, deltaV)
-        Kappa = where(F, (-7.33 + 0.1368 * TempC - 0.001233 * TempC ** 2) / 1000, Kappa)
+        deltaV = np.where(F, -25.6 + 0.2324 * TempC - 0.0036246 * TempC ** 2, deltaV)
+        Kappa = np.where(
+            F, (-7.33 + 0.1368 * TempC - 0.001233 * TempC ** 2) / 1000, Kappa
+        )
         # Note: the temperature dependence of KappaK1 and KappaKW for freshwater
         # in Millero, 1983 are the same.
     F = WhichKs != 8
@@ -91,9 +97,9 @@ def KWfac(TempK, Pbar, RGas, WhichKs):
         # Peng et al didn't include pressure, but here I assume that the KW
         # correction is the same as for the other seawater cases.
         # This is from Millero, 1983 and his programs CO2ROY(T).BAS.
-        deltaV = where(F, -20.02 + 0.1119 * TempC - 0.001409 * TempC ** 2, deltaV)
+        deltaV = np.where(F, -20.02 + 0.1119 * TempC - 0.001409 * TempC ** 2, deltaV)
         # Millero, 1992 and Millero, 1995 have:
-        Kappa = where(F, (-5.13 + 0.0794 * TempC) / 1000, Kappa)  # Millero, 1983
+        Kappa = np.where(F, (-5.13 + 0.0794 * TempC) / 1000, Kappa)  # Millero, 1983
         # Millero, 1995 has this too, but Millero, 1992 is different.
         # Millero, 1979 does not list values for these.
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -161,13 +167,15 @@ def KNH3fac(TempK, Pbar, RGas):
 def K1fac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for K1."""
     TempC = convert.TempK2C(TempK)
-    K1fac = full(size(TempK), nan)  # because GEOSECS doesn't use _pcxKfac p1atm.
+    K1fac = np.full(
+        np.shape(TempK), np.nan
+    )  # because GEOSECS doesn't use _pcxKfac p1atm.
     F = WhichKs == 8  # freshwater
     if any(F):
         # Pressure effects on K1 in freshwater: this is from Millero, 1983.
         deltaV = -30.54 + 0.1849 * TempC - 0.0023366 * TempC ** 2
         Kappa = (-6.22 + 0.1368 * TempC - 0.001233 * TempC ** 2) / 1000
-        K1fac = where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K1fac)
+        K1fac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K1fac)
     F = (WhichKs == 6) | (WhichKs == 7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -176,7 +184,9 @@ def K1fac(TempK, Pbar, RGas, WhichKs):
         # but the fits are the same as those in
         # Edmond and Gieskes, GCA, 34:1261-1291, 1970
         # who in turn quote Li, personal communication
-        K1fac = where(F, exp((24.2 - 0.085 * TempC) * Pbar / (RGas * TempK)), K1fac)
+        K1fac = np.where(
+            F, np.exp((24.2 - 0.085 * TempC) * Pbar / (RGas * TempK)), K1fac
+        )
         # This one is handled differently because the equation doesn't fit the
         # standard deltaV & Kappa form of _pcxKfac.
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
@@ -189,20 +199,22 @@ def K1fac(TempK, Pbar, RGas, WhichKs):
         Kappa = (-3.08 + 0.0877 * TempC) / 1000
         # Kappa = Kappa - .578*(Sali - 34.8)/1000 # Millero, 1979
         # The fits given in Millero, 1983 are somewhat different.
-        K1fac = where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K1fac)
+        K1fac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K1fac)
     return K1fac
 
 
 def K2fac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for K2."""
     TempC = convert.TempK2C(TempK)
-    K2fac = full(size(TempK), nan)  # because GEOSECS doesn't use _pcxKfac p1atm.
+    K2fac = np.full(
+        np.shape(TempK), np.nan
+    )  # because GEOSECS doesn't use _pcxKfac p1atm.
     F = WhichKs == 8  # freshwater
     if any(F):
         # Pressure effects on K2 in freshwater: this is from Millero, 1983.
         deltaV = -29.81 + 0.115 * TempC - 0.001816 * TempC ** 2
         Kappa = (-5.74 + 0.093 * TempC - 0.001896 * TempC ** 2) / 1000
-        K2fac = where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K2fac)
+        K2fac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K2fac)
     F = (WhichKs == 6) | (WhichKs == 7)
     if any(F):
         # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -211,7 +223,9 @@ def K2fac(TempK, Pbar, RGas, WhichKs):
         # but the fits are the same as those in
         # Edmond and Gieskes, GCA, 34:1261-1291, 1970
         # who in turn quote Li, personal communication
-        K2fac = where(F, exp((16.4 - 0.04 * TempC) * Pbar / (RGas * TempK)), K2fac)
+        K2fac = np.where(
+            F, np.exp((16.4 - 0.04 * TempC) * Pbar / (RGas * TempK)), K2fac
+        )
         # Takahashi et al had 26.4, but 16.4 is from Edmond and Gieskes
         # and matches the GEOSECS results
         # This one is handled differently because the equation doesn't fit the
@@ -227,5 +241,5 @@ def K2fac(TempK, Pbar, RGas, WhichKs):
         # Kappa = Kappa - .314*(Sali - 34.8)/1000 # Millero, 1979
         # The fit given in Millero, 1983 is different.
         # Not by a lot for deltaV, but by much for Kappa.
-        K2fac = where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K2fac)
+        K2fac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K2fac)
     return K2fac

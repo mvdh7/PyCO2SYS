@@ -317,10 +317,10 @@ def others(
     assert all(
         np.isin(buffers_mode, ["auto", "explicit", "none"])
     ), "Valid options for buffers_mode are 'auto', 'explicit' or 'none'."
-    isoQx = np.full(np.size(Sal), np.nan)
-    isoQ = np.full(np.size(Sal), np.nan)
-    Revelle = np.full(np.size(Sal), np.nan)
-    psi = np.full(np.size(Sal), np.nan)
+    isoQx = np.full(np.shape(Sal), np.nan)
+    isoQ = np.full(np.shape(Sal), np.nan)
+    Revelle = np.full(np.shape(Sal), np.nan)
+    psi = np.full(np.shape(Sal), np.nan)
     esm10buffers = [
         "gammaTC",
         "betaTC",
@@ -330,7 +330,7 @@ def others(
         "omegaTA",
     ]
     allbuffers_ESM10 = {
-        buffer: np.full(np.size(Sal), np.nan) for buffer in esm10buffers
+        buffer: np.full(np.shape(Sal), np.nan) for buffer in esm10buffers
     }
     F = buffers_mode == "auto"
     if any(F):

@@ -7,6 +7,7 @@ from autograd import numpy as np
 from .constants import Tzero
 from .equilibria import pressured
 
+
 def TempC2K(TempC):
     """Convert temperature from degC to K."""
     return TempC + Tzero
@@ -114,7 +115,7 @@ def pH2allscales(pH, pHScale, totals, equilibria):
     """
     FREEtoTOT = free2tot(totals, equilibria)
     SWStoTOT = sws2tot(totals, equilibria)
-    factor = np.full(np.size(pH), np.nan)
+    factor = np.full(np.shape(pH), np.nan)
     factor = np.where(pHScale == 1, 0.0, factor)  # Total
     factor = np.where(pHScale == 2, np.log10(SWStoTOT), factor)  # Seawater
     factor = np.where(pHScale == 3, np.log10(FREEtoTOT), factor)  # Free
@@ -146,7 +147,7 @@ def get_pHfactor_from_SWS(TempK, Sal, totals, equilibria, pHScale, WhichKs):
     SWStoTOT = sws2tot(totals, equilibria)
     SWStoFREE = sws2free(totals, equilibria)
     SWStoNBS = sws2nbs(totals, equilibria)
-    pHfactor = np.full(np.size(pHScale), np.nan)
+    pHfactor = np.full(np.shape(pHScale), np.nan)
     pHfactor = np.where(pHScale == 1, SWStoTOT, pHfactor)  # Total
     pHfactor = np.where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
     pHfactor = np.where(pHScale == 3, SWStoFREE, pHfactor)  # Free
@@ -164,7 +165,7 @@ def get_pHfactor_to_Free(TempK, Sal, totals, equilibria, pHScale, WhichKs):
     TOTtoFREE = tot2free(totals, equilibria)
     SWStoFREE = sws2free(totals, equilibria)
     NBStoFREE = nbs2free(totals, equilibria)
-    pHfactor = np.full(np.size(pHScale), np.nan)
+    pHfactor = np.full(np.shape(pHScale), np.nan)
     pHfactor = np.where(pHScale == 1, TOTtoFREE, pHfactor)  # Total
     pHfactor = np.where(pHScale == 2, SWStoFREE, pHfactor)  # Seawater (SWS)
     pHfactor = np.where(pHScale == 3, 1.0, pHfactor)  # Free
