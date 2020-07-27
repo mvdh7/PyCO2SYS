@@ -74,3 +74,22 @@ def test_scalars():
 
 
 test_scalars()
+
+
+# Test with TA/DIC grid
+par1 = np.linspace(2100, 2400, 11)
+par2 = np.vstack(np.linspace(2000, 2300, 11))
+par1_type = 1
+par2_type = 2
+co2nd_grid = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type)
+
+
+def test_grid():
+    assert (
+        np.shape(co2nd_grid["alkalinity"])
+        == np.shape(co2nd_grid["dic"])
+        == np.broadcast(par1, par2).shape
+    )
+
+
+test_grid()
