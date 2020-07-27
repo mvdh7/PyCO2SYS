@@ -37,6 +37,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
     * Revised pH scale conversion functions for consistency and added tests for their internal accuracy.
     * Switched preallocations to use `np.shape` not `np.size` in preparation for working with $n$-dimensional inputs.
     * Updated style to import the whole NumPy module as `np` instead of individual functions separately.
+    * Converted `PyCO2SYS.engine` to a sub-module.
 
 ### 1.4.3 (16 July 2020)
 

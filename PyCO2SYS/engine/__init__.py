@@ -3,7 +3,7 @@
 """Helpers for the main CO2SYS program."""
 
 from autograd import numpy as np
-from . import convert, equilibria, salts, solve
+from .. import convert, equilibria, salts, solve
 
 
 def condition(input_locals, npts=None):
