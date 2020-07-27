@@ -84,24 +84,21 @@ def KP(TempK, Sal, Pbar, RGas, WhichKs, fH):
     KP2 = np.full(np.shape(TempK), np.nan)
     KP3 = np.full(np.shape(TempK), np.nan)
     F = WhichKs == 7
-    if any(F):
-        KP1_KP67, KP2_KP67, KP3_KP67 = p1atm.kH3PO4_NBS_KP67(TempK, Sal)
-        KP1 = np.where(F, KP1_KP67, KP1)  # already on SWS!
-        KP2 = np.where(F, KP2_KP67 / fH, KP2)  # convert NBS to SWS
-        KP3 = np.where(F, KP3_KP67 / fH, KP3)  # convert NBS to SWS
+    KP1_KP67, KP2_KP67, KP3_KP67 = p1atm.kH3PO4_NBS_KP67(TempK, Sal)
+    KP1 = np.where(F, KP1_KP67, KP1)  # already on SWS!
+    KP2 = np.where(F, KP2_KP67 / fH, KP2)  # convert NBS to SWS
+    KP3 = np.where(F, KP3_KP67 / fH, KP3)  # convert NBS to SWS
     F = (WhichKs == 6) | (WhichKs == 8)
-    if any(F):
-        # Note: neither the GEOSECS choice nor the freshwater choice include
-        # contributions from phosphate or silicate.
-        KP1 = np.where(F, 0.0, KP1)
-        KP2 = np.where(F, 0.0, KP2)
-        KP3 = np.where(F, 0.0, KP3)
+    # Note: neither the GEOSECS choice nor the freshwater choice include
+    # contributions from phosphate or silicate.
+    KP1 = np.where(F, 0.0, KP1)
+    KP2 = np.where(F, 0.0, KP2)
+    KP3 = np.where(F, 0.0, KP3)
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
-    if any(F):
-        KP1_YM95, KP2_YM95, KP3_YM95 = p1atm.kH3PO4_SWS_YM95(TempK, Sal)
-        KP1 = np.where(F, KP1_YM95, KP1)
-        KP2 = np.where(F, KP2_YM95, KP2)
-        KP3 = np.where(F, KP3_YM95, KP3)
+    KP1_YM95, KP2_YM95, KP3_YM95 = p1atm.kH3PO4_SWS_YM95(TempK, Sal)
+    KP1 = np.where(F, KP1_YM95, KP1)
+    KP2 = np.where(F, KP2_YM95, KP2)
+    KP3 = np.where(F, KP3_YM95, KP3)
     # Now correct for seawater pressure
     # === CO2SYS.m comments: =======
     # These corrections don't matter for the GEOSECS choice (WhichKs = 6) and
@@ -163,10 +160,9 @@ def KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
 
 def _getKC(F, Kfunc, pHcx, K1, K2, ts):
     """Convenience function for getting and setting K1 and K2 values."""
-    if any(F):
-        K1_F, K2_F = Kfunc(*ts)
-        K1 = np.where(F, K1_F / pHcx, K1)
-        K2 = np.where(F, K2_F / pHcx, K2)
+    K1_F, K2_F = Kfunc(*ts)
+    K1 = np.where(F, K1_F / pHcx, K1)
+    K2 = np.where(F, K2_F / pHcx, K2)
     return K1, K2
 
 

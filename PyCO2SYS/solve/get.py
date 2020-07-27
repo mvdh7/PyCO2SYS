@@ -323,7 +323,7 @@ def TCfromTApH(TA, pH, totals, equilibria):
     """
     TA_TC0_pH = TAfromTCpH(0.0, pH, totals, equilibria)
     F = TA_TC0_pH > TA
-    if any(F):
+    if np.any(F):
         print("Some input pH values are impossibly high given the input alkalinity;")
         print("returning np.nan rather than negative DIC values.")
     CAlk = np.where(F, np.nan, TA - TA_TC0_pH)
@@ -350,7 +350,7 @@ def pHfromTCfCO2(TC, fCO2, totals, equilibria):
     RR = K0 * fCO2 / TC
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     F = (RR >= 1) | (Discr <= 0)
-    if any(F):
+    if np.any(F):
         print("Some input fCO2 values are impossibly high given the input DIC;")
         print("returning np.nan.")
     H = np.where(F, np.nan, 0.5 * (K1 * RR + np.sqrt(Discr)) / (1 - RR))
@@ -384,7 +384,7 @@ def pHfromTCCarb(TC, CARB, totals, equilibria):
     RR = 1 - TC / CARB
     Discr = K1 ** 2 - 4 * K1 * K2 * RR
     F = (CARB >= TC) | (Discr <= 0)
-    if any(F):
+    if np.any(F):
         print("Some input CO3 values are impossibly high given the input DIC;")
         print("returning np.nan.")
     H = np.where(F, np.nan, (-K1 + np.sqrt(Discr)) / 2)
@@ -440,7 +440,7 @@ def pHfromTCHCO3(TC, HCO3, totals, equilibria):
     c = HCO3 * K2
     bsq_4ac = b ** 2 - 4 * a * c
     F = (HCO3 >= TC) | (bsq_4ac <= 0)
-    if any(F):
+    if np.any(F):
         print("Some input HCO3 values are impossibly high given the input DIC;")
         print("returning np.nan.")
     H = np.where(F, np.nan, (-b - np.sqrt(bsq_4ac)) / (2 * a))

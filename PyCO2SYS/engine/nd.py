@@ -3,52 +3,21 @@
 """Carbonate system solving in N dimensions."""
 
 from autograd import numpy as np
+from .. import equilibria, salts
 
 # Define function input keys that should be converted to floats
 input_floats = {
-    "SAL",
-    "TEMPIN",
-    "TEMPOUT",
-    "PRESIN",
-    "PRESOUT",
-    "SI",
-    "PO4",
-    "NH3",
-    "H2S",
-    "PAR1",
-    "PAR2",
-    "TA",
-    "TC",
-    "PH",
-    "PC",
-    "FC",
-    "CARB",
-    "HCO3",
-    "CO2",
-    "TempC",
-    "Pdbar",
-    "TSi",
-    "TPO4",
-    "TNH3",
-    "TH2S",
-    "TB",
-    "TF",
-    "TS",
-    "TCa",
-    "K0",
-    "K1",
-    "K2",
-    "KW",
-    "KB",
-    "KF",
-    "KS",
-    "KP1",
-    "KP2",
-    "KP3",
-    "KSi",
-    "KNH3",
-    "KH2S",
-    "RGas",
+    "par1",
+    "par2",
+    "salinity",
+    "temperature",
+    "temperature_output",
+    "pressure",
+    "pressure_output",
+    "total_ammonia",
+    "total_phosphate",
+    "total_silicate",
+    "total_sulfide",
 }
 
 
@@ -62,6 +31,7 @@ def condition(inputs, to_shape=None):
     Any scalar inputs will be left as scalars.
     """
     try:  # check all inputs can be broadcast together
+        inputs = {k: v for k, v in inputs.items() if v is not None}
         inputs_broadcast = np.broadcast(*inputs.values())
         if to_shape is not None:
             try:  # check inputs can be broadcast to to_shape, if provided
@@ -86,3 +56,48 @@ def condition(inputs, to_shape=None):
         print("PyCO2SYS error: input shapes cannot be broadcast together.")
         return
     return inputs_conditioned
+
+
+def CO2SYS(
+    par1,
+    par2,
+    par1_type,
+    par2_type,
+    salinity=35,
+    temperature=25,
+    temperature_output=None,
+    pressure=0,
+    pressure_output=None,
+    total_ammonia=0,
+    total_phosphate=0,
+    total_silicate=0,
+    total_sulfide=0,
+    borate_opt=2,
+    bisulfate_opt=1,
+    carbonic_opt=16,
+    fluoride_opt=1,
+    gas_constant_opt=3,
+    pH_scale_opt=1,
+    buffers_mode="auto",
+):
+    inputs = condition(locals())
+    totals = salts.assemble(
+        inputs["salinity"],
+        inputs["total_silicate"],
+        inputs["total_phosphate"],
+        inputs["total_ammonia"],
+        inputs["total_sulfide"],
+        inputs["carbonic_opt"],
+        inputs["borate_opt"],
+    )
+    kconstants = equilibria.assemble(
+        inputs["temperature"],
+        inputs["pressure"],
+        totals,
+        inputs["pH_scale_opt"],
+        inputs["carbonic_opt"],
+        inputs["bisulfate_opt"],
+        inputs["fluoride_opt"],
+        inputs["gas_constant_opt"],
+    )
+    return totals, kconstants

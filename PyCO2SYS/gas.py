@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate gas properties."""
 
-from autograd.numpy import exp, log, where
+from autograd import numpy as np
 from . import convert
 
 
@@ -23,11 +23,9 @@ def fugacityfactor(TempC, WhichKs, RGas):
     )
     # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
     P1atm = 1.01325  # in bar
-    FugFac = exp((b + 2 * Delta) * P1atm / RT)
+    FugFac = np.exp((b + 2 * Delta) * P1atm / RT)
     # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
-    F = (WhichKs == 6) | (WhichKs == 7)
-    if any(F):
-        FugFac = where(F, 1.0, FugFac)
+    FugFac = np.where((WhichKs == 6) | (WhichKs == 7), 1.0, FugFac)
     return FugFac
 
 
@@ -51,8 +49,8 @@ def vpfactor(TempC, Sal):
     #       This is eq. 10 on p. 350.
     #       This is in atmospheres.
     TempK = convert.TempC2K(TempC)
-    VPWP = exp(24.4543 - 67.4509 * (100 / TempK) - 4.8489 * log(TempK / 100))
-    VPCorrWP = exp(-0.000544 * Sal)
+    VPWP = np.exp(24.4543 - 67.4509 * (100 / TempK) - 4.8489 * np.log(TempK / 100))
+    VPCorrWP = np.exp(-0.000544 * Sal)
     VPSWWP = VPWP * VPCorrWP
     VPFac = 1.0 - VPSWWP  # this assumes 1 atmosphere
     return VPFac

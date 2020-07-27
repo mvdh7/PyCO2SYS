@@ -75,9 +75,10 @@ def fromTC(CBAlk, TC, TB, K1, K2, KB):
         1e-3,  # default pH=3 for negative alkalinity
         1e-10,  # default pH=10 for very high alkalinity relative to DIC
     )
-    F = (CBAlk > 0) & (CBAlk < 2 * TC + TB)
-    if any(F):  # use better estimate if alkalinity in suitable range
-        H0 = where(F, _goodH0_TC(CBAlk, TC, TB, K1, K2, KB), H0)
+    # Use better estimate if alkalinity in suitable range
+    H0 = where(
+        (CBAlk > 0) & (CBAlk < 2 * TC + TB), _goodH0_TC(CBAlk, TC, TB, K1, K2, KB), H0
+    )
     return -log10(H0)
 
 
