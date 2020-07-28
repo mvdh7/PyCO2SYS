@@ -136,6 +136,8 @@ def forward(
         "KNH3",
         "K0",
         "FugFac",
+        "KCa",
+        "KAr",
     ]
     Kis_wrt = ["{}input".format(K) for K in Ks_wrt]
     Kos_wrt = ["{}output".format(K) for K in Ks_wrt]

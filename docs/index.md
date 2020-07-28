@@ -14,23 +14,36 @@ Update an existing installation:
 
 ## Basic use
 
-The import convention for PyCO2SYS will be:
+The import convention for PyCO2SYS is:
 
     :::python
     import PyCO2SYS as pyco2
 
-However, the modules and functions contained within are not yet fully documented.  We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
+Only the top-level "calculate everything" functions and uncertainty propagation tools are documented so far.  There are two main ways to run PyCO2SYS.  The first, available from v1.5, is to [use `PyCO2SYS.CO2SYS_nd`](co2sys_nd). 
+
+!!! tip "Calculate everything with `CO2SYS_nd`"
+
+    As a minimum, you only need to provide values and types for two carbonate system parameters, and everything else gets assigned a default value unless you specify something different with the `kwargs`.
+
+        :::python
+        import PyCO2SYS as pyco2
+        results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  For more information on the optional `kwargs` and names of the output keys, see [More advanced interface](co2sys_nd).
+
+The second way is to [do it like in MATLAB](co2sys):
 
 !!! tip "Do it like in MATLAB"
+
     If you are familiar with CO2SYS for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
 
         :::python
-        from PyCO2SYS import CO2SYS
-        CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+        import PyCO2SYS as pyco2
+        CO2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
             PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
             NH3=0.0, H2S=0.0)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [MATLAB-style CO2SYS](co2sys) for all the details about the inputs and outputs.
 
 ### Examples
 

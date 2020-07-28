@@ -72,6 +72,8 @@ def condition(input_locals, npts=None):
         "KNH3",
         "KH2S",
         "RGas",
+        "KCa",
+        "KAr",
     }
     for k in args.keys():
         if k in float_vars:
@@ -197,6 +199,10 @@ gradables = np.array(
         "fHinput",
         "fHoutput",
         "RGas",
+        "KCainput",
+        "KCaoutput",
+        "KArinput",
+        "KAroutput",
     ]
 )
 
@@ -326,6 +332,11 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "KSO4output": Kos["KSO4"],  # will eventually replace "KSoutput"
         # Added in v1.4.1:
         "RGas": Kis["RGas"],
+        # Added in v1.5.0:
+        "KCainput": Kis["KCa"],
+        "KCaoutput": Kos["KCa"],
+        "KArinput": Kis["KAr"],
+        "KAroutput": Kos["KAr"],
     }
 
 
@@ -591,6 +602,8 @@ def dict2equilibria(co2dict):
         "KH2S",
         "FugFac",
         "fH",
+        "KCa",
+        "KAr",
     ]
     Kis = {Kvar: co2dict[Kvar + "input"] for Kvar in Kvars}
     Kos = {Kvar: co2dict[Kvar + "output"] for Kvar in Kvars}
