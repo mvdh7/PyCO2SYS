@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Propagate uncertainties through marine carbonate system calculations."""
 
-from copy import deepcopy
+import copy
 from autograd import numpy as np
 from .. import engine
 from . import automatic
@@ -199,8 +199,8 @@ def forward(
     # Estimate the gradients with central differences
     for wrt in grads_wrt:
         # Make copies of input args to modify
-        co2args_plus = deepcopy(co2args)
-        co2kwargs_plus = deepcopy(co2kwargs)
+        co2args_plus = copy.deepcopy(co2args)
+        co2kwargs_plus = copy.deepcopy(co2kwargs)
         # Perturb if `wrt` is one of the main inputs to CO2SYS
         if wrt in inputs_wrt:
             dx_wrt = _get_dx_wrt(
@@ -301,7 +301,7 @@ def propagate(
 
 
 def forward_nd(
-    results,
+    CO2SYS_nd_results,
     grads_of,
     grads_wrt,
     dx=1e-6,
@@ -309,6 +309,69 @@ def forward_nd(
     dx_func=None,
     **CO2SYS_nd_kwargs,
 ):
-    """Propagate uncertainties from requested inputs to outputs for CO2SYS_nd."""
-    args_shape = engine.nd.broadcast1024(*[result for result in results.values()]).shape
-    return args_shape
+    """Get forward finite-difference derivatives of CO2SYS_nd results with respect to
+    its arguments.
+    """
+    # Check requested grads are possible
+    assert np.all(
+        np.isin(
+            grads_of,
+            engine.nd.gradables
+            + [
+                "p{}".format(gradable)
+                for gradable in engine.nd.gradables
+                if gradable.startswith("k_")
+            ],
+        )
+    ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."
+    if np.any([of.endswith("_out") for of in grads_of]):
+        assert "temperature_out" in CO2SYS_nd_results, (
+            "PyCO2SYS error: you can only get gradients at output conditions if you calculated"
+            + "results at output conditions!"
+        )
+    # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs
+    keys_fixed = set(
+        [
+            "par1",
+            "par2",
+            "par1_type",
+            "par2_type",
+            "salinity",
+            "temperature",
+            "pressure",
+            "total_ammonia",
+            "total_phosphate",
+            "total_silicate",
+            "total_sulfide",
+            "opt_gas_constant",
+            "opt_k_bisulfate",
+            "opt_k_carbonic",
+            "opt_k_fluoride",
+            "opt_pH_scale",
+            "opt_total_borate",
+            "buffers_mode",
+        ]
+        + list(CO2SYS_nd_kwargs.keys())
+    )
+    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed}
+    # Loop through requested parameters and calculate the gradients
+    dxs = {wrt: None for wrt in grads_wrt}
+    co2derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
+    for wrt in grads_wrt:
+        args_plus = copy.deepcopy(args_fixed)
+        is_pk = wrt.startswith("pk_")
+        if is_pk:
+            wrt_k = wrt[1:]
+            pk_values = -np.log10(CO2SYS_nd_results[wrt_k])
+            dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
+            pk_values_plus = pk_values + dxs[wrt]
+            args_plus[wrt_k] = 10.0 ** -pk_values_plus
+        else:
+            dxs[wrt] = _get_dx_wrt(
+                dx, CO2SYS_nd_results[wrt], dx_scaling, dx_func=dx_func
+            )
+            args_plus[wrt] = CO2SYS_nd_results[wrt] + dxs[wrt]
+        results_plus = engine.nd.CO2SYS(**args_plus)
+        for of in grads_of:
+            co2derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[wrt]
+    return co2derivs, dxs
