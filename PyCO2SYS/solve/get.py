@@ -160,7 +160,7 @@ def alkalinity_components(TC, pH, totals, equilibria):
     }
 
 
-def TAfromTCpH(TC, pH, totals, equilibria):
+def TAfromTCpH_original(TC, pH, totals, equilibria):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -172,7 +172,6 @@ def TAfromTCpH(TC, pH, totals, equilibria):
     """
     FREEtoTOT = convert.free2tot(totals, equilibria)
     alks = AlkParts(TC, pH, FREEtoTOT, totals, equilibria)
-    # alks = alkalinity_components(TC, pH, totals, equilibria)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
@@ -187,6 +186,35 @@ def TAfromTCpH(TC, pH, totals, equilibria):
         - alks["HF"]
     )
     return TA
+
+
+def TAfromTCpH_fixed(TC, pH, totals, equilibria):
+    """Calculate total alkalinity from dissolved inorganic carbon and pH.
+
+    This calculates TA from TC and pH.
+    It has been corrected to work properly on any pH scale.
+
+    Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
+    """
+    alks = alkalinity_components(TC, pH, totals, equilibria)
+    TA = (
+        alks["HCO3"]
+        + 2 * alks["CO3"]
+        + alks["BAlk"]
+        + alks["OH"]
+        + alks["PAlk"]
+        + alks["SiAlk"]
+        + alks["NH3Alk"]
+        + alks["H2SAlk"]
+        - alks["Hfree"]
+        - alks["HSO4"]
+        - alks["HF"]
+    )
+    return TA
+
+
+# Set which alkalinity function to use
+TAfromTCpH = TAfromTCpH_original
 
 
 def TAfrompHfCO2(pH, fCO2, totals, equilibria):
