@@ -81,3 +81,6 @@ def test_D81_phosphate():
 
 test_D81()
 test_D81_phosphate()
+
+# Revert to original alkalinity function
+pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_original

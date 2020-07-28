@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import PyCO2SYS as pyco2
 
+# Make sure we're using the original CO2SYS TA equation
+pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_original
+
 # Import input conditions: "compare_MATLABv2_0_5.csv" was generated in MATLAB
 # using "compare_MATLABv2_0_5.m".
 co2matlab = pd.read_csv("validate/results/compare_MATLABv2_0_5.csv")
