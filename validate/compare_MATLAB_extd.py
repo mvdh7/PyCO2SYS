@@ -85,12 +85,12 @@ co2nd = pd.DataFrame(
         total_phosphate=co2inputs[10],
         total_ammonia=co2inputs[11],
         total_sulfide=co2inputs[12],
-        pH_scale_opt=co2inputs[13],
-        carbonic_opt=co2inputs[14],
-        bisulfate_opt=co2inputs[15],
-        fluoride_opt=co2inputs[16],
-        borate_opt=co2inputs[17],
-        gas_constant_opt=3,
+        opt_pH_scale=co2inputs[13],
+        opt_k_carbonic=co2inputs[14],
+        opt_k_bisulfate=co2inputs[15],
+        opt_k_fluoride=co2inputs[16],
+        opt_total_borate=co2inputs[17],
+        opt_gas_constant=3,
     )
 )
 

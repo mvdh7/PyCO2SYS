@@ -4,7 +4,7 @@
 
 from autograd import numpy as np
 from . import p1atm, pcx, pressured
-from .. import constants, convert, gas
+from .. import constants, convert, gas, solubility
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
@@ -101,4 +101,17 @@ def assemble(
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
     Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
+    # Aragonite and calcite solubility products
+    if "KAr" not in Ks:
+        Ks["KAr"] = np.where(
+            (WhichKs == 6) | (WhichKs == 7),  # GEOSECS values
+            solubility.k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas),
+            solubility.k_aragonite_M83(TempK, Sal, Pbar, RGas),
+        )
+    if "KCa" not in Ks:
+        Ks["KCa"] = np.where(
+            (WhichKs == 6) | (WhichKs == 7),  # GEOSECS values
+            solubility.k_calcite_I75(TempK, Sal, Pbar, RGas),
+            solubility.k_calcite_M83(TempK, Sal, Pbar, RGas),
+        )
     return Ks

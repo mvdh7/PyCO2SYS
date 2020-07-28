@@ -9,6 +9,17 @@ from . import automatic
 
 __all__ = ["automatic"]
 
+# Default uncertainties in pK values following OEDG18
+pKs_OEDG18 = {
+    "pk_CO2": 0.002,
+    "pk_carbonic_1": 0.0075,
+    "pk_carbonic_2": 0.015,
+    "pk_borate": 0.01,
+    "pk_water": 0.01,
+    "pk_aragonite": 0.02,
+    "pk_calcite": 0.02,
+}
+
 
 def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     """Scale `dx` for a particular variable `var`."""
@@ -356,7 +367,7 @@ def forward_nd(
     args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed}
     # Loop through requested parameters and calculate the gradients
     dxs = {wrt: None for wrt in grads_wrt}
-    co2derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
+    CO2SYS_derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
     for wrt in grads_wrt:
         args_plus = copy.deepcopy(args_fixed)
         is_pk = wrt.startswith("pk_")
@@ -373,5 +384,47 @@ def forward_nd(
             args_plus[wrt] = CO2SYS_nd_results[wrt] + dxs[wrt]
         results_plus = engine.nd.CO2SYS(**args_plus)
         for of in grads_of:
-            co2derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[wrt]
-    return co2derivs, dxs
+            CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[
+                wrt
+            ]
+    return CO2SYS_derivs, dxs
+
+
+def propagate_nd(
+    CO2SYS_nd_results,
+    uncertainties_into,
+    uncertainties_from,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
+    **CO2SYS_nd_kwargs,
+):
+    """Propagate uncertainties from requested CO2SYS_nd arguments to results."""
+    CO2SYS_derivs = forward_nd(
+        CO2SYS_nd_results,
+        uncertainties_into,
+        uncertainties_from,
+        dx=dx,
+        dx_scaling=dx_scaling,
+        dx_func=dx_func,
+        **CO2SYS_nd_kwargs,
+    )[0]
+    nd_shape = engine.nd.broadcast1024(CO2SYS_nd_results).shape
+    uncertainties_from = engine.nd.condition(uncertainties_from, to_shape=nd_shape)
+    components = {
+        u_into: {
+            u_from: np.abs(CO2SYS_derivs[u_into][u_from]) * v_from
+            for u_from, v_from in uncertainties_from.items()
+        }
+        for u_into in uncertainties_into
+    }
+    uncertainties = {
+        u_into: np.sqrt(
+            np.sum(
+                np.array([component for component in components[u_into].values()]) ** 2,
+                axis=0,
+            )
+        )
+        for u_into in uncertainties_into
+    }
+    return uncertainties, components

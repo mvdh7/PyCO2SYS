@@ -34,6 +34,11 @@ Introduces a more Pythonic top-level function that can compute directly on multi
     ***New top-level function***
 
     * Adds `PyCO2SYS.CO2SYS_nd` top-level function with a more Pythonic interface and with NumPy broadcasting of $n$-dimensional inputs.
+    * Adds corresponding `PyCO2SYS.uncertainty.forward_nd` and `PyCO2SYS.uncertainty.propagate_nd` functions for uncertainty propagation.
+
+    ***Extra arguments and results***
+
+    * Solubility constants for aragonite and calcite available directly as outputs from `PyCO2SYS.CO2SYS_nd` and specific values for them can be given as arguments to override the default internal calculation.
 
     ***Internal reorganisation***
 

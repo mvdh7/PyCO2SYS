@@ -113,47 +113,7 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas):
     return KAr
 
 
-def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas):
-    """Calculate calcite solubility.
-
-    This calculates omega, the solubility ratio, for calcite.
-    This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
-          where Ksp is the solubility product (KCa).
-
-    Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
-    """
-    # Get stoichiometric solubility constant
-    F = (WhichKs == 6) | (WhichKs == 7)  # GEOSECS values
-    KCa = np.where(
-        F, k_calcite_I75(TempK, Sal, Pbar, RGas), k_calcite_M83(TempK, Sal, Pbar, RGas)
-    )
-    # Calculate saturation state
-    OmegaCa = CARB * TCa / KCa
-    return OmegaCa
-
-
-def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas):
-    """Calculate aragonite solubility.
-
-    This calculates omega, the solubility ratio, for aragonite.
-    This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
-          where Ksp is the solubility product (KAr).
-
-    Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
-    """
-    # Get stoichiometric solubility constant
-    F = (WhichKs == 6) | (WhichKs == 7)  # GEOSECS values
-    KAr = np.where(
-        F,
-        k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas),
-        k_aragonite_M83(TempK, Sal, Pbar, RGas),
-    )
-    # Calculate saturation state
-    OmegaAr = CARB * TCa / KAr
-    return OmegaAr
-
-
-def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, RGas):
+def CaCO3(CARB, totals, Ks):
     """Calculate calcite and aragonite solubility.
 
     This calculates omega, the solubility ratio, for calcite and aragonite.
@@ -163,10 +123,6 @@ def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, RGas):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    # Convert units
-    TempK = convert.TempC2K(TempC)
-    Pbar = convert.Pdbar2bar(Pdbar)
-    # Calculate saturation states
-    OmegaCa = calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas)
-    OmegaAr = aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas)
+    OmegaCa = CARB * totals["TCa"] / Ks["KCa"]
+    OmegaAr = CARB * totals["TCa"] / Ks["KAr"]
     return OmegaCa, OmegaAr
