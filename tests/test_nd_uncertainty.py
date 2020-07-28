@@ -1,6 +1,9 @@
 import numpy as np
 import PyCO2SYS as pyco2
 
+# Switch to fixed alkalinity function
+pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_fixed
+
 # Calculate initial results
 kwargs = {
     "salinity": 32,
@@ -29,6 +32,7 @@ uncertainties_from = {
 uncertainties, components = pyco2.uncertainty.propagate_nd(
     results, uncertainties_into, uncertainties_from, **kwargs,
 )
+
 
 # Compare with CO2SYS v1.4 API
 par1g = np.broadcast_to(par1, np.broadcast(par1, par2).shape)

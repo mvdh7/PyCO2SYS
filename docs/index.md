@@ -29,7 +29,7 @@ Only the top-level "calculate everything" functions and uncertainty propagation 
         import PyCO2SYS as pyco2
         results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  For more information on the optional `kwargs` and names of the output keys, see [More advanced interface](co2sys_nd).
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  For more information on the optional `kwargs` and names of the output keys, see [New-style CO2SYS_nd](co2sys_nd).
 
 The second way is to [do it like in MATLAB](co2sys):
 
