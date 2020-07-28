@@ -58,7 +58,9 @@ co2nd = pyco2.engine.nd.CO2SYS(par1, par2, par1_type, par2_type, **kwargs)
 def test_nd_misc():
     assert (
         np.shape(co2nd["k_carbonic_2"])
-        == np.broadcast(par1, par2, par1_type, par2_type, *kwargs.values()).shape
+        == pyco2.engine.nd.broadcast1024(
+            par1, par2, par1_type, par2_type, *kwargs.values()
+        ).shape
     )
 
 

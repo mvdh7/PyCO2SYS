@@ -3,11 +3,7 @@
 """Propagate uncertainties through marine carbonate system calculations."""
 
 from copy import deepcopy
-from autograd.numpy import array, isin, log10, median, ones, size, sqrt
-from autograd.numpy import abs as np_abs
-from autograd.numpy import all as np_all
-from autograd.numpy import any as np_any
-from autograd.numpy import sum as np_sum
+from autograd import numpy as np
 from .. import engine
 from . import automatic
 
@@ -24,11 +20,11 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     if dx_scaling == "none":
         dx_wrt = dx
     elif dx_scaling == "median":
-        median_var = median(var)
+        median_var = np.median(var)
         if median_var == 0:
             dx_wrt = dx
         else:
-            dx_wrt = dx * np_abs(median_var)
+            dx_wrt = dx * np.abs(median_var)
     elif dx_scaling == "custom":
         dx_wrt = dx_func(var)
     return dx_wrt
@@ -54,7 +50,7 @@ def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func
         co2kwargs_plus[kwarg].update({wrt_stem: co2dict[wrt]})
     # Scale dx and add it to the `co2kwargs_plus` dict
     if ispK:
-        pKvalues = -log10(co2kwargs_plus[kwarg][wrt_stem])
+        pKvalues = -np.log10(co2kwargs_plus[kwarg][wrt_stem])
         dx_wrt = _get_dx_wrt(dx, pKvalues, dx_scaling, dx_func=dx_func)
         pKvalues_plus = pKvalues + dx_wrt
         co2kwargs_plus[kwarg][wrt_stem] = 10.0 ** -pKvalues_plus
@@ -154,7 +150,7 @@ def forward(
         else:
             grads_wrt = [grads_wrt]
     # Make sure all requested `grads_wrt` are allowed
-    assert np_all(isin(list(grads_wrt), all_wrt)), "Invalid `grads_wrt` requested."
+    assert np.all(np.isin(list(grads_wrt), all_wrt)), "Invalid `grads_wrt` requested."
     # If only a single `grads_of` is requested, check it's allowed & convert to list
     if isinstance(grads_of, str):
         assert grads_of in ["all"] + list(engine.gradables)
@@ -163,7 +159,7 @@ def forward(
         else:
             grads_of = [grads_of]
     # Final validity checks
-    assert np_all(isin(grads_of, engine.gradables)), "Invalid `grads_of` requested."
+    assert np.all(np.isin(grads_of, engine.gradables)), "Invalid `grads_of` requested."
     assert dx > 0, "`dx` must be positive."
     # Assemble input arguments for engine._CO2SYS()
     co2args = {
@@ -208,7 +204,7 @@ def forward(
         # Perturb if `wrt` is one of the main inputs to CO2SYS
         if wrt in inputs_wrt:
             dx_wrt = _get_dx_wrt(
-                dx, median(co2args_plus[wrt]), dx_scaling, dx_func=dx_func
+                dx, np.median(co2args_plus[wrt]), dx_scaling, dx_func=dx_func
             )
             co2args_plus[wrt] = co2args_plus[wrt] + dx_wrt
         # Perturb if `wrt` is one of the `totals` internal overrides
@@ -283,22 +279,36 @@ def propagate(
         dx_scaling=dx_scaling,
         dx_func=dx_func,
     )[0]
-    npts = size(co2dict["PAR1"])
+    npts = np.shape(co2dict["PAR1"])
     uncertainties_from = engine.condition(uncertainties_from, npts=npts)[0]
     components = {
         u_into: {
-            u_from: np_abs(co2derivs[u_into][u_from]) * v_from
+            u_from: np.abs(co2derivs[u_into][u_from]) * v_from
             for u_from, v_from in uncertainties_from.items()
         }
         for u_into in uncertainties_into
     }
     uncertainties = {
-        u_into: sqrt(
-            np_sum(
-                array([component for component in components[u_into].values()]) ** 2,
+        u_into: np.sqrt(
+            np.sum(
+                np.array([component for component in components[u_into].values()]) ** 2,
                 axis=0,
             )
         )
         for u_into in uncertainties_into
     }
     return uncertainties, components
+
+
+def forward_nd(
+    results,
+    grads_of,
+    grads_wrt,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
+    **CO2SYS_nd_kwargs,
+):
+    """Propagate uncertainties from requested inputs to outputs for CO2SYS_nd."""
+    args_shape = engine.nd.broadcast1024(*[result for result in results.values()]).shape
+    return args_shape

@@ -22,6 +22,20 @@ input_floats = {
 }
 
 
+def broadcast1024(*args):
+    """Extend numpy.broadcast to accept 1024 inputs, rather than the default 32."""
+    ngroups = int(np.ceil(len(args) / 32))
+    if ngroups == 1:
+        return np.broadcast(*args)
+    else:
+        return np.broadcast(
+            *[
+                np.empty(np.broadcast(*args[n * 32 : (n + 1) * 32]).shape)
+                for n in range(ngroups)
+            ]
+        )
+
+
 def condition(args, to_shape=None):
     """Condition n-d args for PyCO2SYS.
     
@@ -33,10 +47,10 @@ def condition(args, to_shape=None):
     """
     try:  # check all args can be broadcast together
         args = {k: v for k, v in args.items() if v is not None}
-        args_broadcast = np.broadcast(*args.values())
+        args_broadcast = broadcast1024(*args.values())
         if to_shape is not None:
             try:  # check args can be broadcast to to_shape, if provided
-                np.broadcast(np.ones(to_shape), np.ones(args_broadcast.shape))
+                broadcast1024(np.ones(to_shape), np.ones(args_broadcast.shape))
                 args_broadcast_shape = to_shape
             except ValueError:
                 print("PyCO2SYS error: args are not broadcastable to to_shape.")
