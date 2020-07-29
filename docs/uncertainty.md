@@ -60,8 +60,11 @@ There are some examples of using the uncertainty propagation function in the [Py
     The keys of `uncertainties_from` may come from the [inputs of `PyCO2SYS.CO2SYS`](../co2sys/#inputs) or [inputs of `PyCO2SYS.CO2SYS_nd`](../co2sys_nd/#inputs) that can have an uncertainty.  Additionally, the uncertainty in any parameter that can be provided as an [internal override](../co2sys/#internal-overrides) can be included within the `uncertainties_from` dict.  The keys for these parameters should be the same as the corresponding key in the main [`PyCO2SYS.CO2SYS` output dict](../co2sys/#outputs) or [`PyCO2SYS.CO2SYS_nd` output dict](../co2sys_nd/#outputs).
     
     For the equilibrium constants, if you need to propagate an uncertainty in terms of a p<i>K</i> value rather than *K*, simply prefix the corresponding key in `uncertainties_from` with a `"p"` (e.g. use `"pK1input"` instead of `"K1input"` in MATLAB-style, or equivalently `"pk_carbonic_1"` instead of `"k_carbonic_1"` in `CO2SYS_nd`-style).
+    
+    The "standard" uncertainties in the equilbrium constants used by CO2SYS for MATLAB following [OEDG18](../refs/#o) are available in the correct format for `uncertainties_in` at `PyCO2SYS.uncertainties.pKs_OEDG18`.
 
     The values of `uncertainties_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.  Any parameters not included are assumed to have zero uncertainty.
+
 
     #### Internal overrides
 
