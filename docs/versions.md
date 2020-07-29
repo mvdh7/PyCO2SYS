@@ -38,7 +38,8 @@ Introduces a more Pythonic top-level function that can compute directly on multi
 
     ***Extra arguments and results***
 
-    * Solubility constants for aragonite and calcite available directly as outputs from `PyCO2SYS.CO2SYS` and `PyCO2SYS.CO2SYS_nd`, and specific values for them can be given as arguments to override the default internal calculation.
+    * Solubility constants for aragonite and calcite available directly as outputs from `PyCO2SYS.CO2SYS` and `PyCO2SYS.CO2SYS_nd`
+    * Explicit values for the solubility constants can be given as arguments to override the default internal calculation.
 
     ***Internal reorganisation***
 

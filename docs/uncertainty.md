@@ -16,7 +16,7 @@ If the uncertainty in each [input parameter](../co2sys/#inputs) is independent â
 
 ### Syntax
 
-You must run either `PyCO2SYS.CO2SYS` (see [MATLAB-style CO2SYS](../co2sys)) or `PyCO2SYS.CO2SYS_nd` (see [New-style CO2SYS_nd](../co2sys_nd)) to generate the `co2dict` that is used as an input here.  Instructions for both approaches are provided here.
+You must run either `PyCO2SYS.CO2SYS` (see [MATLAB-style CO2SYS](../co2sys)) or `PyCO2SYS.CO2SYS_nd` (see [New-style CO2SYS_nd](../co2sys_nd)) to generate the `co2dict` that is used as an input here.  Instructions for both interfaces are provided here.
 
     :::python
     import PyCO2SYS as pyco2

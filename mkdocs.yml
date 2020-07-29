@@ -12,8 +12,9 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 # Navigation
 nav:
   - Overview: index.md
-  - MATLAB-style CO2SYS: co2sys.md
-  - New-style CO2SYS_nd: co2sys_nd.md
+  - Interfaces:
+    - Pythonic CO2SYS_nd: co2sys_nd.md
+    - MATLAB-style CO2SYS: co2sys.md
   - Uncertainties: uncertainty.md
   - Validation: validate.md
   - References: refs.md
