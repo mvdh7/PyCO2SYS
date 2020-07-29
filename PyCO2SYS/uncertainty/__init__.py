@@ -2,16 +2,23 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Propagate uncertainties through marine carbonate system calculations."""
 
-from copy import deepcopy
-from autograd.numpy import array, isin, log10, median, ones, size, sqrt
-from autograd.numpy import abs as np_abs
-from autograd.numpy import all as np_all
-from autograd.numpy import any as np_any
-from autograd.numpy import sum as np_sum
+import copy
+from autograd import numpy as np
 from .. import engine
 from . import automatic
 
 __all__ = ["automatic"]
+
+# Default uncertainties in pK values following OEDG18
+pKs_OEDG18 = {
+    "pk_CO2": 0.002,
+    "pk_carbonic_1": 0.0075,
+    "pk_carbonic_2": 0.015,
+    "pk_borate": 0.01,
+    "pk_water": 0.01,
+    "pk_aragonite": 0.02,
+    "pk_calcite": 0.02,
+}
 
 
 def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
@@ -24,11 +31,11 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     if dx_scaling == "none":
         dx_wrt = dx
     elif dx_scaling == "median":
-        median_var = median(var)
+        median_var = np.median(var)
         if median_var == 0:
             dx_wrt = dx
         else:
-            dx_wrt = dx * np_abs(median_var)
+            dx_wrt = dx * np.abs(median_var)
     elif dx_scaling == "custom":
         dx_wrt = dx_func(var)
     return dx_wrt
@@ -54,7 +61,7 @@ def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func
         co2kwargs_plus[kwarg].update({wrt_stem: co2dict[wrt]})
     # Scale dx and add it to the `co2kwargs_plus` dict
     if ispK:
-        pKvalues = -log10(co2kwargs_plus[kwarg][wrt_stem])
+        pKvalues = -np.log10(co2kwargs_plus[kwarg][wrt_stem])
         dx_wrt = _get_dx_wrt(dx, pKvalues, dx_scaling, dx_func=dx_func)
         pKvalues_plus = pKvalues + dx_wrt
         co2kwargs_plus[kwarg][wrt_stem] = 10.0 ** -pKvalues_plus
@@ -129,6 +136,8 @@ def forward(
         "KNH3",
         "K0",
         "FugFac",
+        "KCa",
+        "KAr",
     ]
     Kis_wrt = ["{}input".format(K) for K in Ks_wrt]
     Kos_wrt = ["{}output".format(K) for K in Ks_wrt]
@@ -154,7 +163,7 @@ def forward(
         else:
             grads_wrt = [grads_wrt]
     # Make sure all requested `grads_wrt` are allowed
-    assert np_all(isin(list(grads_wrt), all_wrt)), "Invalid `grads_wrt` requested."
+    assert np.all(np.isin(list(grads_wrt), all_wrt)), "Invalid `grads_wrt` requested."
     # If only a single `grads_of` is requested, check it's allowed & convert to list
     if isinstance(grads_of, str):
         assert grads_of in ["all"] + list(engine.gradables)
@@ -163,7 +172,7 @@ def forward(
         else:
             grads_of = [grads_of]
     # Final validity checks
-    assert np_all(isin(grads_of, engine.gradables)), "Invalid `grads_of` requested."
+    assert np.all(np.isin(grads_of, engine.gradables)), "Invalid `grads_of` requested."
     assert dx > 0, "`dx` must be positive."
     # Assemble input arguments for engine._CO2SYS()
     co2args = {
@@ -203,12 +212,12 @@ def forward(
     # Estimate the gradients with central differences
     for wrt in grads_wrt:
         # Make copies of input args to modify
-        co2args_plus = deepcopy(co2args)
-        co2kwargs_plus = deepcopy(co2kwargs)
+        co2args_plus = copy.deepcopy(co2args)
+        co2kwargs_plus = copy.deepcopy(co2kwargs)
         # Perturb if `wrt` is one of the main inputs to CO2SYS
         if wrt in inputs_wrt:
             dx_wrt = _get_dx_wrt(
-                dx, median(co2args_plus[wrt]), dx_scaling, dx_func=dx_func
+                dx, np.median(co2args_plus[wrt]), dx_scaling, dx_func=dx_func
             )
             co2args_plus[wrt] = co2args_plus[wrt] + dx_wrt
         # Perturb if `wrt` is one of the `totals` internal overrides
@@ -283,19 +292,138 @@ def propagate(
         dx_scaling=dx_scaling,
         dx_func=dx_func,
     )[0]
-    npts = size(co2dict["PAR1"])
+    npts = np.shape(co2dict["PAR1"])
     uncertainties_from = engine.condition(uncertainties_from, npts=npts)[0]
     components = {
         u_into: {
-            u_from: np_abs(co2derivs[u_into][u_from]) * v_from
+            u_from: np.abs(co2derivs[u_into][u_from]) * v_from
             for u_from, v_from in uncertainties_from.items()
         }
         for u_into in uncertainties_into
     }
     uncertainties = {
-        u_into: sqrt(
-            np_sum(
-                array([component for component in components[u_into].values()]) ** 2,
+        u_into: np.sqrt(
+            np.sum(
+                np.array([component for component in components[u_into].values()]) ** 2,
+                axis=0,
+            )
+        )
+        for u_into in uncertainties_into
+    }
+    return uncertainties, components
+
+
+def forward_nd(
+    CO2SYS_nd_results,
+    grads_of,
+    grads_wrt,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
+    **CO2SYS_nd_kwargs,
+):
+    """Get forward finite-difference derivatives of CO2SYS_nd results with respect to
+    its arguments.
+    """
+    # Check requested grads are possible
+    assert np.all(
+        np.isin(
+            grads_of,
+            engine.nd.gradables
+            + [
+                "p{}".format(gradable)
+                for gradable in engine.nd.gradables
+                if gradable.startswith("k_")
+            ],
+        )
+    ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."
+    if np.any([of.endswith("_out") for of in grads_of]):
+        assert "temperature_out" in CO2SYS_nd_results, (
+            "PyCO2SYS error: you can only get gradients at output conditions if you calculated"
+            + "results at output conditions!"
+        )
+    # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs
+    keys_fixed = set(
+        [
+            "par1",
+            "par2",
+            "par1_type",
+            "par2_type",
+            "salinity",
+            "temperature",
+            "pressure",
+            "total_ammonia",
+            "total_phosphate",
+            "total_silicate",
+            "total_sulfide",
+            "opt_gas_constant",
+            "opt_k_bisulfate",
+            "opt_k_carbonic",
+            "opt_k_fluoride",
+            "opt_pH_scale",
+            "opt_total_borate",
+            "buffers_mode",
+        ]
+        + list(CO2SYS_nd_kwargs.keys())
+    )
+    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed}
+    # Loop through requested parameters and calculate the gradients
+    dxs = {wrt: None for wrt in grads_wrt}
+    CO2SYS_derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
+    for wrt in grads_wrt:
+        args_plus = copy.deepcopy(args_fixed)
+        is_pk = wrt.startswith("pk_")
+        if is_pk:
+            wrt_k = wrt[1:]
+            pk_values = -np.log10(CO2SYS_nd_results[wrt_k])
+            dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
+            pk_values_plus = pk_values + dxs[wrt]
+            args_plus[wrt_k] = 10.0 ** -pk_values_plus
+        else:
+            dxs[wrt] = _get_dx_wrt(
+                dx, CO2SYS_nd_results[wrt], dx_scaling, dx_func=dx_func
+            )
+            args_plus[wrt] = CO2SYS_nd_results[wrt] + dxs[wrt]
+        results_plus = engine.nd.CO2SYS(**args_plus)
+        for of in grads_of:
+            CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[
+                wrt
+            ]
+    return CO2SYS_derivs, dxs
+
+
+def propagate_nd(
+    CO2SYS_nd_results,
+    uncertainties_into,
+    uncertainties_from,
+    dx=1e-6,
+    dx_scaling="median",
+    dx_func=None,
+    **CO2SYS_nd_kwargs,
+):
+    """Propagate uncertainties from requested CO2SYS_nd arguments to results."""
+    CO2SYS_derivs = forward_nd(
+        CO2SYS_nd_results,
+        uncertainties_into,
+        uncertainties_from,
+        dx=dx,
+        dx_scaling=dx_scaling,
+        dx_func=dx_func,
+        **CO2SYS_nd_kwargs,
+    )[0]
+    nd_shape = engine.nd.broadcast1024(CO2SYS_nd_results).shape
+    uncertainties_from = engine.nd.condition(uncertainties_from, to_shape=nd_shape)
+    components = {
+        u_into: {
+            u_from: np.abs(CO2SYS_derivs[u_into][u_from]) * v_from
+            for u_from, v_from in uncertainties_from.items()
+        }
+        for u_into in uncertainties_into
+    }
+    uncertainties = {
+        u_into: np.sqrt(
+            np.sum(
+                np.array([component for component in components[u_into].values()]) ** 2,
                 axis=0,
             )
         )

@@ -67,3 +67,37 @@ def test_co2py_matlab():
 
 
 test_co2py_matlab()
+
+
+# Compare new n-d approach
+co2nd = pd.DataFrame(
+    pyco2.CO2SYS_nd(
+        co2inputs[0],
+        co2inputs[1],
+        co2inputs[2],
+        co2inputs[3],
+        salinity=co2inputs[4],
+        temperature=co2inputs[5],
+        temperature_out=co2inputs[6],
+        pressure=co2inputs[7],
+        pressure_out=co2inputs[8],
+        total_silicate=co2inputs[9],
+        total_phosphate=co2inputs[10],
+        total_ammonia=co2inputs[11],
+        total_sulfide=co2inputs[12],
+        opt_pH_scale=co2inputs[13],
+        opt_k_carbonic=co2inputs[14],
+        opt_k_bisulfate=co2inputs[15],
+        opt_k_fluoride=co2inputs[16],
+        opt_total_borate=co2inputs[17],
+        opt_gas_constant=3,
+    )
+)
+
+
+def test_nd():
+    assert np.all(co2nd.isocapnic_quotient_out.values == co2py.isoQout.values)
+    assert np.all(co2nd.pH_sws.values == co2py.pHinSWS.values)
+
+
+test_nd()

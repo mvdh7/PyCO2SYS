@@ -2,25 +2,20 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Helpers for the main CO2SYS program."""
 
-from autograd.numpy import (
-    array,
-    full,
-    size,
-    unique,
-)
-from autograd.numpy import max as np_max
-from . import convert, equilibria, salts, solve
+from autograd import numpy as np
+from .. import convert, equilibria, salts, solve
+from . import nd
 
 
 def condition(input_locals, npts=None):
     """Condition inputs for use with CO2SYS (sub)functions."""
     # Determine and check lengths of input vectors
-    veclengths = array([size(v) for v in input_locals.values()])
+    veclengths = np.array([np.size(v) for v in input_locals.values()])
     assert (
-        size(unique(veclengths[veclengths != 1])) <= 1
+        np.size(np.unique(veclengths[veclengths != 1])) <= 1
     ), "CO2SYS function inputs must all be of same length, or of length 1."
     # Make vectors of all inputs
-    npts_in = np_max(veclengths)
+    npts_in = np.max(veclengths)
     if npts is None:
         npts = npts_in
     else:
@@ -29,7 +24,8 @@ def condition(input_locals, npts=None):
             npts,
         ), "Input `npts` does not agree with input array sizes."
     args = {
-        k: full(npts, v) if size(v) == 1 else v.ravel() for k, v in input_locals.items()
+        k: np.full(npts, v) if np.size(v) == 1 else v.ravel()
+        for k, v in input_locals.items()
     }
     # Convert to float where appropriate
     float_vars = {
@@ -76,6 +72,8 @@ def condition(input_locals, npts=None):
         "KNH3",
         "KH2S",
         "RGas",
+        "KCa",
+        "KAr",
     }
     for k in args.keys():
         if k in float_vars:
@@ -84,7 +82,7 @@ def condition(input_locals, npts=None):
 
 
 # Define all gradable outputs
-gradables = array(
+gradables = np.array(
     [
         "TAlk",
         "TCO2",
@@ -201,6 +199,10 @@ gradables = array(
         "fHinput",
         "fHoutput",
         "RGas",
+        "KCainput",
+        "KCaoutput",
+        "KArinput",
+        "KAroutput",
     ]
 )
 
@@ -330,6 +332,11 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
         "KSO4output": Kos["KSO4"],  # will eventually replace "KSoutput"
         # Added in v1.4.1:
         "RGas": Kis["RGas"],
+        # Added in v1.5.0:
+        "KCainput": Kis["KCa"],
+        "KCaoutput": Kos["KCa"],
+        "KArinput": Kis["KAr"],
+        "KAroutput": Kos["KAr"],
     }
 
 
@@ -460,8 +467,8 @@ def _CO2SYS(
         core_in, TempCi, Pdbari, totals, Kis, pHScale, WhichKs, buffers_mode,
     )
     # Solve the core MCS at output conditions
-    TAtype = full(npts, 1)
-    TCtype = full(npts, 2)
+    TAtype = np.full(npts, 1)
+    TCtype = np.full(npts, 2)
     core_out = solve.core(
         core_in["TA"], core_in["TC"], TAtype, TCtype, totals, Kos, False,
     )
@@ -595,6 +602,8 @@ def dict2equilibria(co2dict):
         "KH2S",
         "FugFac",
         "fH",
+        "KCa",
+        "KAr",
     ]
     Kis = {Kvar: co2dict[Kvar + "input"] for Kvar in Kvars}
     Kos = {Kvar: co2dict[Kvar + "output"] for Kvar in Kvars}

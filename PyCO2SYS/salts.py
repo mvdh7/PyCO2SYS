@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Estimate total molinities of seawater solutes from practical salinity."""
 
-from autograd.numpy import nan, where
+from autograd import numpy as np
 
 
 def ionstr_DOE94(Sal):
@@ -76,18 +76,18 @@ def sulfate_MR66(Sal):
 
 def _co2sys_TB(Sal, WhichKs, WhoseTB):
     """Calculate total borate from salinity for the given options."""
-    TB = where(WhichKs == 8, 0.0, nan)  # pure water
-    TB = where((WhichKs == 6) | (WhichKs == 7), borate_C65(Sal), TB)
+    TB = np.where(WhichKs == 8, 0.0, np.nan)  # pure water
+    TB = np.where((WhichKs == 6) | (WhichKs == 7), borate_C65(Sal), TB)
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
-    TB = where(F & (WhoseTB == 1), borate_U74(Sal), TB)
-    TB = where(F & (WhoseTB == 2), borate_LKB10(Sal), TB)
+    TB = np.where(F & (WhoseTB == 1), borate_U74(Sal), TB)
+    TB = np.where(F & (WhoseTB == 2), borate_LKB10(Sal), TB)
     return TB
 
 
 def _co2sys_TCa(Sal, WhichKs):
     """Calculate total calcium from salinity for the given options."""
     F = (WhichKs == 6) | (WhichKs == 7)  # GEOSECS values
-    TCa = where(F, calcium_C65(Sal), calcium_RT67(Sal))
+    TCa = np.where(F, calcium_C65(Sal), calcium_RT67(Sal))
     return TCa
 
 
@@ -118,13 +118,13 @@ def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB, totals=None):
     related variables.
     """
     # Pure Water case:
-    Sal = where(WhichKs == 8, 0.0, Sal)
+    Sal = np.where(WhichKs == 8, 0.0, Sal)
     # GEOSECS and Pure Water:
     F = (WhichKs == 6) | (WhichKs == 8)
-    TPO4 = where(F, 0.0, TPO4)
-    TSi = where(F, 0.0, TSi)
-    TNH3 = where(F, 0.0, TNH3)
-    TH2S = where(F, 0.0, TH2S)
+    TPO4 = np.where(F, 0.0, TPO4)
+    TSi = np.where(F, 0.0, TSi)
+    TNH3 = np.where(F, 0.0, TNH3)
+    TH2S = np.where(F, 0.0, TH2S)
     # Convert micromol to mol
     TPO4 = TPO4 * 1e-6
     TSi = TSi * 1e-6
@@ -134,7 +134,7 @@ def assemble(Sal, TSi, TPO4, TNH3, TH2S, WhichKs, WhoseTB, totals=None):
     # The vector `PengCorrection` is used to modify the value of TA, for those
     # cases where WhichKs==7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where WhichKs is not 7.
-    PengCorrection = where(WhichKs == 7, TPO4, 0.0)
+    PengCorrection = np.where(WhichKs == 7, TPO4, 0.0)
     # Add everything else to `totals` dict
     totals["TPO4"] = TPO4
     totals["TSi"] = TSi

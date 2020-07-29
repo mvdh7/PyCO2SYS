@@ -23,6 +23,37 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
+## 1.5
+
+Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.
+
+### 1.5.0 (29 July 2020)
+
+!!! example "Changes in v1.5.0"
+
+    ***New top-level functions***
+
+    * Adds `PyCO2SYS.CO2SYS_nd` top-level function with a more Pythonic interface and with NumPy broadcasting of $n$-dimensional inputs.
+    * In `PyCO2SYS.CO2SYS_nd`, results at "output" conditions are only calculated if output temperature or pressure is provided.
+    * Adds corresponding `PyCO2SYS.uncertainty.forward_nd` and `PyCO2SYS.uncertainty.propagate_nd` functions for uncertainty propagation.
+
+    ***Alternative calculations***
+
+    * New alkalinity equation fixing pH scale conversion bug inherited from CO2SYS-MATLAB is available, but not yet implemented by default.
+
+    ***Extra arguments and results***
+
+    * Solubility constants for aragonite and calcite available directly as outputs from `PyCO2SYS.CO2SYS` and `PyCO2SYS.CO2SYS_nd`
+    * Explicit values for the solubility constants can be given as arguments to override the default internal calculation.
+
+    ***Internal reorganisation***
+
+    * All 2-to-3 functions in `PyCO2SYS.solve.get` now have a more consistent set of inputs.
+    * Revised pH scale conversion functions for consistency and added tests for their internal accuracy.
+    * Switched preallocations to use `np.shape` not `np.size` in preparation for working with $n$-dimensional inputs.
+    * Updated style to import the whole NumPy module as `np` instead of individual functions separately.
+    * Converted `PyCO2SYS.engine` to a sub-module.
+
 ## 1.4
 
 Enables uncertainty propagation with forward finite-difference derivatives.
@@ -160,7 +191,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
 ## 1.2
 
-Adds additional buffer factor calculations that are not currently included in CO2SYS for MATLAB.  New releases are henceforth assigned DOIs from Zenodo.
+Calculates a wider variety of chemical buffer factors.
 
 ### 1.2.1 (9 Apr 2020)
 
@@ -179,7 +210,7 @@ Adds additional buffer factor calculations that are not currently included in CO
 
 ## 1.1
 
-Adds extra optional inputs for consistency with Pierrot et al.'s forthcoming MATLAB "v1.21".  Continues to reorganise subfunctions into more Pythonic modules, while avoiding changing the actual mechanics of calculations.
+Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion molinities for consistency with forthcoming MATLAB "v1.21".
 
 ### 1.1.1 (20 Mar 2020)
 

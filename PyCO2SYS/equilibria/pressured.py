@@ -2,19 +2,20 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Correct equilibrium constants for pressure."""
 
-from autograd.numpy import full, isin, nan, size, where
-from autograd.numpy import all as np_all
+from autograd import numpy as np
 from . import p1atm, pcx
 from .. import convert
 
 
 def KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
-    assert np_all(isin(WhoseKSO4, [1, 2])), "Valid `WhoseKSO4` options are: `1` or `2`."
+    assert np.all(
+        np.isin(WhoseKSO4, [1, 2])
+    ), "Valid `WhoseKSO4` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
-    KSO4 = full(size(TempK), nan)
-    KSO4 = where(WhoseKSO4 == 1, p1atm.kHSO4_FREE_D90a(TempK, Sal), KSO4)
-    KSO4 = where(WhoseKSO4 == 2, p1atm.kHSO4_FREE_KRCB77(TempK, Sal), KSO4)
+    KSO4 = np.full(np.shape(TempK), np.nan)
+    KSO4 = np.where(WhoseKSO4 == 1, p1atm.kHSO4_FREE_D90a(TempK, Sal), KSO4)
+    KSO4 = np.where(WhoseKSO4 == 2, p1atm.kHSO4_FREE_KRCB77(TempK, Sal), KSO4)
     # Now correct for seawater pressure
     KSO4 = KSO4 * pcx.KSO4fac(TempK, Pbar, RGas)
     return KSO4
@@ -22,11 +23,11 @@ def KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4):
 
 def KF(TempK, Sal, Pbar, RGas, WhoseKF):
     """Calculate HF dissociation constant for the given options."""
-    assert np_all(isin(WhoseKF, [1, 2])), "Valid `WhoseKF` options are: `1` or `2`."
+    assert np.all(np.isin(WhoseKF, [1, 2])), "Valid `WhoseKF` options are: `1` or `2`."
     # Evaluate at atmospheric pressure
-    KF = full(size(TempK), nan)
-    KF = where(WhoseKF == 1, p1atm.kHF_FREE_DR79(TempK, Sal), KF)
-    KF = where(WhoseKF == 2, p1atm.kHF_FREE_PF87(TempK, Sal), KF)
+    KF = np.full(np.shape(TempK), np.nan)
+    KF = np.where(WhoseKF == 1, p1atm.kHF_FREE_DR79(TempK, Sal), KF)
+    KF = np.where(WhoseKF == 2, p1atm.kHF_FREE_PF87(TempK, Sal), KF)
     # Now correct for seawater pressure
     KF = KF * pcx.KFfac(TempK, Pbar, RGas)
     return KF
@@ -34,22 +35,22 @@ def KF(TempK, Sal, Pbar, RGas, WhoseKF):
 
 def fH(TempK, Sal, WhichKs):
     """Calculate NBS to Seawater pH scale conversion factor for the given options."""
-    fH = where(WhichKs == 8, 1.0, nan)
-    fH = where(WhichKs == 7, convert.fH_PTBO87(TempK, Sal), fH)
+    fH = np.where(WhichKs == 8, 1.0, np.nan)
+    fH = np.where(WhichKs == 7, convert.fH_PTBO87(TempK, Sal), fH)
     # Use GEOSECS's value for all other cases
-    fH = where((WhichKs != 7) & (WhichKs != 8), convert.fH_TWB82(TempK, Sal), fH)
+    fH = np.where((WhichKs != 7) & (WhichKs != 8), convert.fH_TWB82(TempK, Sal), fH)
     return fH
 
 
 def KB(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     """Calculate boric acid dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KB = full(size(TempK), nan)
-    KB = where(WhichKs == 8, 0.0, KB)  # pure water case
-    KB = where(
+    KB = np.full(np.shape(TempK), np.nan)
+    KB = np.where(WhichKs == 8, 0.0, KB)  # pure water case
+    KB = np.where(
         (WhichKs == 6) | (WhichKs == 7), p1atm.kBOH3_NBS_LTB69(TempK, Sal) / fH, KB
     )  # convert NBS to SWS
-    KB = where(
+    KB = np.where(
         (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8),
         p1atm.kBOH3_TOT_D90b(TempK, Sal) / SWStoTOT0,
         KB,
@@ -62,11 +63,11 @@ def KB(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
 def KW(TempK, Sal, Pbar, RGas, WhichKs):
     """Calculate water dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KW = full(size(TempK), nan)
-    KW = where(WhichKs == 6, 0.0, KW)  # GEOSECS doesn't include OH effects
-    KW = where(WhichKs == 7, p1atm.kH2O_SWS_M79(TempK, Sal), KW)
-    KW = where(WhichKs == 8, p1atm.kH2O_SWS_HO58_M79(TempK, Sal), KW)
-    KW = where(
+    KW = np.full(np.shape(TempK), np.nan)
+    KW = np.where(WhichKs == 6, 0.0, KW)  # GEOSECS doesn't include OH effects
+    KW = np.where(WhichKs == 7, p1atm.kH2O_SWS_M79(TempK, Sal), KW)
+    KW = np.where(WhichKs == 8, p1atm.kH2O_SWS_HO58_M79(TempK, Sal), KW)
+    KW = np.where(
         (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8),
         p1atm.kH2O_SWS_M95(TempK, Sal),
         KW,
@@ -79,28 +80,25 @@ def KW(TempK, Sal, Pbar, RGas, WhichKs):
 def KP(TempK, Sal, Pbar, RGas, WhichKs, fH):
     """Calculate phosphoric acid dissociation constants for the given options."""
     # Evaluate at atmospheric pressure
-    KP1 = full(size(TempK), nan)
-    KP2 = full(size(TempK), nan)
-    KP3 = full(size(TempK), nan)
+    KP1 = np.full(np.shape(TempK), np.nan)
+    KP2 = np.full(np.shape(TempK), np.nan)
+    KP3 = np.full(np.shape(TempK), np.nan)
     F = WhichKs == 7
-    if any(F):
-        KP1_KP67, KP2_KP67, KP3_KP67 = p1atm.kH3PO4_NBS_KP67(TempK, Sal)
-        KP1 = where(F, KP1_KP67, KP1)  # already on SWS!
-        KP2 = where(F, KP2_KP67 / fH, KP2)  # convert NBS to SWS
-        KP3 = where(F, KP3_KP67 / fH, KP3)  # convert NBS to SWS
+    KP1_KP67, KP2_KP67, KP3_KP67 = p1atm.kH3PO4_NBS_KP67(TempK, Sal)
+    KP1 = np.where(F, KP1_KP67, KP1)  # already on SWS!
+    KP2 = np.where(F, KP2_KP67 / fH, KP2)  # convert NBS to SWS
+    KP3 = np.where(F, KP3_KP67 / fH, KP3)  # convert NBS to SWS
     F = (WhichKs == 6) | (WhichKs == 8)
-    if any(F):
-        # Note: neither the GEOSECS choice nor the freshwater choice include
-        # contributions from phosphate or silicate.
-        KP1 = where(F, 0.0, KP1)
-        KP2 = where(F, 0.0, KP2)
-        KP3 = where(F, 0.0, KP3)
+    # Note: neither the GEOSECS choice nor the freshwater choice include
+    # contributions from phosphate or silicate.
+    KP1 = np.where(F, 0.0, KP1)
+    KP2 = np.where(F, 0.0, KP2)
+    KP3 = np.where(F, 0.0, KP3)
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
-    if any(F):
-        KP1_YM95, KP2_YM95, KP3_YM95 = p1atm.kH3PO4_SWS_YM95(TempK, Sal)
-        KP1 = where(F, KP1_YM95, KP1)
-        KP2 = where(F, KP2_YM95, KP2)
-        KP3 = where(F, KP3_YM95, KP3)
+    KP1_YM95, KP2_YM95, KP3_YM95 = p1atm.kH3PO4_SWS_YM95(TempK, Sal)
+    KP1 = np.where(F, KP1_YM95, KP1)
+    KP2 = np.where(F, KP2_YM95, KP2)
+    KP3 = np.where(F, KP3_YM95, KP3)
     # Now correct for seawater pressure
     # === CO2SYS.m comments: =======
     # These corrections don't matter for the GEOSECS choice (WhichKs = 6) and
@@ -117,14 +115,14 @@ def KP(TempK, Sal, Pbar, RGas, WhichKs, fH):
 def KSi(TempK, Sal, Pbar, RGas, WhichKs, fH):
     """Calculate silicate dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KSi = full(size(TempK), nan)
-    KSi = where(
+    KSi = np.full(np.shape(TempK), np.nan)
+    KSi = np.where(
         WhichKs == 7, p1atm.kSi_NBS_SMB64(TempK, Sal) / fH, KSi
     )  # convert NBS to SWS
     # Note: neither the GEOSECS choice nor the freshwater choice include
     # contributions from phosphate or silicate.
-    KSi = where((WhichKs == 6) | (WhichKs == 8), 0.0, KSi)
-    KSi = where(
+    KSi = np.where((WhichKs == 6) | (WhichKs == 8), 0.0, KSi)
+    KSi = np.where(
         (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8),
         p1atm.kSi_SWS_YM95(TempK, Sal),
         KSi,
@@ -137,7 +135,7 @@ def KSi(TempK, Sal, Pbar, RGas, WhichKs, fH):
 def KH2S(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
     """Calculate hydrogen disulfide dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KH2S = where(
+    KH2S = np.where(
         (WhichKs == 6) | (WhichKs == 7) | (WhichKs == 8),
         0.0,
         p1atm.kH2S_TOT_YM95(TempK, Sal) / SWStoTOT0,
@@ -150,7 +148,7 @@ def KH2S(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
 def KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
     """Calculate ammonium dissociation constant for the given options."""
     # Evaluate at atmospheric pressure
-    KNH3 = where(
+    KNH3 = np.where(
         (WhichKs == 6) | (WhichKs == 7) | (WhichKs == 8),
         0.0,
         p1atm.kNH3_TOT_CW95(TempK, Sal) / SWStoTOT0,
@@ -162,18 +160,17 @@ def KNH3(TempK, Sal, Pbar, RGas, WhichKs, SWStoTOT0):
 
 def _getKC(F, Kfunc, pHcx, K1, K2, ts):
     """Convenience function for getting and setting K1 and K2 values."""
-    if any(F):
-        K1_F, K2_F = Kfunc(*ts)
-        K1 = where(F, K1_F / pHcx, K1)
-        K2 = where(F, K2_F / pHcx, K2)
+    K1_F, K2_F = Kfunc(*ts)
+    K1 = np.where(F, K1_F / pHcx, K1)
+    K2 = np.where(F, K2_F / pHcx, K2)
     return K1, K2
 
 
 def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     """Calculate carbonic acid dissociation constants for the given options."""
     # Evaluate at atmospheric pressure
-    K1 = full(size(TempK), nan)
-    K2 = full(size(TempK), nan)
+    K1 = np.full(np.shape(TempK), np.nan)
+    K2 = np.full(np.shape(TempK), np.nan)
     ts = (TempK, Sal)  # for convenience
     K1, K2 = _getKC(WhichKs == 1, p1atm.kH2CO3_TOT_RRV93, SWStoTOT0, K1, K2, ts)
     K1, K2 = _getKC(WhichKs == 2, p1atm.kH2CO3_SWS_GP89, 1.0, K1, K2, ts)

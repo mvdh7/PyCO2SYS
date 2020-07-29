@@ -1,8 +1,10 @@
-# Calculate everything with `CO2SYS`
+# Do it like in MATLAB
 
 ## Syntax
 
-The simplest and safest way to use PyCO2SYS is to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once.  We can do this using the top-level `CO2SYS` function:
+Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface.
+
+Read further on this page if you want to stick with the MATLAB-style syntax.  This is accessed using the top-level `CO2SYS` function:
 
     :::python
     # Import the function
@@ -42,7 +44,7 @@ Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This
     
     In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
 
-    `CO2SYS_wrap` also does not yet support the `totals`, `equilibria_in` and `equilibria_out` optional inputs to `CO2SYS`.
+    `CO2SYS_wrap` also does not support the `totals`, `equilibria_in` and `equilibria_out` optional inputs to `CO2SYS`.
 
 This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
 
@@ -249,6 +251,8 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
     * `"KSiinput"`/`"KSioutput"`: **silicic acid** dissociation constant at input/output conditions.
     * `"KNH3input"`/`"KNH3output"`: **ammonium** equilibrium constant at input/output conditions.
     * `"KH2Sinput"`/`"KH2Soutput"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
+    * `"KCainput"`/`"KCaoutput"`: **calcite solubility product** at input/output conditions.
+    * `"KArinput"`/`"KARoutput"`: **aragonite solubility product** at input/output conditions.
 
     The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
 
@@ -292,7 +296,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO2SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
 
 !!! warning
-    We strongly recommend that you use the Pythonised version [described above](#syntax)!
+    We strongly recommend that you use a Pythonised version [e.g. described above](#syntax)!
 
 If you do need to use the as-close-as-possible clone instead, this is still available via:
 

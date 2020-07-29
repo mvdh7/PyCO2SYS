@@ -75,13 +75,11 @@ def RevelleFactor_MATLAB(TA, TC, totals, Ks):
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
     pH_plus = solve.get.pHfromTATC(TA, TC_plus, totals, Ks)
-    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
+    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, totals, Ks)
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
     pH_minus = solve.get.pHfromTATC(TA, TC_minus, totals, Ks)
-    fCO2_minus = solve.get.fCO2fromTCpH(
-        TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
-    )
+    fCO2_minus = solve.get.fCO2fromTCpH(TC_minus, pH_minus, totals, Ks)
     # Calculate Revelle Factor (`TC_minus` should be just `TC`)
     Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC_minus)
     return Revelle
@@ -102,13 +100,11 @@ def RevelleFactor(TA, TC, totals, Ks):
     # Find fCO2 at TA, TC+dTC
     TC_plus = TC + dTC
     pH_plus = solve.get.pHfromTATC(TA, TC_plus, totals, Ks)
-    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, Ks["K0"], Ks["K1"], Ks["K2"])
+    fCO2_plus = solve.get.fCO2fromTCpH(TC_plus, pH_plus, totals, Ks)
     # Find fCO2 at TA, TC-dTC
     TC_minus = TC - dTC
     pH_minus = solve.get.pHfromTATC(TA, TC_minus, totals, Ks)
-    fCO2_minus = solve.get.fCO2fromTCpH(
-        TC_minus, pH_minus, Ks["K0"], Ks["K1"], Ks["K2"]
-    )
+    fCO2_minus = solve.get.fCO2fromTCpH(TC_minus, pH_minus, totals, Ks)
     # Calculate Revelle Factor (`TC` replaces `TC_minus` of `RevelleFactor_MATLAB`)
     Revelle = (fCO2_plus - fCO2_minus) / dTC / ((fCO2_plus + fCO2_minus) / TC)
     return Revelle

@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate saturation states of soluble solids."""
 
-from autograd.numpy import errstate, exp, log10, sqrt, where
+from autograd import numpy as np
 from . import convert
 
 
@@ -18,25 +18,25 @@ def _deltaKappaCalcite_I75(TempC):
 def k_calcite_M83(TempK, Sal, Pbar, RGas):
     """Calcite solubility following M83."""
     logKCa = -171.9065 - 0.077993 * TempK + 2839.319 / TempK
-    logKCa = logKCa + 71.595 * log10(TempK)
-    logKCa = logKCa + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * sqrt(Sal)
-    logKCa = logKCa - 0.07711 * Sal + 0.0041249 * sqrt(Sal) * Sal
+    logKCa = logKCa + 71.595 * np.log10(TempK)
+    logKCa = logKCa + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * np.sqrt(Sal)
+    logKCa = logKCa - 0.07711 * Sal + 0.0041249 * np.sqrt(Sal) * Sal
     # sd fit = .01 (for Sal part, not part independent of Sal)
     KCa = 10.0 ** logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
     TempC = convert.TempK2C(TempK)
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
     lnKCafac = (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (RGas * TempK)
-    KCa = KCa * exp(lnKCafac)
+    KCa = KCa * np.exp(lnKCafac)
     return KCa
 
 
 def k_aragonite_M83(TempK, Sal, Pbar, RGas):
     """Aragonite solubility following M83 with pressure correction of I75."""
     logKAr = -171.945 - 0.077993 * TempK + 2903.293 / TempK
-    logKAr = logKAr + 71.595 * log10(TempK)
-    logKAr = logKAr + (-0.068393 + 0.0017276 * TempK + 88.135 / TempK) * sqrt(Sal)
-    logKAr = logKAr - 0.10018 * Sal + 0.0059415 * sqrt(Sal) * Sal
+    logKAr = logKAr + 71.595 * np.log10(TempK)
+    logKAr = logKAr + (-0.068393 + 0.0017276 * TempK + 88.135 / TempK) * np.sqrt(Sal)
+    logKAr = logKAr - 0.10018 * Sal + 0.0059415 * np.sqrt(Sal) * Sal
     # sd fit = .009 (for Sal part, not part independent of Sal)
     KAr = 10.0 ** logKAr  # this is in (mol/kg-SW)^2
     # Add pressure correction for aragonite [M79]:
@@ -47,11 +47,11 @@ def k_aragonite_M83(TempK, Sal, Pbar, RGas):
     deltaVKAr = deltaVKCa + 2.8
     KappaKAr = KappaKCa
     lnKArfac = (-deltaVKAr + 0.5 * KappaKAr * Pbar) * Pbar / (RGas * TempK)
-    KAr = KAr * exp(lnKArfac)
+    KAr = KAr * np.exp(lnKArfac)
     return KAr
 
 
-@errstate(divide="ignore")
+@np.errstate(divide="ignore")
 def k_calcite_P0_I75(TempK, Sal):
     """Calcite solubility constant following ICHP73/I75 with no pressure correction.
     For use with GEOSECS constants.
@@ -59,7 +59,7 @@ def k_calcite_P0_I75(TempK, Sal):
     return 0.0000001 * (
         -34.452
         - 39.866 * Sal ** (1 / 3)
-        + 110.21 * log10(Sal)
+        + 110.21 * np.log10(Sal)
         - 0.0000075752 * TempK ** 2
     )
 
@@ -85,7 +85,7 @@ def k_calcite_I75(TempK, Sal, Pbar, RGas):
     # I can't find them anywhere else.
     # ==============================
     TempC = convert.TempK2C(TempK)
-    KCa = KCa * exp((36 - 0.2 * TempC) * Pbar / (RGas * TempK))
+    KCa = KCa * np.exp((36 - 0.2 * TempC) * Pbar / (RGas * TempK))
     return KCa
 
 
@@ -109,51 +109,11 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     TempC = convert.TempK2C(TempK)
-    KAr = KAr * exp((33.3 - 0.22 * TempC) * Pbar / (RGas * TempK))
+    KAr = KAr * np.exp((33.3 - 0.22 * TempC) * Pbar / (RGas * TempK))
     return KAr
 
 
-def calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas):
-    """Calculate calcite solubility.
-
-    This calculates omega, the solubility ratio, for calcite.
-    This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
-          where Ksp is the solubility product (KCa).
-
-    Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
-    """
-    # Get stoichiometric solubility constant
-    F = (WhichKs == 6) | (WhichKs == 7)  # GEOSECS values
-    KCa = where(
-        F, k_calcite_I75(TempK, Sal, Pbar, RGas), k_calcite_M83(TempK, Sal, Pbar, RGas)
-    )
-    # Calculate saturation state
-    OmegaCa = CARB * TCa / KCa
-    return OmegaCa
-
-
-def aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas):
-    """Calculate aragonite solubility.
-
-    This calculates omega, the solubility ratio, for aragonite.
-    This is defined by: Omega = [CO3--]*[Ca++]/Ksp,
-          where Ksp is the solubility product (KAr).
-
-    Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
-    """
-    # Get stoichiometric solubility constant
-    F = (WhichKs == 6) | (WhichKs == 7)  # GEOSECS values
-    KAr = where(
-        F,
-        k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas),
-        k_aragonite_M83(TempK, Sal, Pbar, RGas),
-    )
-    # Calculate saturation state
-    OmegaAr = CARB * TCa / KAr
-    return OmegaAr
-
-
-def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, RGas):
+def CaCO3(CARB, totals, Ks):
     """Calculate calcite and aragonite solubility.
 
     This calculates omega, the solubility ratio, for calcite and aragonite.
@@ -163,10 +123,6 @@ def CaCO3(Sal, TempC, Pdbar, CARB, TCa, WhichKs, RGas):
 
     Based on CaSolubility, version 01.05, 05-23-97, written by Ernie Lewis.
     """
-    # Convert units
-    TempK = convert.TempC2K(TempC)
-    Pbar = convert.Pdbar2bar(Pdbar)
-    # Calculate saturation states
-    OmegaCa = calcite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas)
-    OmegaAr = aragonite(Sal, TempK, Pbar, CARB, TCa, WhichKs, RGas)
+    OmegaCa = CARB * totals["TCa"] / Ks["KCa"]
+    OmegaAr = CARB * totals["TCa"] / Ks["KAr"]
     return OmegaCa, OmegaAr

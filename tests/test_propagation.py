@@ -2,6 +2,9 @@
 import PyCO2SYS as pyco2
 import numpy as np
 
+# Make sure we're using the original CO2SYS TA equation
+pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_original
+
 # First just par1, par2 and their combination
 pars_true = np.array([2350, 2100, 8.1, 400, 400, 350, 1900, 12])
 paru_true = np.array([2, 3, 0.001, 2, 2, 2.5, 4, 0.1])
@@ -142,6 +145,10 @@ def test_Kunc_out():
             compare_Kunc(*p1p2, K, "out")
 
 
+test_Kunc_in()
+test_Kunc_out()
+
+
 def compare_par1par2(i, fixedpartype, uncertainties_in):
     fixedpar = partypes == fixedpartype
     par1s_true = pars_true[~fixedpar]
@@ -205,4 +212,4 @@ def test_par1par2():
     check_par1par2("isoQout")
 
 
-# test_par1par2()
+test_par1par2()

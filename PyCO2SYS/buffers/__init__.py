@@ -2,24 +2,20 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate various buffer factors of the marine carbonate system."""
 
-from autograd.numpy import errstate, exp, log, log10
+from autograd import numpy as np
 from autograd import elementwise_grad as egrad
 from .. import solubility, solve
 from . import explicit
 
 __all__ = ["explicit"]
 
-ilog10e = -1 / log10(exp(1))  # multiplier to convert pH to ln(H)
+ilog10e = -1 / np.log10(np.exp(1))  # multiplier to convert pH to ln(H)
 
 
-@errstate(all="ignore")
-def _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, RGas):
+@np.errstate(all="ignore")
+def _dlnOmega_dCARB(CARB, totals, Ks):
     """Function for d[ln(Omega)]/d[CARB].  Identical for calcite and aragonite."""
-    return egrad(
-        lambda CARB: log(
-            solubility.calcite(Sal, TempK, Pbar, CARB, totals["TCa"], WhichKs, RGas)
-        )
-    )(CARB)
+    return egrad(lambda CARB: np.log(solubility.CaCO3(CARB, totals, Ks)[0]))(CARB)
 
 
 def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
@@ -33,14 +29,12 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
     # gammaTC is (d[ln(CO2)]/d[TC])^-1 with constant TA, i.e. γ_DIC of ESM10
     dlnCO2_dPH__TA = egrad(
-        lambda PH: log(Ks["K0"] * solve.get.fCO2fromTApH(TA, PH, totals, Ks))
+        lambda PH: np.log(Ks["K0"] * solve.get.fCO2fromTApH(TA, PH, totals, Ks))
     )(PH)
     gammaTC = dTC_dPH__TA / dlnCO2_dPH__TA
     # gammaTA is (d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10
     dlnCO2_dPH__TC = egrad(
-        lambda PH: log(
-            Ks["K0"] * solve.get.fCO2fromTCpH(TC, PH, Ks["K0"], Ks["K1"], Ks["K2"])
-        )
+        lambda PH: np.log(Ks["K0"] * solve.get.fCO2fromTCpH(TC, PH, totals, Ks))
     )(PH)
     gammaTA = dTA_dPH__TC / dlnCO2_dPH__TC
     # betaTC is (d[ln(H)]/d[TC])^-1 with constant TA, i.e. β_DIC of ESM10
@@ -49,16 +43,12 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     betaTA = dTA_dPH__TC / ilog10e
     # Saturation state differential w.r.t. carbonate ion is used for both TC and TA
     # buffers.  Doesn't matter whether we use aragonite or calcite because of the log.
-    dlnOmegaAr_dCARB = _dlnOmega_dCARB(
-        Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"]
-    )
+    dlnOmegaAr_dCARB = _dlnOmega_dCARB(CARB, totals, Ks)
     # omegaTC is (d[ln(OmegaAr)]/d[TC] with constant TA, i.e. ω_DIC of ESM10
     dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, totals, Ks))(PH)
     omegaTC = dTC_dPH__TA / (dlnOmegaAr_dCARB * dCARB_dPH__TA)
     # omegaTA is (d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10
-    dCARB_dPH__TC = egrad(
-        lambda PH: solve.get.CarbfromTCpH(TC, PH, Ks["K1"], Ks["K2"])
-    )(PH)
+    dCARB_dPH__TC = egrad(lambda PH: solve.get.CarbfromTCpH(TC, PH, totals, Ks))(PH)
     omegaTA = dTA_dPH__TC / (dlnOmegaAr_dCARB * dCARB_dPH__TC)
     return {
         "gammaTC": gammaTC,
@@ -73,9 +63,7 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
 def isocap(TA, TC, PH, FC, totals, Ks):
     """d[TA]/d[TC] at constant fCO2, i.e. Q of HDW18."""
     dTA_dPH__FC = egrad(lambda PH: solve.get.TAfrompHfCO2(PH, FC, totals, Ks))(PH)
-    dTC_dPH__FC = egrad(
-        lambda PH: solve.get.TCfrompHfCO2(PH, FC, Ks["K0"], Ks["K1"], Ks["K2"])
-    )(PH)
+    dTC_dPH__FC = egrad(lambda PH: solve.get.TCfrompHfCO2(PH, FC, totals, Ks))(PH)
     return dTA_dPH__FC / dTC_dPH__FC
 
 
@@ -99,9 +87,9 @@ def RevelleFactor_ESM10(TC, gammaTC):
 def gammaTC(TA, PH, totals, Ks):
     """(d[ln(CO2)]/d[TC])^-1 with constant TA, i.e. γ_DIC of ESM10."""
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, totals, Ks))(PH)
-    dlnFC_dPH__TA = egrad(lambda PH: log(solve.get.fCO2fromTApH(TA, PH, totals, Ks)))(
-        PH
-    )
+    dlnFC_dPH__TA = egrad(
+        lambda PH: np.log(solve.get.fCO2fromTApH(TA, PH, totals, Ks))
+    )(PH)
     return dTC_dPH__TA / dlnFC_dPH__TA
 
 
@@ -109,7 +97,7 @@ def gammaTA(TC, PH, totals, Ks):
     """(d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10."""
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
     dlnFC_dPH__TC = egrad(
-        lambda PH: log(solve.get.fCO2fromTCpH(TC, PH, Ks["K0"], Ks["K1"], Ks["K2"]))
+        lambda PH: np.log(solve.get.fCO2fromTCpH(TC, PH, totals, Ks))
     )(PH)
     return dTA_dPH__TC / dlnFC_dPH__TC
 
@@ -134,19 +122,11 @@ def omegaTC(TA, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
     """(d[ln(OmegaAr)]/d[TC] with constant TA, i.e. ω_DIC of ESM10."""
     dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, totals, Ks))(PH)
     dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, totals, Ks))(PH)
-    return dTC_dPH__TA / (
-        dCARB_dPH__TA
-        * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"])
-    )
+    return dTC_dPH__TA / (dCARB_dPH__TA * _dlnOmega_dCARB(CARB, totals, Ks))
 
 
 def omegaTA(TC, PH, CARB, Sal, TempK, Pbar, WhichKs, totals, Ks):
     """(d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10."""
-    dCARB_dPH__TC = egrad(
-        lambda PH: solve.get.CarbfromTCpH(TC, PH, Ks["K1"], Ks["K2"])
-    )(PH)
+    dCARB_dPH__TC = egrad(lambda PH: solve.get.CarbfromTCpH(TC, PH, totals, Ks))(PH)
     dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
-    return dTA_dPH__TC / (
-        dCARB_dPH__TC
-        * _dlnOmega_dCARB(Sal, TempK, Pbar, CARB, totals, WhichKs, Ks["RGas"])
-    )
+    return dTA_dPH__TC / (dCARB_dPH__TC * _dlnOmega_dCARB(CARB, totals, Ks))

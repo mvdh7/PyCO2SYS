@@ -55,4 +55,7 @@ __version__ = meta.version
 
 # Aliases for top-level access
 CO2SYS = engine.CO2SYS
+CO2SYS_nd = engine.nd.CO2SYS
+CO2SYS_MATLABv3 = api.CO2SYS_MATLABv3
+CO2SYS_wrap = api.CO2SYS_wrap
 say_hello = meta.say_hello  # because history

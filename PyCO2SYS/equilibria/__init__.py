@@ -2,44 +2,20 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
-from autograd.numpy import full, nan, size, where
+from autograd import numpy as np
 from . import p1atm, pcx, pressured
-from .. import constants, convert, gas
+from .. import constants, convert, gas, solubility
 
 __all__ = ["p1atm", "pcx", "pressured"]
 
 
-def prepare(TempC, Pdbar, Ks):
-    """Initialise Ks dict if needed and convert temperature/pressure units."""
-    # Extract and convert
+def prepare(TempC, Pdbar, equilibria):
+    """Initialise equilibria dict if needed and convert temperature/pressure units."""
     TempK = convert.TempC2K(TempC)
     Pbar = convert.Pdbar2bar(Pdbar)
-    # Initialise dict
-    if Ks is None:
-        Ks = {}
-    return TempK, Pbar, Ks
-
-
-def sws2tot_P0(TempK, totals, WhoseKSO4, WhoseKF):
-    """Determine SWS to Total pH scale correction factor at zero pressure."""
-    KSO4_P0 = pressured.KSO4(TempK, totals["Sal"], 0.0, 1.0, WhoseKSO4)
-    KF_P0 = pressured.KF(TempK, totals["Sal"], 0.0, 1.0, WhoseKF)
-    SWStoTOT_P0 = convert.sws2tot(totals["TSO4"], KSO4_P0, totals["TF"], KF_P0)
-    return SWStoTOT_P0
-
-
-def get_pHfactor(TempK, Sal, totals, Ks, pHScale, WhichKs):
-    """Determine pH scale conversion factors to go from input pHScale to SWS."""
-    if "fH" not in Ks:
-        Ks["fH"] = pressured.fH(TempK, Sal, WhichKs)
-    SWStoTOT = convert.sws2tot(totals["TSO4"], Ks["KSO4"], totals["TF"], Ks["KF"])
-    FREEtoTOT = convert.free2tot(totals["TSO4"], Ks["KSO4"])
-    pHfactor = full(size(pHScale), nan)
-    pHfactor = where(pHScale == 1, SWStoTOT, pHfactor)  # Total
-    pHfactor = where(pHScale == 2, 1.0, pHfactor)  # Seawater (already on this)
-    pHfactor = where(pHScale == 3, SWStoTOT / FREEtoTOT, pHfactor)  # Free
-    pHfactor = where(pHScale == 4, Ks["fH"], pHfactor)  # NBS
-    return pHfactor, Ks
+    if equilibria is None:
+        equilibria = {}
+    return TempK, Pbar, equilibria
 
 
 def assemble(
@@ -78,8 +54,9 @@ def assemble(
     # The values KS and KF are already now pressure-corrected, so the pH scale
     # conversions are now valid at pressure.
     # Find pH scale conversion factor: this is the scale they will be put on
-    pHfactor, Ks = get_pHfactor(TempK, Sal, totals, Ks, pHScale, WhichKs)
-    SWStoTOT_P0 = sws2tot_P0(TempK, totals, WhoseKSO4, WhoseKF)
+    Ks = convert.get_pHfactor_from_SWS(TempK, Sal, totals, Ks, pHScale, WhichKs)
+    pHfactor = Ks["pHfactor_from_SWS"]  # for convenience
+    SWStoTOT_P0 = convert.sws2tot_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
     # Borate
     if "KB" not in Ks:
         Ks["KB"] = (
@@ -123,4 +100,18 @@ def assemble(
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
+    Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
+    # Aragonite and calcite solubility products
+    if "KAr" not in Ks:
+        Ks["KAr"] = np.where(
+            (WhichKs == 6) | (WhichKs == 7),  # GEOSECS values
+            solubility.k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas),
+            solubility.k_aragonite_M83(TempK, Sal, Pbar, RGas),
+        )
+    if "KCa" not in Ks:
+        Ks["KCa"] = np.where(
+            (WhichKs == 6) | (WhichKs == 7),  # GEOSECS values
+            solubility.k_calcite_I75(TempK, Sal, Pbar, RGas),
+            solubility.k_calcite_M83(TempK, Sal, Pbar, RGas),
+        )
     return Ks

@@ -14,23 +14,50 @@ Update an existing installation:
 
 ## Basic use
 
-The import convention for PyCO2SYS will be:
+The import convention for PyCO2SYS is:
 
     :::python
     import PyCO2SYS as pyco2
 
-However, the modules and functions contained within are not yet fully documented.  We therefore recommend that you just [do it like in MATLAB](co2sys) for now:
+Only the top-level "calculate everything" functions and uncertainty propagation tools are documented so far.  There are two main interfaces through which to run PyCO2SYS.
 
-!!! tip "Do it like in MATLAB"
-    If you are familiar with CO2SYS for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
+The first, available from v1.5, is to [use `PyCO2SYS.CO2SYS_nd`](co2sys_nd):
+
+!!! tip "Calculate everything with `CO2SYS_nd`"
+
+    As a minimum, you only need to provide values and types for two carbonate system parameters, and everything else gets assigned a default value unless you specify something different with the `kwargs`.  Arguments can be scalar or multi-dimensional [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).
 
         :::python
-        from PyCO2SYS import CO2SYS
-        CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+        import PyCO2SYS as pyco2
+        results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as scalars or [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html), matching the argument dimensions.  For more information on the optional `kwargs` and names of the output keys, see [Interfaces/New-style CO2SYS_nd](co2sys_nd).
+
+The second way is to [do it like in MATLAB](co2sys):
+
+!!! tip "Do it like in MATLAB"
+
+    If you are familiar with CO2SYS v1 and/or v2 for MATLAB and wish to use PyCO2SYS in exactly the same way, with extra optional inputs for total ammonia and sulfide:
+
+        :::python
+        import PyCO2SYS as pyco2
+        CO2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
             PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
             NH3=0.0, H2S=0.0)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [Calculate everything!](co2sys) for all the details about the inputs and outputs.
+    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as one-dimensional [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  Its keys are named following the `HEADERS` output from the original MATLAB program.  See [Interfaces/MATLAB-style CO2SYS](co2sys) for all the details about the inputs and outputs.
+
+    You could also use the adjusted syntax of [CO2SYS v3 for MATLAB](https://github.com/jonathansharp/CO2-System-Extd):
+
+        :::python
+        import PyCO2SYS as pyco2
+        CO2dict = pyco2.CO2SYS_MATLABv3(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+            PRESIN, PRESOUT, SI, PO4, NH3, H2S, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANT,
+            KFCONSTANT, BORON)
+
+    Like the MATLAB v3 program, and different from `PyCO2SYS.CO2SYS` and MATLAB v1/v2, this interface uses the updated gas constant value by default.  In both cases, [this can be changed with the kwarg `WhichR`](co2sys/#settings).
+
+Regardless of which interface you use, the underlying calculations are identical and the same inputs will return the same results.
 
 ### Examples
 
@@ -53,9 +80,9 @@ PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://mvdh.xyz/) of
 If you use PyCO2SYS in your work, please cite it as:
 
 !!! note "PyCO2SYS citation"
-    Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020).  PyCO2SYS: marine carbonate system calculations in Python.  Version 1.4.3.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
+    Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
 
-The DOI refers to all versions of PyCO2SYS.  Please update the version number if necessary.  You can find the current version that you are using in Python with:
+The DOI refers to all versions of PyCO2SYS.  Please specify which version of PyCO2SYS you used.  You can find the version number that you are using in Python with:
 
     :::python
     import PyCO2SYS as pyco2

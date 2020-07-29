@@ -17,13 +17,7 @@ Tzero = 273.15  # 0 degC in K
 def RGasConstant(WhichR):
     """Return the gas constant R in ml / (bar * K * mol)."""
     RGas = np.full(np.shape(WhichR), np.nan)
-    F = WhichR == 1
-    if np.any(F):  # default, DOEv2
-        RGas = np.where(F, RGasConstant_DOEv2, RGas)
-    F = WhichR == 2
-    if np.any(F):  # DOEv3
-        RGas = np.where(F, RGasConstant_DOEv3, RGas)
-    F = WhichR == 3
-    if np.any(F):  # 2018 CODATA
-        RGas = np.where(F, RGasConstant_CODATA2018, RGas)
+    RGas = np.where(WhichR == 1, RGasConstant_DOEv2, RGas)  # default, DOEv2
+    RGas = np.where(WhichR == 2, RGasConstant_DOEv3, RGas)  # DOEv3
+    RGas = np.where(WhichR == 3, RGasConstant_CODATA2018, RGas)  # 2018 CODATA
     return RGas

@@ -12,28 +12,10 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 # Navigation
 nav:
   - Overview: index.md
-  - Calculate everything!: co2sys.md
+  - Interfaces:
+    - Pythonic CO2SYS_nd: co2sys_nd.md
+    - MATLAB-style CO2SYS: co2sys.md
   - Uncertainties: uncertainty.md
-  # - Module reference:
-  #   - <code>buffers</code>: modules/buffers.md
-  #     - <code>explicit</code>: modules/explicit.md
-  #   - <code>constants</code>: modules/constants.md
-  #   - <code>convert</code>: modules/convert.md
-  #   - <code>engine</code>: modules/engine.md
-  #   - <code>equilibria</code>: modules/equilibria.md
-  #     - <code>p1atm</code>: modules/p1atm.md
-  #     - <code>pcx</code>: modules/pcx.md
-  #     - <code>pressured</code>: modules/pressured.md
-  #   - <code>gas</code>: modules/gas.md
-  #   - <code>meta</code>: modules/meta.md
-  #   - <code>original</code>: modules/original.md
-  #   - <code>salts</code>: modules/salts.md
-  #   - <code>solubility</code>: modules/solubility.md
-  #   - <code>solve</code>: modules/solve.md
-  #     - <code>delta</code>: modules/delta.md
-  #     - <code>get</code>: modules/get.md
-  #     - <code>initialise</code>: modules/initialise.md
-  #   - <code>test</code>: modules/test.md
   - Validation: validate.md
   - References: refs.md
   - Version history: versions.md
