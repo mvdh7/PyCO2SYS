@@ -25,7 +25,7 @@
 
 ## 1.5
 
-Introduces a more Pythonic top-level function that can compute directly on multidimensional inputs and that only returns results at "output" conditions if these are explicitly specified by the user.
+Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.
 
 ### 1.5.0 (29 July 2020)
 
