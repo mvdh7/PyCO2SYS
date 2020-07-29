@@ -27,13 +27,14 @@
 
 Introduces a more Pythonic top-level function that can compute directly on multidimensional inputs and that only returns results at "output" conditions if these are explicitly specified by the user.
 
-### 1.5.0 (forthcoming)
+### 1.5.0 (29 July 2020)
 
 !!! example "Changes in v1.5.0"
 
     ***New top-level functions***
 
     * Adds `PyCO2SYS.CO2SYS_nd` top-level function with a more Pythonic interface and with NumPy broadcasting of $n$-dimensional inputs.
+    * In `PyCO2SYS.CO2SYS_nd`, results at "output" conditions are only calculated if output temperature or pressure is provided.
     * Adds corresponding `PyCO2SYS.uncertainty.forward_nd` and `PyCO2SYS.uncertainty.propagate_nd` functions for uncertainty propagation.
 
     ***Alternative calculations***
