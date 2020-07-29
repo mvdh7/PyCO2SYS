@@ -411,7 +411,7 @@ def propagate_nd(
         dx_func=dx_func,
         **CO2SYS_nd_kwargs,
     )[0]
-    nd_shape = engine.nd.broadcast1024(CO2SYS_nd_results).shape
+    nd_shape = engine.nd.broadcast1024(*CO2SYS_nd_results.values()).shape
     uncertainties_from = engine.nd.condition(uncertainties_from, to_shape=nd_shape)
     components = {
         u_into: {
