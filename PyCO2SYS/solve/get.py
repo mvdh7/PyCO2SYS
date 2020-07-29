@@ -9,38 +9,38 @@ from . import delta, initialise
 pHTol = 1e-8  # tolerance for ending iterations in all pH solvers
 
 
-def CarbfromTCH(TC, H, totals, equilibria):
+def CarbfromTCH(TC, H, totals, k_constants):
     """Calculate carbonate ion from dissolved inorganic carbon and [H+].
 
     Based on CalculateCarbfromTCpH, version 01.0, 06-12-2019, by Denis Pierrot.
     """
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     return TC * K1 * K2 / (H ** 2 + K1 * H + K1 * K2)
 
 
-def CarbfromTCpH(TC, pH, totals, equilibria):
+def CarbfromTCpH(TC, pH, totals, k_constants):
     """Calculate carbonate ion from dissolved inorganic carbon and pH."""
     H = 10.0 ** -pH
-    return CarbfromTCH(TC, H, totals, equilibria)
+    return CarbfromTCH(TC, H, totals, k_constants)
 
 
 @np.errstate(invalid="ignore")
-def HCO3fromTCH(TC, H, totals, equilibria):
+def HCO3fromTCH(TC, H, totals, k_constants):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+]."""
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     return TC * K1 * H / (H ** 2 + K1 * H + K1 * K2)
 
 
-def HCO3fromTCpH(TC, pH, totals, equilibria):
+def HCO3fromTCpH(TC, pH, totals, k_constants):
     """Calculate bicarbonate ion from dissolved inorganic carbon and pH."""
     H = 10.0 ** -pH
-    return HCO3fromTCH(TC, H, totals, equilibria)
+    return HCO3fromTCH(TC, H, totals, k_constants)
 
 
 @np.errstate(invalid="ignore")
-def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
+def AlkParts(TC, pH, FREEtoTOT, totals, k_constants):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
 
@@ -51,32 +51,32 @@ def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
     H = 10.0 ** -pH
-    HCO3 = HCO3fromTCH(TC, H, totals, equilibria)
-    CO3 = CarbfromTCH(TC, H, totals, equilibria)
-    BAlk = totals["TB"] * equilibria["KB"] / (equilibria["KB"] + H)
-    OH = equilibria["KW"] / H
+    HCO3 = HCO3fromTCH(TC, H, totals, k_constants)
+    CO3 = CarbfromTCH(TC, H, totals, k_constants)
+    BAlk = totals["TB"] * k_constants["KB"] / (k_constants["KB"] + H)
+    OH = k_constants["KW"] / H
     PAlk = (
         totals["TPO4"]
         * (
-            equilibria["KP1"] * equilibria["KP2"] * H
-            + 2 * equilibria["KP1"] * equilibria["KP2"] * equilibria["KP3"]
+            k_constants["KP1"] * k_constants["KP2"] * H
+            + 2 * k_constants["KP1"] * k_constants["KP2"] * k_constants["KP3"]
             - H ** 3
         )
         / (
             H ** 3
-            + equilibria["KP1"] * H ** 2
-            + equilibria["KP1"] * equilibria["KP2"] * H
-            + equilibria["KP1"] * equilibria["KP2"] * equilibria["KP3"]
+            + k_constants["KP1"] * H ** 2
+            + k_constants["KP1"] * k_constants["KP2"] * H
+            + k_constants["KP1"] * k_constants["KP2"] * k_constants["KP3"]
         )
     )
-    SiAlk = totals["TSi"] * equilibria["KSi"] / (equilibria["KSi"] + H)
-    NH3Alk = totals["TNH3"] * equilibria["KNH3"] / (equilibria["KNH3"] + H)
-    H2SAlk = totals["TH2S"] * equilibria["KH2S"] / (equilibria["KH2S"] + H)
+    SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + H)
+    NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + H)
+    H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + H)
     Hfree = H / FREEtoTOT  # for H on the Total scale
     HSO4 = totals["TSO4"] / (
-        1 + equilibria["KSO4"] / Hfree
+        1 + k_constants["KSO4"] / Hfree
     )  # since KSO4 is on the Free scale
-    HF = totals["TF"] / (1 + equilibria["KF"] / Hfree)  # since KF is on the Free scale
+    HF = totals["TF"] / (1 + k_constants["KF"] / Hfree)  # since KF is on the Free scale
     return {
         "HCO3": HCO3,
         "CO3": CO3,
@@ -92,12 +92,12 @@ def AlkParts(TC, pH, FREEtoTOT, totals, equilibria):
     }
 
 
-def phosphate_components(pH, totals, equilibria):
+def phosphate_components(pH, totals, k_constants):
     """Calculate the components of total phosphate."""
     tPO4 = totals["TPO4"]
-    KP1 = equilibria["KP1"]
-    KP2 = equilibria["KP2"]
-    KP3 = equilibria["KP3"]
+    KP1 = k_constants["KP1"]
+    KP2 = k_constants["KP2"]
+    KP3 = k_constants["KP3"]
     h_scale = 10.0 ** -pH
     denom = h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3
     return {
@@ -108,13 +108,13 @@ def phosphate_components(pH, totals, equilibria):
     }
 
 
-def alkalinity_phosphate(h_scale, totals, equilibria):
+def alkalinity_phosphate(h_scale, totals, k_constants):
     """Calculate the contribution of phosphate components to total alkalinity."""
-    # phosphate = phosphate_components(-np.log10(h_scale), totals, equilibria)
+    # phosphate = phosphate_components(-np.log10(h_scale), totals, k_constants)
     # return 2 * phosphate["PO4"] + phosphate["HPO4"] - phosphate["H3PO4"]
-    KP1 = equilibria["KP1"]
-    KP2 = equilibria["KP2"]
-    KP3 = equilibria["KP3"]
+    KP1 = k_constants["KP1"]
+    KP2 = k_constants["KP2"]
+    KP3 = k_constants["KP3"]
     return (
         totals["TPO4"]
         * (KP1 * KP2 * h_scale + 2 * KP1 * KP2 * KP3 - h_scale ** 3)
@@ -123,7 +123,7 @@ def alkalinity_phosphate(h_scale, totals, equilibria):
 
 
 @np.errstate(invalid="ignore")
-def alkalinity_components(TC, pH, totals, equilibria):
+def alkalinity_components(TC, pH, totals, k_constants):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
 
@@ -132,19 +132,19 @@ def alkalinity_components(TC, pH, totals, equilibria):
 
     Based on CalculateAlkParts by Ernie Lewis.
     """
-    h_scale = 10.0 ** -pH  # on the input pH scale
-    HCO3 = HCO3fromTCH(TC, h_scale, totals, equilibria)
-    CO3 = CarbfromTCH(TC, h_scale, totals, equilibria)
-    BAlk = totals["TB"] * equilibria["KB"] / (equilibria["KB"] + h_scale)
-    OH = equilibria["KW"] / h_scale
-    PAlk = alkalinity_phosphate(h_scale, totals, equilibria)
-    SiAlk = totals["TSi"] * equilibria["KSi"] / (equilibria["KSi"] + h_scale)
-    NH3Alk = totals["TNH3"] * equilibria["KNH3"] / (equilibria["KNH3"] + h_scale)
-    H2SAlk = totals["TH2S"] * equilibria["KH2S"] / (equilibria["KH2S"] + h_scale)
+    h_scale = 10.0 ** -pH  # on the pH scale declared by the user
+    HCO3 = HCO3fromTCH(TC, h_scale, totals, k_constants)
+    CO3 = CarbfromTCH(TC, h_scale, totals, k_constants)
+    BAlk = totals["TB"] * k_constants["KB"] / (k_constants["KB"] + h_scale)
+    OH = k_constants["KW"] / h_scale
+    PAlk = alkalinity_phosphate(h_scale, totals, k_constants)
+    SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
+    NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + h_scale)
+    H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + h_scale)
     # KSO4 and KF are always on the Free scale, so:
-    h_free = h_scale * equilibria["pHfactor_to_Free"]
-    HSO4 = totals["TSO4"] / (1 + equilibria["KSO4"] / h_free)
-    HF = totals["TF"] / (1 + equilibria["KF"] / h_free)
+    h_free = h_scale * k_constants["pHfactor_to_Free"]
+    HSO4 = totals["TSO4"] / (1 + k_constants["KSO4"] / h_free)
+    HF = totals["TF"] / (1 + k_constants["KF"] / h_free)
     return {
         "HCO3": HCO3,
         "CO3": CO3,
@@ -160,7 +160,7 @@ def alkalinity_components(TC, pH, totals, equilibria):
     }
 
 
-def TAfromTCpH_original(TC, pH, totals, equilibria):
+def TAfromTCpH_original(TC, pH, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -170,8 +170,8 @@ def TAfromTCpH_original(TC, pH, totals, equilibria):
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
-    FREEtoTOT = convert.free2tot(totals, equilibria)
-    alks = AlkParts(TC, pH, FREEtoTOT, totals, equilibria)
+    FREEtoTOT = convert.free2tot(totals, k_constants)
+    alks = AlkParts(TC, pH, FREEtoTOT, totals, k_constants)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
@@ -188,7 +188,7 @@ def TAfromTCpH_original(TC, pH, totals, equilibria):
     return TA
 
 
-def TAfromTCpH_fixed(TC, pH, totals, equilibria):
+def TAfromTCpH_fixed(TC, pH, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
 
     This calculates TA from TC and pH.
@@ -196,7 +196,7 @@ def TAfromTCpH_fixed(TC, pH, totals, equilibria):
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
-    alks = alkalinity_components(TC, pH, totals, equilibria)
+    alks = alkalinity_components(TC, pH, totals, k_constants)
     TA = (
         alks["HCO3"]
         + 2 * alks["CO3"]
@@ -217,49 +217,49 @@ def TAfromTCpH_fixed(TC, pH, totals, equilibria):
 TAfromTCpH = TAfromTCpH_original
 
 
-def TAfrompHfCO2(pH, fCO2, totals, equilibria):
+def TAfrompHfCO2(pH, fCO2, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
-    TC = TCfrompHfCO2(pH, fCO2, totals, equilibria)
-    return TAfromTCpH(TC, pH, totals, equilibria)
+    TC = TCfrompHfCO2(pH, fCO2, totals, k_constants)
+    return TAfromTCpH(TC, pH, totals, k_constants)
 
 
-def TCfrompHHCO3(pH, HCO3, totals, equilibria):
+def TCfrompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate dissolved inorganic carbon from pH and bicarbonate ion.
 
     Follows ZW01 Appendix B (6).
     """
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = 10.0 ** -pH
     return HCO3 * (1 + H / K1 + K2 / H)
 
 
-def TCfrompHCarb(pH, CARB, totals, equilibria):
+def TCfrompHCarb(pH, CARB, totals, k_constants):
     """Calculate dissolved inorganic carbon from pH and carbonate ion.
 
     Follows ZW01 Appendix B (7).
     """
     H = 10.0 ** -pH
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     return CARB * (1 + H / K2 + H ** 2 / (K1 * K2))
 
 
-def TAfrompHCarb(pH, CARB, totals, equilibria):
+def TAfrompHCarb(pH, CARB, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and carbonate ion."""
-    TC = TCfrompHCarb(pH, CARB, totals, equilibria)
-    return TAfromTCpH(TC, pH, totals, equilibria)
+    TC = TCfrompHCarb(pH, CARB, totals, k_constants)
+    return TAfromTCpH(TC, pH, totals, k_constants)
 
 
-def TAfrompHHCO3(pH, HCO3, totals, equilibria):
+def TAfrompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion.
     """
-    TC = TCfrompHHCO3(pH, HCO3, totals, equilibria)
-    return TAfromTCpH(TC, pH, totals, equilibria)
+    TC = TCfrompHHCO3(pH, HCO3, totals, k_constants)
+    return TAfromTCpH(TC, pH, totals, k_constants)
 
 
 @np.errstate(invalid="ignore")
-def _pHfromTAVX(TA, VX, totals, equilibria, initialfunc, deltafunc):
+def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
     Newton-Raphson iterative method.
 
@@ -271,13 +271,12 @@ def _pHfromTAVX(TA, VX, totals, equilibria, initialfunc, deltafunc):
     """
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialfunc(
-        TA, VX, totals["TB"], equilibria["K1"], equilibria["K2"], equilibria["KB"]
+        TA, VX, totals["TB"], k_constants["K1"], k_constants["K2"], k_constants["KB"]
     )
     deltapH = 1.0 + pHTol
-    FREEtoTOT = convert.free2tot(totals, equilibria)
     while np.any(np.abs(deltapH) >= pHTol):
         pHdone = np.abs(deltapH) < pHTol  # check which rows don't need updating
-        deltapH = deltafunc(pH, TA, VX, FREEtoTOT, totals, equilibria)  # the pH jump
+        deltapH = deltafunc(pH, TA, VX, totals, k_constants)  # the pH jump
         # To keep the jump from being too big:
         abs_deltapH = np.abs(deltapH)
         np.sign_deltapH = np.sign(deltapH)
@@ -291,12 +290,12 @@ def _pHfromTAVX(TA, VX, totals, equilibria, initialfunc, deltafunc):
     return pH
 
 
-def pHfromTATC(TA, TC, totals, equilibria):
+def pHfromTATC(TA, TC, totals, k_constants):
     """Calculate pH from total alkalinity and dissolved inorganic carbon."""
-    return _pHfromTAVX(TA, TC, totals, equilibria, initialise.fromTC, delta.pHfromTATC)
+    return _pHfromTAVX(TA, TC, totals, k_constants, initialise.fromTC, delta.pHfromTATC)
 
 
-def pHfromTAfCO2(TA, fCO2, totals, equilibria):
+def pHfromTAfCO2(TA, fCO2, totals, k_constants):
     """Calculate pH from total alkalinity and CO2 fugacity."""
     # Slightly more convoluted than the others because initialise.fromCO2 takes CO2 as
     # an input, while delta.pHfromTAfCO2 takes fCO2.
@@ -304,42 +303,42 @@ def pHfromTAfCO2(TA, fCO2, totals, equilibria):
         TA,
         fCO2,
         totals,
-        equilibria,
+        k_constants,
         lambda TA, fCO2, TB, K1, K2, KB: initialise.fromCO2(
-            TA, equilibria["K0"] * fCO2, TB, K1, K2, KB
+            TA, k_constants["K0"] * fCO2, TB, K1, K2, KB
         ),  # this just transforms initalise.fromCO2 to take fCO2 in place of CO2
         delta.pHfromTAfCO2,
     )
 
 
-def pHfromTACarb(TA, CARB, totals, equilibria):
+def pHfromTACarb(TA, CARB, totals, k_constants):
     """Calculate pH from total alkalinity and carbonate ion molinity."""
     return _pHfromTAVX(
-        TA, CARB, totals, equilibria, initialise.fromCO3, delta.pHfromTACarb
+        TA, CARB, totals, k_constants, initialise.fromCO3, delta.pHfromTACarb
     )
 
 
-def pHfromTAHCO3(TA, HCO3, totals, equilibria):
+def pHfromTAHCO3(TA, HCO3, totals, k_constants):
     """Calculate pH from total alkalinity and bicarbonate ion molinity."""
     return _pHfromTAVX(
-        TA, HCO3, totals, equilibria, initialise.fromHCO3, delta.pHfromTAHCO3
+        TA, HCO3, totals, k_constants, initialise.fromHCO3, delta.pHfromTAHCO3
     )
 
 
-def fCO2fromTCpH(TC, pH, totals, equilibria):
+def fCO2fromTCpH(TC, pH, totals, k_constants):
     """Calculate CO2 fugacity from dissolved inorganic carbon and pH.
 
     Based on CalculatefCO2fromTCpH, version 02.02, 12-13-96, by Ernie Lewis.
     """
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = 10.0 ** -pH
     return TC * H ** 2 / (H ** 2 + K1 * H + K1 * K2) / K0
 
 
 @np.errstate(invalid="ignore")
-def TCfromTApH(TA, pH, totals, equilibria):
+def TCfromTApH(TA, pH, totals, k_constants):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
     This calculates TC from TA and pH.
@@ -349,21 +348,21 @@ def TCfromTApH(TA, pH, totals, equilibria):
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """
-    TA_TC0_pH = TAfromTCpH(0.0, pH, totals, equilibria)
+    TA_TC0_pH = TAfromTCpH(0.0, pH, totals, k_constants)
     F = TA_TC0_pH > TA
     if np.any(F):
         print("Some input pH values are impossibly high given the input alkalinity;")
         print("returning np.nan rather than negative DIC values.")
     CAlk = np.where(F, np.nan, TA - TA_TC0_pH)
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = 10.0 ** -pH
     TC = CAlk * (H ** 2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
     return TC
 
 
 @np.errstate(divide="ignore", invalid="ignore")
-def pHfromTCfCO2(TC, fCO2, totals, equilibria):
+def pHfromTCfCO2(TC, fCO2, totals, k_constants):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
     This calculates pH from TC and fCO2 using K0, K1, and K2 by solving the quadratic in
@@ -372,9 +371,9 @@ def pHfromTCfCO2(TC, fCO2, totals, equilibria):
 
     Based on CalculatepHfromTCfCO2, version 02.02, 11-12-96, by Ernie Lewis.
     """
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     RR = K0 * fCO2 / TC
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     F = (RR >= 1) | (Discr <= 0)
@@ -386,20 +385,20 @@ def pHfromTCfCO2(TC, fCO2, totals, equilibria):
     return pH
 
 
-def TCfrompHfCO2(pH, fCO2, totals, equilibria):
+def TCfrompHfCO2(pH, fCO2, totals, k_constants):
     """Calculate dissolved inorganic carbon from pH and CO2 fugacity.
 
     Based on CalculateTCfrompHfCO2, version 01.02, 12-13-96, by Ernie Lewis.
     """
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = 10.0 ** -pH
     return K0 * fCO2 * (H ** 2 + K1 * H + K1 * K2) / H ** 2
 
 
 @np.errstate(invalid="ignore")
-def pHfromTCCarb(TC, CARB, totals, equilibria):
+def pHfromTCCarb(TC, CARB, totals, k_constants):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
     This calculates pH from Carbonate and TC using K1, and K2 by solving the
@@ -407,8 +406,8 @@ def pHfromTCCarb(TC, CARB, totals, equilibria):
 
     Based on CalculatepHfromTCCarb, version 01.00, 06-12-2019, by Denis Pierrot.
     """
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     RR = 1 - TC / CARB
     Discr = K1 ** 2 - 4 * K1 * K2 * RR
     F = (CARB >= TC) | (Discr <= 0)
@@ -419,27 +418,27 @@ def pHfromTCCarb(TC, CARB, totals, equilibria):
     return -np.log10(H)
 
 
-def fCO2frompHCarb(pH, CARB, totals, equilibria):
+def fCO2frompHCarb(pH, CARB, totals, k_constants):
     """Calculate CO2 fugacity from pH and carbonate ion.
 
     Based on CalculatefCO2frompHCarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = 10.0 ** -pH
     return CARB * H ** 2 / (K0 * K1 * K2)
 
 
-def fCO2frompHHCO3(pH, HCO3, totals, equilibria):
+def fCO2frompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate CO2 fugacity from pH and bicarbonate ion."""
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
     H = 10.0 ** -pH
     return HCO3 * H / (K0 * K1)
 
 
-def pHfromfCO2Carb(fCO2, CARB, totals, equilibria):
+def pHfromfCO2Carb(fCO2, CARB, totals, k_constants):
     """Calculate pH from CO2 fugacity and carbonate ion.
 
     This calculates pH from Carbonate and fCO2 using K0, K1, and K2 by solving
@@ -448,21 +447,21 @@ def pHfromfCO2Carb(fCO2, CARB, totals, equilibria):
     Based on CalculatepHfromfCO2Carb, version 01.00, 06-12-2019, by Denis
     Pierrot.
     """
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     H = np.sqrt(K0 * K1 * K2 * fCO2 / CARB)
     return -np.log10(H)
 
 
 @np.errstate(invalid="ignore")
-def pHfromTCHCO3(TC, HCO3, totals, equilibria):
+def pHfromTCHCO3(TC, HCO3, totals, k_constants):
     """Calculate pH from dissolved inorganic carbon and carbonate ion.
 
     Follows ZW01 Appendix B (12).
     """
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     a = HCO3 / K1
     b = HCO3 - TC
     c = HCO3 * K2
@@ -475,129 +474,129 @@ def pHfromTCHCO3(TC, HCO3, totals, equilibria):
     return -np.log10(H)
 
 
-def CarbfromfCO2HCO3(fCO2, HCO3, totals, equilibria):
+def CarbfromfCO2HCO3(fCO2, HCO3, totals, k_constants):
     """Calculate carbonate ion from CO2 fugacity and bicarbonate ion."""
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     return HCO3 ** 2 * K2 / (K0 * fCO2 * K1)
 
 
-def fCO2fromCarbHCO3(CARB, HCO3, totals, equilibria):
+def fCO2fromCarbHCO3(CARB, HCO3, totals, k_constants):
     """Calculate CO2 fugacity from carbonate ion and bicarbonate ion."""
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
-    K2 = equilibria["K2"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
+    K2 = k_constants["K2"]
     return HCO3 ** 2 * K2 / (CARB * K1 * K0)
 
 
-def fCO2fromTATC(TA, TC, totals, equilibria):
+def fCO2fromTATC(TA, TC, totals, k_constants):
     """Calculate CO2 fugacity from total alkalinity and dissolved inorganic carbon."""
-    pH = pHfromTATC(TA, TC, totals, equilibria)
-    return fCO2fromTCpH(TC, pH, totals, equilibria)
+    pH = pHfromTATC(TA, TC, totals, k_constants)
+    return fCO2fromTCpH(TC, pH, totals, k_constants)
 
 
-def fCO2fromTApH(TA, pH, totals, equilibria):
+def fCO2fromTApH(TA, pH, totals, k_constants):
     """Calculate CO2 fugacity from total alkalinity and pH."""
-    TC = TCfromTApH(TA, pH, totals, equilibria)
-    return fCO2fromTCpH(TC, pH, totals, equilibria)
+    TC = TCfromTApH(TA, pH, totals, k_constants)
+    return fCO2fromTCpH(TC, pH, totals, k_constants)
 
 
-def CarbfromTATC(TA, TC, totals, equilibria):
+def CarbfromTATC(TA, TC, totals, k_constants):
     """Calculate carbonate ion from total alkalinity and dissolved inorganic carbon."""
-    pH = pHfromTATC(TA, TC, totals, equilibria)
-    return CarbfromTCpH(TC, pH, totals, equilibria)
+    pH = pHfromTATC(TA, TC, totals, k_constants)
+    return CarbfromTCpH(TC, pH, totals, k_constants)
 
 
-def CarbfromTApH(TA, pH, totals, equilibria):
+def CarbfromTApH(TA, pH, totals, k_constants):
     """Calculate carbonate ion from total alkalinity and pH."""
-    TC = TCfromTApH(TA, pH, totals, equilibria)
-    return CarbfromTCpH(TC, pH, totals, equilibria)
+    TC = TCfromTApH(TA, pH, totals, k_constants)
+    return CarbfromTCpH(TC, pH, totals, k_constants)
 
 
-def HCO3fromTApH(TA, pH, totals, equilibria):
+def HCO3fromTApH(TA, pH, totals, k_constants):
     """Calculate carbonate ion from total alkalinity and pH."""
-    TC = TCfromTApH(TA, pH, totals, equilibria)
-    return HCO3fromTCpH(TC, pH, totals, equilibria)
+    TC = TCfromTApH(TA, pH, totals, k_constants)
+    return HCO3fromTCpH(TC, pH, totals, k_constants)
 
 
-def CarbfrompHfCO2(pH, fCO2, totals, equilibria):
+def CarbfrompHfCO2(pH, fCO2, totals, k_constants):
     """Calculate carbonate ion from pH and CO2 fugacity."""
-    TC = TCfrompHfCO2(pH, fCO2, totals, equilibria)
-    return CarbfromTCpH(TC, pH, totals, equilibria)
+    TC = TCfrompHfCO2(pH, fCO2, totals, k_constants)
+    return CarbfromTCpH(TC, pH, totals, k_constants)
 
 
-def HCO3frompHfCO2(pH, fCO2, totals, equilibria):
+def HCO3frompHfCO2(pH, fCO2, totals, k_constants):
     """Calculate bicarbonate ion from pH and CO2 fugacity."""
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
     H = 10.0 ** -pH
     return K0 * K1 * fCO2 / H
 
 
-def HCO3frompHCarb(pH, CARB, totals, equilibria):
+def HCO3frompHCarb(pH, CARB, totals, k_constants):
     """Calculate bicarbonate ion from pH and carbonate ion."""
     H = 10.0 ** -pH
-    return CARB * H / equilibria["K2"]
+    return CARB * H / k_constants["K2"]
 
 
-def CarbfrompHHCO3(pH, HCO3, totals, equilibria):
+def CarbfrompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate bicarbonate ion from pH and carbonate ion."""
     H = 10.0 ** -pH
-    return equilibria["K2"] * HCO3 / H
+    return k_constants["K2"] * HCO3 / H
 
 
-def TAfromfCO2Carb(fCO2, CARB, totals, equilibria):
+def TAfromfCO2Carb(fCO2, CARB, totals, k_constants):
     """Total alkalinity from CO2 fugacity and carbonate ion."""
-    pH = pHfromfCO2Carb(fCO2, CARB, totals, equilibria)
-    return TAfrompHfCO2(pH, fCO2, totals, equilibria)
+    pH = pHfromfCO2Carb(fCO2, CARB, totals, k_constants)
+    return TAfrompHfCO2(pH, fCO2, totals, k_constants)
 
 
-def TCfromfCO2Carb(fCO2, CARB, totals, equilibria):
+def TCfromfCO2Carb(fCO2, CARB, totals, k_constants):
     """Dissolved inorganic carbon from CO2 fugacity and carbonate ion."""
-    pH = pHfromfCO2Carb(fCO2, CARB, totals, equilibria)
-    return TCfrompHCarb(pH, CARB, totals, equilibria)
+    pH = pHfromfCO2Carb(fCO2, CARB, totals, k_constants)
+    return TCfrompHCarb(pH, CARB, totals, k_constants)
 
 
-def HCO3fromfCO2Carb(fCO2, CARB, totals, equilibria):
+def HCO3fromfCO2Carb(fCO2, CARB, totals, k_constants):
     """Bicarbonate ion from CO2 fugacity and carbonate ion."""
-    pH = pHfromfCO2Carb(fCO2, CARB, totals, equilibria)
-    return HCO3frompHCarb(pH, CARB, totals, equilibria)
+    pH = pHfromfCO2Carb(fCO2, CARB, totals, k_constants)
+    return HCO3frompHCarb(pH, CARB, totals, k_constants)
 
 
-def TAfromfCO2HCO3(fCO2, HCO3, totals, equilibria):
+def TAfromfCO2HCO3(fCO2, HCO3, totals, k_constants):
     """Total alkalinity from CO2 fugacity and bicarbonate ion."""
-    CARB = CarbfromfCO2HCO3(fCO2, HCO3, totals, equilibria)
-    return TAfromfCO2Carb(fCO2, CARB, totals, equilibria)
+    CARB = CarbfromfCO2HCO3(fCO2, HCO3, totals, k_constants)
+    return TAfromfCO2Carb(fCO2, CARB, totals, k_constants)
 
 
-def TCfromfCO2HCO3(fCO2, HCO3, totals, equilibria):
+def TCfromfCO2HCO3(fCO2, HCO3, totals, k_constants):
     """Dissolved inorganic carbon from CO2 fugacity and bicarbonate ion."""
-    CARB = CarbfromfCO2HCO3(fCO2, HCO3, totals, equilibria)
-    return equilibria["K0"] * fCO2 + HCO3 + CARB
+    CARB = CarbfromfCO2HCO3(fCO2, HCO3, totals, k_constants)
+    return k_constants["K0"] * fCO2 + HCO3 + CARB
 
 
-def pHfromfCO2HCO3(fCO2, HCO3, totals, equilibria):
+def pHfromfCO2HCO3(fCO2, HCO3, totals, k_constants):
     """pH from CO2 fugacity and bicarbonate ion."""
-    K0 = equilibria["K0"]
-    K1 = equilibria["K1"]
+    K0 = k_constants["K0"]
+    K1 = k_constants["K1"]
     H = K0 * K1 * fCO2 / HCO3
     return -np.log10(H)
 
 
-def pHfromCarbHCO3(CARB, HCO3, totals, equilibria):
+def pHfromCarbHCO3(CARB, HCO3, totals, k_constants):
     """pH from carbonate ion and carbonate ion."""
-    H = equilibria["K2"] * HCO3 / CARB
+    H = k_constants["K2"] * HCO3 / CARB
     return -np.log10(H)
 
 
-def TAfromCarbHCO3(CARB, HCO3, totals, equilibria):
+def TAfromCarbHCO3(CARB, HCO3, totals, k_constants):
     """Total alkalinity from carbonate ion and carbonate ion."""
-    pH = pHfromCarbHCO3(CARB, HCO3, totals, equilibria)
-    return TAfrompHCarb(pH, CARB, totals, equilibria)
+    pH = pHfromCarbHCO3(CARB, HCO3, totals, k_constants)
+    return TAfrompHCarb(pH, CARB, totals, k_constants)
 
 
-def TCfromCarbHCO3(CARB, HCO3, totals, equilibria):
+def TCfromCarbHCO3(CARB, HCO3, totals, k_constants):
     """Dissolved inorganic carbon from carbonate ion and carbonate ion."""
-    pH = pHfromCarbHCO3(CARB, HCO3, totals, equilibria)
-    return TCfrompHCarb(pH, CARB, totals, equilibria)
+    pH = pHfromCarbHCO3(CARB, HCO3, totals, k_constants)
+    return TCfrompHCarb(pH, CARB, totals, k_constants)
