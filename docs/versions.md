@@ -36,6 +36,10 @@ Introduces a more Pythonic top-level function that can compute directly on multi
     * Adds `PyCO2SYS.CO2SYS_nd` top-level function with a more Pythonic interface and with NumPy broadcasting of $n$-dimensional inputs.
     * Adds corresponding `PyCO2SYS.uncertainty.forward_nd` and `PyCO2SYS.uncertainty.propagate_nd` functions for uncertainty propagation.
 
+    ***Alternative calculations***
+
+    * New alkalinity equation fixing pH scale conversion bug inherited from CO2SYS-MATLAB is available, but not yet implemented by default.
+
     ***Extra arguments and results***
 
     * Solubility constants for aragonite and calcite available directly as outputs from `PyCO2SYS.CO2SYS` and `PyCO2SYS.CO2SYS_nd`
