@@ -31,7 +31,7 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     if dx_scaling == "none":
         dx_wrt = dx
     elif dx_scaling == "median":
-        median_var = np.median(var)
+        median_var = np.nanmedian(var)
         if median_var == 0:
             dx_wrt = dx
         else:

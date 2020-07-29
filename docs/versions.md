@@ -27,6 +27,14 @@
 
 Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.
 
+### 1.5.1 (forthcoming)
+
+!!! example "Changes in v1.5.1"
+
+    ***Bug fix***
+
+    * Switched `dx`-scaling function in `PyCO2SYS.uncertainties` to use `numpy.nanmedian` instead of `numpy.median`.
+
 ### 1.5.0 (29 July 2020)
 
 !!! example "Changes in v1.5.0"
