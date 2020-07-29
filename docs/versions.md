@@ -34,7 +34,7 @@ Introduces a more Pythonic top-level function that accepts multidimensional argu
     ***Bug fixes***
 
     * Switched `dx`-scaling function in `PyCO2SYS.uncertainties` to use `numpy.nanmedian` instead of `numpy.median`.
-    * Fixed `PyCO2SYS.uncertainties.propagate_nd` bug that prevented non-scalar calculations.
+    * Fixed `PyCO2SYS.uncertainties.propagate_nd` bug that prevented calculations on non-scalar arguments.
 
 ### 1.5.0 (29 July 2020)
 
