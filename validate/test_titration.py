@@ -1,7 +1,9 @@
+import copy
 import numpy as np
 import PyCO2SYS as pyco2
 
 # Switch to fixed alkalinity function
+alk_func = copy.deepcopy(pyco2.solve.get.TAfromTCpH)
 pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_fixed
 
 # Initial sample conditions
@@ -39,7 +41,8 @@ for k in ["total_borate", "total_fluoride", "total_sulfate"]:
     kwargs[k] *= dilution_factor
 
 # Solve for pH, no phosphate
-pH = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)["pH_free"]
+results_pH = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)
+pH = results_pH["pH_free"]
 
 # And again, with phosphate
 kwargs.update(
@@ -83,4 +86,4 @@ test_D81()
 test_D81_phosphate()
 
 # Revert to original alkalinity function
-pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_original
+pyco2.solve.get.TAfromTCpH = alk_func
