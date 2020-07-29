@@ -1,7 +1,7 @@
 # PyCO2SYS
 
 [![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://zenodo.org/badge/latestdoi/237243120)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
 [![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=develop&style=flat)](https://pyco2sys.readthedocs.io/en/develop/)
 [![Build Status](https://travis-ci.org/mvdh7/PyCO2SYS.svg?branch=develop)](https://travis-ci.org/mvdh7/PyCO2SYS)
 [![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/develop/misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/develop/misc/coverage.txt)
@@ -43,17 +43,16 @@ Update an existing installation:
 
 ## Basic use
 
-The default API has been kept as close to the MATLAB version as possible, although the first output is now a dict for convenience.  If you want the MATLAB-like experience, simplest recommended usage is therefore:
+To solve the marine carbonate system from two of its parameters (`par1` and `par2`), just use:
 
 ```python
-from PyCO2SYS import CO2SYS
-CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT,
-    SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS, NH3=0.0, H2S=0.0)
+import PyCO2SYS as pyco2
+results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
-Each field in the output `CO2dict` corresponds to a column in the original MATLAB output `DATA`.  The keys to the dict come from the original MATLAB output `HEADERS`.  Vector inputs should be provided as Numpy arrays.  Everything gets flattened with `ravel()`.  Single-value inputs are fine - they are automatically cast into correctly-sized arrays.  The extra inputs not present in the MATLAB version are all optional and explained [in the documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/#inputs).  There are more of these than appear in the example above.
+Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict come from the original MATLAB output `HEADERS`.  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
 
-It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [Pythonic API documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/).
+There's also an alternative interface that is very similar to that of CO2SYS for MATLAB, [which you can use instead if you prefer](https://pyco2sys.readthedocs.io/en/latest/co2sys/).  It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [Pythonic API documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/#using-the-pythonic-api).
 
 You can also look at the [example scripts](https://github.com/mvdh7/PyCO2SYS/tree/master/examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
