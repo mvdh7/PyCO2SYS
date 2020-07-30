@@ -167,7 +167,7 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"pH_sws"`/`"pH_sws_out"`: **pH** at input/output conditions on the **Seawater scale**.
     * `"pH_free"`/`"pH_free_out"`: **pH** at input/output conditions on the **Free scale**.
     * `"pH_nbs"`/`"pH_nbs_out"`: **pH** at input/output conditions on the **NBS scale**.
-    * `"HFreein"`/`"HFreeout"`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"hydrogen_free"`/`"hydrogen_free_out"`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"hydroxide"`/`"hydroxide_out"`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"fH"`/`"fH_out"`: **activity coefficient of H<sup>+</sup>** at input/output conditions for pH-scale conversions to and from the NBS scale.
 
