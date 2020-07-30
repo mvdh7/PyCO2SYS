@@ -27,7 +27,7 @@
 
 Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.
 
-### 1.5.1 (forthcoming)
+### 1.5.1 (30 July 2020)
 
 !!! example "Changes in v1.5.1"
 
