@@ -31,7 +31,7 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     if dx_scaling == "none":
         dx_wrt = dx
     elif dx_scaling == "median":
-        median_var = np.median(var)
+        median_var = np.nanmedian(var)
         if median_var == 0:
             dx_wrt = dx
         else:
@@ -411,7 +411,7 @@ def propagate_nd(
         dx_func=dx_func,
         **CO2SYS_nd_kwargs,
     )[0]
-    nd_shape = engine.nd.broadcast1024(CO2SYS_nd_results).shape
+    nd_shape = engine.nd.broadcast1024(*CO2SYS_nd_results.values()).shape
     uncertainties_from = engine.nd.condition(uncertainties_from, to_shape=nd_shape)
     components = {
         u_into: {
