@@ -16,22 +16,23 @@ Update an existing installation:
 
 The import convention for PyCO2SYS is:
 
-    :::python
-    import PyCO2SYS as pyco2
+```python
+import PyCO2SYS as pyco2
+```
 
 Only the top-level "calculate everything" functions and uncertainty propagation tools are documented so far.  There are two main interfaces through which to run PyCO2SYS.
 
-The first, available from v1.5, is to [use `PyCO2SYS.CO2SYS_nd`](co2sys_nd):
+The first is to [use `pyco2.sys`](co2sys_nd):
 
-!!! tip "Calculate everything with `CO2SYS_nd`"
+!!! tip "Calculate everything with `pyco2.sys`"
 
     As a minimum, you only need to provide values and types for two carbonate system parameters, and everything else gets assigned a default value unless you specify something different with the `kwargs`.  Arguments can be scalar or multi-dimensional [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).
 
         :::python
         import PyCO2SYS as pyco2
-        results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+        results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 
-    The output `CO2dict` is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as scalars or [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html), matching the argument dimensions.  For more information on the optional `kwargs` and names of the output keys, see [Interfaces/New-style CO2SYS_nd](co2sys_nd).
+    The output `results` are a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing all the calculated variables as scalars or [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html), matching the argument dimensions.  For more information on the optional `kwargs` and names of the output keys, see [Interfaces/New-style `pyco2.sys`](co2sys_nd).
 
 The second way is to [do it like in MATLAB](co2sys):
 

@@ -47,7 +47,7 @@ To solve the marine carbonate system from two of its parameters (`par1` and `par
 
 ```python
 import PyCO2SYS as pyco2
-results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
 Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict come from the original MATLAB output `HEADERS`.  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).

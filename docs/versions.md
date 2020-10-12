@@ -25,15 +25,19 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
+## 1.6
+
+Adds extra alkalinity components with arbitrary p*K* values.
+
+### 1.6.0 (forthcoming)
+
+!!! example "Changes in v1.6.0"
+
+    * Adds `sys` as an alias for `CO2SYS_nd` at the top level.
+
 ## 1.5
 
 Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.
-
-### 1.5.2 (forthcoming)
-
-!!! example "Changes in v1.5.2"
-
-    * Added `sys` as alias for `CO2SYS_nd` at the top level.
 
 ### 1.5.1 (30 July 2020)
 

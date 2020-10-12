@@ -71,7 +71,7 @@ test_co2py_matlab()
 
 # Compare new n-d approach
 co2nd = pd.DataFrame(
-    pyco2.CO2SYS_nd(
+    pyco2.sys(
         co2inputs[0],
         co2inputs[1],
         co2inputs[2],

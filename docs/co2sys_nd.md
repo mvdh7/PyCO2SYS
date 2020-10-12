@@ -1,22 +1,26 @@
-# Calculate everything with `CO2SYS_nd`
+# Calculate everything with `pyco2.sys`
 
 ## Syntax
 
-From v1.5.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `CO2SYS_nd` function.  The syntax is:
+From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `pyco2.sys` function.  The syntax is:
 
     :::python
     import PyCO2SYS as pyco2
-    results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+    results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
 
-If you wish to also calculate [uncertainties](../uncertainty), you should put the `kwargs` into a dict and splat this into `CO2SYS_nd` with `**` as shown above, as you will need to use it again later.
+If you wish to also calculate [uncertainties](../uncertainty), you should put the `kwargs` into a dict and splat this into `pyco2.sys` with `**` as shown above, as you will need to use it again later.
+
+!!! warning "`sys == CO2SYS_nd`"
+
+    `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works).
 
 ## Arguments
 
-Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
-!!! info "`PyCO2SYS.CO2SYS_nd` arguments"
+!!! info "`pyco2.sys` arguments"
 
     #### Carbonate system parameters
 
@@ -131,13 +135,13 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
 
 ## Results
 
-The results of `CO2SYS_nd` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  The keys to the dict are listed in the section below.
+The results of `pyco2.sys` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  The keys to the dict are listed in the section below.
 
 Scalar arguments, and results that depend only on scalar arguments, will be returned as scalars in the dict.  Array-like arguments, and results that depend on them, will all be broadcast to the same consistent shape.
 
 The keys ending with `_out` are only available if at least one of the `temperature_out` or `pressure_out` arguments was provided.
 
-!!! abstract "`PyCO2SYS.CO2SYS_nd` results dict"
+!!! abstract "`pyco2.sys` results dict"
 
     #### Dissolved inorganic carbon
 
