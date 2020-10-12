@@ -14,7 +14,7 @@ If you wish to also calculate [uncertainties](../uncertainty), you should put th
 
 !!! warning "`sys == CO2SYS_nd`"
 
-    `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works).
+    `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
 
 ## Arguments
 
@@ -61,6 +61,10 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * `total_phosphate`: **total phosphate** in μmol·kg<sup>−1</sup>.
     * `total_ammonia`: **total ammonia** in μmol·kg<sup>−1</sup>.
     * `total_sulfide`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
+    * `total_alpha`: **total HA** (a user-defied extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_beta`: **total HB** (a user-defied extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+
+    If using non-zero `total_alpha` and/or `total_beta`, then you should also provide the corresponding equilibrium constant values `k_alpha` and/or `k_beta`.
 
     Others, PyCO2SYS estimates from salinity if not provided:
 
@@ -133,6 +137,8 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     
     To do this, the arguments have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide your own water dissociation constant value at input conditions of $10^{-14}$, use `k_water=1e-14`.
 
+    If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.
+
 ## Results
 
 The results of `pyco2.sys` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  The keys to the dict are listed in the section below.
@@ -162,6 +168,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"alkalinity_silicate"`/`"alkalinity_silicate_out"`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_ammonia"`/`"alkalinity_ammonia_out"`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_sulfide"`/`"alkalinity_sulfide_out"`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_alpha"`/`"alkalinity_alpha_out"`: **HA alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_beta"`/`"alkalinity_beta_out"`: **HB alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"peng_correction"`: the **"Peng correction"** for alkalinity (applies only for `opt_k_carbonic = 7`) in μmol·kg<sup>−1</sup>.
 
     #### pH and water
@@ -225,6 +233,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"k_silicate"`/`"k_silicate_out"`: **silicic acid** dissociation constant at input/output conditions.
     * `"k_ammonia"`/`"k_ammonia_out"`: **ammonia** equilibrium constant at input/output conditions.
     * `"k_sulfide"`/`"k_sulfide_out"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
+    * `"k_alpha"`/`"k_alpha_out"`: **HA** equilibrium constant at input/output conditions.
+    * `"k_beta"`/`"k_beta_out"`: **HB** equilibrium constant at input/output conditions.
 
     The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
 

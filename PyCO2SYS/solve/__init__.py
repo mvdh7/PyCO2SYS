@@ -302,7 +302,8 @@ def others(
     pK2 = -np.log10(Ks["K2"])
     # Components of alkalinity and DIC
     FREEtoTOT = convert.free2tot(totals, Ks)
-    alks = get.AlkParts(TC, PH, FREEtoTOT, totals, Ks)
+    # alks = get.AlkParts(TC, PH, FREEtoTOT, totals, Ks)  # <=1.5.1
+    alks = get.alkalinity_components(TC, PH, totals, Ks)  # >=1.6.0
     alks["PAlk"] = alks["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(CARB, totals, Ks)
@@ -416,6 +417,9 @@ def others(
         "isoQ": isoQ,
         "isoQx": isoQx,
         "psi": psi,
-        # Added in v1.4.0
+        # Added in v1.4.0:
         "SIR": SIR,
+        # Added in v1.6.0:
+        "alk_alpha": alks["alk_alpha"],
+        "alk_beta": alks["alk_beta"],
     }

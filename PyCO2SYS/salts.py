@@ -110,6 +110,10 @@ def fromSal(Sal, WhichKs, WhoseTB, totals=None):
     if "TCa" not in totals:
         TCa = _co2sys_TCa(Sal, WhichKs)
         totals["TCa"] = TCa
+    if "alpha" not in totals:
+        totals["alpha"] = 0.0
+    if "beta" not in totals:
+        totals["beta"] = 0.0
     return totals
 
 

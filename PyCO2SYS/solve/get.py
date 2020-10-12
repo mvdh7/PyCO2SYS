@@ -122,6 +122,14 @@ def alkalinity_phosphate(h_scale, totals, k_constants):
     )
 
 
+def alkalinity_extra(h_scale, total_extra, k_extra):
+    """Calculate alkalinity contribution from an arbitrary extra component."""
+    zlp = 4.5  # pK of 'zero level of protons' [WZK07]
+    extra = k_extra * total_extra / (k_extra + h_scale)  # dissociated
+    extra_h = total_extra - extra  # undissociated
+    return np.where(-np.log10(k_extra) < zlp, -extra_h, extra)
+
+
 @np.errstate(invalid="ignore")
 def alkalinity_components(TC, pH, totals, k_constants):
     """Calculate the different components of total alkalinity from dissolved inorganic
@@ -145,6 +153,9 @@ def alkalinity_components(TC, pH, totals, k_constants):
     h_free = h_scale * k_constants["pHfactor_to_Free"]
     HSO4 = totals["TSO4"] / (1 + k_constants["KSO4"] / h_free)
     HF = totals["TF"] / (1 + k_constants["KF"] / h_free)
+    # Extra alkalinity components (added in v1.6.0)
+    alk_alpha = alkalinity_extra(h_scale, totals['alpha'], k_constants['alpha'])
+    alk_beta = alkalinity_extra(h_scale, totals['beta'], k_constants['beta'])
     return {
         "HCO3": HCO3,
         "CO3": CO3,
@@ -157,6 +168,9 @@ def alkalinity_components(TC, pH, totals, k_constants):
         "Hfree": h_free,
         "HSO4": HSO4,
         "HF": HF,
+        # Added in v1.6.0:
+        'alk_alpha': alk_alpha,
+        'alk_beta': alk_beta,
     }
 
 
@@ -209,12 +223,14 @@ def TAfromTCpH_fixed(TC, pH, totals, k_constants):
         - alks["Hfree"]
         - alks["HSO4"]
         - alks["HF"]
+        + alks['alk_alpha']
+        + alks['alk_beta']
     )
     return TA
 
 
 # Set which alkalinity function to use
-TAfromTCpH = TAfromTCpH_original
+TAfromTCpH = TAfromTCpH_fixed
 
 
 def TAfrompHfCO2(pH, fCO2, totals, k_constants):

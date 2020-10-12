@@ -56,6 +56,13 @@ input_floats = {
     "fugacity_factor_out",
     "gas_constant",
     "gas_constant_out",
+    # Added in v1.6.0:
+    "total_alpha",
+    "k_alpha",
+    "k_alpha_out",
+    "total_beta",
+    "k_beta",
+    "k_beta_out",
 }
 
 
@@ -160,6 +167,11 @@ def _get_in_out(core, others, k_constants, suffix=""):
         "substrate_inhibitor_ratio{}".format(suffix): others["SIR"],
         "fugacity_factor{}".format(suffix): k_constants["FugFac"],
         "fH{}".format(suffix): k_constants["fH"],
+        # Added in v1.6.0:
+        "k_alpha{}".format(suffix): k_constants["alpha"],
+        "alkalinity_alpha{}".format(suffix): others["alk_alpha"] * 1e6,
+        "k_beta{}".format(suffix): k_constants["beta"],
+        "alkalinity_beta{}".format(suffix): others["alk_beta"] * 1e6,
     }
 
 
@@ -201,6 +213,9 @@ def _get_results_dict(
         "gas_constant": k_constants_in["RGas"],
         "alkalinity": core_in["TA"] * 1e6,
         "dic": core_in["TC"] * 1e6,
+        # Added in v1.6.0:
+        "total_alpha": totals["alpha"] * 1e6,
+        "total_beta": totals["beta"] * 1e6,
     }
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
     if core_out is not None:
@@ -331,6 +346,13 @@ gradables = [
     "fugacity_factor_out",
     "fH",
     "fH_out",
+    # Added in v1.6.0:
+    "total_alpha",
+    "k_alpha",
+    "k_alpha_out",
+    "total_beta",
+    "k_beta",
+    "k_beta_out",
 ]
 
 
@@ -393,6 +415,13 @@ def CO2SYS(
     fugacity_factor_out=None,
     gas_constant=None,
     gas_constant_out=None,
+    # Added in v1.6.0:
+    total_alpha=None,
+    k_alpha=None,
+    k_alpha_out=None,
+    total_beta=None,
+    k_beta=None,
+    k_beta_out=None,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = condition(locals())
@@ -402,6 +431,8 @@ def CO2SYS(
         "total_calcium": "TCa",
         "total_fluoride": "TF",
         "total_sulfate": "TSO4",
+        "total_alpha": "alpha",
+        "total_beta": "beta",
     }
     if np.any(np.isin(list(args.keys()), list(totals_optional.keys()))):
         totals = {
@@ -440,6 +471,8 @@ def CO2SYS(
         "k_water": "KW",
         "k_calcite": "KCa",
         "k_aragonite": "KAr",
+        "k_alpha": "alpha",
+        "k_beta": "beta",
     }
     if np.any(np.isin(list(args.keys()), list(k_constants_optional.keys()))):
         k_constants_in = {
