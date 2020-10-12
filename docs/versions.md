@@ -10,16 +10,18 @@
 !!! warning
     *Will (not) break your code* refers **only** to the functions covered in this documentation.
 
-    For the main CO2SYS function as imported with
+    For the main CO2SYS functions as imported with
 
-        :::python
-        from PyCO2SYS import CO2SYS
-        CO2dict = CO2SYS(*args, **kwargs)
+    ```python
+    import PyCO2SYS as pyco2
+    results = pyco2.sys(*args, **kwargs)  # new Pythonic syntax
+    results = pyco2.CO2SYS(*args, **kwargs)  # old MATLAB syntax
+    ```
 
     the only things that may change, in at least a *minor* version release, are:
 
       1. Additional inputs may be added to the `kwargs`, but always with default values such that the results do not change if they are not explicitly set.
-      2. Additional calculated variables may be returned in the output `CO2dict`.
+      2. Additional calculated variables may be returned in the output `results`.
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
@@ -31,7 +33,7 @@ Introduces a more Pythonic top-level function that accepts multidimensional argu
 
 !!! example "Changes in v1.5.2"
 
-
+    * Added `sys` as alias for `CO2SYS_nd` at the top level.
 
 ### 1.5.1 (30 July 2020)
 
