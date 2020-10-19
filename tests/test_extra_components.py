@@ -2,7 +2,7 @@ import PyCO2SYS as pyco2, numpy as np
 
 
 # Run PyCO2SYS to begin with some silicate
-args = (2250, [2100, 8.1, 400], 1, [2, 3, 4])
+args = (2250, [2100, 8.1, 400, 150, 500, 10000], 1, [2, 3, 4, 5, 2, 2])
 opt_pH_scale = 3
 r0 = pyco2.sys(*args, total_silicate=100, opt_pH_scale=3)
 
