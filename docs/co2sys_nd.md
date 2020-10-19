@@ -75,7 +75,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
     If `total_borate` is provided, then the `opt_total_borate` argument is ignored.
 
-    Again, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
+    Throughout, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
 
     #### Settings
 
