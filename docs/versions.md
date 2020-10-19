@@ -35,7 +35,7 @@ Adds extra alkalinity components with arbitrary p*K* values.
 
     ***Bug fixes***
 
-    * Updates the total alkalinity equation to fix error in pH scale conversions inherited from CO2SYS-MATLAB.
+    * Updates the total alkalinity equation to fix error in pH scale conversions inherited from CO2SYS-MATLAB (see related note in [v1.5.0 release notes](#150-29-july-2020)).
 
     ***New inputs and outputs***
 
