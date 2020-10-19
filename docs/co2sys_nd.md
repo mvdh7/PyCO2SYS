@@ -61,8 +61,8 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * `total_phosphate`: **total phosphate** in μmol·kg<sup>−1</sup>.
     * `total_ammonia`: **total ammonia** in μmol·kg<sup>−1</sup>.
     * `total_sulfide`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
-    * `total_alpha`: **total HA** (a user-defied extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
-    * `total_beta`: **total HB** (a user-defied extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_alpha`: **total HA** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_beta`: **total HB** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
 
     If using non-zero `total_alpha` and/or `total_beta`, then you should also provide the corresponding equilibrium constant values `k_alpha` and/or `k_beta`.
 
