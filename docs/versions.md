@@ -39,7 +39,7 @@ Adds extra alkalinity components with arbitrary p*K* values.
 
     ***New inputs and outputs***
 
-    * Can now input total molalities and equilibrium constants for up to two additional contributors to total alkalinity.
+    * Enables inputting total molalities and equilibrium constants for up to two additional contributors to total alkalinity.
     * Full chemical speciation returned in the output dict of `pyco2.sys`, not just the alkalinity components as before.
 
     ***New syntax***
