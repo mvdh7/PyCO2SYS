@@ -12,12 +12,25 @@ si = 0
 phos = 0
 
 # Run CO2SYS
-cdict = pyco2.CO2SYS(
-    ta, dic, 1, 2, sal, tmp, tmp, prs, prs, si, phos, 1, 10, 3, buffers_mode="auto"
+cdict = pyco2.sys(
+    ta,
+    dic,
+    1,
+    2,
+    salinity=sal,
+    temperature=tmp,
+    pressure=prs,
+    total_silicate=si,
+    total_phosphate=phos,
+    opt_pH_scale=1,
+    opt_k_carbonic=10,  # not sure which options were used by ESM10...
+    opt_k_fluoride=1,
+    opt_total_borate=2,
+    buffers_mode="auto",
 )
 
 # Recreate ESM10 Fig. 2
-fvars = ["gammaTCin", "gammaTAin", "betaTCin", "betaTAin", "omegaTCin", "omegaTAin"]
+fvars = ["gamma_dic", "gamma_alk", "beta_dic", "beta_alk", "omega_dic", "omega_alk"]
 fmults = [1, -1, 1, -1, -1, 1]
 fclrs = ["#453c90", "#b84690", "#b84690", "#007831", "#df0023", "#40b4b6"]
 flabels = [
@@ -28,7 +41,7 @@ flabels = [
     "$-\\omega_\mathrm{DIC}$",
     "$\\omega_\mathrm{Alk}$",
 ]
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(dpi=300)
 for i, fvar in enumerate(fvars):
     ax.plot(dic * 1e-3, cdict[fvar] * fmults[i] * 1e3, c=fclrs[i], label=flabels[i])
 ax.legend(edgecolor="k")

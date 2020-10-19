@@ -1,10 +1,6 @@
-import copy
 import numpy as np
 import PyCO2SYS as pyco2
 
-# Switch to fixed alkalinity function
-alk_func = copy.deepcopy(pyco2.solve.get.TAfromTCpH)
-pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_fixed
 
 # Initial sample conditions
 alkalinity = 2450
@@ -84,6 +80,3 @@ def test_D81_phosphate():
 
 test_D81()
 test_D81_phosphate()
-
-# Revert to original alkalinity function
-pyco2.solve.get.TAfromTCpH = alk_func

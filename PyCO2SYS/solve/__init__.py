@@ -301,10 +301,9 @@ def others(
     pK1 = -np.log10(Ks["K1"])
     pK2 = -np.log10(Ks["K2"])
     # Components of alkalinity and DIC
-    FREEtoTOT = convert.free2tot(totals, Ks)
-    # alks = get.AlkParts(TC, PH, FREEtoTOT, totals, Ks)  # <=1.5.1
-    alks = get.alkalinity_components(TC, PH, totals, Ks)  # >=1.6.0
-    alks["PAlk"] = alks["PAlk"] + totals["PengCorrection"]
+    # alks = get.AlkParts(TC, PH, totals, Ks)  # <=1.5.1
+    sw = get.speciation_func(TC, PH, totals, Ks)  # >=1.6.0
+    sw["PAlk"] = sw["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(CARB, totals, Ks)
     # Dry mole fraction of CO2
@@ -359,7 +358,7 @@ def others(
         # Evaluate buffers with explicit equations, but these don't include nutrients
         # (i.e. only carbonate, borate and water alkalinities are accounted for)
         expl_ESM10 = buffers.explicit.all_ESM10(
-            TC, TAPeng, CO2, HCO3, CARB, PH, alks["OH"], alks["BAlk"], Ks["KB"],
+            TC, TAPeng, CO2, HCO3, CARB, PH, sw["OH"], sw["BAlk"], Ks["KB"],
         )
         for buffer in esm10buffers:
             allbuffers_ESM10[buffer] = np.where(
@@ -387,18 +386,9 @@ def others(
         psi = np.where(F, buffers.psi(isoQ), psi)
     # Substrate:inhibitor ratio of B15
     SIR = bio.SIratio(HCO3, pHF)
-    return {
+    others_out = {
         "pK1": pK1,
         "pK2": pK2,
-        "BAlk": alks["BAlk"],
-        "OH": alks["OH"],
-        "PAlk": alks["PAlk"],
-        "SiAlk": alks["SiAlk"],
-        "NH3Alk": alks["NH3Alk"],
-        "H2SAlk": alks["H2SAlk"],
-        "Hfree": alks["Hfree"],
-        "HSO4": alks["HSO4"],
-        "HF": alks["HF"],
         "OmegaCa": OmegaCa,
         "OmegaAr": OmegaAr,
         "VPFac": VPFac,
@@ -419,7 +409,7 @@ def others(
         "psi": psi,
         # Added in v1.4.0:
         "SIR": SIR,
-        # Added in v1.6.0:
-        "alk_alpha": alks["alk_alpha"],
-        "alk_beta": alks["alk_beta"],
     }
+    # Added in v1.6.0:
+    others_out.update(sw)
+    return others_out

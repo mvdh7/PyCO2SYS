@@ -80,7 +80,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     #### Settings
 
     * `opt_pH_scale`: which **pH scale** was used for any pH entries in `par1` or `par2`, as defined by [ZW01](../refs/#z):
-        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$.
+        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$ **(default)**.
         * `2`: Seawater, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])$.
         * `3`: Free, i.e. $\mathrm{pH} = -\log_{10} [\mathrm{H}^+]$.
         * `4`: NBS, i.e. relative to [NBS/NIST](https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist) reference standards.
@@ -101,26 +101,26 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
-        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
+        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements) **(default)**.
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
     * `opt_k_bisulfate`: which equilibrium constant parameterisation to use to model **bisulfate ion dissociation**:
 
-        * `1`: [D90a](../refs/#d) (default).
+        * `1`: [D90a](../refs/#d) **(default)**.
         * `2`: [KRCB77](../refs/#k).
 
     * `opt_total_borate`: which **boron:salinity** relationship to use to estimate total borate (ignored if the `total_borate` argument is provided):
 
-        * `1`: [U74](../refs/#u).
-        * `2`: [LKB10](../refs/#l) (default).
+        * `1`: [U74](../refs/#u) **(default)**.
+        * `2`: [LKB10](../refs/#l).
 
     * `opt_k_fluoride`: which equilibrium constant parameterisation to use for **hydrogen fluoride dissociation:**
-        * `1`: [DR79](../refs/#d) (default).
+        * `1`: [DR79](../refs/#d) **(default)**.
         * `2`: [PF87](../refs/#p).
 
     * `buffers_mode`: how to calculate the various **buffer factors** (or not).
-        * `"auto"`: using automatic differentiation, which accounts for the effects of all equilibrating solutes (default).
+        * `"auto"`: using automatic differentiation, which accounts for the effects of all equilibrating solutes **(default)**.
         * `"explicit"`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `"none"`: not at all.
 
@@ -129,7 +129,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
         * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
         * `2`: DOEv3.
-        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) (default).
+        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) **(default)**.
 
     #### Override equilibrium constants
 

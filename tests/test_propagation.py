@@ -1,9 +1,5 @@
 # Test the propagation calculations against Monte-Carlo simulations
-import PyCO2SYS as pyco2
-import numpy as np
-
-# Make sure we're using the original CO2SYS TA equation
-pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_original
+import PyCO2SYS as pyco2, numpy as np
 
 # First just par1, par2 and their combination
 pars_true = np.array([2350, 2100, 8.1, 400, 400, 350, 1900, 12])
@@ -100,7 +96,7 @@ def compare_Kunc(p1, p2, Kstr, io):
         print(testunc_Mcsim)
         print(uncertainties[testvar][0])
         print(comparison)
-    assert (comparison < 4) or (uncertainties[testvar][0] < 1e-10)
+    assert (comparison < 4) or (uncertainties[testvar][0] < 1e-9)
     # ^ either the comparison is acceptable or the effect is so small that differences
     # due to pH solver tolerance make large percentage errors.  Both are acceptable.
 
