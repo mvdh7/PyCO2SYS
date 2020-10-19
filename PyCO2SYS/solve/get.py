@@ -152,7 +152,7 @@ def speciation(dic, pH, totals, k_constants):
     sw["SiOOH3"] = sw["SiAlk"] = (
         totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
     )
-    sw["SiOOH4"] = totals["TSi"] - sw["SiOOH3"]
+    sw["SiOH4"] = totals["TSi"] - sw["SiOOH3"]
     # Ammonium
     sw["NH3"] = sw["NH3Alk"] = (
         totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + h_scale)
