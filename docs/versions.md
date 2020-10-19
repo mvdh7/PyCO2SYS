@@ -33,6 +33,17 @@ Adds extra alkalinity components with arbitrary p*K* values.
 
 !!! example "Changes in v1.6.0"
 
+    ***Bug fixes***
+
+    * Updates the total alkalinity equation to fix error in pH scale conversions inherited from CO2SYS-MATLAB.
+
+    ***New inputs and outputs***
+
+    * Can now input total molalities and equilibrium constants for up to two additional contributors to total alkalinity.
+    * Full chemical speciation returned in the output dict of `pyco2.sys`, not just the alkalinity components as before.
+
+    ***New syntax***
+
     * Adds `sys` as an alias for `CO2SYS_nd` at the top level.
 
 ## 1.5
