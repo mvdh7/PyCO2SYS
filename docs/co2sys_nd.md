@@ -61,8 +61,8 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * `total_phosphate`: **total phosphate** in μmol·kg<sup>−1</sup>.
     * `total_ammonia`: **total ammonia** in μmol·kg<sup>−1</sup>.
     * `total_sulfide`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
-    * `total_alpha`: **total HA** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
-    * `total_beta`: **total HB** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_alpha`: **total Hα** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_beta`: **total Hβ** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
 
     If using non-zero `total_alpha` and/or `total_beta`, then you should also provide the corresponding equilibrium constant values `k_alpha` and/or `k_beta`.
 
@@ -168,8 +168,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"alkalinity_silicate"`/`"alkalinity_silicate_out"`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_ammonia"`/`"alkalinity_ammonia_out"`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_sulfide"`/`"alkalinity_sulfide_out"`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"alkalinity_alpha"`/`"alkalinity_alpha_out"`: **HA alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"alkalinity_beta"`/`"alkalinity_beta_out"`: **HB alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_alpha"`/`"alkalinity_alpha_out"`: **Hα alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_beta"`/`"alkalinity_beta_out"`: **Hβ alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"peng_correction"`: the **"Peng correction"** for alkalinity (applies only for `opt_k_carbonic = 7`) in μmol·kg<sup>−1</sup>.
 
     #### pH and water
@@ -208,6 +208,32 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     Seawater properties related to the marine carbonate system that have a primarily biological application.
 
     * `"substrate_inhibitor_ratio"`/`"substrate_inhibitor_ratio_out"`: **substrate:inhibitor ratio** of [B15](../refs/#b) at input/output conditions in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+
+    #### Chemical speciation
+
+    Molality of each individual chemical species involved in pH equilibria.
+
+    * `"HCO3"`/`"HCO3_out"`: **bicarbonate** $[\text{HCO}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"CO3"`/`"CO3_out"`: **carbonate** $[\text{CO}_3^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"CO2"`/`"CO2_out"`: **aqueous carbon dioxide** $[\text{CO}_2(\text{aq})]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"BOH4"`/`"BOH4_out"`: **tetrahydroxyborate** $[\text{B(OH)}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"BOH3"`/`"BOH3_out"`: **boric acid** $[\text{B(OH)}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"OH"`/`"OH_out"`: **hydroxide** $[\text{OH}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"Hfree"`/`"Hfree_out"`: **"free" protons** $[\text{H}^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H3PO4"`/`"H3PO4_out"`: **phosphoric acid** $[\text{H}_3\text{PO}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H2PO4"`/`"H2PO4_out"`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HPO4"`/`"HPO4_out"`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"PO4"`/`"PO4_out"`: **phosphate** $[\text{PO}_4^{3-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"SiOOH3"`/`"SiOOH3_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"SiOH4"`/`"SiOH4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"NH3"`/`"NH3_out"`: **ammonia** $[\text{NH}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"NH4"`/`"NH4_out"`: **ammonium** $[\text{NH}_4^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HS"`/`"HS_out"`: **bisulfide** $[\text{HS}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H2S"`/`"H2S_out"`: **hydrogen sulfide** $[\text{H}_2\text{S}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HSO4"`/`"HSO4_out"`: **bisulfate** $[\text{HSO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"SO4"`/`"SO4_out"`: **sulfate** $[\text{SO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HF"`/`"HF_out"`: **hydrofluoric acid** $[\text{HF}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"F"`/`"F_out"`: **fluoride** $[\text{F}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
 
     #### Totals estimated from salinity
 
