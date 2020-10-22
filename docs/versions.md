@@ -44,7 +44,7 @@ Adds extra alkalinity components with arbitrary p*K* values.
 
     ***New syntax***
 
-    * Adds `sys` as an alias for `CO2SYS_nd` at the top level.
+    * Adds `sys` as an alias for `CO2SYS_nd` at the top level.  Recommended Python-style syntax is thus now `pyco2.sys`.
 
 ## 1.5
 
