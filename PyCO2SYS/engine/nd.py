@@ -168,9 +168,9 @@ def _get_in_out(core, others, k_constants, suffix=""):
         "fugacity_factor": k_constants["FugFac"],
         "fH": k_constants["fH"],
         # Added in v1.6.0:
-        "k_alpha": k_constants["alpha"],
+        "k_alpha": k_constants["k_alpha"],
         "alkalinity_alpha": others["alk_alpha"] * 1e6,
-        "k_beta": k_constants["beta"],
+        "k_beta": k_constants["k_beta"],
         "alkalinity_beta": others["alk_beta"] * 1e6,
     }
     for c in [
@@ -244,8 +244,8 @@ def _get_results_dict(
         "alkalinity": core_in["TA"] * 1e6,
         "dic": core_in["TC"] * 1e6,
         # Added in v1.6.0:
-        "total_alpha": totals["alpha"] * 1e6,
-        "total_beta": totals["beta"] * 1e6,
+        "total_alpha": totals["total_alpha"] * 1e6,
+        "total_beta": totals["total_beta"] * 1e6,
     }
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
     if core_out is not None:
@@ -486,8 +486,8 @@ def CO2SYS(
         "total_calcium": "TCa",
         "total_fluoride": "TF",
         "total_sulfate": "TSO4",
-        "total_alpha": "alpha",
-        "total_beta": "beta",
+        "total_alpha": "total_alpha",
+        "total_beta": "total_beta",
     }
     if np.any(np.isin(list(args.keys()), list(totals_optional.keys()))):
         totals = {
@@ -526,8 +526,8 @@ def CO2SYS(
         "k_water": "KW",
         "k_calcite": "KCa",
         "k_aragonite": "KAr",
-        "k_alpha": "alpha",
-        "k_beta": "beta",
+        "k_alpha": "k_alpha",
+        "k_beta": "k_beta",
     }
     if np.any(np.isin(list(args.keys()), list(k_constants_optional.keys()))):
         k_constants_in = {
@@ -687,8 +687,8 @@ def assemble(
         "total_calcium": "TCa",
         "total_fluoride": "TF",
         "total_sulfate": "TSO4",
-        "total_alpha": "alpha",
-        "total_beta": "beta",
+        "total_alpha": "total_alpha",
+        "total_beta": "total_beta",
     }
     if np.any(np.isin(list(args.keys()), list(totals_optional.keys()))):
         totals = {
@@ -727,8 +727,8 @@ def assemble(
         "k_water": "KW",
         "k_calcite": "KCa",
         "k_aragonite": "KAr",
-        "k_alpha": "alpha",
-        "k_beta": "beta",
+        "k_alpha": "k_alpha",
+        "k_beta": "k_beta",
     }
     if np.any(np.isin(list(args.keys()), list(k_constants_optional.keys()))):
         k_constants = {

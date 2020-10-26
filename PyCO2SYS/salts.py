@@ -110,10 +110,10 @@ def fromSal(salinity, WhichKs, WhoseTB, totals=None):
     if "TCa" not in totals:
         TCa = _co2sys_TCa(salinity, WhichKs)
         totals["TCa"] = TCa
-    if "alpha" not in totals:
-        totals["alpha"] = 0.0
-    if "beta" not in totals:
-        totals["beta"] = 0.0
+    if "total_alpha" not in totals:
+        totals["total_alpha"] = 0.0
+    if "total_beta" not in totals:
+        totals["total_beta"] = 0.0
     return totals
 
 

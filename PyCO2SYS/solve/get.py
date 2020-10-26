@@ -172,17 +172,17 @@ def speciation(dic, pH, totals, k_constants):
     sw["F"] = totals["TF"] - sw["HF"]
     # Extra alkalinity components (added in v1.6.0)
     sw["alpha"] = (
-        totals["alpha"] * k_constants["alpha"] / (k_constants["alpha"] + h_scale)
+        totals["total_alpha"] * k_constants["k_alpha"] / (k_constants["k_alpha"] + h_scale)
     )
-    sw["alphaH"] = totals["alpha"] - sw["alpha"]
-    sw["beta"] = totals["beta"] * k_constants["beta"] / (k_constants["beta"] + h_scale)
-    sw["betaH"] = totals["beta"] - sw["beta"]
+    sw["alphaH"] = totals["total_alpha"] - sw["alpha"]
+    sw["beta"] = totals["total_beta"] * k_constants["k_beta"] / (k_constants["k_beta"] + h_scale)
+    sw["betaH"] = totals["total_beta"] - sw["beta"]
     zlp = 4.5  # pK of 'zero level of protons' [WZK07]
     sw["alk_alpha"] = np.where(
-        -np.log10(k_constants["alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
+        -np.log10(k_constants["k_alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
     )
     sw["alk_beta"] = np.where(
-        -np.log10(k_constants["beta"]) <= zlp, -sw["betaH"], sw["beta"]
+        -np.log10(k_constants["k_beta"]) <= zlp, -sw["betaH"], sw["beta"]
     )
     # Total alkalinity
     sw["alk_total"] = (

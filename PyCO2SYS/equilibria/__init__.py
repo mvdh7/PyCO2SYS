@@ -115,8 +115,8 @@ def assemble(
             solubility.k_calcite_M83(TempK, Sal, Pbar, RGas),
         )
     # Extra alkalinity components
-    if "alpha" not in Ks:
-        Ks["alpha"] = 1e-7
-    if "beta" not in Ks:
-        Ks["beta"] = 1e-7
+    if "k_alpha" not in Ks:
+        Ks["k_alpha"] = 1e-7
+    if "k_beta" not in Ks:
+        Ks["k_beta"] = 1e-7
     return Ks
