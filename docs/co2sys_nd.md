@@ -4,9 +4,10 @@
 
 From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `pyco2.sys` function.  The syntax is:
 
-    :::python
-    import PyCO2SYS as pyco2
-    results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+```python
+import PyCO2SYS as pyco2
+results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+```
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
 
@@ -224,8 +225,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"H2PO4"`/`"H2PO4_out"`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"HPO4"`/`"HPO4_out"`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"PO4"`/`"PO4_out"`: **phosphate** $[\text{PO}_4^{3-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"H3SiO4"`/`"H3SiO4_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"H4SiO4"`/`"H4SiO4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H4SiO4"`/`"H4SiO4_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H3SiO4"`/`"H3SiO4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"NH3"`/`"NH3_out"`: **ammonia** $[\text{NH}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"NH4"`/`"NH4_out"`: **ammonium** $[\text{NH}_4^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"HS"`/`"HS_out"`: **bisulfide** $[\text{HS}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
