@@ -225,7 +225,10 @@ Click on each reference to see more details.
     Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Marine Chemistry* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).
 
 ??? note "WP80: Weiss & Price (1980) *Mar. Chem.*"
-    Weiss, R. F., and Price, B. A. (1980). Nitrous oxide solubility in water and seawater. *Marine Chemistry* 8, 347–359. <a href='https://doi.org/10.1016/0304-4203(80)90024-9'>doi:10.1016/0304-4203(80)90024-9</a>.
+    Weiss, R. F., and Price, B. A. (1980). Nitrous oxide solubility in water and seawater. *Marine Chemistry* 8, 347–359. [doi:10.1016/0304-4203(80)90024-9](https://doi.org/10.1016/0304-4203(80)90024-9).
+
+??? note "WZK07: Wolf-Gladrow et al. (2007) *Mar. Chem.*"
+    Wolf-Gladrow, D. A., Zeebe, R. E., Klaas, C., Körtzinger, A., and Dickson, A. G. (2007). Total alkalinity: The explicit conservative expression and its application to biogeochemical processes. *Marine Chemistry* 106, 287-300. [doi:10.1016/j.marchem.2007.01.006](https://doi.org/10.1016/j.marchem.2007.01.006).
 
 ### Y
 

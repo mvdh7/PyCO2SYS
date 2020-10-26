@@ -6,18 +6,19 @@ Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the a
 
 Read further on this page if you want to stick with the MATLAB-style syntax.  This is accessed using the top-level `CO2SYS` function:
 
-    :::python
-    # Import the function
-    from PyCO2SYS import CO2SYS
+```python
+# Import the function
+from PyCO2SYS import CO2SYS
 
-    # Run CO2SYS
-    CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
-        PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
-        totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
+# Run CO2SYS
+CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+    PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
+    NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
+    totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
 
-    # Get (e.g.) aragonite saturation state, output conditions
-    OmegaARout = CO2dict["OmegaARout"]
+# Get (e.g.) aragonite saturation state, output conditions
+OmegaARout = CO2dict["OmegaARout"]
+```
 
 Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values, with the excepton of the optional `totals`, `equilibria_in` and `equilibria_out` inputs, which should be dicts of scalars or arrays (if provided, see [Internal overrides](#internal-overrides)).  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
 
@@ -25,20 +26,21 @@ Each input can either be a single scalar value or a [NumPy array](https://docs.s
 
 Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This returns a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) in place of the dict, with the same names for the various outputs.  The function uses keyword arguments, meaning that only the specified marine carbonate system parameters have to be entered.
 
-    :::python
-    from PyCO2SYS.api import CO2SYS_wrap as co2sys
+```python
+from PyCO2SYS.api import CO2SYS_wrap as co2sys
 
-    # Call with defaults
-    df1 = co2sys(dic=2103, alk=2360)
+# Call with defaults
+df1 = co2sys(dic=2103, alk=2360)
 
-    # The above is equivalent to:
-    df1 = co2sys(
-        dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
-        carb=None, bicarb=None, co2aq=None,
-        temp_in=25, temp_out=25, pres_in=0, pres_out=0,
-        sal=35, si=0, po4=0, nh3=0, h2s=0,
-        K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
-        buffers_mode="auto", verbose=True)
+# The above is equivalent to:
+df1 = co2sys(
+    dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
+    carb=None, bicarb=None, co2aq=None,
+    temp_in=25, temp_out=25, pres_in=0, pres_out=0,
+    sal=35, si=0, po4=0, nh3=0, h2s=0,
+    K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
+    buffers_mode="auto", verbose=True)
+```
 
 !!! warning "`CO2SYS_wrap`: incomplete functionality"
     
@@ -52,7 +54,7 @@ This wrapper function will also accept NumPy arrays, pandas.Series or xarray.Dat
 
 Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
 
-!!! info "`PyCO2SYS.CO2SYS` inputs"
+!!! inputs "`PyCO2SYS.CO2SYS` inputs"
     #### Carbonate system parameters
 
     * `PAR1` and `PAR2`: values of two different carbonate system parameters.
@@ -164,7 +166,7 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
 The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). The keys to the dict are the same as the entries in the output `HEADERS` in CO2SYS for MATLAB and are listed in the section below.
 
-!!! abstract "`PyCO2SYS.CO2SYS` outputs"
+!!! outputs "`PyCO2SYS.CO2SYS` outputs"
     The only output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). Its keys are as follows:
 
     #### Dissolved inorganic carbon

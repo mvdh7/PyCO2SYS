@@ -1,22 +1,27 @@
-# Calculate everything with `CO2SYS_nd`
+# Calculate everything with `pyco2.sys`
 
 ## Syntax
 
-From v1.5.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `CO2SYS_nd` function.  The syntax is:
+From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you need at once with the top-level `pyco2.sys` function.  The syntax is:
 
-    :::python
-    import PyCO2SYS as pyco2
-    results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+```python
+import PyCO2SYS as pyco2
+results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+```
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
 
-If you wish to also calculate [uncertainties](../uncertainty), you should put the `kwargs` into a dict and splat this into `CO2SYS_nd` with `**` as shown above, as you will need to use it again later.
+If you wish to also calculate [uncertainties](../uncertainty), you should put the `kwargs` into a dict and splat this into `pyco2.sys` with `**` as shown above, as you will need to use it again later.
+
+!!! warning "`sys == CO2SYS_nd`"
+
+    `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
 
 ## Arguments
 
-Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
-!!! info "`PyCO2SYS.CO2SYS_nd` arguments"
+!!! inputs "`pyco2.sys` arguments"
 
     #### Carbonate system parameters
 
@@ -57,6 +62,10 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
     * `total_phosphate`: **total phosphate** in μmol·kg<sup>−1</sup>.
     * `total_ammonia`: **total ammonia** in μmol·kg<sup>−1</sup>.
     * `total_sulfide`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
+    * `total_alpha`: **total Hα** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+    * `total_beta`: **total Hβ** (a user-defined extra contributor to alkalinity) in μmol·kg<sup>−1</sup>.
+
+    If using non-zero `total_alpha` and/or `total_beta`, then you should also provide the corresponding equilibrium constant values `k_alpha` and/or `k_beta`.
 
     Others, PyCO2SYS estimates from salinity if not provided:
 
@@ -67,12 +76,12 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
 
     If `total_borate` is provided, then the `opt_total_borate` argument is ignored.
 
-    Again, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
+    Throughout, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
 
     #### Settings
 
     * `opt_pH_scale`: which **pH scale** was used for any pH entries in `par1` or `par2`, as defined by [ZW01](../refs/#z):
-        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$.
+        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$ **(default)**.
         * `2`: Seawater, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])$.
         * `3`: Free, i.e. $\mathrm{pH} = -\log_{10} [\mathrm{H}^+]$.
         * `4`: NBS, i.e. relative to [NBS/NIST](https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist) reference standards.
@@ -93,26 +102,26 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
-        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
+        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements) **(default)**.
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
     * `opt_k_bisulfate`: which equilibrium constant parameterisation to use to model **bisulfate ion dissociation**:
 
-        * `1`: [D90a](../refs/#d) (default).
+        * `1`: [D90a](../refs/#d) **(default)**.
         * `2`: [KRCB77](../refs/#k).
 
     * `opt_total_borate`: which **boron:salinity** relationship to use to estimate total borate (ignored if the `total_borate` argument is provided):
 
-        * `1`: [U74](../refs/#u).
-        * `2`: [LKB10](../refs/#l) (default).
+        * `1`: [U74](../refs/#u) **(default)**.
+        * `2`: [LKB10](../refs/#l).
 
     * `opt_k_fluoride`: which equilibrium constant parameterisation to use for **hydrogen fluoride dissociation:**
-        * `1`: [DR79](../refs/#d) (default).
+        * `1`: [DR79](../refs/#d) **(default)**.
         * `2`: [PF87](../refs/#p).
 
     * `buffers_mode`: how to calculate the various **buffer factors** (or not).
-        * `"auto"`: using automatic differentiation, which accounts for the effects of all equilibrating solutes (default).
+        * `"auto"`: using automatic differentiation, which accounts for the effects of all equilibrating solutes **(default)**.
         * `"explicit"`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `"none"`: not at all.
 
@@ -121,7 +130,7 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
     * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
         * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
         * `2`: DOEv3.
-        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) (default).
+        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) **(default)**.
 
     #### Override equilibrium constants
 
@@ -129,15 +138,17 @@ Each argument to `CO2SYS_nd` can either be a single scalar value, or a [NumPy ar
     
     To do this, the arguments have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide your own water dissociation constant value at input conditions of $10^{-14}$, use `k_water=1e-14`.
 
+    If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.
+
 ## Results
 
-The results of `CO2SYS_nd` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  The keys to the dict are listed in the section below.
+The results of `pyco2.sys` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html).  The keys to the dict are listed in the section below.
 
 Scalar arguments, and results that depend only on scalar arguments, will be returned as scalars in the dict.  Array-like arguments, and results that depend on them, will all be broadcast to the same consistent shape.
 
 The keys ending with `_out` are only available if at least one of the `temperature_out` or `pressure_out` arguments was provided.
 
-!!! abstract "`PyCO2SYS.CO2SYS_nd` results dict"
+!!! outputs "`pyco2.sys` results dict"
 
     #### Dissolved inorganic carbon
 
@@ -158,6 +169,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"alkalinity_silicate"`/`"alkalinity_silicate_out"`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_ammonia"`/`"alkalinity_ammonia_out"`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"alkalinity_sulfide"`/`"alkalinity_sulfide_out"`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_alpha"`/`"alkalinity_alpha_out"`: **Hα alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"alkalinity_beta"`/`"alkalinity_beta_out"`: **Hβ alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"peng_correction"`: the **"Peng correction"** for alkalinity (applies only for `opt_k_carbonic = 7`) in μmol·kg<sup>−1</sup>.
 
     #### pH and water
@@ -167,7 +180,7 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"pH_sws"`/`"pH_sws_out"`: **pH** at input/output conditions on the **Seawater scale**.
     * `"pH_free"`/`"pH_free_out"`: **pH** at input/output conditions on the **Free scale**.
     * `"pH_nbs"`/`"pH_nbs_out"`: **pH** at input/output conditions on the **NBS scale**.
-    * `"HFreein"`/`"HFreeout"`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"hydrogen_free"`/`"hydrogen_free_out"`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"hydroxide"`/`"hydroxide_out"`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"fH"`/`"fH_out"`: **activity coefficient of H<sup>+</sup>** at input/output conditions for pH-scale conversions to and from the NBS scale.
 
@@ -197,6 +210,32 @@ The keys ending with `_out` are only available if at least one of the `temperatu
 
     * `"substrate_inhibitor_ratio"`/`"substrate_inhibitor_ratio_out"`: **substrate:inhibitor ratio** of [B15](../refs/#b) at input/output conditions in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
 
+    #### Chemical speciation
+
+    Molality of each individual chemical species involved in pH equilibria.
+
+    * `"HCO3"`/`"HCO3_out"`: **bicarbonate** $[\text{HCO}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"CO3"`/`"CO3_out"`: **carbonate** $[\text{CO}_3^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"CO2"`/`"CO2_out"`: **aqueous carbon dioxide** $[\text{CO}_2(\text{aq})]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"BOH4"`/`"BOH4_out"`: **tetrahydroxyborate** $[\text{B(OH)}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"BOH3"`/`"BOH3_out"`: **boric acid** $[\text{B(OH)}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"OH"`/`"OH_out"`: **hydroxide** $[\text{OH}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"Hfree"`/`"Hfree_out"`: **"free" protons** $[\text{H}^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H3PO4"`/`"H3PO4_out"`: **phosphoric acid** $[\text{H}_3\text{PO}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H2PO4"`/`"H2PO4_out"`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HPO4"`/`"HPO4_out"`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"PO4"`/`"PO4_out"`: **phosphate** $[\text{PO}_4^{3-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H4SiO4"`/`"H4SiO4_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H3SiO4"`/`"H3SiO4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"NH3"`/`"NH3_out"`: **ammonia** $[\text{NH}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"NH4"`/`"NH4_out"`: **ammonium** $[\text{NH}_4^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HS"`/`"HS_out"`: **bisulfide** $[\text{HS}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H2S"`/`"H2S_out"`: **hydrogen sulfide** $[\text{H}_2\text{S}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HSO4"`/`"HSO4_out"`: **bisulfate** $[\text{HSO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"SO4"`/`"SO4_out"`: **sulfate** $[\text{SO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"HF"`/`"HF_out"`: **hydrofluoric acid** $[\text{HF}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"F"`/`"F_out"`: **fluoride** $[\text{F}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+
     #### Totals estimated from salinity
 
     * `"total_borate"`: **total borate** in μmol·kg<sup>−1</sup>.
@@ -221,6 +260,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"k_silicate"`/`"k_silicate_out"`: **silicic acid** dissociation constant at input/output conditions.
     * `"k_ammonia"`/`"k_ammonia_out"`: **ammonia** equilibrium constant at input/output conditions.
     * `"k_sulfide"`/`"k_sulfide_out"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
+    * `"k_alpha"`/`"k_alpha_out"`: **HA** equilibrium constant at input/output conditions.
+    * `"k_beta"`/`"k_beta_out"`: **HB** equilibrium constant at input/output conditions.
 
     The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
 

@@ -1,5 +1,4 @@
-import numpy as np
-import PyCO2SYS as pyco2
+import numpy as np, PyCO2SYS as pyco2
 
 # Prepare test conditions
 npts = 100

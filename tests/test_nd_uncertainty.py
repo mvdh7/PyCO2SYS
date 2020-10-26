@@ -1,8 +1,4 @@
-import numpy as np
-import PyCO2SYS as pyco2
-
-# Switch to fixed alkalinity function
-pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_fixed
+import numpy as np, PyCO2SYS as pyco2
 
 # Calculate initial results
 kwargs = {
@@ -13,7 +9,7 @@ par1 = np.linspace(2000, 2100, 11)
 par2 = np.vstack(np.linspace(2300, 2400, 21))
 par1_type = 2
 par2_type = 1
-results = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 
 # Get gradients
 grads_of = ["pH", "k_carbonic_1"]

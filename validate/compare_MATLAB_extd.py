@@ -1,7 +1,5 @@
 from time import time
-import numpy as np
-import pandas as pd
-import PyCO2SYS as pyco2
+import numpy as np, pandas as pd, PyCO2SYS as pyco2
 
 # Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
 # using "compare_MATLAB_extd.m".
@@ -46,6 +44,10 @@ co2py = pd.DataFrame(co2py)
 cvars = list(co2matlab.keys())
 co2py_matlab = co2py.subtract(co2matlab)  # PyCO2SYS.CO2SYS vs MATLAB
 
+# Having fixed the pH scale conversion in AlkParts, can now only compare where input
+# pH scale is Total (which worked correctly before) - as of v1.6.0.
+co2py_matlab = co2py_matlab[co2py["pHSCALEIN"] == 1]
+
 # Get maximum absolute differences in each variable
 mad_co2py_matlab = co2py_matlab.abs().max()
 
@@ -71,7 +73,7 @@ test_co2py_matlab()
 
 # Compare new n-d approach
 co2nd = pd.DataFrame(
-    pyco2.CO2SYS_nd(
+    pyco2.sys(
         co2inputs[0],
         co2inputs[1],
         co2inputs[2],

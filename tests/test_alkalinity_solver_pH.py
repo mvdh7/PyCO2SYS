@@ -1,4 +1,3 @@
-import copy
 import numpy as np
 import PyCO2SYS as pyco2
 
@@ -8,16 +7,10 @@ dic = 2500
 
 # Get all pHs from TA and DIC
 opt_pH_scale = np.array([1, 2, 3, 4])
-results_original = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, opt_pH_scale=opt_pH_scale)
-
-# Switch to fixed alkalinity function
-alk_func = copy.deepcopy(pyco2.solve.get.TAfromTCpH)
-pyco2.solve.get.TAfromTCpH = pyco2.solve.get.TAfromTCpH_fixed
+results_original = pyco2.sys(alkalinity, dic, 1, 2, opt_pH_scale=opt_pH_scale)
 
 # Get all pHs from TA and DIC, again
-results_fixed = pyco2.CO2SYS_nd(
-    alkalinity, dic, 1, 2, opt_pH_scale=np.array([1, 2, 3, 4])
-)
+results_fixed = pyco2.sys(alkalinity, dic, 1, 2, opt_pH_scale=np.array([1, 2, 3, 4]))
 
 # Check they're consistent regardless of input scale
 def test_pH_scale_consistency():
@@ -36,7 +29,3 @@ def test_pH_scale_consistency():
 
 
 test_pH_scale_consistency()
-
-
-# Revert to original alkalinity function
-pyco2.solve.get.TAfromTCpH = alk_func

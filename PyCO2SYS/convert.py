@@ -160,7 +160,9 @@ def get_pHfactor_to_Free(TempK, Sal, totals, k_constants, pHScale, WhichKs):
         k_constants["fH"] = pressured.fH(TempK, Sal, WhichKs)
     pHfactor = np.full(np.shape(pHScale), np.nan)
     pHfactor = np.where(pHScale == 1, tot2free(totals, k_constants), pHfactor)  # Total
-    pHfactor = np.where(pHScale == 2, sws2free(totals, k_constants), pHfactor)  # Seawater (SWS)
+    pHfactor = np.where(
+        pHScale == 2, sws2free(totals, k_constants), pHfactor
+    )  # Seawater (SWS)
     pHfactor = np.where(pHScale == 3, 1.0, pHfactor)  # Free
     pHfactor = np.where(pHScale == 4, nbs2free(totals, k_constants), pHfactor)  # NBS
     k_constants["pHfactor_to_Free"] = pHfactor

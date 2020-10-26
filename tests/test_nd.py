@@ -1,5 +1,4 @@
-import numpy as np
-import PyCO2SYS as pyco2
+import numpy as np, PyCO2SYS as pyco2
 
 # Set up for basic conditioning check
 par1c = np.random.normal(size=(5, 4, 3))
@@ -52,7 +51,7 @@ kwargs = {
     "k_carbonic_1": [1e-6, 1.1e-6, 1.2e-6],
     "temperature_out": 0,
 }
-co2nd = pyco2.CO2SYS_nd(par1, par2, par1_type, par2_type, **kwargs)
+co2nd = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 
 
 def test_nd_misc():

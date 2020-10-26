@@ -1,7 +1,5 @@
 # Test that using the internal overrides doesn't affect the results
-
-import pandas as pd
-import PyCO2SYS as pyco2
+import pandas as pd, PyCO2SYS as pyco2
 
 # Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
 # using "validate/compare_MATLAB_extd.m".

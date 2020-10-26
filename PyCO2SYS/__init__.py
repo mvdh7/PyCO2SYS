@@ -54,8 +54,9 @@ __author__ = meta.authors
 __version__ = meta.version
 
 # Aliases for top-level access
-CO2SYS = engine.CO2SYS
-CO2SYS_nd = engine.nd.CO2SYS
-CO2SYS_MATLABv3 = api.CO2SYS_MATLABv3
-CO2SYS_wrap = api.CO2SYS_wrap
-say_hello = meta.say_hello  # because history
+from .engine import CO2SYS
+from .engine.nd import CO2SYS as sys
+CO2SYS_nd = sys
+from .api import CO2SYS_wrap, CO2SYS_MATLABv3
+from .meta import say_hello  # because history
+from .solve.get import speciation

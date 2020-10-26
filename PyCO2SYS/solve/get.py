@@ -40,13 +40,15 @@ def HCO3fromTCpH(TC, pH, totals, k_constants):
 
 
 @np.errstate(invalid="ignore")
-def AlkParts(TC, pH, FREEtoTOT, totals, k_constants):
+def AlkParts(TC, pH, totals, k_constants):
     """Calculate the different components of total alkalinity from dissolved inorganic
     carbon and pH.
 
     Although coded for H on the Total pH scale, for the pH values occuring in seawater
     (pH > 6) this will be equally valid on any pH scale (i.e. H terms are negligible) as
     long as the K Constants are on that scale.
+
+    Superseded by speciation() as of v1.6.0.
 
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
@@ -72,6 +74,7 @@ def AlkParts(TC, pH, FREEtoTOT, totals, k_constants):
     SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + H)
     NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + H)
     H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + H)
+    FREEtoTOT = convert.free2tot(totals, k_constants)
     Hfree = H / FREEtoTOT  # for H on the Total scale
     HSO4 = totals["TSO4"] / (
         1 + k_constants["KSO4"] / Hfree
@@ -89,16 +92,17 @@ def AlkParts(TC, pH, FREEtoTOT, totals, k_constants):
         "Hfree": Hfree,
         "HSO4": HSO4,
         "HF": HF,
+        "alk_alpha": 0,
+        "alk_beta": 0,
     }
 
 
-def phosphate_components(pH, totals, k_constants):
+def phosphate_components(h_scale, totals, k_constants):
     """Calculate the components of total phosphate."""
     tPO4 = totals["TPO4"]
     KP1 = k_constants["KP1"]
     KP2 = k_constants["KP2"]
     KP3 = k_constants["KP3"]
-    h_scale = 10.0 ** -pH
     denom = h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3
     return {
         "PO4": tPO4 * KP1 * KP2 * KP3 / denom,
@@ -123,98 +127,92 @@ def alkalinity_phosphate(h_scale, totals, k_constants):
 
 
 @np.errstate(invalid="ignore")
-def alkalinity_components(TC, pH, totals, k_constants):
-    """Calculate the different components of total alkalinity from dissolved inorganic
-    carbon and pH.
-
-    This is currently not used in the default CO2SYS but it will eventually replace the
-    existing AlkParts function.
-
+def speciation(dic, pH, totals, k_constants):
+    """Calculate the full chemical speciation of seawater given DIC and pH.
     Based on CalculateAlkParts by Ernie Lewis.
     """
     h_scale = 10.0 ** -pH  # on the pH scale declared by the user
-    HCO3 = HCO3fromTCH(TC, h_scale, totals, k_constants)
-    CO3 = CarbfromTCH(TC, h_scale, totals, k_constants)
-    BAlk = totals["TB"] * k_constants["KB"] / (k_constants["KB"] + h_scale)
-    OH = k_constants["KW"] / h_scale
-    PAlk = alkalinity_phosphate(h_scale, totals, k_constants)
-    SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
-    NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + h_scale)
-    H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + h_scale)
+    sw = {}
+    # Carbonate
+    sw["HCO3"] = HCO3fromTCH(dic, h_scale, totals, k_constants)
+    sw["CO3"] = CarbfromTCH(dic, h_scale, totals, k_constants)
+    sw["CO2"] = dic - sw["HCO3"] - sw["CO3"]
+    # Borate
+    sw["BOH4"] = sw["BAlk"] = (
+        totals["TB"] * k_constants["KB"] / (k_constants["KB"] + h_scale)
+    )
+    sw["BOH3"] = totals["TB"] - sw["BOH4"]
+    # Water
+    sw["OH"] = k_constants["KW"] / h_scale
+    sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
+    # Phosphate
+    sw.update(phosphate_components(h_scale, totals, k_constants))
+    sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]
+    # Silicate
+    sw["H3SiO4"] = sw["SiAlk"] = (
+        totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
+    )
+    sw["H4SiO4"] = totals["TSi"] - sw["H3SiO4"]
+    # Ammonium
+    sw["NH3"] = sw["NH3Alk"] = (
+        totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + h_scale)
+    )
+    sw["NH4"] = totals["TNH3"] - sw["NH3"]
+    # Sulfide
+    sw["HS"] = sw["H2SAlk"] = (
+        totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + h_scale)
+    )
+    sw["H2S"] = totals["TH2S"] - sw["HS"]
     # KSO4 and KF are always on the Free scale, so:
-    h_free = h_scale * k_constants["pHfactor_to_Free"]
-    HSO4 = totals["TSO4"] / (1 + k_constants["KSO4"] / h_free)
-    HF = totals["TF"] / (1 + k_constants["KF"] / h_free)
-    return {
-        "HCO3": HCO3,
-        "CO3": CO3,
-        "BAlk": BAlk,
-        "OH": OH,
-        "PAlk": PAlk,
-        "SiAlk": SiAlk,
-        "NH3Alk": NH3Alk,
-        "H2SAlk": H2SAlk,
-        "Hfree": h_free,
-        "HSO4": HSO4,
-        "HF": HF,
-    }
+    # Sulfate
+    sw["HSO4"] = totals["TSO4"] / (1 + k_constants["KSO4"] / sw["Hfree"])
+    sw["SO4"] = totals["TSO4"] - sw["HSO4"]
+    # Fluoride
+    sw["HF"] = totals["TF"] / (1 + k_constants["KF"] / sw["Hfree"])
+    sw["F"] = totals["TF"] - sw["HF"]
+    # Extra alkalinity components (added in v1.6.0)
+    sw["alpha"] = (
+        totals["alpha"] * k_constants["alpha"] / (k_constants["alpha"] + h_scale)
+    )
+    sw["alphaH"] = totals["alpha"] - sw["alpha"]
+    sw["beta"] = totals["beta"] * k_constants["beta"] / (k_constants["beta"] + h_scale)
+    sw["betaH"] = totals["beta"] - sw["beta"]
+    zlp = 4.5  # pK of 'zero level of protons' [WZK07]
+    sw["alk_alpha"] = np.where(
+        -np.log10(k_constants["alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
+    )
+    sw["alk_beta"] = np.where(
+        -np.log10(k_constants["beta"]) <= zlp, -sw["betaH"], sw["beta"]
+    )
+    # Total alkalinity
+    sw["alk_total"] = (
+        sw["HCO3"]
+        + 2 * sw["CO3"]
+        + sw["BAlk"]
+        + sw["OH"]
+        + sw["PAlk"]
+        + sw["SiAlk"]
+        + sw["NH3Alk"]
+        + sw["H2SAlk"]
+        - sw["Hfree"]
+        - sw["HSO4"]
+        - sw["HF"]
+        + sw["alk_alpha"]
+        + sw["alk_beta"]
+    )
+    return sw
 
 
-def TAfromTCpH_original(TC, pH, totals, k_constants):
+# End user can update this to use a different speciation function if desired
+speciation_func = speciation
+
+
+def TAfromTCpH(TC, pH, totals, k_constants):
     """Calculate total alkalinity from dissolved inorganic carbon and pH.
-
-    This calculates TA from TC and pH.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
 
     Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
     """
-    FREEtoTOT = convert.free2tot(totals, k_constants)
-    alks = AlkParts(TC, pH, FREEtoTOT, totals, k_constants)
-    TA = (
-        alks["HCO3"]
-        + 2 * alks["CO3"]
-        + alks["BAlk"]
-        + alks["OH"]
-        + alks["PAlk"]
-        + alks["SiAlk"]
-        + alks["NH3Alk"]
-        + alks["H2SAlk"]
-        - alks["Hfree"]
-        - alks["HSO4"]
-        - alks["HF"]
-    )
-    return TA
-
-
-def TAfromTCpH_fixed(TC, pH, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and pH.
-
-    This calculates TA from TC and pH.
-    It has been corrected to work properly on any pH scale.
-
-    Based on CalculateTAfromTCpH, version 02.02, 10-10-97, by Ernie Lewis.
-    """
-    alks = alkalinity_components(TC, pH, totals, k_constants)
-    TA = (
-        alks["HCO3"]
-        + 2 * alks["CO3"]
-        + alks["BAlk"]
-        + alks["OH"]
-        + alks["PAlk"]
-        + alks["SiAlk"]
-        + alks["NH3Alk"]
-        + alks["H2SAlk"]
-        - alks["Hfree"]
-        - alks["HSO4"]
-        - alks["HF"]
-    )
-    return TA
-
-
-# Set which alkalinity function to use
-TAfromTCpH = TAfromTCpH_original
+    return speciation_func(TC, pH, totals, k_constants)["alk_total"]
 
 
 def TAfrompHfCO2(pH, fCO2, totals, k_constants):

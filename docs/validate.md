@@ -6,6 +6,8 @@ There are no "certified" results of marine carbonate system calculations against
     
     All the comparisons, numbers and figures shown on this page were carried out with PyCO2SYS v1.4.3, and they apply equally to v1.5.
 
+    From v1.6.0, the comparisons with CO2SYS-MATLAB only apply to calculations with input pH on the Total scale.  This is because a pH-scale conversion bug inherited from CO2SYS-MATLAB has now been fixed in PyCO2SYS.
+
 ## Internal consistency
 
 ### Round robin
