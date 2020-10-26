@@ -47,8 +47,12 @@ r3 = pyco2.sys(
 # Add ammonia and alpha-as-ammonia
 total_ammonia = 101.5
 r4_ammonia = pyco2.sys(*args, total_ammonia=total_ammonia, opt_pH_scale=opt_pH_scale)
-r4_alpha = pyco2.sys(*args, total_alpha=total_ammonia, k_alpha=r4_ammonia["k_ammonia"], opt_pH_scale=opt_pH_scale)
-
+r4_alpha = pyco2.sys(
+    *args,
+    total_alpha=total_ammonia,
+    k_alpha=r4_ammonia["k_ammonia"],
+    opt_pH_scale=opt_pH_scale,
+)
 
 
 def test_silicate_alpha():
@@ -67,7 +71,9 @@ def test_alpha_beta():
 
 
 def test_ammonia_alpha():
-    assert np.all(np.isclose(r4_ammonia["alkalinity_ammonia"], r4_alpha["alkalinity_alpha"]))
+    assert np.all(
+        np.isclose(r4_ammonia["alkalinity_ammonia"], r4_alpha["alkalinity_alpha"])
+    )
     assert np.all(np.isclose(r4_ammonia["beta_alk"], r4_alpha["beta_alk"]))
 
 
