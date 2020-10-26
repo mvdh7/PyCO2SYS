@@ -636,3 +636,117 @@ def CO2SYS(
         others_out,
         k_constants_out,
     )
+
+def assemble(
+    salinity=35,
+    temperature=25,
+    pressure=0,
+    temperature_out=None,
+    pressure_out=None,
+    total_ammonia=0,
+    total_phosphate=0,
+    total_silicate=0,
+    total_sulfide=0,
+    total_borate=None,
+    total_calcium=None,
+    total_fluoride=None,
+    total_sulfate=None,
+    opt_gas_constant=3,
+    opt_k_bisulfate=1,
+    opt_k_carbonic=16,
+    opt_k_fluoride=1,
+    opt_pH_scale=1,
+    opt_total_borate=1,
+    k_ammonia=None,
+    k_borate=None,
+    k_bisulfate=None,
+    k_CO2=None,
+    k_carbonic_1=None,
+    k_carbonic_2=None,
+    k_fluoride=None,
+    k_phosphate_1=None,
+    k_phosphate_2=None,
+    k_phosphate_3=None,
+    k_silicate=None,
+    k_sulfide=None,
+    k_water=None,
+    k_calcite=None,
+    k_aragonite=None,
+    fugacity_factor=None,
+    gas_constant=None,
+    gas_constant_out=None,
+    total_alpha=None,
+    k_alpha=None,
+    total_beta=None,
+    k_beta=None,
+):
+    args = condition(locals())
+    # Prepare totals dict
+    totals_optional = {
+        "total_borate": "TB",
+        "total_calcium": "TCa",
+        "total_fluoride": "TF",
+        "total_sulfate": "TSO4",
+        "total_alpha": "alpha",
+        "total_beta": "beta",
+    }
+    if np.any(np.isin(list(args.keys()), list(totals_optional.keys()))):
+        totals = {
+            totals_optional[k]: v * 1e-6
+            for k, v in args.items()
+            if k in totals_optional
+        }
+    else:
+        totals = None
+    totals = salts.assemble(
+        args["salinity"],
+        args["total_silicate"],
+        args["total_phosphate"],
+        args["total_ammonia"],
+        args["total_sulfide"],
+        args["opt_k_carbonic"],
+        args["opt_total_borate"],
+        totals=totals,
+    )
+    # Prepare equilibrium constants dict (input conditions)
+    k_constants_optional = {
+        "fugacity_factor": "FugFac",
+        "gas_constant": "RGas",
+        "k_ammonia": "KNH3",
+        "k_borate": "KB",
+        "k_bisulfate": "KSO4",
+        "k_CO2": "K0",
+        "k_carbonic_1": "K1",
+        "k_carbonic_2": "K2",
+        "k_fluoride": "KF",
+        "k_phosphate_1": "KP1",
+        "k_phosphate_2": "KP2",
+        "k_phosphate_3": "KP3",
+        "k_silicate": "KSi",
+        "k_sulfide": "KH2S",
+        "k_water": "KW",
+        "k_calcite": "KCa",
+        "k_aragonite": "KAr",
+        "k_alpha": "alpha",
+        "k_beta": "beta",
+    }
+    if np.any(np.isin(list(args.keys()), list(k_constants_optional.keys()))):
+        k_constants = {
+            k_constants_optional[k]: v
+            for k, v in args.items()
+            if k in k_constants_optional
+        }
+    else:
+        k_constants = None
+    k_constants = equilibria.assemble(
+        args["temperature"],
+        args["pressure"],
+        totals,
+        args["opt_pH_scale"],
+        args["opt_k_carbonic"],
+        args["opt_k_bisulfate"],
+        args["opt_k_fluoride"],
+        args["opt_gas_constant"],
+        Ks=k_constants,
+    )
+    
