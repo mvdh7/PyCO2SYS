@@ -29,6 +29,14 @@
 
 Adds extra alkalinity components with arbitrary p*K* values.
 
+### 1.6.1 (forthcoming)
+
+!!! new-version "Changes in v1.6.1"
+
+    ***Internal updates***
+
+    * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
+
 ### 1.6.0 (26 October 2020)
 
 !!! new-version "Changes in v1.6.0"
