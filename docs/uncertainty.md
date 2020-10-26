@@ -18,32 +18,33 @@ If the uncertainty in each [input parameter](../co2sys/#inputs) is independent â
 
 You must run either `pyco2.CO2SYS` (see [MATLAB-style CO2SYS](../co2sys)) or `pyco2.sys` (see [New-style `pyco2.sys`](../co2sys_nd)) to generate the `co2dict` that is used as an input here.  Instructions for both interfaces are provided here.
 
-    :::python
-    import PyCO2SYS as pyco2
+```python
+import PyCO2SYS as pyco2
 
-    # pyco2.sys style - get co2dict
-    co2dict = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
-    # pyco2.sys style - propagate uncertainties
-    uncertainties, components = pyco2.uncertainty.propagate_nd(
-        co2dict, uncertainties_into, uncertainties_from,
-        dx=1e-6, dx_scaling="median", dx_func=None, **kwargs)
+# pyco2.sys style - get co2dict
+co2dict = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+# pyco2.sys style - propagate uncertainties
+uncertainties, components = pyco2.uncertainty.propagate_nd(
+    co2dict, uncertainties_into, uncertainties_from,
+    dx=1e-6, dx_scaling="median", dx_func=None, **kwargs)
 
-    # MATLAB-CO2SYS style - get co2dict
-    co2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
-        PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-        NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
-        totals=None, equilibria_in=None, equilibria_out=None)
-    # MATLAB-CO2SYS style - propagate uncertainties
-    uncertainties, components = pyco2.uncertainty.propagate(
-        co2dict, uncertainties_into, uncertainties_from,
-        totals=None, equilibria_in=None, equilibria_out=None,
-        dx=1e-6, dx_scaling="median", dx_func=None)
+# MATLAB-CO2SYS style - get co2dict
+co2dict = pyco2.CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
+    PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
+    NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode="auto",
+    totals=None, equilibria_in=None, equilibria_out=None)
+# MATLAB-CO2SYS style - propagate uncertainties
+uncertainties, components = pyco2.uncertainty.propagate(
+    co2dict, uncertainties_into, uncertainties_from,
+    totals=None, equilibria_in=None, equilibria_out=None,
+    dx=1e-6, dx_scaling="median", dx_func=None)
+```
 
 There are some examples of using the uncertainty propagation function in the [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples/) repo on GitHub.
 
 ### Inputs
 
-!!! info "`PyCO2SYS.uncertainty.propagate[_nd]` inputs"
+!!! inputs "`PyCO2SYS.uncertainty.propagate[_nd]` inputs"
 
     #### `CO2SYS` or `pyco2.sys` output dict
 
@@ -64,7 +65,6 @@ There are some examples of using the uncertainty propagation function in the [Py
     The "standard" uncertainties in the equilbrium constants used by CO2SYS for MATLAB following [OEDG18](../refs/#o) are available in the correct format for `uncertainties_in` at `PyCO2SYS.uncertainties.pKs_OEDG18`.
 
     The values of `uncertainties_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.  Any parameters not included are assumed to have zero uncertainty.
-
 
     #### Internal overrides
 
@@ -87,7 +87,7 @@ There are some examples of using the uncertainty propagation function in the [Py
 
 ### Outputs
 
-!!! abstract "`PyCO2SYS.uncertainty.propagate[_nd]` outputs"
+!!! outputs "`PyCO2SYS.uncertainty.propagate[_nd]` outputs"
 
     * `uncertainties`: the **total uncertainty** in each output variable in `uncertainties_into`.
     * `components`: the **separate contribution of each input parameter** in `uncertainties_from` to the total uncertainty for each output variable in `uncertainties_into`.
@@ -102,15 +102,16 @@ There are some examples of using the uncertainty propagation function in the [Py
 
 PyCO2SYS does not currently have a generalised function for the complete process of propagating uncertainties that co-vary.  However, it does allow you calculate the forward finite-difference derivative of any output with respect to any input, which you can use to propagate uncertainties in any specific case:
 
-    :::python
-    # pyco2.sys-style
-    co2derivs, dxs = pyco2.uncertainty.forward_nd(co2dict, grads_of, grads_wrt,
-        dx=1e-6, dx_scaling="median", dx_func=None, **kwargs)
+```python
+# pyco2.sys-style
+co2derivs, dxs = pyco2.uncertainty.forward_nd(co2dict, grads_of, grads_wrt,
+    dx=1e-6, dx_scaling="median", dx_func=None, **kwargs)
 
-    # MATLAB-style
-    co2derivs, dxs = pyco2.uncertainty.forward(co2dict, grads_of, grads_wrt,
-        totals=None, equilibria_in=None, equilibria_out=None,
-        dx=1e-6, dx_scaling="median", dx_func=None)
+# MATLAB-style
+co2derivs, dxs = pyco2.uncertainty.forward(co2dict, grads_of, grads_wrt,
+    totals=None, equilibria_in=None, equilibria_out=None,
+    dx=1e-6, dx_scaling="median", dx_func=None)
+```
 
 The inputs to `PyCO2SYS.uncertainty.forward` are the same as [described above](#inputs) for `PyCO2SYS.uncertainty.propagate` with the following notes:
 
