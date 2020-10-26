@@ -149,10 +149,10 @@ def speciation(dic, pH, totals, k_constants):
     sw.update(phosphate_components(h_scale, totals, k_constants))
     sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]
     # Silicate
-    sw["SiOOH3"] = sw["SiAlk"] = (
+    sw["H3SiO4"] = sw["SiAlk"] = (
         totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
     )
-    sw["SiOH4"] = totals["TSi"] - sw["SiOOH3"]
+    sw["H4SiO4"] = totals["TSi"] - sw["H3SiO4"]
     # Ammonium
     sw["NH3"] = sw["NH3Alk"] = (
         totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + h_scale)

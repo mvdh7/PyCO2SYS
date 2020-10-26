@@ -47,8 +47,8 @@ r3 = pyco2.sys(
 
 def test_silicate_alpha():
     assert np.all(np.isclose(r0["alkalinity_silicate"], r1["alkalinity_alpha"]))
-    assert np.all(np.isclose(r0["SiOOH3"], r1["alpha"]))
-    assert np.all(np.isclose(r0["SiOH4"], r1["alphaH"]))
+    assert np.all(np.isclose(r0["H3SiO4"], r1["alpha"]))
+    assert np.all(np.isclose(r0["H4SiO4"], r1["alphaH"]))
 
 
 def test_fluoride_beta():
