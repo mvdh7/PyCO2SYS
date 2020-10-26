@@ -52,7 +52,7 @@ This wrapper function will also accept NumPy arrays, pandas.Series or xarray.Dat
 
 Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
 
-!!! info "`PyCO2SYS.CO2SYS` inputs"
+!!! inputs "`PyCO2SYS.CO2SYS` inputs"
     #### Carbonate system parameters
 
     * `PAR1` and `PAR2`: values of two different carbonate system parameters.
@@ -164,7 +164,7 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
 
 The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). The keys to the dict are the same as the entries in the output `HEADERS` in CO2SYS for MATLAB and are listed in the section below.
 
-!!! abstract "`PyCO2SYS.CO2SYS` outputs"
+!!! outputs "`PyCO2SYS.CO2SYS` outputs"
     The only output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). Its keys are as follows:
 
     #### Dissolved inorganic carbon

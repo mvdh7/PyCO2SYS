@@ -29,9 +29,9 @@
 
 Adds extra alkalinity components with arbitrary p*K* values.
 
-### 1.6.0 (forthcoming)
+### 1.6.0 (26 October 2020)
 
-!!! example "Changes in v1.6.0"
+!!! new-version "Changes in v1.6.0"
 
     ***Bug fixes***
 
@@ -52,7 +52,7 @@ Introduces a more Pythonic top-level function that accepts multidimensional argu
 
 ### 1.5.1 (30 July 2020)
 
-!!! example "Changes in v1.5.1"
+!!! new-version "Changes in v1.5.1"
 
     ***Bug fixes***
 
@@ -61,7 +61,7 @@ Introduces a more Pythonic top-level function that accepts multidimensional argu
 
 ### 1.5.0 (29 July 2020)
 
-!!! example "Changes in v1.5.0"
+!!! new-version "Changes in v1.5.0"
 
     ***New top-level functions***
 
@@ -92,7 +92,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.3 (16 July 2020)
 
-!!! example "Changes in v1.4.3"
+!!! new-version "Changes in v1.4.3"
 
     ***Bug fixes***
 
@@ -113,7 +113,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.2 (9 July 2020)
 
-!!! example "Changes in v1.4.2"
+!!! new-version "Changes in v1.4.2"
 
     ***Bug fixes***
 
@@ -126,7 +126,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.1 (1 July 2020)
 
-!!! example "Changes in v1.4.1"
+!!! new-version "Changes in v1.4.1"
 
     ***Extra calculation options***
 
@@ -135,7 +135,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
 ### 1.4.0 (9 June 2020)
 
-!!! example "Changes in v1.4.0"
+!!! new-version "Changes in v1.4.0"
 
     ***New features***
 
@@ -165,7 +165,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
 ### 1.3.0 (1 May 2020)
 
-!!! example "Changes in v1.3.0"
+!!! new-version "Changes in v1.3.0"
 
     ***New features***
 
@@ -227,12 +227,12 @@ Calculates a wider variety of chemical buffer factors.
 
 ### 1.2.1 (9 Apr 2020)
 
-!!! example "Changes in v1.2.1"
+!!! new-version "Changes in v1.2.1"
     * Fixed typo in [ESM10](../refs/#ESM10) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
 
 ### 1.2.0 (8 Apr 2020)
 
-!!! example "Changes in v1.2.0"
+!!! new-version "Changes in v1.2.0"
     * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
       * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#ESM10), corrected for the typos noted by [RAH18](../refs/#RAH18).
       * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 8.
@@ -246,12 +246,12 @@ Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion moli
 
 ### 1.1.1 (20 Mar 2020)
 
-!!! example "Changes in v1.1.1"
+!!! new-version "Changes in v1.1.1"
     * Removed unnecessary `WhoseTB` input to `assemble.equilibria`.
 
 ### 1.1.0 (19 Mar 2020)
 
-!!! example "Changes in v1.1.0"
+!!! new-version "Changes in v1.1.0"
     * Updated pH-solving iterative functions so that iteration stops separately for each row once it reaches the tolerance threshold.
     * Extracted all functions for solving the CO<sub>2</sub> system into a separate module (`solve`).
     * Extracted other key subfunctions into module `assemble`.
@@ -267,7 +267,7 @@ Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion moli
 
 Starts to make things more Pythonic.
 
-!!! example "Changes in v1.0.1"
+!!! new-version "Changes in v1.0.1"
       * Extracted all equations for concentrations and equilibrium constants into functions in separate modules (`concentrations` and `equilibria`).
       * Eliminated all global variables from the `_Constants` function.
       * Moved the as-close-as-possible version into module `original`. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
@@ -276,7 +276,7 @@ Starts to make things more Pythonic.
 
 An as-close-as-possible clone of [MATLAB CO2SYS v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
 
-!!! example "Release notes for v1.0.0"
+!!! new-version "Release notes for v1.0.0"
       * The first output `DICT` is new: a dict containing a separate entry for each variable in the original output `DATA`, with the keys named following the original output `HEADERS`.
       * The output `DATA` is transposed relative to the MATLAB version because Numpy is row-major while MATLAB is column-major.
       * Every combination of input options was tested against the MATLAB version with no significant differences (i.e. all differences can be attributed to floating point errors).

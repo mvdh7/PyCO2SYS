@@ -20,7 +20,7 @@ If you wish to also calculate [uncertainties](../uncertainty), you should put th
 
 Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
-!!! info "`pyco2.sys` arguments"
+!!! inputs "`pyco2.sys` arguments"
 
     #### Carbonate system parameters
 
@@ -147,7 +147,7 @@ Scalar arguments, and results that depend only on scalar arguments, will be retu
 
 The keys ending with `_out` are only available if at least one of the `temperature_out` or `pressure_out` arguments was provided.
 
-!!! abstract "`pyco2.sys` results dict"
+!!! outputs "`pyco2.sys` results dict"
 
     #### Dissolved inorganic carbon
 
@@ -224,8 +224,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"H2PO4"`/`"H2PO4_out"`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"HPO4"`/`"HPO4_out"`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"PO4"`/`"PO4_out"`: **phosphate** $[\text{PO}_4^{3-}]$ at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"SiOOH3"`/`"SiOOH3_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"SiOH4"`/`"SiOH4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H3SiO4"`/`"H3SiO4_out"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ at input/output conditions in μmol·kg<sup>−1</sup>.
+    * `"H4SiO4"`/`"H4SiO4_out"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"NH3"`/`"NH3_out"`: **ammonia** $[\text{NH}_3]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"NH4"`/`"NH4_out"`: **ammonium** $[\text{NH}_4^+]$ at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"HS"`/`"HS_out"`: **bisulfide** $[\text{HS}^-]$ at input/output conditions in μmol·kg<sup>−1</sup>.
