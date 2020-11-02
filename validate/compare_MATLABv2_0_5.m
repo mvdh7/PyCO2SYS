@@ -45,21 +45,20 @@ co2s.PAR1 = P1;
 co2s.PAR2 = P2;
 co2s.PAR1TYPE = P1type;
 co2s.PAR2TYPE = P2type;
-% % Easy MATLAB saving...
-% co2s = struct2table(co2s);
-% writetable(co2s, 'results/compare_MATLABv2_0_5.csv')
-%
-% ... or, prepare for Octave-compatible saving
-co2fields = fieldnames(co2s);
-for f = 1:(numel(co2fields) - 1)
-  co2fields{f} = [co2fields{f} ','];
-end
-co2fields = [co2fields{:}];
-% Create and save file (Octave version)
-co2file = 'results/compare_MATLABv2_0_5.csv';
-fid = fopen(co2file, 'w');
-fdisp(fid, co2fields);
-fclose(fid);
-co2array = struct2cell(co2s);
-co2array = [co2array{:}];
-csvwrite(co2file, co2array, '-append');
+% Easy MATLAB saving...
+co2s = struct2table(co2s);
+writetable(co2s, 'results/compare_MATLABv2_0_5.csv')
+% % ... or, prepare for Octave-compatible saving
+% co2fields = fieldnames(co2s);
+% for f = 1:(numel(co2fields) - 1)
+%   co2fields{f} = [co2fields{f} ','];
+% end
+% co2fields = [co2fields{:}];
+% % Create and save file (Octave version)
+% co2file = 'results/compare_MATLABv2_0_5.csv';
+% fid = fopen(co2file, 'w');
+% fdisp(fid, co2fields);
+% fclose(fid);
+% co2array = struct2cell(co2s);
+% co2array = [co2array{:}];
+% csvwrite(co2file, co2array, '-append');
