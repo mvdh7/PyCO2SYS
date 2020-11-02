@@ -22,8 +22,10 @@ python = pd.DataFrame(
         opt_k_carbonic=matlab.K1K2CONSTANTS.values,
         opt_total_borate=opt_total_borate,
         opt_k_bisulfate=opt_k_bisulfate,
+        opt_k_fluoride=1,
         total_phosphate=matlab.PO4.values,
         total_silicate=matlab.SI.values,
+        buffers_mode="none",
     )
 )
 
