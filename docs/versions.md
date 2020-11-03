@@ -36,6 +36,7 @@ Adds extra alkalinity components with arbitrary p*K* values.
     ***Internal updates***
 
     * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
+    * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
 
 ### 1.6.0 (26 October 2020)
 
