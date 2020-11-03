@@ -14,6 +14,10 @@ kwargs = dict(
     total_phosphate=1,  # total phosphate in μmol/kg-sw
     total_ammonia=2,  # total ammonia in μmol/kg-sw
     total_sulfide=3,  # total sulfide in μmol/kg-sw
+    total_alpha=5,
+    k_alpha=1e-4,
+    total_beta=6,
+    k_beta=1e-8,
     buffers_mode="none",  # don't bother calculating buffer factors
 )
 
@@ -69,6 +73,30 @@ def test_round_robin():
 
 
 test_round_robin()
+
+# # Generate a LaTeX table of the results
+# if True:
+#     varnames = {
+#         "alkalinity": r"$\ta$",
+#         "dic": r"$\dic$",
+#         "pH": r"pH$_{\mathrm{T}}$",
+#         "pCO2": "$\pCOtwo$",
+#         "fCO2": "$\fCOtwo$",
+#         "carbonate": "$[\carb$]",
+#         "bicarbonate": "$[\bicarb]$",
+#         "aqueous_CO2": "$[\chem{CO_2(aq)}]$",
+#     }
+#     with open("manuscript/html/round_robin.tex", "w") as f:
+#         for var, name in varnames.items():
+#             if var == "pH":
+#                 fmt = ".3"
+#             else:
+#                 fmt = ".1"
+#             f.write(
+#                 ("{} & {:" + fmt + "f} & {:.2e} \\\\\n").format(
+#                     name, results[var], np.max(np.abs(rr_diff[var]))
+#                 )
+#             )
 
 
 # # Generate the HTML table for the docs, if requested
