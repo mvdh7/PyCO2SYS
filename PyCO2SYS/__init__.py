@@ -29,7 +29,6 @@ from . import (
     salts,
     solubility,
     solve,
-    test,
     uncertainty,
 )
 
@@ -47,7 +46,6 @@ __all__ = [
     "salts",
     "solubility",
     "solve",
-    "test",
     "uncertainty",
 ]
 __author__ = meta.authors

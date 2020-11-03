@@ -2,7 +2,10 @@ import pandas as pd, numpy as np
 import PyCO2SYS as pyco2
 
 # Import MATLAB results and recalculate with PyCO2SYS
-matlab = pd.read_csv("validate/results/compare_equilibrium_constants_v3.csv")
+matlab = pd.read_csv("manuscript/results/compare_equilibrium_constants_v2_0_5.csv")
+opt_k_bisulfate, opt_total_borate = pyco2.convert.options_old2new(
+    matlab.KSO4CONSTANTS.values
+)
 python = pd.DataFrame(
     pyco2.sys(
         matlab.PAR1.values,
@@ -15,15 +18,13 @@ python = pd.DataFrame(
         pressure=matlab.PRESIN.values,
         pressure_out=matlab.PRESOUT.values,
         opt_pH_scale=matlab.pHSCALEIN.values,
-        opt_gas_constant=3,
+        opt_gas_constant=1,
         opt_k_carbonic=matlab.K1K2CONSTANTS.values,
-        opt_total_borate=matlab.BORON.values,
-        opt_k_bisulfate=matlab.KSO4CONSTANT.values,
-        opt_k_fluoride=matlab.KFCONSTANT.values,
+        opt_total_borate=opt_total_borate,
+        opt_k_bisulfate=opt_k_bisulfate,
+        opt_k_fluoride=1,
         total_phosphate=matlab.PO4.values,
         total_silicate=matlab.SI.values,
-        total_ammonia=matlab.TNH4.values,
-        total_sulfide=matlab.TH2S.values,
         buffers_mode="none",
     )
 )
@@ -53,10 +54,6 @@ def test_equilibrium_constants():
         ("KSioutput", "k_silicate_out"),
         ("KBinput", "k_borate"),
         ("KBoutput", "k_borate_out"),
-        ("KNH4input", "k_ammonia"),
-        ("KNH4output", "k_ammonia_out"),
-        ("KH2Sinput", "k_sulfide"),
-        ("KH2Soutput", "k_sulfide_out"),
     ):
         pk_matlab = np.where(matlab[m].values == 0, -999.9, -np.log10(matlab[m].values))
         pk_python = np.where(python[p].values == 0, -999.9, -np.log10(python[p].values))

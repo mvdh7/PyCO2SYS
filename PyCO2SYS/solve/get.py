@@ -6,7 +6,7 @@ from autograd import numpy as np
 from .. import convert
 from . import delta, initialise
 
-pHTol = 1e-8  # tolerance for ending iterations in all pH solvers
+pH_tolerance = 1e-8  # tolerance for ending iterations in all pH solvers
 
 
 def CarbfromTCH(TC, H, totals, k_constants):
@@ -271,9 +271,9 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     pH = initialfunc(
         TA, VX, totals["TB"], k_constants["K1"], k_constants["K2"], k_constants["KB"]
     )
-    deltapH = 1.0 + pHTol
-    while np.any(np.abs(deltapH) >= pHTol):
-        pHdone = np.abs(deltapH) < pHTol  # check which rows don't need updating
+    deltapH = 1.0 + pH_tolerance
+    while np.any(np.abs(deltapH) >= pH_tolerance):
+        pHdone = np.abs(deltapH) < pH_tolerance  # check which rows don't need updating
         deltapH = deltafunc(pH, TA, VX, totals, k_constants)  # the pH jump
         # To keep the jump from being too big:
         abs_deltapH = np.abs(deltapH)
