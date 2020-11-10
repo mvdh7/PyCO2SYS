@@ -2,6 +2,10 @@ import numpy as np
 import PyCO2SYS as pyco2
 
 
+# Tighten solver tolerance just to be on the safe side
+pyco2.solve.get.pH_tolerance = 1e-12
+
+
 # Initial sample conditions
 alkalinity = 2450
 dic = 2200
@@ -53,10 +57,10 @@ pH_phosphate = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)["pH_free"]
 
 # Compare with D81's tables
 d81_pH = np.genfromtxt(
-    "validate/data/Dickson-1981-pH-no_phosphate.dat", delimiter="\t", skip_header=2
+    "manuscript/data/Dickson-1981-pH-no_phosphate.dat", delimiter="\t", skip_header=2
 )[:, 1]
 d81_pH_phosphate = np.genfromtxt(
-    "validate/data/Dickson-1981-pH-with_phosphate.dat", delimiter="\t", skip_header=2
+    "manuscript/data/Dickson-1981-pH-with_phosphate.dat", delimiter="\t", skip_header=2
 )[:, 1]
 
 pH_diff = np.round(pH, decimals=6) - d81_pH
@@ -76,6 +80,9 @@ def test_D81_phosphate():
         | np.isclose(titrant_mass * 1e3, 1.25)
     )
     assert np.all(np.isclose(pH_diff_phosphate[~typos], 0, atol=1e-12))
+    print(titrant_mass[typos] * 1e3)
+    print(d81_pH_phosphate[typos])
+    print(pH_phosphate[typos])
 
 
 test_D81()
