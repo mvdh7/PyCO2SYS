@@ -37,6 +37,7 @@ Adds extra alkalinity components with arbitrary p*K* values.
 
     * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
     * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
+    * Added `PyCO2SYS.solve.get.initial_pH_guess` and `PyCO2SYS.solve.delta.use_approximate_slopes` settings for testing and validation against older CO2SYS-MATLAB versions.
 
 ### 1.6.0 (26 October 2020)
 
