@@ -25,19 +25,22 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
-## 1.6
+## 1.7
 
-Adds extra alkalinity components with arbitrary p*K* values.
+### 1.7.0 (forthcoming)
 
-### 1.6.1 (forthcoming)
-
-!!! new-version "Changes in v1.6.1"
+!!! new-version "Changes in v1.7.0"
 
     ***Internal updates***
 
     * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
     * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
-    * Added `PyCO2SYS.solve.get.initial_pH_guess` and `PyCO2SYS.solve.delta.use_approximate_slopes` settings for testing and validation against older CO2SYS-MATLAB versions.
+    * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
+    * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
+
+## 1.6
+
+Adds extra alkalinity components with arbitrary p*K* values.
 
 ### 1.6.0 (26 October 2020)
 

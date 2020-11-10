@@ -238,7 +238,8 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
     PC = np.where(~PCgiven, FC / Ks["FugFac"], PC)
-    CO2 = np.where(~CO2given, FC * K0, CO2)
+    # CO2 = np.where(~CO2given, FC * K0, CO2)  # up to v1.6.0
+    CO2 = np.where(~CO2given, TC - CARB - HCO3, CO2)  # v1.7.0 onwards
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2
 
 
