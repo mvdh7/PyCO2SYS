@@ -11,7 +11,7 @@ pyco2.solve.get.pH_tolerance = 0.0001  # use a looser tolerance for pH solvers
 pyco2.solve.get.update_all_pH = False  # True keeps updating all pH's until all solved
 pyco2.solve.get.halve_big_jumps = True  # different way to prevent too-big pH jumps
 pyco2.solve.delta.use_approximate_slopes = True  # don't use Autograd for solver slopes
-pyco2.solve.get.assume_pH_total = False  # replicate pH-Total assumption bug
+pyco2.solve.get.assume_pH_total = True  # replicate pH-Total assumption bug
 
 # Import input conditions: "compare_MATLABv2_0_5[_loop].csv" generated in MATLAB
 # using "compare_MATLABv2_0_5.m".
