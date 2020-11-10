@@ -38,7 +38,7 @@ tic
     presin, presout, si, phos, pHscales, K1K2, KSO4_only);
 toc
 
-% Do it again in a loop row-by-row
+% Do it again in a loop row-by-row, because this returns different reults
 data_loop = NaN(size(DATA));
 for i = 1:size(data_loop, 1)
     disp(i)

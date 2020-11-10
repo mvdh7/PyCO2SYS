@@ -11,7 +11,7 @@ pyco2.solve.get.pH_tolerance = 0.0001  # use a looser tolerance for pH solvers
 pyco2.solve.get.update_all_pH = False  # True keeps updating all pH's until all solved
 pyco2.solve.get.halve_big_jumps = True  # different way to prevent too-big pH jumps
 pyco2.solve.delta.use_approximate_slopes = True  # don't use Autograd for solver slopes
-pyco2.solve.get.assume_pH_total = True  # replicate pH-Total assumption bug
+pyco2.solve.get.assume_pH_total = False  # replicate pH-Total assumption bug
 
 # Import input conditions: "compare_MATLABv2_0_5[_loop].csv" generated in MATLAB
 # using "compare_MATLABv2_0_5.m".
@@ -43,14 +43,14 @@ co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="none")
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
 
-short = ((co2inputs[2] == 1) & (co2inputs[3] == 4)) | (
-    (co2inputs[2] == 4) & (co2inputs[3] == 1)
-)
-short_ix = co2py.index[short]
-co2py_short = pd.DataFrame(
-    pyco2.CO2SYS(*[i[short] for i in co2inputs], buffers_mode="none")
-)
-short_diff = co2py.loc[short_ix, "BAlkin"].values - co2py_short["BAlkin"].values
+# short = ((co2inputs[2] == 1) & (co2inputs[3] == 4)) | (
+#     (co2inputs[2] == 4) & (co2inputs[3] == 1)
+# )
+# short_ix = co2py.index[short]
+# co2py_short = pd.DataFrame(
+#     pyco2.CO2SYS(*[i[short] for i in co2inputs], buffers_mode="none")
+# )
+# short_diff = co2py.loc[short_ix, "BAlkin"].values - co2py_short["BAlkin"].values
 
 # Also test the original CO2SYS clone
 go = time()
