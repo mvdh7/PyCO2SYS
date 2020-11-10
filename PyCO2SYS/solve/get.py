@@ -172,10 +172,14 @@ def speciation(dic, pH, totals, k_constants):
     sw["F"] = totals["TF"] - sw["HF"]
     # Extra alkalinity components (added in v1.6.0)
     sw["alpha"] = (
-        totals["total_alpha"] * k_constants["k_alpha"] / (k_constants["k_alpha"] + h_scale)
+        totals["total_alpha"]
+        * k_constants["k_alpha"]
+        / (k_constants["k_alpha"] + h_scale)
     )
     sw["alphaH"] = totals["total_alpha"] - sw["alpha"]
-    sw["beta"] = totals["total_beta"] * k_constants["k_beta"] / (k_constants["k_beta"] + h_scale)
+    sw["beta"] = (
+        totals["total_beta"] * k_constants["k_beta"] / (k_constants["k_beta"] + h_scale)
+    )
     sw["betaH"] = totals["total_beta"] - sw["beta"]
     zlp = 4.5  # pK of 'zero level of protons' [WZK07]
     sw["alk_alpha"] = np.where(
@@ -256,6 +260,10 @@ def TAfrompHHCO3(pH, HCO3, totals, k_constants):
     return TAfromTCpH(TC, pH, totals, k_constants)
 
 
+# To override the new initial pH guesser, for testing purposes
+initial_pH_guess = None
+
+
 @np.errstate(invalid="ignore")
 def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
@@ -268,9 +276,19 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
-    pH = initialfunc(
-        TA, VX, totals["TB"], k_constants["K1"], k_constants["K2"], k_constants["KB"]
+    pH_guess_args = (
+        TA,
+        VX,
+        totals["TB"],
+        k_constants["K1"],
+        k_constants["K2"],
+        k_constants["KB"],
     )
+    if initial_pH_guess is None:
+        pH = initialfunc(*pH_guess_args)
+    else:
+        assert np.isscalar(initial_pH_guess)
+        pH = np.full(np.broadcast(*pH_guess_args).shape, initial_pH_guess)
     deltapH = 1.0 + pH_tolerance
     while np.any(np.abs(deltapH) >= pH_tolerance):
         pHdone = np.abs(deltapH) < pH_tolerance  # check which rows don't need updating
@@ -284,7 +302,8 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
         deltapH = np.where(
             (abs_deltapH > 0.5) & (abs_deltapH <= 5.0), 0.5 * np.sign_deltapH, deltapH,
         )  # assumes that once we're within 1 of the correct pH, we will converge
-        pH = np.where(pHdone, pH, pH + deltapH)  # only update rows that need it
+        # pH = np.where(pHdone, pH, pH + deltapH)  # only update rows that need it
+        pH = pH + deltapH
     return pH
 
 
