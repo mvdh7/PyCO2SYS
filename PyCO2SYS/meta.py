@@ -14,7 +14,7 @@ authorlist = [
 authors = " and ".join(authorlist)
 
 
-def say_hello():
+def hello():
     print(
         """
        M.P. Humphreys, L. Gregor, D. Pierrot, S.M.A.C. van Heuven,

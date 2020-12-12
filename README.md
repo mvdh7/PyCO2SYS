@@ -26,7 +26,7 @@ The DOI above refers to all versions of PyCO2SYS.  Please also specify the versi
 
 ```python
 import PyCO2SYS as pyco2
-pyco2.say_hello()
+pyco2.hello()
 ```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).

@@ -118,90 +118,106 @@ def condition(args, to_shape=None):
 
 
 def _get_in_out(core, others, k_constants, suffix=""):
-    io = {
-        "pH": core["PH"],
-        "pCO2": core["PC"] * 1e6,
-        "fCO2": core["FC"] * 1e6,
-        "bicarbonate": core["HCO3"] * 1e6,
-        "carbonate": core["CARB"] * 1e6,
-        "aqueous_CO2": core["CO2"] * 1e6,
-        "alkalinity_borate": others["BAlk"] * 1e6,
-        "hydroxide": others["OH"] * 1e6,
-        "alkalinity_phosphate": others["PAlk"] * 1e6,
-        "alkalinity_silicate": others["SiAlk"] * 1e6,
-        "alkalinity_ammonia": others["NH3Alk"] * 1e6,
-        "alkalinity_sulfide": others["H2SAlk"] * 1e6,
-        "hydrogen_free": others["Hfree"] * 1e6,
-        "revelle_factor": others["Revelle"],
-        "saturation_calcite": others["OmegaCa"],
-        "saturation_aragonite": others["OmegaAr"],
-        "xCO2": others["xCO2dry"] * 1e6,
-        "pH_total": others["pHT"],
-        "pH_sws": others["pHS"],
-        "pH_free": others["pHF"],
-        "pH_nbs": others["pHN"],
-        "k_CO2": k_constants["K0"],
-        "k_carbonic_1": k_constants["K1"],
-        "k_carbonic_2": k_constants["K2"],
-        "k_water": k_constants["KW"],
-        "k_borate": k_constants["KB"],
-        "k_bisulfate": k_constants["KSO4"],
-        "k_fluoride": k_constants["KF"],
-        "k_phosphoric_1": k_constants["KP1"],
-        "k_phosphoric_2": k_constants["KP2"],
-        "k_phosphoric_3": k_constants["KP3"],
-        "k_silicate": k_constants["KSi"],
-        "k_ammonia": k_constants["KNH3"],
-        "k_sulfide": k_constants["KH2S"],
-        "k_calcite": k_constants["KCa"],
-        "k_aragonite": k_constants["KAr"],
-        "gamma_dic": others["gammaTC"],
-        "beta_dic": others["betaTC"],
-        "omega_dic": others["omegaTC"],
-        "gamma_alk": others["gammaTA"],
-        "beta_alk": others["betaTA"],
-        "omega_alk": others["omegaTA"],
-        "isocapnic_quotient": others["isoQ"],
-        "isocapnic_quotient_approx": others["isoQx"],
-        "psi": others["psi"],
-        "substrate_inhibitor_ratio": others["SIR"],
-        "fugacity_factor": k_constants["FugFac"],
-        "fH": k_constants["fH"],
-        # Added in v1.6.0:
-        "k_alpha": k_constants["k_alpha"],
-        "alkalinity_alpha": others["alk_alpha"] * 1e6,
-        "k_beta": k_constants["k_beta"],
-        "alkalinity_beta": others["alk_beta"] * 1e6,
-    }
-    for c in [
-        "HCO3",
-        "CO3",
-        "CO2",
-        "BOH4",
-        "BOH3",
-        "OH",
-        "Hfree",
-        "H3PO4",
-        "H2PO4",
-        "HPO4",
-        "PO4",
-        "H3SiO4",
-        "H4SiO4",
-        "NH3",
-        "NH4",
-        "HS",
-        "H2S",
-        "HSO4",
-        "SO4",
-        "HF",
-        "F",
-        "alpha",
-        "alphaH",
-        "beta",
-        "betaH",
-    ]:
-        if c in others:
-            io[c] = others[c] * 1e6
+    """Assemble portion of CO2SYS_nd output dict containing input/output variables."""
+    io = {}
+    if core is not None:
+        io.update(
+            {
+                "pH": core["PH"],
+                "pCO2": core["PC"] * 1e6,
+                "fCO2": core["FC"] * 1e6,
+                "bicarbonate": core["HCO3"] * 1e6,
+                "carbonate": core["CARB"] * 1e6,
+                "aqueous_CO2": core["CO2"] * 1e6,
+            }
+        )
+    if others is not None:
+        io.update(
+            {
+                "alkalinity_borate": others["BAlk"] * 1e6,
+                "hydroxide": others["OH"] * 1e6,
+                "alkalinity_phosphate": others["PAlk"] * 1e6,
+                "alkalinity_silicate": others["SiAlk"] * 1e6,
+                "alkalinity_ammonia": others["NH3Alk"] * 1e6,
+                "alkalinity_sulfide": others["H2SAlk"] * 1e6,
+                "hydrogen_free": others["Hfree"] * 1e6,
+                "revelle_factor": others["Revelle"],
+                "saturation_calcite": others["OmegaCa"],
+                "saturation_aragonite": others["OmegaAr"],
+                "xCO2": others["xCO2dry"] * 1e6,
+                "pH_total": others["pHT"],
+                "pH_sws": others["pHS"],
+                "pH_free": others["pHF"],
+                "pH_nbs": others["pHN"],
+                "gamma_dic": others["gammaTC"],
+                "beta_dic": others["betaTC"],
+                "omega_dic": others["omegaTC"],
+                "gamma_alk": others["gammaTA"],
+                "beta_alk": others["betaTA"],
+                "omega_alk": others["omegaTA"],
+                "isocapnic_quotient": others["isoQ"],
+                "isocapnic_quotient_approx": others["isoQx"],
+                "psi": others["psi"],
+                "substrate_inhibitor_ratio": others["SIR"],
+                # Added in v1.6.0:
+                "alkalinity_alpha": others["alk_alpha"] * 1e6,
+                "alkalinity_beta": others["alk_beta"] * 1e6,
+            }
+        )
+        for c in [
+            "HCO3",
+            "CO3",
+            "CO2",
+            "BOH4",
+            "BOH3",
+            "OH",
+            "Hfree",
+            "H3PO4",
+            "H2PO4",
+            "HPO4",
+            "PO4",
+            "H3SiO4",
+            "H4SiO4",
+            "NH3",
+            "NH4",
+            "HS",
+            "H2S",
+            "HSO4",
+            "SO4",
+            "HF",
+            "F",
+            "alpha",
+            "alphaH",
+            "beta",
+            "betaH",
+        ]:
+            if c in others:
+                io[c] = others[c] * 1e6
+    if k_constants is not None:
+        io.update(
+            {
+                "k_CO2": k_constants["K0"],
+                "k_carbonic_1": k_constants["K1"],
+                "k_carbonic_2": k_constants["K2"],
+                "k_water": k_constants["KW"],
+                "k_borate": k_constants["KB"],
+                "k_bisulfate": k_constants["KSO4"],
+                "k_fluoride": k_constants["KF"],
+                "k_phosphoric_1": k_constants["KP1"],
+                "k_phosphoric_2": k_constants["KP2"],
+                "k_phosphoric_3": k_constants["KP3"],
+                "k_silicate": k_constants["KSi"],
+                "k_ammonia": k_constants["KNH3"],
+                "k_sulfide": k_constants["KH2S"],
+                "k_calcite": k_constants["KCa"],
+                "k_aragonite": k_constants["KAr"],
+                "fugacity_factor": k_constants["FugFac"],
+                "fH": k_constants["fH"],
+                # Added in v1.6.0:
+                "k_alpha": k_constants["k_alpha"],
+                "k_beta": k_constants["k_beta"],
+            }
+        )
     return {"{}{}".format(k, suffix): v for k, v in io.items()}
 
 
@@ -215,40 +231,48 @@ def _get_results_dict(
     others_out,
     k_constants_out,
 ):
-    """Assemble the results dict for CO2SYS."""
-    results = {
-        "par1": args["par1"],
-        "par2": args["par2"],
-        "par1_type": args["par1_type"],
-        "par2_type": args["par2_type"],
-        "opt_k_bisulfate": args["opt_k_bisulfate"],
-        "opt_k_carbonic": args["opt_k_carbonic"],
-        "opt_k_fluoride": args["opt_k_fluoride"],
-        "opt_total_borate": args["opt_total_borate"],
-        "opt_gas_constant": args["opt_gas_constant"],
-        "opt_pH_scale": args["opt_pH_scale"],
-        "buffers_mode": args["buffers_mode"],
-        "salinity": totals["Sal"],
-        "temperature": args["temperature"],
-        "pressure": args["pressure"],
-        "total_ammonia": totals["TNH3"] * 1e6,
-        "total_borate": totals["TB"] * 1e6,
-        "total_calcium": totals["TCa"] * 1e6,
-        "total_fluoride": totals["TF"] * 1e6,
-        "total_phosphate": totals["TPO4"] * 1e6,
-        "total_silicate": totals["TSi"] * 1e6,
-        "total_sulfate": totals["TSO4"] * 1e6,
-        "total_sulfide": totals["TH2S"] * 1e6,
-        "peng_correction": totals["PengCorrection"] * 1e6,
-        "gas_constant": k_constants_in["RGas"],
-        "alkalinity": core_in["TA"] * 1e6,
-        "dic": core_in["TC"] * 1e6,
-        # Added in v1.6.0:
-        "total_alpha": totals["total_alpha"] * 1e6,
-        "total_beta": totals["total_beta"] * 1e6,
-    }
+    """Assemble the results dict for CO2SYS_nd."""
+    results = {}
+    if core_in is not None:
+        results.update(
+            {
+                "par1": args["par1"],
+                "par2": args["par2"],
+                "par1_type": args["par1_type"],
+                "par2_type": args["par2_type"],
+                "alkalinity": core_in["TA"] * 1e6,
+                "dic": core_in["TC"] * 1e6,
+            }
+        )
+    results.update(
+        {
+            "opt_k_bisulfate": args["opt_k_bisulfate"],
+            "opt_k_carbonic": args["opt_k_carbonic"],
+            "opt_k_fluoride": args["opt_k_fluoride"],
+            "opt_total_borate": args["opt_total_borate"],
+            "opt_gas_constant": args["opt_gas_constant"],
+            "opt_pH_scale": args["opt_pH_scale"],
+            "buffers_mode": args["buffers_mode"],
+            "salinity": totals["Sal"],
+            "temperature": args["temperature"],
+            "pressure": args["pressure"],
+            "total_ammonia": totals["TNH3"] * 1e6,
+            "total_borate": totals["TB"] * 1e6,
+            "total_calcium": totals["TCa"] * 1e6,
+            "total_fluoride": totals["TF"] * 1e6,
+            "total_phosphate": totals["TPO4"] * 1e6,
+            "total_silicate": totals["TSi"] * 1e6,
+            "total_sulfate": totals["TSO4"] * 1e6,
+            "total_sulfide": totals["TH2S"] * 1e6,
+            "peng_correction": totals["PengCorrection"] * 1e6,
+            "gas_constant": k_constants_in["RGas"],
+            # Added in v1.6.0:
+            "total_alpha": totals["total_alpha"] * 1e6,
+            "total_beta": totals["total_beta"] * 1e6,
+        }
+    )
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
-    if core_out is not None:
+    if "temperature_out" in args:
         results.update(
             {
                 "temperature_out": args["temperature_out"],
@@ -412,10 +436,10 @@ gradables = [
 
 
 def CO2SYS(
-    par1,
-    par2,
-    par1_type,
-    par2_type,
+    par1=None,
+    par2=None,
+    par1_type=None,
+    par2_type=None,
     salinity=35,
     temperature=25,
     pressure=0,
@@ -548,27 +572,35 @@ def CO2SYS(
         args["opt_gas_constant"],
         Ks=k_constants_in,
     )
-    # Solve the core marine carbonate system at input conditions
-    core_in = solve.core(
-        args["par1"],
-        args["par2"],
-        args["par1_type"],
-        args["par2_type"],
-        totals,
-        k_constants_in,
-        convert_units=True,
-    )
-    # Calculate the rest at input conditions
-    others_in = solve.others(
-        core_in,
-        args["temperature"],
-        args["pressure"],
-        totals,
-        k_constants_in,
-        args["opt_pH_scale"],
-        args["opt_k_carbonic"],
-        args["buffers_mode"],
-    )
+    # Solve the core marine carbonate system at input conditions, if provided
+    if par1 is not None:
+        assert par1_type is not None, "PyCO2SYS error: you must provide par1_type."
+    if par2 is not None:
+        assert par2_type is not None, "PyCO2SYS error: you must provide par2_type."
+    if par1 is not None and par2 is not None:
+        core_in = solve.core(
+            args["par1"],
+            args["par2"],
+            args["par1_type"],
+            args["par2_type"],
+            totals,
+            k_constants_in,
+            convert_units=True,
+        )
+        # Calculate the rest at input conditions
+        others_in = solve.others(
+            core_in,
+            args["temperature"],
+            args["pressure"],
+            totals,
+            k_constants_in,
+            args["opt_pH_scale"],
+            args["opt_k_carbonic"],
+            args["buffers_mode"],
+        )
+    else:
+        core_in = None
+        others_in = None
     # If requested, solve the core marine carbonate system at output conditions
     if "pressure_out" in args.keys() or "temperature_out" in args.keys():
         # Make sure we've got output values for both temperature and pressure
@@ -601,27 +633,31 @@ def CO2SYS(
             args["opt_gas_constant"],
             Ks=k_constants_out,
         )
-        # Solve the core marine carbonate system at output conditions
-        core_out = solve.core(
-            core_in["TA"],
-            core_in["TC"],
-            1,
-            2,
-            totals,
-            k_constants_out,
-            convert_units=False,
-        )
-        # Calculate the rest at output conditions
-        others_out = solve.others(
-            core_out,
-            args["temperature_out"],
-            args["pressure_out"],
-            totals,
-            k_constants_out,
-            args["opt_pH_scale"],
-            args["opt_k_carbonic"],
-            args["buffers_mode"],
-        )
+        # Solve the core marine carbonate system at output conditions, if requested
+        if par1 is not None and par2 is not None:
+            core_out = solve.core(
+                core_in["TA"],
+                core_in["TC"],
+                1,
+                2,
+                totals,
+                k_constants_out,
+                convert_units=False,
+            )
+            # Calculate the rest at output conditions
+            others_out = solve.others(
+                core_out,
+                args["temperature_out"],
+                args["pressure_out"],
+                totals,
+                k_constants_out,
+                args["opt_pH_scale"],
+                args["opt_k_carbonic"],
+                args["buffers_mode"],
+            )
+        else:
+            core_out = None
+            others_out = None
     else:
         core_out = None
         others_out = None
@@ -636,6 +672,7 @@ def CO2SYS(
         others_out,
         k_constants_out,
     )
+
 
 def assemble(
     salinity=35,
@@ -749,4 +786,3 @@ def assemble(
         args["opt_gas_constant"],
         Ks=k_constants,
     )
-    

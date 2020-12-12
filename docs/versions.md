@@ -31,12 +31,17 @@
 
 !!! new-version "Changes in v1.7.0"
 
+    ***New features***
+
+    * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
+
     ***Internal updates***
 
     * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
     * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
     * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
     * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
+    * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
 
 ## 1.6
 
