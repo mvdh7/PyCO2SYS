@@ -43,6 +43,10 @@
     * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
     * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
 
+    ***Validation***
+
+    * Rigorous validation against various CO2SYS-MATLAB versions performed, as described in forthcoming PyCO2SYS manuscript (Humphreys et al., in prep.).
+
 ## 1.6
 
 Adds extra alkalinity components with arbitrary p*K* values.
