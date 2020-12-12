@@ -2,7 +2,7 @@
 
 ## Syntax
 
-Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface.
+Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface; this one is no longer being actively developed.
 
 Read further on this page if you want to stick with the MATLAB-style syntax.  This is accessed using the top-level `CO2SYS` function:
 
