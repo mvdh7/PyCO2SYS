@@ -5,7 +5,9 @@
 
       * New *patch* versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
       * New *minor* versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
-      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may alter the results of calculations with default settings.
+      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may significantly alter the results of calculations with default settings.
+
+    In general, we will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.
 
 !!! warning
     *Will (not) break your code* refers **only** to the functions covered in this documentation.
