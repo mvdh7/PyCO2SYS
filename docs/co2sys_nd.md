@@ -17,6 +17,12 @@ If you wish to also calculate [uncertainties](../uncertainty), you should put th
 
     `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
 
+From v1.7.0, it is possible to run `pyco2.sys` without providing any carbonate system parameters.  All of the other optional arguments can still be used.  In this case, the `results` dict contains all the equilibrium constants and total salt concentrations under the specified conditions:
+
+```python
+results = pyco2.sys(**kwargs)  # evaluates everything at the default conditions
+```
+
 ## Arguments
 
 Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
