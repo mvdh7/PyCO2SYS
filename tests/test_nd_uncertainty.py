@@ -69,10 +69,10 @@ def test_uncertainty_old_new():
     assert np.all(uncert_old["pHin"] - uncertainties["pH"].ravel() == 0)
 
 
-test_old_new()
-test_uncertainty_old_new()
+# test_old_new()
+# test_uncertainty_old_new()
 
-# Try out the standard uncertainties of OEDG18
-uncertainties_pk, components_pk = pyco2.uncertainty.propagate_nd(
-    results, uncertainties_into, pyco2.uncertainty.pKs_OEDG18, **kwargs
-)
+# # Try out the standard uncertainties of OEDG18
+# uncertainties_pk, components_pk = pyco2.uncertainty.propagate_nd(
+#     results, uncertainties_into, pyco2.uncertainty.pKs_OEDG18, **kwargs
+# )

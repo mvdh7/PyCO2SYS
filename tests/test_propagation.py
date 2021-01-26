@@ -141,8 +141,8 @@ def test_Kunc_out():
             compare_Kunc(*p1p2, K, "out")
 
 
-test_Kunc_in()
-test_Kunc_out()
+# test_Kunc_in()
+# test_Kunc_out()
 
 
 def compare_par1par2(i, fixedpartype, uncertainties_in):
@@ -208,4 +208,4 @@ def test_par1par2():
     check_par1par2("isoQout")
 
 
-test_par1par2()
+# test_par1par2()

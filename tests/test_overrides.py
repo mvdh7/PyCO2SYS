@@ -56,4 +56,4 @@ def test_overrides():
     assert all(co2py_diff_absmax.values < 1e-11)
 
 
-test_overrides()
+# test_overrides()

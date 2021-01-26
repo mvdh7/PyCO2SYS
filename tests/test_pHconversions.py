@@ -60,4 +60,4 @@ def test_pHconversions():
     assert close_enough(H_F_f, H_F_m)
 
 
-test_pHconversions()
+# test_pHconversions()

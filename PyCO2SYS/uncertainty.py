@@ -4,10 +4,7 @@
 
 import copy
 from autograd import numpy as np
-from .. import engine
-from . import automatic
-
-__all__ = ["automatic"]
+from . import engine
 
 # Default uncertainties in pK values following OEDG18
 pKs_OEDG18 = {

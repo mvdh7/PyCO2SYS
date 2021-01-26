@@ -25,4 +25,4 @@ def test_pH_scale_consistency():
     )
 
 
-test_pH_scale_consistency()
+# test_pH_scale_consistency()

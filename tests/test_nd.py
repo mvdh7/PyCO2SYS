@@ -37,7 +37,7 @@ def test_conditioning():
     assert cond_4 is None
 
 
-test_conditioning()
+# test_conditioning()
 
 
 #%% Now move on to the main function
@@ -63,7 +63,7 @@ def test_nd_misc():
     )
 
 
-test_nd_misc()
+# test_nd_misc()
 
 
 # Test with all scalar inputs
@@ -74,7 +74,7 @@ def test_scalars():
     assert np.all([np.size(v) == 1 for v in co2nd_scalar.values()])
 
 
-test_scalars()
+# test_scalars()
 
 
 # Test with TA/DIC grid
@@ -93,4 +93,4 @@ def test_grid():
     )
 
 
-test_grid()
+# test_grid()
