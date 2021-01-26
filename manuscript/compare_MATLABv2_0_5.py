@@ -99,6 +99,6 @@ def test_co2py_matlab():
     )
 
 
-# Run tests
-test_co2pyo_matlab()
-test_co2py_matlab()
+# # Run tests
+# test_co2pyo_matlab()
+# test_co2py_matlab()

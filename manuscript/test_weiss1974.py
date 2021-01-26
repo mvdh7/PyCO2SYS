@@ -16,4 +16,4 @@ def test_kCO2_W74():
     assert np.all(np.isclose(kCO2_W74, kCO2_pyco2, rtol=0, atol=1e-5, equal_nan=True))
 
 
-test_kCO2_W74()
+# test_kCO2_W74()

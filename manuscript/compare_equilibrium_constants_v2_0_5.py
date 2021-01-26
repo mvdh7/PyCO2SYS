@@ -71,5 +71,5 @@ def test_total_salts():
         )
 
 
-test_equilibrium_constants()
-test_total_salts()
+# test_equilibrium_constants()
+# test_total_salts()

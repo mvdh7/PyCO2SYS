@@ -85,5 +85,8 @@ def test_D81_phosphate():
     print(pH_phosphate[typos])
 
 
-test_D81()
-test_D81_phosphate()
+# test_D81()
+# test_D81_phosphate()
+
+# Return to original tolerance
+pyco2.solve.get.pH_tolerance = 1e-8

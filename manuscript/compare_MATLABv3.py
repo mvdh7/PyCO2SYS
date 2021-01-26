@@ -9,8 +9,8 @@ pyco2.solve.get.halve_big_jumps = True  # different way to prevent too-big pH ju
 pyco2.solve.delta.use_approximate_slopes = True  # don't use Autograd for solver slopes
 pyco2.solve.get.assume_pH_total = True  # replicate pH-Total assumption bug
 
-# Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
-# using "compare_MATLAB_extd.m".
+# Import input conditions: "compare_MATLABv3.csv" was generated in MATLAB
+# using "compare_MATLABv3.m".
 co2matlab = pd.read_csv("manuscript/results/compare_MATLABv3.csv")
 
 # Convert constants options
@@ -100,7 +100,7 @@ def test_co2py_matlab():
     )
 
 
-test_co2py_matlab()
+# test_co2py_matlab()
 
 
 # Compare new n-d approach
@@ -134,4 +134,4 @@ def test_nd():
     assert np.all(co2nd.pH_sws.values == co2py.pHinSWS.values)
 
 
-test_nd()
+# test_nd()
