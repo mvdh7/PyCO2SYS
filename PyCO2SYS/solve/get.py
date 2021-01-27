@@ -7,6 +7,11 @@ from .. import convert
 from . import delta, initialise
 
 pH_tolerance = 1e-8  # tolerance for ending iterations in all pH solvers
+assume_pH_total = False  # Replicate CO2SYS-MATLAB bug for testing
+# To override the new initial pH guesser, and other settings for testing purposes
+initial_pH_guess = None
+update_all_pH = False
+halve_big_jumps = False
 
 
 def CarbfromTCH(TC, H, totals, k_constants):
@@ -124,10 +129,6 @@ def alkalinity_phosphate(h_scale, totals, k_constants):
         * (KP1 * KP2 * h_scale + 2 * KP1 * KP2 * KP3 - h_scale ** 3)
         / (h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3)
     )
-
-
-# Replicate CO2SYS-MATLAB bug for testing
-assume_pH_total = False
 
 
 @np.errstate(invalid="ignore")
@@ -267,12 +268,6 @@ def TAfrompHHCO3(pH, HCO3, totals, k_constants):
     """
     TC = TCfrompHHCO3(pH, HCO3, totals, k_constants)
     return TAfromTCpH(TC, pH, totals, k_constants)
-
-
-# To override the new initial pH guesser, and other settings for testing purposes
-initial_pH_guess = None
-update_all_pH = False
-halve_big_jumps = False
 
 
 @np.errstate(invalid="ignore")
