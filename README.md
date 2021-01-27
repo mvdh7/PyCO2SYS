@@ -1,7 +1,7 @@
 # PyCO2SYS
 
 ![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg)
-[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
+[![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
 [![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=develop&style=flat)](https://pyco2sys.readthedocs.io/en/develop/)
 [![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/develop/misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/develop/misc/coverage.txt)
