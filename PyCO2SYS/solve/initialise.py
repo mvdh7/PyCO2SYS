@@ -104,7 +104,7 @@ def fromCO3(CBAlk, CARB, TB, K1, K2, KB):
     H0 = np.where(
         CBAlk > 2 * CARB + TB,
         _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB),
-        1e-10,  # default pH=10 for low alkalinity
+        1e-3,  # default pH=3 for low alkalinity
     )
     return -np.log10(H0)
 

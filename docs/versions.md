@@ -41,6 +41,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
 
     ***Internal updates***
 
+    * Switched default first-guess pH for solving from the alkalinity-carbonate ion parameter pair at low alkalinity from 10 to 3.
     * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
     * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
     * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
