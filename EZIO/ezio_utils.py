@@ -4,17 +4,16 @@
 """EZIO: Easy Input/Output of CO2SYS.xlsx-style spreadsheets"""
 """Utilities"""
 
-import numpy as np
 import pandas as pd
 import os
 import PyCO2SYS as pyco2
 
-def get_spreadsheet(path):
-    head, tail = os.path.splitext(path)
+def get_spreadsheet(path): #Input file MUST be the same format as in CO2SYS Excel.
+    head, tail = os.path.splitext(path) #Which filetype?
     input_file = pd.DataFrame()
-    if tail == ".csv":
+    if tail == ".csv": #comma-separated, first two rows ignored
         input_file = pd.read_csv(path, header=2, sep = ',', dtype = 'np.float64')
-    elif tail == ".xlsx":
+    elif tail == ".xlsx": #first two rows ignored
         input_file = pd.read_excel(path, header=2)
     else:
         print("ERROR: File could not be read.")
@@ -22,18 +21,18 @@ def get_spreadsheet(path):
 
 def save_output(path, df):
     head, tail = os.path.splitext(path)
-    newtail = "_processed.csv"
+    newtail = "_processed.csv" #adds "_processed" tag to filename
     newpath = head+newtail
-    df.to_csv(newpath)
+    df.to_csv(newpath, encoding = 'utf-8-sig') #encoding ensures that symbols are output correctly
 
 def EZIO_calkulate(input_file, 
-                   pH_scale = 1, 
+                   pH_scale = 1,  #default values match those at https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
                    k_bisulfate = 1, 
                    k_carbonic = 16, 
                    k_fluoride = 1, 
                    total_borate = 1):
-    output_df = pd.DataFrame(
-        {"Salinity" : [],
+    output_df = pd.DataFrame( #Initiate empty dataframe matching output format of CO2SYS Excel
+        {"Salinity" : [], #Would this be better as a class?
          "t(°C) in" : [],
          "P in (dbar)" : [],
          "Total P (μmol/kgW)" : [],
@@ -54,6 +53,7 @@ def EZIO_calkulate(input_file,
          "ΩCa in" : [],
          "ΩAr in" : [],
          "xCO2 in (dry at 1 atm) (ppm)" : [],
+         "-" : [],
          "t(°C) out" : [],
          "P out (dbar)" : [],
          "pH out" : [],
@@ -72,18 +72,19 @@ def EZIO_calkulate(input_file,
          "xCO2 out (dry at 1 atm) (ppm)" : []})
     
     for i in range(len(input_file)):
-        pars = ~input_file.iloc[i,[7,8,9,10,11]].isna()
-        if sum(pars) != 2:
+        pars = ~input_file.iloc[i,[7,8,9,10,11]].isna() #Select among carbonate parameters.
+        if sum(pars) != 2: #Under- or over-constrained systems rejected.
             print("Incorrect number of input parameters provided in row", i+1)
-            break
+            break #No calculations performed, but processed file still output.
         values = input_file.iloc[i,[7,8,9,10,11]].dropna()
         par1 = values[0]
         par2 = values[1]
         
+        #Check which parameters were used for this sample.  Not very robust.
         par_names = input_file.iloc[0,[7,8,9,10,11]].index[pars].tolist()
-        if ("TCO2"  in par_names[0]):
+        if any(c in par_names[0] for c in ("DIC", "TCO2", "dic", "dissolved inorganic carbon", "CT", "Ct")):
             par1_type = 2
-        elif ("TA"  in par_names[0]):
+        elif any(c in par_names[0] for c in ("TA", "Alk", "ALK", "alkalinity", "alk", "Total Alkalinity", "total alkalinity")):
             par1_type = 1
         elif ("pH"  in par_names[0]):
             par1_type = 3
@@ -91,9 +92,9 @@ def EZIO_calkulate(input_file,
             par1_type = 5
         elif ("pCO2"  in par_names[0]):
             par1_type = 4
-        if ("TCO2"  in par_names[1]):
+        if any(c in par_names[0] for c in ("DIC", "TCO2", "dic", "dissolved inorganic carbon", "CT", "Ct")):
             par2_type = 2
-        elif ("TA"  in par_names[1]):
+        elif any(c in par_names[0] for c in ("TA", "Alk", "ALK", "alkalinity", "alk", "Total Alkalinity", "total alkalinity")):
             par2_type = 1
         elif ("pH"  in par_names[1]):
             par2_type = 3
@@ -102,6 +103,8 @@ def EZIO_calkulate(input_file,
         elif ("pCO2"  in par_names[1]):
             par2_type = 4
         
+        #Non-carbonate parameters: VERY sensitive to column placement.  
+        #MUST match CO2SYS Excel.
         isalinity = input_file.iloc[i,[0]]
         itemperature = input_file.iloc[i,[1]]
         ipressure = input_file.iloc[i,[2]]
@@ -110,7 +113,7 @@ def EZIO_calkulate(input_file,
         itotal_silicate = input_file.iloc[i,[4]]
         itotal_phosphate = input_file.iloc[i,[3]]
         
-        results = pyco2.sys(par1, par2, par1_type, par2_type, 
+        results = pyco2.sys(par1, par2, par1_type, par2_type, #as in https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
                             salinity = isalinity, temperature = itemperature, 
                             pressure = ipressure, temperature_out = itemperature_out, 
                             pressure_out = ipressure_out, total_silicate = itotal_silicate, 
@@ -139,6 +142,7 @@ def EZIO_calkulate(input_file,
              "ΩCa in" : [results['saturation_calcite']],
              "ΩAr in" : [results['saturation_aragonite']],
              "xCO2 in (dry at 1 atm) (ppm)" : [results['xCO2']],
+             "-" : ["-"],
              "t(°C) out" : [results['temperature_out']],
              "P out (dbar)" : [results['pressure_out']],
              "pH out" : [results['pH_out']],
@@ -155,6 +159,6 @@ def EZIO_calkulate(input_file,
              "ΩCa out" : [results['saturation_calcite_out']],
              "ΩAr out" : [results['saturation_aragonite_out']],
              "xCO2 out (dry at 1 atm) (ppm)" : [results['xCO2_out']]})
-        output_df = output_df.append(output_newrow)
+        output_df = output_df.append(output_newrow) #Add the new row to the growing output file, run again for subsequent samples.
     return output_df
 
