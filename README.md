@@ -50,7 +50,7 @@ import PyCO2SYS as pyco2
 results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
-Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict come from the original MATLAB output `HEADERS`.  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
+Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict are described in the [online documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
 
 There's also an alternative interface that is very similar to that of CO2SYS for MATLAB, [which you can use instead if you prefer](https://pyco2sys.readthedocs.io/en/latest/co2sys/).  It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [Pythonic API documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/#using-the-pythonic-api).
 
@@ -58,7 +58,7 @@ You can also look at the [example scripts](https://github.com/mvdh7/PyCO2SYS/tre
 
 ## About
 
-PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
+PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
 
 Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md) before setting to work.
 
