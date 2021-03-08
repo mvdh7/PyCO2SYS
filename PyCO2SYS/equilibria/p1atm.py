@@ -36,9 +36,9 @@ def kHSO4_FREE_D90a(TempK, Sal):
         -4276.1 / TempK
         + 141.328
         - 23.093 * logTempK
-        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.np.sqrt(IonS)
+        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.sqrt(IonS)
         + (35474 / TempK - 771.54 + 114.723 * logTempK) * IonS
-        + (-2698 / TempK) * np.np.sqrt(IonS) * IonS
+        + (-2698 / TempK) * np.sqrt(IonS) * IonS
         + (1776 / TempK) * IonS ** 2
     )
     return np.exp(lnKSO4) * (1 - 0.001005 * Sal)
