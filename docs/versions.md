@@ -38,6 +38,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     ***New features***
 
     * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
+    * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
 
     ***Internal updates***
 
