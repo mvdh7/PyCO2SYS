@@ -117,6 +117,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
         * `1`: [D90a](../refs/#d) **(default)**.
         * `2`: [KRCB77](../refs/#k).
+        * `3`: [WM13](../refs/#w)/[WMW14](../refs/#w).
 
     * `opt_total_borate`: which **boron:salinity** relationship to use to estimate total borate (ignored if the `total_borate` argument is provided):
 

@@ -65,6 +65,31 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     return 10.0 ** -pKSO4 * (1 - 0.001005 * Sal)
 
 
+def kHSO4_FREE_WM13(TempK, Sal):
+    """Bisulfate dissociation constant following WM13/WMW14."""
+    logKS0 = (
+        562.69486
+        - 102.5154 * np.log(TempK)
+        - 0.0001117033 * TempK ** 2
+        + 0.2477538 * TempK
+        - 13273.76 / TempK
+    )
+    logKSK0 = (
+        (
+            4.24666
+            - 0.152671 * TempK
+            + 0.0267059 * TempK * np.log(TempK)
+            - 0.000042128 * TempK ** 2
+        )
+        * Sal ** 0.5
+        + (0.2542181 - 0.00509534 * TempK + 0.00071589 * TempK * np.log(TempK)) * Sal
+        + (-0.00291179 + 0.0000209968 * TempK) * Sal ** 1.5
+        + -0.0000403724 * Sal ** 2
+    )
+    kSO4 = (1 - 0.001005 * Sal) * 10.0 ** (logKSK0 + logKS0)
+    return kSO4
+
+
 def kHF_FREE_DR79(TempK, Sal):
     """Hydrogen fluoride dissociation constant following DR79."""
     # === CO2SYS.m comments: =======
@@ -687,7 +712,7 @@ def kH2CO3_TOT_SB21(TempK, Sal):
         - 0.0002799 * Sal ** 2
         + 4.969 * Sal / TempK
     )
-    K2 = 10.0 ** - pK2
+    K2 = 10.0 ** -pK2
     return K1, K2
 
 
