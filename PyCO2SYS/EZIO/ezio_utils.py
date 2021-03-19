@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-# Author of this function: Daniel Sandborn
+# 
 """EZIO: Easy Input/Output of CO2SYS.xlsx-style spreadsheets"""
 """Utilities"""
 
@@ -8,7 +8,23 @@ import pandas as pd
 import os
 import PyCO2SYS as pyco2
 
-def get_spreadsheet(path): #Input file MUST be the same format as in CO2SYS Excel.
+def get_spreadsheet(path): #Input file MUST be the same format as in CO2SYS Excel. 
+    """
+    Receives filepath for .csv or .xlsx spreadsheet structured as in Excel CO2SYS.
+    First two lines are not read (the 'START' button and header groups in Excel).
+    
+    Parameters
+    ----------
+    path : string filepath
+        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.  
+        Spreadsheet can be either .csv (comma delimited) or .xlsx (Microsoft Excel).
+        
+    Returns
+    -------
+    input_file : Pandas dataframe
+        read_csv() or read_excel() output.
+        
+    """
     head, tail = os.path.splitext(path) #Which filetype?
     input_file = pd.DataFrame()
     if tail == ".csv": #comma-separated, first two rows ignored
@@ -20,17 +36,57 @@ def get_spreadsheet(path): #Input file MUST be the same format as in CO2SYS Exce
     return input_file
 
 def save_output(path, df):
+    """
+    The resulting dataframe is saved as a .csv file in the same directory
+    as the input file, with the tag '_processed.csv' appended.
+
+    Parameters
+    ----------
+    path : string filepath
+        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.  
+    df : Pandas dataframe
+        Result of PyCO2SYS solving algorithm, structured as in CO2SYS Excel.
+
+    Returns
+    -------
+    None.
+
+    """
     head, tail = os.path.splitext(path)
     newtail = "_processed.csv" #adds "_processed" tag to filename
     newpath = head+newtail
     df.to_csv(newpath, encoding = 'utf-8-sig') #encoding ensures that symbols are output correctly
 
-def EZIO_calkulate(input_file, 
+def EZIO_calculate(input_file, 
                    pH_scale = 1,  #default values match those at https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
                    k_bisulfate = 1, 
                    k_carbonic = 16, 
                    k_fluoride = 1, 
                    total_borate = 1):
+    """
+    EZIO wrapper function around pyco2.sys().  Solves the inorganic carbonate
+    system given the inputs of a CO2SYS Excel-structured spreadsheet.  Outputs
+    in similar fashion.  
+    
+    Parameters
+    ----------
+    input_file : Pandas dataframe
+        read_csv() or read_excel() output.
+    opt_pH_scale : int, optional
+        pH scale as defined by ZW01. The default is 1 (Total).
+    opt_k_carbonic : int, optional
+        Carbonic acid dissociation constants. The default is 16 (SLH20).
+    opt_k_fluoride : int, optional
+        Fluoride equilibrium constant. The default is 1 (DR79).
+    opt_total_borate : int, optional
+        Total borate to salinity constant. The default is 1 (U74).
+
+    Returns
+    -------
+    output_df : Pandas dataframe
+        Result of PyCO2SYS solving algorithm, structured as in CO2SYS Excel.
+
+    """
     output_df = pd.DataFrame( #Initiate empty dataframe matching output format of CO2SYS Excel
         {"Salinity" : [], #Would this be better as a class?
          "t(°C) in" : [],
@@ -92,9 +148,9 @@ def EZIO_calkulate(input_file,
             par1_type = 5
         elif ("pCO2"  in par_names[0]):
             par1_type = 4
-        if any(c in par_names[0] for c in ("DIC", "TCO2", "dic", "dissolved inorganic carbon", "CT", "Ct")):
+        if any(c in par_names[1] for c in ("DIC", "TCO2", "dic", "dissolved inorganic carbon", "CT", "Ct")):
             par2_type = 2
-        elif any(c in par_names[0] for c in ("TA", "Alk", "ALK", "alkalinity", "alk", "Total Alkalinity", "total alkalinity")):
+        elif any(c in par_names[1] for c in ("TA", "Alk", "ALK", "alkalinity", "alk", "Total Alkalinity", "total alkalinity")):
             par2_type = 1
         elif ("pH"  in par_names[1]):
             par2_type = 3

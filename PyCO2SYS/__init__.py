@@ -60,3 +60,4 @@ CO2SYS_nd = sys
 from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import say_hello  # because history
 from .solve.get import speciation
+from .EZIO import ezio
