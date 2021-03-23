@@ -48,9 +48,9 @@ pH = results_pH["pH_free"]
 kwargs.update(
     {
         "total_phosphate": 10 * dilution_factor,
-        "k_phosphate_1": 1 / 5.68e1,
-        "k_phosphate_2": 8e-7,
-        "k_phosphate_3": 1.32e-15 / 8e-7,
+        "k_phosphoric_1": 1 / 5.68e1,
+        "k_phosphoric_2": 8e-7,
+        "k_phosphoric_3": 1.32e-15 / 8e-7,
     }
 )
 pH_phosphate = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)["pH_free"]
