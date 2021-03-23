@@ -126,8 +126,8 @@ def compare_par1par2(i, fixedpartype, uncertainties_in):
     )
     # Estimate the same with Monte-Carlo simulation
     mcsize = (10000,)
-    par1sim = np.random.normal(size=mcsize, loc=par1, scale=par1u_true[i])
-    par2sim = np.random.normal(size=mcsize, loc=par2, scale=par2u_true[i])
+    par1sim = rng.normal(size=mcsize, loc=par1, scale=par1u_true[i])
+    par2sim = rng.normal(size=mcsize, loc=par2, scale=par2u_true[i])
     co2d_par1sim = pyco2.sys(par1sim, par2, par1type, par2type, **kwargs)
     co2d_par2sim = pyco2.sys(par1, par2sim, par1type, par2type, **kwargs)
     co2d_bothsim = pyco2.sys(par1sim, par2sim, par1type, par2type, **kwargs)
