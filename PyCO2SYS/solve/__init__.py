@@ -19,22 +19,20 @@ def _core_sanity(TC, PC, FC, CARB, HCO3, CO2):
     assert np.all((FC >= 0) | np.isnan(FC)), "CO2 fugacity cannot be negative."
     assert np.all(
         (CARB >= 0) | np.isnan(CARB)
-    ), "Carbonate ion molinity cannot be negative."
+    ), "Carbonate ion content cannot be negative."
     assert np.all(
         (HCO3 >= 0) | np.isnan(HCO3)
-    ), "Bicarbonate ion molinity cannot be negative."
-    assert np.all(
-        (CO2 >= 0) | np.isnan(CO2)
-    ), "Aqueous CO2 molinity cannot be negative."
+    ), "Bicarbonate ion content cannot be negative."
+    assert np.all((CO2 >= 0) | np.isnan(CO2)), "Aqueous CO2 content cannot be negative."
     assert np.all(
         (CARB < TC) | np.isnan(CARB) | np.isnan(TC)
-    ), "Carbonate ion molinity must be less than DIC."
+    ), "Carbonate ion content must be less than DIC."
     assert np.all(
         (HCO3 < TC) | np.isnan(HCO3) | np.isnan(TC)
-    ), "Bicarbonate ion molinity must be less than DIC."
+    ), "Bicarbonate ion content must be less than DIC."
     assert np.all(
         (CO2 < TC) | np.isnan(CO2) | np.isnan(TC)
-    ), "Aqueous CO2 molinity must be less than DIC."
+    ), "Aqueous CO2 content must be less than DIC."
 
 
 def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):

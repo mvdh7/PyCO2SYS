@@ -54,6 +54,10 @@ Adds new syntax to return equilibrium constants and total salts without needing 
 
     * Rigorous validation against various CO2SYS-MATLAB versions performed, as described in forthcoming PyCO2SYS manuscript (Humphreys et al., in prep.).
 
+    ***Bug fixes***
+
+    * `par1`, `par2`, `par1_type` and `par2_type` arguments now always get broadcasted to the maximum size, even if they are scalar.
+
 ## 1.6
 
 Adds extra alkalinity components with arbitrary p*K* values.
