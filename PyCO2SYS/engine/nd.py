@@ -616,7 +616,7 @@ def CO2SYS(
         k_constants_optional_out = {
             "{}_out".format(k): v for k, v in k_constants_optional.items()
         }
-        if np.any(np.isin(list(args.keys()), k_constants_optional_out)):
+        if np.any(np.isin(list(args.keys()), list(k_constants_optional_out.keys()))):
             k_constants_out = {
                 k_constants_optional_out[k]: v
                 for k, v in args.items()
