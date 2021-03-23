@@ -44,20 +44,16 @@ H_S_m = H_F_b * pyco2.convert.free2sws(totals, equilibria)
 H_F_m = H_S_f * pyco2.convert.sws2free(totals, equilibria)
 
 
-def close_enough(a, b):
-    return np.all(np.abs(a - b) < 1e-20)
-
-
 def test_pHconversions():
-    assert close_enough(H_T_i, H_T_f)
-    assert close_enough(H_T_i, H_T_b)
-    assert close_enough(H_T_i, H_T_m)
-    assert close_enough(H_S_f, H_S_b)
-    assert close_enough(H_S_f, H_S_m)
-    assert close_enough(H_N_f, H_N_b)
-    assert close_enough(H_N_f, H_N_m)
-    assert close_enough(H_F_f, H_F_b)
-    assert close_enough(H_F_f, H_F_m)
+    assert np.all(np.isclose(H_T_i, H_T_f, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_T_i, H_T_b, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_T_i, H_T_m, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_S_f, H_S_b, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_S_f, H_S_m, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_N_f, H_N_b, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_N_f, H_N_m, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_F_f, H_F_b, rtol=0, atol=1e-20))
+    assert np.all(np.isclose(H_F_f, H_F_m, rtol=0, atol=1e-20))
 
 
 # test_pHconversions()
