@@ -92,7 +92,7 @@ def test_co2py_matlab():
     ]
     # ^ Revelle Factor differences are due to understood CO2SYS-MATLAB bugs.
     # Nutrients/salinity are set to zero for freshwater case in PyCO2SYS but not in
-    # CO2SYS-MATLAB/
+    # CO2SYS-MATLAB.
     assert np.all(
         (pmad_co2py_matlab[checkcols] < 1e-10).values
         | np.isnan(pmad_co2py_matlab[checkcols].values)
