@@ -301,20 +301,13 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
         deltapH = deltafunc(pH, TA, VX, totals, k_constants)  # the pH jump
         # To keep the jump from being too big:
         abs_deltapH = np.abs(deltapH)
-        if halve_big_jumps:
-            # Original CO2SYS-MATLAB approach, just here for testing
-            deltapH = np.where(abs_deltapH > 1.0, deltapH / 2, deltapH)
-        else:
-            # This is the default PyCO2SYS way
-            np.sign_deltapH = np.sign(deltapH)
-            # Jump by 1 instead if `deltapH` > 5
-            deltapH = np.where(abs_deltapH > 5.0, np.sign_deltapH, deltapH)
-            # Jump by 0.5 instead if 1 < `deltapH` < 5
-            deltapH = np.where(
-                (abs_deltapH > 0.5) & (abs_deltapH <= 5.0),
-                0.5 * np.sign_deltapH,
-                deltapH,
-            )  # assumes that once we're within 1 of the correct pH, we will converge
+        # Original CO2SYS-MATLAB approach is this only:
+        deltapH = np.where(abs_deltapH > 1.0, deltapH / 2, deltapH)
+        if not halve_big_jumps:
+            # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+            abs_deltapH = np.abs(deltapH)
+            sign_deltapH = np.sign(deltapH)
+            deltapH = np.where(abs_deltapH > 1.0, sign_deltapH, deltapH)
         if update_all_pH:
             # Original CO2SYS-MATLAB approach, just here for testing
             pH = pH + deltapH  # update all rows
