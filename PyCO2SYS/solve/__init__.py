@@ -221,15 +221,15 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = Icase == 67  # input CO3, HCO3
-    if np.any(F):
-        FC = np.where(F, get.fCO2fromCarbHCO3(CARB, HCO3, totals, Ks), FC)
-        PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
-        TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
-        TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
     F = (Icase == 47) | (Icase == 57) | (Icase == 78)  # input [pCO2|fCO2|CO2aq], HCO3
     if np.any(F):
         CARB = np.where(F, get.CarbfromfCO2HCO3(FC, HCO3, totals, Ks), CARB)
+        PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
+        TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
+        TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
+    F = Icase == 67  # input CO3, HCO3
+    if np.any(F):
+        FC = np.where(F, get.fCO2fromCarbHCO3(CARB, HCO3, totals, Ks), FC)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
