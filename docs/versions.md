@@ -49,6 +49,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
     * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
     * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
+    * The final component of DIC (or DIC itself) to be calculated is always computed by difference from the known components.
 
     ***Validation***
 
