@@ -47,7 +47,11 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
     * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
     * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1].  Which scale is given by the argument `opt_pH_scale`.
-    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm or **aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
+    * Any one of:
+      * **Partial pressure of CO<sub>2</sub>** (type `4`) in μatm,
+      * **Fugacity of CO<sub>2</sub>** (type `5`) in μatm,
+      * **Aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>, or
+      * **Dry mole fraction of CO<sub>2</sub>** (type `9`) in ppm.
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
 

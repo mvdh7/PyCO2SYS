@@ -136,6 +136,7 @@ def _get_in_out(core, others, k_constants, suffix=""):
         add_if_in_core("bicarbonate", "HCO3", factor=1e6)
         add_if_in_core("carbonate", "CARB", factor=1e6)
         add_if_in_core("aqueous_CO2", "CO2", factor=1e6)
+        add_if_in_core("xCO2", "XC", factor=1e6)
     if others is not None:
 
         def add_if_in_others(external, internal, factor=1):
@@ -152,7 +153,6 @@ def _get_in_out(core, others, k_constants, suffix=""):
         add_if_in_others("revelle_factor", "Revelle", factor=1)
         add_if_in_others("saturation_calcite", "OmegaCa", factor=1)
         add_if_in_others("saturation_aragonite", "OmegaAr", factor=1)
-        add_if_in_others("xCO2", "xCO2dry", factor=1e6)
         add_if_in_others("pH_total", "pHT", factor=1)
         add_if_in_others("pH_sws", "pHS", factor=1)
         add_if_in_others("pH_free", "pHF", factor=1)
