@@ -44,7 +44,7 @@ H_S_m = H_F_b * pyco2.convert.pH_free_to_sws(totals, equilibria)
 H_F_m = H_S_f * pyco2.convert.pH_sws_to_free(totals, equilibria)
 
 
-def test_pHconversions():
+def test_pH_conversions():
     assert np.all(np.isclose(H_T_i, H_T_f, rtol=0, atol=1e-20))
     assert np.all(np.isclose(H_T_i, H_T_b, rtol=0, atol=1e-20))
     assert np.all(np.isclose(H_T_i, H_T_m, rtol=0, atol=1e-20))
@@ -56,4 +56,16 @@ def test_pHconversions():
     assert np.all(np.isclose(H_F_f, H_F_m, rtol=0, atol=1e-20))
 
 
-# test_pHconversions()
+def test_pH_conversions_sys():
+    r1 = pyco2.sys(par1=8.1, par1_type=3, opt_pH_scale=1)
+    r2 = pyco2.sys(par1=r1["pH_sws"], par1_type=3, opt_pH_scale=2)
+    r3 = pyco2.sys(par1=r1["pH_free"], par1_type=3, opt_pH_scale=3)
+    r4 = pyco2.sys(par1=r1["pH_nbs"], par1_type=3, opt_pH_scale=4)
+    for scale in ["pH_total", "pH_sws", "pH_free", "pH_nbs"]:
+        assert np.isclose(r1[scale], r2[scale], rtol=0, atol=1e-12)
+        assert np.isclose(r2[scale], r3[scale], rtol=0, atol=1e-12)
+        assert np.isclose(r3[scale], r4[scale], rtol=0, atol=1e-12)
+
+
+test_pH_conversions()
+test_pH_conversions_sys()
