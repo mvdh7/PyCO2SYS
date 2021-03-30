@@ -311,8 +311,7 @@ def others(
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(CARB, totals, Ks)
     # Dry mole fraction of CO2
-    VPFac = gas.vpfactor(TempC, Sal)
-    xCO2dry = PC / VPFac  # this assumes pTot = 1 atm
+    xCO2dry = PC / Ks["VPFac"]  # this assumes pTot = 1 atm
     # Just for reference, convert pH at input conditions to the other scales
     pHT, pHS, pHF, pHN = convert.pH_to_all_scales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
@@ -395,7 +394,6 @@ def others(
         "pK2": pK2,
         "OmegaCa": OmegaCa,
         "OmegaAr": OmegaAr,
-        "VPFac": VPFac,
         "xCO2dry": xCO2dry,
         "pHT": pHT,
         "pHS": pHS,

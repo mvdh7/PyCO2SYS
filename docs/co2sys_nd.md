@@ -178,8 +178,9 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"aqueous_CO2"`/`"aqueous_CO2_out"`: **aqueous CO<sub>2</sub>** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"pCO2"`/`"pCO2_out"`: **seawater partial pressure of CO<sub>2</sub>** at input/output conditions in μatm.
     * `"fCO2"`/`"fCO2_out"`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
-    * `"xCO2"`/`"xCO2_out"`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
+    * `"xCO2"`/`"xCO2_out"`: **seawater dry mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
     * `"fugacity_factor"`/`"fugacity_factor_out"`: **fugacity factor** at input/output conditions for converting between CO<sub>2</sub> partial pressure and fugacity.
+    * `"vp_factor"`/`"vp_factor_out"`: **vapour pressure factor** at input/output conditions for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
 
     #### Alkalinity and its components
 

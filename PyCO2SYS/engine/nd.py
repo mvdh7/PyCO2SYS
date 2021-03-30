@@ -54,6 +54,8 @@ input_floats = {
     "k_aragonite_out",
     "fugacity_factor",
     "fugacity_factor_out",
+    "vp_factor",
+    "vp_factor_out",
     "gas_constant",
     "gas_constant_out",
     # Added in v1.6.0:
@@ -216,6 +218,7 @@ def _get_in_out(core, others, k_constants, suffix=""):
                 "k_calcite": k_constants["KCa"],
                 "k_aragonite": k_constants["KAr"],
                 "fugacity_factor": k_constants["FugFac"],
+                "vp_factor": k_constants["VPFac"],
                 "fH": k_constants["fH"],
                 # Added in v1.6.0:
                 "k_alpha": k_constants["k_alpha"],
@@ -438,6 +441,9 @@ gradables = [
     "alphaH",
     "beta",
     "betaH",
+    # Added in v1.7.0:
+    "vp_factor",
+    "vp_factor_out",
 ]
 
 
@@ -507,6 +513,9 @@ def CO2SYS(
     total_beta=None,
     k_beta=None,
     k_beta_out=None,
+    # Added in v1.7.0:
+    vp_factor=None,
+    vp_factor_out=None,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = condition(locals())
@@ -540,6 +549,7 @@ def CO2SYS(
     # Prepare equilibrium constants dict (input conditions)
     k_constants_optional = {
         "fugacity_factor": "FugFac",
+        "vp_factor": "VPFac",
         "gas_constant": "RGas",
         "k_ammonia": "KNH3",
         "k_borate": "KB",
@@ -728,6 +738,7 @@ def assemble(
     k_calcite=None,
     k_aragonite=None,
     fugacity_factor=None,
+    vp_factor=None,
     gas_constant=None,
     gas_constant_out=None,
     total_alpha=None,
@@ -766,6 +777,7 @@ def assemble(
     # Prepare equilibrium constants dict (input conditions)
     k_constants_optional = {
         "fugacity_factor": "FugFac",
+        "vp_factor": "VPFac",
         "gas_constant": "RGas",
         "k_ammonia": "KNH3",
         "k_borate": "KB",

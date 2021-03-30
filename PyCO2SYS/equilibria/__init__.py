@@ -100,6 +100,8 @@ def assemble(
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
+    if "VPFac" not in Ks:
+        Ks["VPFac"] = gas.vpfactor(TempC, Sal)
     Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
     # Aragonite and calcite solubility products
     if "KAr" not in Ks:
