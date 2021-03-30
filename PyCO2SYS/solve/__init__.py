@@ -142,11 +142,11 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks):
     PengCx = totals["PengCorrection"]
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = np.isin(Icase, [14, 24, 34, 46, 47])
-    FC = np.where(PCgiven, PC * Ks["FugFac"], FC)
+    FC = np.where(PCgiven, convert.pCO2_to_fCO2(PC, Ks), FC)
     CO2given = np.isin(Icase, [18, 28, 38, 68, 78])
-    FC = np.where(CO2given, CO2 / K0, FC)
+    FC = np.where(CO2given, convert.CO2aq_to_fCO2(CO2, Ks), FC)
     XCgiven = np.isin(Icase, [19, 29, 39, 69, 79])
-    FC = np.where(XCgiven, XC * Ks["VPFac"] * Ks["FugFac"], FC)
+    FC = np.where(XCgiven, convert.xCO2_to_fCO2(XC, Ks), FC)
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
     if np.any(F):
@@ -256,10 +256,10 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks):
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
-    PC = np.where(~PCgiven, FC / Ks["FugFac"], PC)
+    PC = np.where(~PCgiven, convert.fCO2_to_pCO2(FC, Ks), PC)
     # CO2 = np.where(~CO2given, FC * K0, CO2)  # up to v1.6.0
     CO2 = np.where(~CO2given, TC - CARB - HCO3, CO2)  # v1.7.0 onwards
-    XC = np.where(~XCgiven, PC / Ks["VPFac"], XC)  # added in v1.7.0
+    XC = np.where(~XCgiven, convert.fCO2_to_xCO2(FC, Ks), XC)  # added in v1.7.0
     # ^this assumes pTot = 1 atm
     return TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC
 

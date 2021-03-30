@@ -8,6 +8,36 @@ from . import constants
 from .equilibria import pressured
 
 
+def pCO2_to_fCO2(pCO2, k_constants):
+    """Convert CO2 partial pressure to fugacity."""
+    return pCO2 * k_constants["FugFac"]
+
+
+def fCO2_to_pCO2(fCO2, k_constants):
+    """Convert CO2 fugacity to partial pressure."""
+    return fCO2 / k_constants["FugFac"]
+
+
+def xCO2_to_fCO2(xCO2, k_constants):
+    """Convert CO2 dry mole fraction to fugacity."""
+    return xCO2 * k_constants["FugFac"] * k_constants["VPFac"]
+
+
+def fCO2_to_xCO2(fCO2, k_constants):
+    """Convert CO2 fugacity to dry mole fraction."""
+    return fCO2 / (k_constants["FugFac"] * k_constants["VPFac"])
+
+
+def CO2aq_to_fCO2(CO2aq, k_constants):
+    """Convert aqueous CO2 content to fugacity."""
+    return CO2aq / k_constants["K0"]
+
+
+def fCO2_to_CO2aq(fCO2, k_constants):
+    """Convert CO2 fugacity to aqueous content."""
+    return fCO2 * k_constants["K0"]
+
+
 def TempC2K(TempC):
     """Convert temperature from degC to K."""
     return TempC + constants.Tzero

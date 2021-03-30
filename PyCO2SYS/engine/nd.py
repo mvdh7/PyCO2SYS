@@ -615,28 +615,70 @@ def CO2SYS(
             args["buffers_mode"],
         )
     elif par1 is not None and par2 is None:
-        if par1_type == 3:
-            core_in = {"PH": args["par1"]}
-            pH_total, pH_sws, pH_free, pH_nbs = convert.pH_to_all_scales(
-                args["par1"], args["opt_pH_scale"], totals, k_constants_in
+        core_in = {}
+        others_in = {}
+        # pH only
+        if np.any(args["par1_type"] == 3):
+            core_in.update(
+                {"PH": np.where(args["par1_type"] == 3, args["par1"], np.nan)}
             )
-            others_in = {
-                "pHT": pH_total,
-                "pHS": pH_sws,
-                "pHF": pH_free,
-                "pHN": pH_nbs,
-            }
+            pH_total, pH_sws, pH_free, pH_nbs = convert.pH_to_all_scales(
+                core_in["PH"], args["opt_pH_scale"], totals, k_constants_in
+            )
+            others_in.update(
+                {"pHT": pH_total, "pHS": pH_sws, "pHF": pH_free, "pHN": pH_nbs,}
+            )
+        # One of pCO2, fCO2, CO2(aq) or xCO2 only
+        if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
+            fCO2 = (
+                np.where(
+                    args["par1_type"] == 5,
+                    args["par1"],
+                    np.where(
+                        args["par1_type"] == 4,
+                        convert.pCO2_to_fCO2(args["par1"], k_constants_in),
+                        np.where(
+                            args["par1_type"] == 8,
+                            convert.CO2aq_to_fCO2(args["par1"], k_constants_in),
+                            np.where(
+                                args["par1_type"] == 9,
+                                convert.xCO2_to_fCO2(args["par1"], k_constants_in),
+                                np.nan,
+                            ),
+                        ),
+                    ),
+                )
+                * 1e-6
+            )
+            pCO2 = np.where(
+                args["par1_type"] == 4,
+                args["par1"] * 1e-6,
+                convert.fCO2_to_pCO2(fCO2, k_constants_in),
+            )
+            CO2aq = np.where(
+                args["par1_type"] == 8,
+                args["par1"] * 1e-6,
+                convert.fCO2_to_CO2aq(fCO2, k_constants_in),
+            )
+            xCO2 = np.where(
+                args["par1_type"] == 9,
+                args["par1"] * 1e-6,
+                convert.fCO2_to_xCO2(fCO2, k_constants_in),
+            )
+            core_in.update(
+                {"PC": pCO2, "FC": fCO2, "CO2": CO2aq, "XC": xCO2,}
+            )
     else:
         core_in = None
         others_in = None
     # If requested, solve the core marine carbonate system at output conditions
-    if "pressure_out" in args.keys() or "temperature_out" in args.keys():
+    if "pressure_out" in args or "temperature_out" in args:
         # Make sure we've got output values for both temperature and pressure
-        if "pressure_out" in args.keys():
-            if "temperature_out" not in args.keys():
+        if "pressure_out" in args:
+            if "temperature_out" not in args:
                 args["temperature_out"] = args["temperature"]
-        if "temperature_out" in args.keys():
-            if "pressure_out" not in args.keys():
+        if "temperature_out" in args:
+            if "pressure_out" not in args:
                 args["pressure_out"] = args["pressure"]
         # Prepare equilibrium constants dict (output conditions)
         k_constants_optional_out = {
@@ -683,6 +725,19 @@ def CO2SYS(
                 args["opt_k_carbonic"],
                 args["buffers_mode"],
             )
+        elif par1 is not None and par2 is None:
+            core_out = {}
+            others_out = {}
+            # One of pCO2, fCO2, CO2(aq) or xCO2 only
+            if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
+                # Takahashi et al. (2009) DSR2 Eq. 2
+                core_out["PC"] = core_in["PC"] * np.exp(
+                    0.0433 * (temperature_out - temperature)
+                    - 4.35e-5 * (temperature_out ** 2 - temperature ** 2)
+                )
+                core_out["FC"] = convert.pCO2_to_fCO2(core_out["PC"], k_constants_out)
+                core_out["CO2"] = convert.fCO2_to_CO2aq(core_out["FC"], k_constants_out)
+                core_out["XC"] = convert.fCO2_to_xCO2(core_out["FC"], k_constants_out)
         else:
             core_out = None
             others_out = None

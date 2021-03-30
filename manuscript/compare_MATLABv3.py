@@ -100,9 +100,6 @@ def test_co2py_matlab():
     )
 
 
-# test_co2py_matlab()
-
-
 # Compare new n-d approach
 co2nd = pd.DataFrame(
     pyco2.sys(
@@ -134,6 +131,7 @@ def test_nd():
     assert np.all(co2nd.pH_sws.values == co2py.pHinSWS.values)
 
 
+# test_co2py_matlab()
 # test_nd()
 
 

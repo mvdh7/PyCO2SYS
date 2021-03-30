@@ -211,6 +211,9 @@ Click on each reference to see more details.
 
 ### T
 
+??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*
+    Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  *Deep-Sea Research II* 56, 554–577.  [doi:10.1016/j.dsr2.2008.12.009](https://doi.org/10.1016/j.dsr2.2008.12.009).
+
 ??? note "TWB82: Takahashi et al. (1982) in *"GEOSECS Pacific Expedition"*"
     Takahashi, T., Williams, R. T., and Bos, D. L. (1982). “Carbonate Chemistry,” in *GEOSECS Pacific Expedition: Hydrographic Data* (Washington, D. C.: National Science Foundation), 77–105.
 

@@ -38,7 +38,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     ***New features***
 
     * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
-    * Can also run `pyco2.sys` with only one carbonate system parameter argument: pH.  This does not solve the carbonate system, but does convert pH to all other pH scales under the input conditions.
+    * Can also run `pyco2.sys` with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
 

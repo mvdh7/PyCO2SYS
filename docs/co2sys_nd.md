@@ -57,7 +57,8 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
     If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
 
-    * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales under the input conditions only.
+    * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales at the input conditions only.
+    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>f</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
 
     If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents are returned, under the given conditions.
 
