@@ -26,22 +26,22 @@ equilibria = pyco2.equilibria.assemble(
 )
 
 # Do pH scale conversions in a loop forwards: Total => Seawater => NBS => Free => Total
-H_S_f = H_T_i * pyco2.convert.tot2sws(totals, equilibria)
-H_N_f = H_S_f * pyco2.convert.sws2nbs(totals, equilibria)
-H_F_f = H_N_f * pyco2.convert.nbs2free(totals, equilibria)
-H_T_f = H_F_f * pyco2.convert.free2tot(totals, equilibria)
+H_S_f = H_T_i * pyco2.convert.pH_total_to_sws(totals, equilibria)
+H_N_f = H_S_f * pyco2.convert.pH_sws_to_nbs(totals, equilibria)
+H_F_f = H_N_f * pyco2.convert.pH_nbs_to_free(totals, equilibria)
+H_T_f = H_F_f * pyco2.convert.pH_free_to_total(totals, equilibria)
 
 # Do pH scale conversions in a loop backwards: Total => Free => NBS => Seawater => Total
-H_F_b = H_T_i * pyco2.convert.tot2free(totals, equilibria)
-H_N_b = H_F_b * pyco2.convert.free2nbs(totals, equilibria)
-H_S_b = H_N_b * pyco2.convert.nbs2sws(totals, equilibria)
-H_T_b = H_S_b * pyco2.convert.sws2tot(totals, equilibria)
+H_F_b = H_T_i * pyco2.convert.pH_total_to_free(totals, equilibria)
+H_N_b = H_F_b * pyco2.convert.pH_free_to_nbs(totals, equilibria)
+H_S_b = H_N_b * pyco2.convert.pH_nbs_to_sws(totals, equilibria)
+H_T_b = H_S_b * pyco2.convert.pH_sws_to_total(totals, equilibria)
 
 # Do the missing combinations
-H_N_m = H_T_i * pyco2.convert.tot2nbs(totals, equilibria)
-H_T_m = H_N_m * pyco2.convert.nbs2tot(totals, equilibria)
-H_S_m = H_F_b * pyco2.convert.free2sws(totals, equilibria)
-H_F_m = H_S_f * pyco2.convert.sws2free(totals, equilibria)
+H_N_m = H_T_i * pyco2.convert.pH_total_to_nbs(totals, equilibria)
+H_T_m = H_N_m * pyco2.convert.pH_nbs_to_total(totals, equilibria)
+H_S_m = H_F_b * pyco2.convert.pH_free_to_sws(totals, equilibria)
+H_F_m = H_S_f * pyco2.convert.pH_sws_to_free(totals, equilibria)
 
 
 def test_pHconversions():

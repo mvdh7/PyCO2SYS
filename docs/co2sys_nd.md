@@ -6,7 +6,7 @@ From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you 
 
 ```python
 import PyCO2SYS as pyco2
-results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+results = pyco2.sys(par1=None, par2=None, par1_type=None, par2_type=None, **kwargs)
 ```
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
@@ -17,10 +17,14 @@ If you wish to also calculate [uncertainties](../uncertainty), you should put th
 
     `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
 
-From v1.7.0, it is possible to run `pyco2.sys` without providing any carbonate system parameters.  All of the other optional arguments can still be used.  In this case, the `results` dict contains all the equilibrium constants and total salt concentrations under the specified conditions:
+From v1.7.0, it is possible to run `pyco2.sys` without providing any carbonate system parameters or with just one parameter (see below).  All of the other optional arguments can still be used.  In this case, the `results` dict contains all the equilibrium constants and total salt contents under the specified conditions, e.g.:
 
 ```python
-results = pyco2.sys(**kwargs)  # evaluates everything at the default conditions
+# Convert a pH value to all pH scales, but don't solve the whole system:
+results = pyco2.sys(par1=8.1, par1_type=3, **kwargs)
+
+# Evaluate all equilibrium constants and total salts at default conditions:
+results = pyco2.sys()
 ```
 
 ## Arguments
@@ -29,12 +33,16 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
 !!! inputs "`pyco2.sys` arguments"
 
+    For all arguments and results in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* or *amount content* values (as opposed to *concentration* or *molality*).
+
     #### Carbonate system parameters
+
+    Either two, one or no carbonate system parameters can be provided.
 
     * `par1` and `par2`: values of two different carbonate system parameters.
     * `par1_type` and `par2_type`: which types of parameter `par1` and `par2` are.
 
-    These can be any pair of:
+    If two parameters are provided, these can be any pair of:
 
     * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
     * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
@@ -43,7 +51,11 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
 
-    For all arguments in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* or *amount content* values (as opposed to *concentration* or *molality*).
+    If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
+
+    * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales under the input conditions only.
+
+    If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents are returned, under the given conditions.
 
     #### Hydrographic conditions
 

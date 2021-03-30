@@ -3,7 +3,7 @@
 """Carbonate system solving in N dimensions."""
 
 from autograd import numpy as np
-from .. import equilibria, salts, solve
+from .. import convert, equilibria, salts, solve
 
 # Define function input keys that should be converted to floats
 input_floats = {
@@ -123,49 +123,51 @@ def _get_in_out(core, others, k_constants, suffix=""):
     """Assemble portion of CO2SYS_nd output dict containing input/output variables."""
     io = {}
     if core is not None:
-        io.update(
-            {
-                "pH": core["PH"],
-                "pCO2": core["PC"] * 1e6,
-                "fCO2": core["FC"] * 1e6,
-                "bicarbonate": core["HCO3"] * 1e6,
-                "carbonate": core["CARB"] * 1e6,
-                "aqueous_CO2": core["CO2"] * 1e6,
-            }
-        )
+
+        def add_if_in_core(external, internal, factor=1):
+            if internal in core:
+                io.update({external: core[internal] * factor})
+
+        add_if_in_core("pH", "PH", factor=1)
+        add_if_in_core("pCO2", "PC", factor=1e6)
+        add_if_in_core("fCO2", "FC", factor=1e6)
+        add_if_in_core("bicarbonate", "HCO3", factor=1e6)
+        add_if_in_core("carbonate", "CARB", factor=1e6)
+        add_if_in_core("aqueous_CO2", "CO2", factor=1e6)
     if others is not None:
-        io.update(
-            {
-                "alkalinity_borate": others["BAlk"] * 1e6,
-                "hydroxide": others["OH"] * 1e6,
-                "alkalinity_phosphate": others["PAlk"] * 1e6,
-                "alkalinity_silicate": others["SiAlk"] * 1e6,
-                "alkalinity_ammonia": others["NH3Alk"] * 1e6,
-                "alkalinity_sulfide": others["H2SAlk"] * 1e6,
-                "hydrogen_free": others["Hfree"] * 1e6,
-                "revelle_factor": others["Revelle"],
-                "saturation_calcite": others["OmegaCa"],
-                "saturation_aragonite": others["OmegaAr"],
-                "xCO2": others["xCO2dry"] * 1e6,
-                "pH_total": others["pHT"],
-                "pH_sws": others["pHS"],
-                "pH_free": others["pHF"],
-                "pH_nbs": others["pHN"],
-                "gamma_dic": others["gammaTC"],
-                "beta_dic": others["betaTC"],
-                "omega_dic": others["omegaTC"],
-                "gamma_alk": others["gammaTA"],
-                "beta_alk": others["betaTA"],
-                "omega_alk": others["omegaTA"],
-                "isocapnic_quotient": others["isoQ"],
-                "isocapnic_quotient_approx": others["isoQx"],
-                "psi": others["psi"],
-                "substrate_inhibitor_ratio": others["SIR"],
-                # Added in v1.6.0:
-                "alkalinity_alpha": others["alk_alpha"] * 1e6,
-                "alkalinity_beta": others["alk_beta"] * 1e6,
-            }
-        )
+
+        def add_if_in_others(external, internal, factor=1):
+            if internal in others:
+                io.update({external: others[internal] * factor})
+
+        add_if_in_others("alkalinity_borate", "BAlk", factor=1e6)
+        add_if_in_others("hydroxide", "OH", factor=1e6)
+        add_if_in_others("alkalinity_phosphate", "PAlk", factor=1e6)
+        add_if_in_others("alkalinity_silicate", "SiAlk", factor=1e6)
+        add_if_in_others("alkalinity_ammonia", "NH3Alk", factor=1e6)
+        add_if_in_others("alkalinity_sulfide", "H2SAlk", factor=1e6)
+        add_if_in_others("hydrogen_free", "Hfree", factor=1e6)
+        add_if_in_others("revelle_factor", "Revelle", factor=1)
+        add_if_in_others("saturation_calcite", "OmegaCa", factor=1)
+        add_if_in_others("saturation_aragonite", "OmegaAr", factor=1)
+        add_if_in_others("xCO2", "xCO2dry", factor=1e6)
+        add_if_in_others("pH_total", "pHT", factor=1)
+        add_if_in_others("pH_sws", "pHS", factor=1)
+        add_if_in_others("pH_free", "pHF", factor=1)
+        add_if_in_others("pH_nbs", "pHN", factor=1)
+        add_if_in_others("gamma_dic", "gammaTC", factor=1)
+        add_if_in_others("beta_dic", "betaTC", factor=1)
+        add_if_in_others("omega_dic", "omegaTC", factor=1)
+        add_if_in_others("gamma_alk", "gammaTA", factor=1)
+        add_if_in_others("beta_alk", "betaTA", factor=1)
+        add_if_in_others("omega_alk", "omegaTA", factor=1)
+        add_if_in_others("isocapnic_quotient", "isoQ", factor=1)
+        add_if_in_others("isocapnic_quotient_approx", "isoQx", factor=1)
+        add_if_in_others("psi", "psi", factor=1)
+        add_if_in_others("substrate_inhibitor_ratio", "SIR", factor=1)
+        # Added in v1.6.0:
+        add_if_in_others("alkalinity_alpha", "alk_alpha", factor=1e6)
+        add_if_in_others("alkalinity_beta", "alk_beta", factor=1e6)
         for c in [
             "HCO3",
             "CO3",
@@ -237,15 +239,17 @@ def _get_results_dict(
     results = {}
     if core_in is not None:
         results.update(
-            {
-                "par1": args["par1"],
-                "par2": args["par2"],
-                "par1_type": args["par1_type"],
-                "par2_type": args["par2_type"],
-                "alkalinity": core_in["TA"] * 1e6,
-                "dic": core_in["TC"] * 1e6,
-            }
+            {"par1": args["par1"], "par1_type": args["par1_type"],}
         )
+        if "TA" in core_in and "TC" in core_in:
+            results.update(
+                {
+                    "par2": args["par2"],
+                    "par2_type": args["par2_type"],
+                    "alkalinity": core_in["TA"] * 1e6,
+                    "dic": core_in["TC"] * 1e6,
+                }
+            )
     results.update(
         {
             "opt_k_bisulfate": args["opt_k_bisulfate"],
@@ -600,6 +604,18 @@ def CO2SYS(
             args["opt_k_carbonic"],
             args["buffers_mode"],
         )
+    elif par1 is not None and par2 is None:
+        if par1_type == 3:
+            core_in = {"PH": args["par1"]}
+            pH_total, pH_sws, pH_free, pH_nbs = convert.pH_to_all_scales(
+                args["par1"], args["opt_pH_scale"], totals, k_constants_in
+            )
+            others_in = {
+                "pHT": pH_total,
+                "pHS": pH_sws,
+                "pHF": pH_free,
+                "pHN": pH_nbs,
+            }
     else:
         core_in = None
         others_in = None

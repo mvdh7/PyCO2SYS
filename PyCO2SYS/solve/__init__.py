@@ -314,7 +314,7 @@ def others(
     VPFac = gas.vpfactor(TempC, Sal)
     xCO2dry = PC / VPFac  # this assumes pTot = 1 atm
     # Just for reference, convert pH at input conditions to the other scales
-    pHT, pHS, pHF, pHN = convert.pH2allscales(PH, pHScale, totals, Ks)
+    pHT, pHS, pHF, pHN = convert.pH_to_all_scales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
     assert np.all(
         np.isin(buffers_mode, ["auto", "explicit", "none"])

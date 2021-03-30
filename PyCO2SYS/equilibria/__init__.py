@@ -56,7 +56,7 @@ def assemble(
     # Find pH scale conversion factor: this is the scale they will be put on
     Ks = convert.get_pHfactor_from_SWS(TempK, Sal, totals, Ks, pHScale, WhichKs)
     pHfactor = Ks["pHfactor_from_SWS"]  # for convenience
-    SWStoTOT_P0 = convert.sws2tot_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
+    SWStoTOT_P0 = convert.pH_sws_to_total_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
     # Borate
     if "KB" not in Ks:
         Ks["KB"] = (

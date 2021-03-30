@@ -38,6 +38,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     ***New features***
 
     * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
+    * Can also run `pyco2.sys` with only one carbonate system parameter argument: pH.  This does not solve the carbonate system, but does convert pH to all other pH scales under the input conditions.
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
 
@@ -50,6 +51,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
     * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
     * The final component of DIC (or DIC itself) to be calculated is always computed by difference from the known components.
+    * Various functions in `convert` module renamed.
 
     ***Validation***
 

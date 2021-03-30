@@ -79,7 +79,7 @@ def AlkParts(TC, pH, totals, k_constants):
     SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + H)
     NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + H)
     H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + H)
-    FREEtoTOT = convert.free2tot(totals, k_constants)
+    FREEtoTOT = convert.pH_free_to_total(totals, k_constants)
     Hfree = H / FREEtoTOT  # for H on the Total scale
     HSO4 = totals["TSO4"] / (
         1 + k_constants["KSO4"] / Hfree
@@ -151,7 +151,7 @@ def speciation(dic, pH, totals, k_constants):
     sw["OH"] = k_constants["KW"] / h_scale
     if assume_pH_total:
         # Original CO2SYS-MATLAB approach, just here for testing
-        sw["Hfree"] = h_scale / convert.free2tot(totals, k_constants)
+        sw["Hfree"] = h_scale / convert.pH_free_to_total(totals, k_constants)
     else:
         # This is the default PyCO2SYS way - the original is a bug
         sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
