@@ -35,6 +35,7 @@ partypes = {
     6: "carbonate",
     7: "bicarbonate",
     8: "aqueous_CO2",
+    9: "xCO2",
 }
 
 
@@ -48,7 +49,7 @@ def rr_par_combos(par1_type, par2_type):
     # Select only valid combinations and cut out input combination
     allIcases = pyco2.solve.getIcase(par1_types, par2_types, checks=False)
     inputIcase = pyco2.solve.getIcase(par1_type, par2_type, checks=False)
-    valid = (par1_types != par2_types) & ~np.isin(allIcases, [45, 48, 58, inputIcase])
+    valid = (par1_types != par2_types) & ~np.isin(allIcases, [45, 48, 58, 49, 59, 89, inputIcase])
     par1_types = par1_types[valid]
     par2_types = par2_types[valid]
     return par1_types, par2_types
