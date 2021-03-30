@@ -33,7 +33,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
 !!! inputs "`pyco2.sys` arguments"
 
-    For all arguments and results in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* or *amount content* values (as opposed to *concentration* or *molality*).
+    For all arguments and results in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
     #### Carbonate system parameters
 
