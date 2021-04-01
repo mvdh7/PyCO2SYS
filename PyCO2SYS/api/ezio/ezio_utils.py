@@ -6,7 +6,7 @@
 
 import pandas as pd
 import os
-import PyCO2SYS as pyco2
+from ...engine.nd import CO2SYS as CO2SYS_nd
 
 def get_spreadsheet(path): #Input file MUST be the same format as in CO2SYS Excel. 
     """
@@ -169,7 +169,7 @@ def EZIO_calculate(input_file,
         itotal_silicate = input_file.iloc[i,[4]]
         itotal_phosphate = input_file.iloc[i,[3]]
         
-        results = pyco2.sys(par1, par2, par1_type, par2_type, #as in https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
+        results = CO2SYS_nd(par1, par2, par1_type, par2_type, #as in https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
                             salinity = isalinity, temperature = itemperature, 
                             pressure = ipressure, temperature_out = itemperature_out, 
                             pressure_out = ipressure_out, total_silicate = itotal_silicate, 
