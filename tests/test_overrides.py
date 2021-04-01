@@ -1,11 +1,12 @@
 # Test that using the internal overrides doesn't affect the results
 import pandas as pd, PyCO2SYS as pyco2
 
-# Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
-# using "validate/compare_MATLAB_extd.m".
-co2matlab = pd.read_csv("validate/results/compare_MATLAB_extd.csv")
+# Import input conditions: "compare_MATLABv3_1_1.csv" was generated in MATLAB
+# using "manuscript/compare_MATLABv3_1_1.m".
+co2matlab = pd.read_csv("manuscript/results/compare_MATLABv3_1_1.csv")
 
 # Convert constants options
+co2matlab = co2matlab[co2matlab.KSO4CONSTANT < 3]
 co2matlab["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
     co2matlab["KSO4CONSTANT"].values, co2matlab["BORON"].values
 )
@@ -56,4 +57,4 @@ def test_overrides():
     assert all(co2py_diff_absmax.values < 1e-11)
 
 
-test_overrides()
+# test_overrides()

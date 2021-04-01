@@ -10,12 +10,13 @@ from .. import convert
 def KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4):
     """Calculate bisulfate ion dissociation constant for the given options."""
     assert np.all(
-        np.isin(WhoseKSO4, [1, 2])
-    ), "Valid `WhoseKSO4` options are: `1` or `2`."
+        np.isin(WhoseKSO4, [1, 2, 3])
+    ), "Valid WhoseKSO4 values are: 1, 2 or 3."
     # Evaluate at atmospheric pressure
     KSO4 = np.full(np.shape(TempK), np.nan)
     KSO4 = np.where(WhoseKSO4 == 1, p1atm.kHSO4_FREE_D90a(TempK, Sal), KSO4)
     KSO4 = np.where(WhoseKSO4 == 2, p1atm.kHSO4_FREE_KRCB77(TempK, Sal), KSO4)
+    KSO4 = np.where(WhoseKSO4 == 3, p1atm.kHSO4_FREE_WM13(TempK, Sal), KSO4)
     # Now correct for seawater pressure
     KSO4 = KSO4 * pcx.KSO4fac(TempK, Pbar, RGas)
     return KSO4
@@ -23,7 +24,7 @@ def KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4):
 
 def KF(TempK, Sal, Pbar, RGas, WhoseKF):
     """Calculate HF dissociation constant for the given options."""
-    assert np.all(np.isin(WhoseKF, [1, 2])), "Valid `WhoseKF` options are: `1` or `2`."
+    assert np.all(np.isin(WhoseKF, [1, 2])), "Valid WhoseKF values are: 1 or 2."
     # Evaluate at atmospheric pressure
     KF = np.full(np.shape(TempK), np.nan)
     KF = np.where(WhoseKF == 1, p1atm.kHF_FREE_DR79(TempK, Sal), KF)
@@ -190,6 +191,8 @@ def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     K1, K2 = _getKC(WhichKs == 15, p1atm.kH2CO3_SWS_WMW14, 1.0, K1, K2, ts)
     # Added v1.4.1:
     K1, K2 = _getKC(WhichKs == 16, p1atm.kH2CO3_TOT_SLH20, SWStoTOT0, K1, K2, ts)
+    # Added v1.7.0:
+    K1, K2 = _getKC(WhichKs == 17, p1atm.kH2CO3_TOT_SB21, SWStoTOT0, K1, K2, ts)
     # Now correct for seawater pressure
     K1 = K1 * pcx.K1fac(TempK, Pbar, RGas, WhichKs)
     K2 = K2 * pcx.K2fac(TempK, Pbar, RGas, WhichKs)

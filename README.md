@@ -1,10 +1,10 @@
 # PyCO2SYS
 
-[![PyPI version](https://badge.fury.io/py/PyCO2SYS.svg)](https://badge.fury.io/py/PyCO2SYS)
+![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg)
+[![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
-[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://pyco2sys.readthedocs.io/en/latest/)
-[![Build Status](https://travis-ci.org/mvdh7/PyCO2SYS.svg?branch=master)](https://travis-ci.org/mvdh7/PyCO2SYS)
-[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/master/misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/master/misc/coverage.txt)
+[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=develop&style=flat)](https://pyco2sys.readthedocs.io/en/develop/)
+[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/develop/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/develop/.misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -26,7 +26,7 @@ The DOI above refers to all versions of PyCO2SYS.  Please also specify the versi
 
 ```python
 import PyCO2SYS as pyco2
-pyco2.say_hello()
+pyco2.hello()
 ```
 
 As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
@@ -50,7 +50,7 @@ import PyCO2SYS as pyco2
 results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
-Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict come from the original MATLAB output `HEADERS`.  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
+Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict are described in the [online documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
 
 There's also an alternative interface that is very similar to that of CO2SYS for MATLAB, [which you can use instead if you prefer](https://pyco2sys.readthedocs.io/en/latest/co2sys/).  It is also possible to provide Pandas Series and Xarray DataArrays using the wrapper functions provided.  For this and a more detailed explanation of all the inputs and outputs, see the [Pythonic API documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys/#using-the-pythonic-api).
 
@@ -58,7 +58,7 @@ You can also look at the [example scripts](https://github.com/mvdh7/PyCO2SYS/tre
 
 ## About
 
-PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with support from the main developers of all previous versions of CO<sub>2</sub>SYS.
+PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
 
 Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md) before setting to work.
 

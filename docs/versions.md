@@ -5,7 +5,9 @@
 
       * New *patch* versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
       * New *minor* versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
-      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may alter the results of calculations with default settings.
+      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may significantly alter the results of calculations with default settings.
+
+    In general, we will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.
 
 !!! warning
     *Will (not) break your code* refers **only** to the functions covered in this documentation.
@@ -24,6 +26,42 @@
       2. Additional calculated variables may be returned in the output `results`.
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
+
+## 1.7
+
+Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Documented in manuscript in preparation.
+
+### 1.7.0 (forthcoming)
+
+!!! new-version "Changes in v1.7.0"
+
+    ***New features***
+
+    * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
+    * Can also run `pyco2.sys` with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.
+    * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
+    * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
+
+    ***Internal updates***
+
+    * Switched default first-guess pH for solving from the alkalinity-carbonate ion parameter pair at low alkalinity from 10 to 3.
+    * Renamed various internal functions and variables for better consistency with the Pythonic `pyco2.sys` i/o syntax.
+    * Removed the `PyCO2SYS.test` module, instead defining the round-robin test functions it contained directly in the test suite.
+    * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
+    * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
+    * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
+    * The final component of DIC (or DIC itself) to be calculated is always computed by difference from the known components.
+    * Various functions in `convert` module renamed.
+
+    ***Validation***
+
+    * Rigorous validation against various CO2SYS-MATLAB versions performed, as described in forthcoming PyCO2SYS manuscript (Humphreys et al., in prep.).
+
+    ***Bug fixes***
+
+    * `par1`, `par2`, `par1_type` and `par2_type` arguments now always get broadcasted to the maximum size, even if they are scalar.
+    * Erroneous `"k_phosphate_*"` keys corrected to `"k_phosphoric_"`.
+    * Override values for equilibrium constants under output conditions now assigned correctly.
 
 ## 1.6
 

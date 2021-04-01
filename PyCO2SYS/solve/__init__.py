@@ -19,22 +19,20 @@ def _core_sanity(TC, PC, FC, CARB, HCO3, CO2):
     assert np.all((FC >= 0) | np.isnan(FC)), "CO2 fugacity cannot be negative."
     assert np.all(
         (CARB >= 0) | np.isnan(CARB)
-    ), "Carbonate ion molinity cannot be negative."
+    ), "Carbonate ion content cannot be negative."
     assert np.all(
         (HCO3 >= 0) | np.isnan(HCO3)
-    ), "Bicarbonate ion molinity cannot be negative."
-    assert np.all(
-        (CO2 >= 0) | np.isnan(CO2)
-    ), "Aqueous CO2 molinity cannot be negative."
+    ), "Bicarbonate ion content cannot be negative."
+    assert np.all((CO2 >= 0) | np.isnan(CO2)), "Aqueous CO2 content cannot be negative."
     assert np.all(
         (CARB < TC) | np.isnan(CARB) | np.isnan(TC)
-    ), "Carbonate ion molinity must be less than DIC."
+    ), "Carbonate ion content must be less than DIC."
     assert np.all(
         (HCO3 < TC) | np.isnan(HCO3) | np.isnan(TC)
-    ), "Bicarbonate ion molinity must be less than DIC."
+    ), "Bicarbonate ion content must be less than DIC."
     assert np.all(
         (CO2 < TC) | np.isnan(CO2) | np.isnan(TC)
-    ), "Aqueous CO2 molinity must be less than DIC."
+    ), "Aqueous CO2 content must be less than DIC."
 
 
 def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
@@ -55,6 +53,7 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     CARB = np.full(ntps, np.nan)  # carbonate ions
     HCO3 = np.full(ntps, np.nan)  # bicarbonate ions
     CO2 = np.full(ntps, np.nan)  # aqueous CO2
+    XC = np.full(ntps, np.nan)  # dry mole fraction of CO2
     # Assign values to empty vectors & convert micro[mol|atm] to [mol|atm] if requested
     assert isinstance(convert_units, bool), "`convert_units` must be `True` or `False`."
     if convert_units:
@@ -69,6 +68,7 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     CARB = np.where(par1type == 6, par1 * cfac, CARB)
     HCO3 = np.where(par1type == 7, par1 * cfac, HCO3)
     CO2 = np.where(par1type == 8, par1 * cfac, CO2)
+    XC = np.where(par1type == 9, par1 * cfac, XC)
     TA = np.where(par2type == 1, par2 * cfac, TA)
     TC = np.where(par2type == 2, par2 * cfac, TC)
     PH = np.where(par2type == 3, par2, PH)
@@ -77,9 +77,10 @@ def pair2core(par1, par2, par1type, par2type, convert_units=False, checks=True):
     CARB = np.where(par2type == 6, par2 * cfac, CARB)
     HCO3 = np.where(par2type == 7, par2 * cfac, HCO3)
     CO2 = np.where(par2type == 8, par2 * cfac, CO2)
+    XC = np.where(par2type == 9, par2 * cfac, XC)
     if checks:
         _core_sanity(TC, PC, FC, CARB, HCO3, CO2)
-    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
+    return TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC
 
 
 def getIcase(par1type, par2type, checks=True):
@@ -95,30 +96,31 @@ def getIcase(par1type, par2type, checks=True):
       * `6` = carbonate ion
       * `7` = bicarbonate ion
       * `8` = aqueous CO2
+      * `9` = dry mole fraction of CO2
 
     `Icase` is `10*parXtype + parYtype` where `parXtype` is whichever of `par1type` or
     `par2type` is greater.
 
-    Noting that a pair of any two from pCO2, fCO2 and CO2(aq) is not allowed, the valid
-    `Icase` options are therefore:
+    Noting that a pair of any two from pCO2, fCO2, xCO2 CO2(aq) is not allowed, the
+    valid `Icase` options are:
 
-        12, 13, 14, 15, 16, 17, 18,
-            23, 24, 25, 26, 27, 28,
-                34, 35, 36, 37, 38,
+        12, 13, 14, 15, 16, 17, 18, 19,
+            23, 24, 25, 26, 27, 28, 29,
+                34, 35, 36, 37, 38, 39,
                         46, 47,
                         56, 57,
-                            67, 68,
-                                78.
+                            67, 68, 69,
+                                78, 79.
 
-    The optional input `checks` allows you to decide whether the function should test
+    The optional argument `checks` allows you to decide whether the function should test
     the validity of the entered combinations or not.
     """
     # Check validity of separate `par1type` and `par2type` inputs
     if checks:
         assert np.all(
-            np.isin(par1type, [1, 2, 3, 4, 5, 6, 7, 8])
-            & np.isin(par2type, [1, 2, 3, 4, 5, 6, 7, 8])
-        ), "All `par1type` and `par2type` values must be integers from 1 to 8."
+            np.isin(par1type, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+            & np.isin(par2type, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+        ), "All `par1type` and `par2type` values must be integers from 1 to 9."
         assert ~np.any(
             par1type == par2type
         ), "`par1type` and `par2type` must be different from each other."
@@ -128,21 +130,23 @@ def getIcase(par1type, par2type, checks=True):
     )
     if checks:
         assert ~np.any(
-            np.isin(Icase, [45, 48, 58])
-        ), "Combinations of pCO2, fCO2 and CO2(aq) are not valid input pairs."
+            np.isin(Icase, [45, 48, 49, 58, 59, 89])
+        ), "Combinations of pCO2, fCO2, xCO2 and CO2(aq) are not valid argument pairs."
     return Icase
 
 
-def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
+def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks):
     """Fill part-empty core marine carbonate system variable columns with solutions."""
     # For convenience
     K0 = Ks["K0"]
     PengCx = totals["PengCorrection"]
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = np.isin(Icase, [14, 24, 34, 46, 47])
-    FC = np.where(PCgiven, PC * Ks["FugFac"], FC)
+    FC = np.where(PCgiven, convert.pCO2_to_fCO2(PC, Ks), FC)
     CO2given = np.isin(Icase, [18, 28, 38, 68, 78])
-    FC = np.where(CO2given, CO2 / K0, FC)
+    FC = np.where(CO2given, convert.CO2aq_to_fCO2(CO2, Ks), FC)
+    XCgiven = np.isin(Icase, [19, 29, 39, 69, 79])
+    FC = np.where(XCgiven, convert.xCO2_to_fCO2(XC, Ks), FC)
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
     if np.any(F):
@@ -157,12 +161,15 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = (Icase == 14) | (Icase == 15) | (Icase == 18)  # input TA, [pCO2|fCO2|CO2aq]
+    F = (
+        (Icase == 14) | (Icase == 15) | (Icase == 18) | (Icase == 19)
+    )  # input TA, [pCO2|fCO2|CO2aq|xCO2]
     if np.any(F):
         PH = np.where(F, get.pHfromTAfCO2(TA - PengCx, FC, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
+        HCO3 = np.where(Icase == 18, TC - CARB - CO2, HCO3)
     F = Icase == 16  # input TA, CARB
     if np.any(F):
         PH = np.where(F, get.pHfromTACarb(TA - PengCx, CARB, totals, Ks), PH)
@@ -181,12 +188,15 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = (Icase == 24) | (Icase == 25) | (Icase == 28)  # input TC, [pCO2|fCO2|CO2aq]
+    F = (
+        (Icase == 24) | (Icase == 25) | (Icase == 28) | (Icase == 29)
+    )  # input TC, [pCO2|fCO2|CO2aq|xCO2]
     if np.any(F):
         PH = np.where(F, get.pHfromTCfCO2(TC, FC, totals, Ks), PH)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
+        HCO3 = np.where(Icase == 28, TC - CARB - CO2, HCO3)
     F = Icase == 26  # input TC, CARB
     if np.any(F):
         PH = np.where(F, get.pHfromTCCarb(TC, CARB, totals, Ks), PH)
@@ -199,12 +209,15 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
-    F = (Icase == 34) | (Icase == 35) | (Icase == 38)  # input pH, [pCO2|fCO2|CO2aq]
+    F = (
+        (Icase == 34) | (Icase == 35) | (Icase == 38) | (Icase == 39)
+    )  # input pH, [pCO2|fCO2|CO2aq|xCO2]
     if np.any(F):
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
+        HCO3 = np.where(Icase == 38, TC - CARB - CO2, HCO3)
     F = Icase == 36  # input pH, CARB
     if np.any(F):
         FC = np.where(F, get.fCO2frompHCarb(PH, CARB, totals, Ks), FC)
@@ -217,29 +230,38 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks):
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
-    F = (Icase == 46) | (Icase == 56) | (Icase == 68)  # input [pCO2|fCO2|CO2aq], CARB
+    F = (
+        (Icase == 46) | (Icase == 56) | (Icase == 68) | (Icase == 69)
+    )  # input [pCO2|fCO2|CO2aq|xCO2], CARB
     if np.any(F):
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
+        HCO3 = np.where(Icase == 68, TC - CARB - CO2, HCO3)
+    F = (
+        (Icase == 47) | (Icase == 57) | (Icase == 78) | (Icase == 79)
+    )  # input [pCO2|fCO2|CO2aq|xCO2], HCO3
+    if np.any(F):
+        CARB = np.where(F, get.CarbfromfCO2HCO3(FC, HCO3, totals, Ks), CARB)
+        PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
+        TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
+        TC = np.where(Icase == 78, CO2 + HCO3 + CARB, TC)
+        TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
     F = Icase == 67  # input CO3, HCO3
     if np.any(F):
         FC = np.where(F, get.fCO2fromCarbHCO3(CARB, HCO3, totals, Ks), FC)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
-    F = (Icase == 47) | (Icase == 57) | (Icase == 78)  # input [pCO2|fCO2|CO2aq], HCO3
-    if np.any(F):
-        CARB = np.where(F, get.CarbfromfCO2HCO3(FC, HCO3, totals, Ks), CARB)
-        PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
-        TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
-        TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
-    PC = np.where(~PCgiven, FC / Ks["FugFac"], PC)
-    CO2 = np.where(~CO2given, FC * K0, CO2)
-    return TA, TC, PH, PC, FC, CARB, HCO3, CO2
+    PC = np.where(~PCgiven, convert.fCO2_to_pCO2(FC, Ks), PC)
+    # CO2 = np.where(~CO2given, FC * K0, CO2)  # up to v1.6.0
+    CO2 = np.where(~CO2given, TC - CARB - HCO3, CO2)  # v1.7.0 onwards
+    XC = np.where(~XCgiven, convert.fCO2_to_xCO2(FC, Ks), XC)  # added in v1.7.0
+    # ^this assumes pTot = 1 atm
+    return TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC
 
 
 def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
@@ -255,19 +277,20 @@ def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
       * Type `6`, `CARB`: carbonate ion in (μ)mol/kg-sw.
       * Type `7`, `HCO3`: bicarbonate ion in (μ)mol/kg-sw.
       * Type `8`, `CO2`: aqueous CO2 in (μ)mol/kg-sw.
+      * Type `9`, `XC`: dry mole fraction of CO2 in ppm.
 
     The input `convert_units` specifies whether the inputs `par1` and `par2` are in
     μmol/kg and μatm units (`True`) or mol/kg and atm units (`False`).
     """
     # Expand inputs `par1` and `par2` into one array per core MCS variable
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = pair2core(
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC = pair2core(
         par1, par2, par1type, par2type, convert_units=convert_units, checks=True
     )
     # Generate vector describing the combination(s) of input parameters
     Icase = getIcase(par1type, par2type)
     # Solve the core marine carbonate system
-    TA, TC, PH, PC, FC, CARB, HCO3, CO2 = fill(
-        Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, totals, Ks
+    TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC = fill(
+        Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks
     )
     return {
         "TA": TA,
@@ -278,6 +301,7 @@ def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
         "CARB": CARB,
         "HCO3": HCO3,
         "CO2": CO2,
+        "XC": XC,
     }
 
 
@@ -306,11 +330,8 @@ def others(
     sw["PAlk"] = sw["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(CARB, totals, Ks)
-    # Dry mole fraction of CO2
-    VPFac = gas.vpfactor(TempC, Sal)
-    xCO2dry = PC / VPFac  # this assumes pTot = 1 atm
     # Just for reference, convert pH at input conditions to the other scales
-    pHT, pHS, pHF, pHN = convert.pH2allscales(PH, pHScale, totals, Ks)
+    pHT, pHS, pHF, pHN = convert.pH_to_all_scales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
     assert np.all(
         np.isin(buffers_mode, ["auto", "explicit", "none"])
@@ -391,8 +412,6 @@ def others(
         "pK2": pK2,
         "OmegaCa": OmegaCa,
         "OmegaAr": OmegaAr,
-        "VPFac": VPFac,
-        "xCO2dry": xCO2dry,
         "pHT": pHT,
         "pHS": pHS,
         "pHF": pHF,

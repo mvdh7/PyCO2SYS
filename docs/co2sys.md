@@ -2,7 +2,7 @@
 
 ## Syntax
 
-Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface.
+Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface; this one is no longer being actively developed.
 
 Read further on this page if you want to stick with the MATLAB-style syntax.  This is accessed using the top-level `CO2SYS` function:
 
@@ -122,6 +122,7 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
+        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 

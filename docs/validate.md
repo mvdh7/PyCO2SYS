@@ -247,7 +247,7 @@ PyCO2SYS corrects errors 1 and 2 above.  By default, PyCO2SYS also evaluates the
 
 With `buffers_mode='explicit'`, PyCO2SYS does use the finite-difference approach but it reduces the DIC perturbation size from 1 to 0.01 μmol/kg-sw to increase its accuracy.  If we revert both this change and the corrections above, then PyCO2SYS returns Revelle factors that agree with CO2SYS for MATLAB to within 10<sup>−6</sup>%.
 
-[^1]: The pH tolerance threshold for all iterative solvers is controlled by `PyCO2SYS.solve.get.pHTol`.
+[^1]: The pH tolerance threshold for all iterative solvers is controlled by `PyCO2SYS.solve.get.pH_tolerance`.
 
 [^2]: The [default conditions](../co2sys/#using-the-pythonic-api) for `PyCO2SYS.api.CO2SYS_wrap` with total alkalinity = 2300 μmol/kg-sw and DIC = 2150 μmol/kg-sw.
 

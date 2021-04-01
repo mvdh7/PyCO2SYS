@@ -56,7 +56,7 @@ def assemble(
     # Find pH scale conversion factor: this is the scale they will be put on
     Ks = convert.get_pHfactor_from_SWS(TempK, Sal, totals, Ks, pHScale, WhichKs)
     pHfactor = Ks["pHfactor_from_SWS"]  # for convenience
-    SWStoTOT_P0 = convert.sws2tot_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
+    SWStoTOT_P0 = convert.pH_sws_to_total_P0(TempK, totals, Ks, WhoseKSO4, WhoseKF)
     # Borate
     if "KB" not in Ks:
         Ks["KB"] = (
@@ -100,6 +100,8 @@ def assemble(
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
         Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
+    if "VPFac" not in Ks:
+        Ks["VPFac"] = gas.vpfactor(TempC, Sal)
     Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
     # Aragonite and calcite solubility products
     if "KAr" not in Ks:
@@ -115,8 +117,8 @@ def assemble(
             solubility.k_calcite_M83(TempK, Sal, Pbar, RGas),
         )
     # Extra alkalinity components
-    if "alpha" not in Ks:
-        Ks["alpha"] = 1e-7
-    if "beta" not in Ks:
-        Ks["beta"] = 1e-7
+    if "k_alpha" not in Ks:
+        Ks["k_alpha"] = 1e-7
+    if "k_beta" not in Ks:
+        Ks["k_beta"] = 1e-7
     return Ks

@@ -2,7 +2,7 @@
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
 """Estimate stoichiometric equilibrium constants at atmospheric pressure."""
 
-from autograd.numpy import errstate, exp, log, log10, sqrt
+from autograd import numpy as np
 from .. import salts
 
 
@@ -15,10 +15,10 @@ def kCO2_W74(TempK, Sal):
     lnK0 = (
         -60.2409
         + 93.4517 / TempK100
-        + 23.3585 * log(TempK100)
+        + 23.3585 * np.log(TempK100)
         + Sal * (0.023517 - 0.023656 * TempK100 + 0.0047036 * TempK100 ** 2)
     )
-    return exp(lnK0)
+    return np.exp(lnK0)
 
 
 def kHSO4_FREE_D90a(TempK, Sal):
@@ -30,18 +30,18 @@ def kHSO4_FREE_D90a(TempK, Sal):
     # TYPO on p. 121: the constant e9 should be e8.
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
-    logTempK = log(TempK)
+    logTempK = np.log(TempK)
     IonS = salts.ionstr_DOE94(Sal)
     lnKSO4 = (
         -4276.1 / TempK
         + 141.328
         - 23.093 * logTempK
-        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * sqrt(IonS)
+        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.sqrt(IonS)
         + (35474 / TempK - 771.54 + 114.723 * logTempK) * IonS
-        + (-2698 / TempK) * sqrt(IonS) * IonS
+        + (-2698 / TempK) * np.sqrt(IonS) * IonS
         + (1776 / TempK) * IonS ** 2
     )
-    return exp(lnKSO4) * (1 - 0.001005 * Sal)
+    return np.exp(lnKSO4) * (1 - 0.001005 * Sal)
 
 
 def kHSO4_FREE_KRCB77(TempK, Sal):
@@ -61,8 +61,33 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
     IonS = salts.ionstr_DOE94(Sal)
-    pKSO4 = 647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * sqrt(IonS)
+    pKSO4 = 647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(IonS)
     return 10.0 ** -pKSO4 * (1 - 0.001005 * Sal)
+
+
+def kHSO4_FREE_WM13(TempK, Sal):
+    """Bisulfate dissociation constant following WM13/WMW14."""
+    logKS0 = (
+        562.69486
+        - 102.5154 * np.log(TempK)
+        - 0.0001117033 * TempK ** 2
+        + 0.2477538 * TempK
+        - 13273.76 / TempK
+    )
+    logKSK0 = (
+        (
+            4.24666
+            - 0.152671 * TempK
+            + 0.0267059 * TempK * np.log(TempK)
+            - 0.000042128 * TempK ** 2
+        )
+        * Sal ** 0.5
+        + (0.2542181 - 0.00509534 * TempK + 0.00071589 * TempK * np.log(TempK)) * Sal
+        + (-0.00291179 + 0.0000209968 * TempK) * Sal ** 1.5
+        + -0.0000403724 * Sal ** 2
+    )
+    kSO4 = (1 - 0.001005 * Sal) * 10.0 ** (logKSK0 + logKS0)
+    return kSO4
 
 
 def kHF_FREE_DR79(TempK, Sal):
@@ -72,7 +97,7 @@ def kHF_FREE_DR79(TempK, Sal):
     # this is on the free pH scale in mol/kg-sw
     IonS = salts.ionstr_DOE94(Sal)
     lnKF = 1590.2 / TempK - 12.641 + 1.525 * IonS ** 0.5
-    return exp(lnKF) * (1 - 0.001005 * Sal)
+    return np.exp(lnKF) * (1 - 0.001005 * Sal)
 
 
 def kHF_FREE_PF87(TempK, Sal):
@@ -86,7 +111,7 @@ def kHF_FREE_PF87(TempK, Sal):
     # which is based on only three Salinities: [0 26.7 34.6]
     # Output is on the free pH scale in mol/kg-SW.
     lnKF = 874 / TempK - 9.68 + 0.111 * Sal ** 0.5
-    return exp(lnKF)
+    return np.exp(lnKF)
 
 
 def kBOH3_NBS_LTB69(TempK, Sal):
@@ -106,7 +131,7 @@ def kBOH3_TOT_D90b(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Dickson, A. G., Deep-Sea Research 37:755-766, 1990.
     # lnKB is on Total pH scale
-    sqrSal = sqrt(Sal)
+    sqrSal = np.sqrt(Sal)
     lnKBtop = (
         -8966.9
         - 2890.53 * sqrSal
@@ -119,21 +144,21 @@ def kBOH3_TOT_D90b(TempK, Sal):
         + 148.0248
         + 137.1942 * sqrSal
         + 1.62142 * Sal
-        + (-24.4344 - 25.085 * sqrSal - 0.2474 * Sal) * log(TempK)
+        + (-24.4344 - 25.085 * sqrSal - 0.2474 * Sal) * np.log(TempK)
         + 0.053105 * sqrSal * TempK
     )
-    return exp(lnKB)
+    return np.exp(lnKB)
 
 
 def kH2O_SWS_M79(TempK, Sal):
     """Water dissociation constant following M79."""
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
-    return exp(
+    return np.exp(
         148.9802
         - 13847.26 / TempK
-        - 23.6521 * log(TempK)
-        + (-79.2447 + 3298.72 / TempK + 12.0408 * log(TempK)) * sqrt(Sal)
+        - 23.6521 * np.log(TempK)
+        + (-79.2447 + 3298.72 / TempK + 12.0408 * np.log(TempK)) * np.sqrt(Sal)
         - 0.019813 * Sal
     )
 
@@ -144,7 +169,7 @@ def kH2O_SWS_HO58_M79(TempK, Sal):
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
-    return exp(148.9802 - 13847.26 / TempK - 23.6521 * log(TempK))
+    return np.exp(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK))
 
 
 def kH2O_SWS_M95(TempK, Sal):
@@ -152,11 +177,11 @@ def kH2O_SWS_M95(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
     # his check value of 1.6 umol/kg-SW should be 6.2 (for ln(k))
-    return exp(
+    return np.exp(
         148.9802
         - 13847.26 / TempK
-        - 23.6521 * log(TempK)
-        + (-5.977 + 118.67 / TempK + 1.0495 * log(TempK)) * sqrt(Sal)
+        - 23.6521 * np.log(TempK)
+        + (-5.977 + 118.67 / TempK + 1.0495 * np.log(TempK)) * np.sqrt(Sal)
         - 0.01615 * Sal
     )
 
@@ -171,8 +196,8 @@ def kH3PO4_NBS_KP67(TempK, Sal):
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
     KP1 = 0.02  # This is already on the seawater scale!
-    KP2 = exp(-9.039 - 1450 / TempK)
-    KP3 = exp(4.466 - 7276 / TempK)
+    KP2 = np.exp(-9.039 - 1450 / TempK)
+    KP3 = np.exp(4.466 - 7276 / TempK)
     return KP1, KP2, KP3
 
 
@@ -192,26 +217,26 @@ def kH3PO4_SWS_YM95(TempK, Sal):
     lnKP1 = (
         -4576.752 / TempK
         + 115.54
-        - 18.453 * log(TempK)
-        + (-106.736 / TempK + 0.69171) * sqrt(Sal)
+        - 18.453 * np.log(TempK)
+        + (-106.736 / TempK + 0.69171) * np.sqrt(Sal)
         + (-0.65643 / TempK - 0.01844) * Sal
     )
-    KP1 = exp(lnKP1)
+    KP1 = np.exp(lnKP1)
     lnKP2 = (
         -8814.715 / TempK
         + 172.1033
-        - 27.927 * log(TempK)
-        + (-160.34 / TempK + 1.3566) * sqrt(Sal)
+        - 27.927 * np.log(TempK)
+        + (-160.34 / TempK + 1.3566) * np.sqrt(Sal)
         + (0.37335 / TempK - 0.05778) * Sal
     )
-    KP2 = exp(lnKP2)
+    KP2 = np.exp(lnKP2)
     lnKP3 = (
         -3070.75 / TempK
         - 18.126
-        + (17.27039 / TempK + 2.81197) * sqrt(Sal)
+        + (17.27039 / TempK + 2.81197) * np.sqrt(Sal)
         + (-44.99486 / TempK - 0.09984) * Sal
     )
-    KP3 = exp(lnKP3)
+    KP3 = np.exp(lnKP3)
     return KP1, KP2, KP3
 
 
@@ -225,12 +250,12 @@ def kSi_SWS_YM95(TempK, Sal):
     lnKSi = (
         -8904.2 / TempK
         + 117.4
-        - 19.334 * log(TempK)
-        + (-458.79 / TempK + 3.5913) * sqrt(IonS)
+        - 19.334 * np.log(TempK)
+        + (-458.79 / TempK + 3.5913) * np.sqrt(IonS)
         + (188.74 / TempK - 1.5998) * IonS
         + (-12.1652 / TempK + 0.07871) * IonS ** 2
     )
-    return exp(lnKSi) * (1 - 0.001005 * Sal)
+    return np.exp(lnKSi) * (1 - 0.001005 * Sal)
 
 
 def kH2CO3_TOT_RRV93(TempK, Sal):
@@ -253,24 +278,24 @@ def kH2CO3_TOT_RRV93(TempK, Sal):
     lnK1 = (
         2.83655
         - 2307.1266 / TempK
-        - 1.5529413 * log(TempK)
-        + (-0.20760841 - 4.0484 / TempK) * sqrt(Sal)
+        - 1.5529413 * np.log(TempK)
+        + (-0.20760841 - 4.0484 / TempK) * np.sqrt(Sal)
         + 0.08468345 * Sal
-        - 0.00654208 * sqrt(Sal) * Sal
+        - 0.00654208 * np.sqrt(Sal) * Sal
     )
-    K1 = exp(lnK1) * (  # this is on the total pH scale in mol/kg-H2O
+    K1 = np.exp(lnK1) * (  # this is on the total pH scale in mol/kg-H2O
         1 - 0.001005 * Sal
     )  # convert to mol/kg-SW
     # This is eq. 30 on p. 254 and what they use in their abstract:
     lnK2 = (
         -9.226508
         - 3351.6106 / TempK
-        - 0.2005743 * log(TempK)
-        + (-0.106901773 - 23.9722 / TempK) * sqrt(Sal)
+        - 0.2005743 * np.log(TempK)
+        + (-0.106901773 - 23.9722 / TempK) * np.sqrt(Sal)
         + 0.1130822 * Sal
-        - 0.00846934 * sqrt(Sal) * Sal
+        - 0.00846934 * np.sqrt(Sal) * Sal
     )
-    K2 = exp(lnK2) * (  # this is on the total pH scale in mol/kg-H2O
+    K2 = np.exp(lnK2) * (  # this is on the total pH scale in mol/kg-H2O
         1 - 0.001005 * Sal
     )  # convert to mol/kg-SW
     return K1, K2
@@ -283,10 +308,10 @@ def kH2CO3_SWS_GP89(TempK, Sal):
     # The 2s precision in pK1 is .011, or 2.5% in K1.
     # The 2s precision in pK2 is .02, or 4.5% in K2.
     # This is in Table 5 on p. 1652 and what they use in the abstract:
-    pK1 = 812.27 / TempK + 3.356 - 0.00171 * Sal * log(TempK) + 0.000091 * Sal ** 2
+    pK1 = 812.27 / TempK + 3.356 - 0.00171 * Sal * np.log(TempK) + 0.000091 * Sal ** 2
     K1 = 10.0 ** -pK1  # this is on the SWS pH scale in mol/kg-SW
     # This is in Table 5 on p. 1652 and what they use in the abstract:
-    pK2 = 1450.87 / TempK + 4.604 - 0.00385 * Sal * log(TempK) + 0.000182 * Sal ** 2
+    pK2 = 1450.87 / TempK + 4.604 - 0.00385 * Sal * np.log(TempK) + 0.000182 * Sal ** 2
     K2 = 10.0 ** -pK2  # this is on the SWS pH scale in mol/kg-SW
     return K1, K2
 
@@ -314,7 +339,7 @@ def kH2CO3_SWS_H73_DM87(TempK, Sal):
     pK2 = (
         -3885.4 / TempK
         + 125.844
-        - 18.141 * log(TempK)
+        - 18.141 * np.log(TempK)
         - 0.0192 * Sal
         + 0.000132 * Sal ** 2
     )
@@ -338,7 +363,7 @@ def kH2CO3_SWS_MCHP73_DM87(TempK, Sal):
     pK1 = (
         3670.7 / TempK
         - 62.008
-        + 9.7944 * log(TempK)
+        + 9.7944 * np.log(TempK)
         - 0.0118 * Sal
         + 0.000116 * Sal ** 2
     )
@@ -375,7 +400,7 @@ def kH2CO3_SWS_HM_DM87(TempK, Sal):
     return K1, K2
 
 
-@errstate(divide="ignore", invalid="ignore")  # because Sal=0 gives log10(Sal)=-inf
+@np.errstate(divide="ignore", invalid="ignore")  # because Sal=0 gives log10(Sal)=-inf
 def kH2CO3_NBS_MCHP73(TempK, Sal):
     """Carbonic acid dissociation constants following MCHP73."""
     # === CO2SYS.m comments: =======
@@ -396,11 +421,11 @@ def kH2CO3_NBS_MCHP73(TempK, Sal):
         5371.9645
         + 1.671221 * TempK
         + 0.22913 * Sal
-        + 18.3802 * log10(Sal)
+        + 18.3802 * np.log10(Sal)
         - 128375.28 / TempK
-        - 2194.3055 * log10(TempK)
+        - 2194.3055 * np.log10(TempK)
         - 8.0944e-4 * Sal * TempK
-        - 5617.11 * log10(Sal) / TempK
+        - 5617.11 * np.log10(Sal) / TempK
         + 2.136 * Sal / TempK
     )  # pK2 is not defined for Sal=0, since log10(0)=-inf
     K2 = 10.0 ** -pK2  # this is on the NBS scale
@@ -419,11 +444,11 @@ def kH2CO3_SWS_M79(TempK, Sal):
     # This is only to be used for Sal=0 water (note the absence of S in the
     # below formulations).
     # These are the thermodynamic Constants:
-    logTempK = log(TempK)
+    logTempK = np.log(TempK)
     lnK1 = 290.9097 - 14554.21 / TempK - 45.0575 * logTempK
-    K1 = exp(lnK1)
+    K1 = np.exp(lnK1)
     lnK2 = 207.6548 - 11843.79 / TempK - 33.6485 * logTempK
-    K2 = exp(lnK2)
+    K2 = np.exp(lnK2)
     return K1, K2
 
 
@@ -475,7 +500,7 @@ def kH2CO3_TOT_LDK00(TempK, Sal):
     pK1 = (
         3633.86 / TempK
         - 61.2172
-        + 9.6777 * log(TempK)
+        + 9.6777 * np.log(TempK)
         - 0.011555 * Sal
         + 0.0001152 * Sal ** 2
     )
@@ -483,7 +508,7 @@ def kH2CO3_TOT_LDK00(TempK, Sal):
     pK2 = (
         471.78 / TempK
         + 25.929
-        - 3.16967 * log(TempK)
+        - 3.16967 * np.log(TempK)
         - 0.01781 * Sal
         + 0.0001122 * Sal ** 2
     )
@@ -504,16 +529,16 @@ def kH2CO3_SWS_MM02(TempK, Sal):
         - 0.0129037 * Sal
         + 1.364e-4 * Sal ** 2
         + 2885.378 / TempK
-        + 7.045159 * log(TempK)
+        + 7.045159 * np.log(TempK)
     )
     pK2 = (
         -452.0940
         + 13.142162 * Sal
         - 8.101e-4 * Sal ** 2
         + 21263.61 / TempK
-        + 68.483143 * log(TempK)
+        + 68.483143 * np.log(TempK)
         + (-581.4428 * Sal + 0.259601 * Sal ** 2) / TempK
-        - 1.967035 * Sal * log(TempK)
+        - 1.967035 * Sal * np.log(TempK)
     )
     K1 = 10.0 ** -pK1  # this is on the SWS pH scale in mol/kg-SW
     K2 = 10.0 ** -pK2  # this is on the SWS pH scale in mol/kg-SW
@@ -544,17 +569,17 @@ def kH2CO3_SWS_MGH06(TempK, Sal):
     # 80-94.
     # S=1 to 50, T=0 to 50. On seawater scale (SWS). From titrations in Gulf
     # Stream seawater.
-    pK1_0 = -126.34048 + 6320.813 / TempK + 19.568224 * log(TempK)
+    pK1_0 = -126.34048 + 6320.813 / TempK + 19.568224 * np.log(TempK)
     A_1 = 13.4191 * Sal ** 0.5 + 0.0331 * Sal - 5.33e-5 * Sal ** 2
     B_1 = -530.123 * Sal ** 0.5 - 6.103 * Sal
     C_1 = -2.06950 * Sal ** 0.5
-    pK1 = A_1 + B_1 / TempK + C_1 * log(TempK) + pK1_0  # pK1 sigma = 0.0054
+    pK1 = A_1 + B_1 / TempK + C_1 * np.log(TempK) + pK1_0  # pK1 sigma = 0.0054
     K1 = 10.0 ** -(pK1)
-    pK2_0 = -90.18333 + 5143.692 / TempK + 14.613358 * log(TempK)
+    pK2_0 = -90.18333 + 5143.692 / TempK + 14.613358 * np.log(TempK)
     A_2 = 21.0894 * Sal ** 0.5 + 0.1248 * Sal - 3.687e-4 * Sal ** 2
     B_2 = -772.483 * Sal ** 0.5 - 20.051 * Sal
     C_2 = -3.3336 * Sal ** 0.5
-    pK2 = A_2 + B_2 / TempK + C_2 * log(TempK) + pK2_0  # pK2 sigma = 0.011
+    pK2 = A_2 + B_2 / TempK + C_2 * np.log(TempK) + pK2_0  # pK2 sigma = 0.011
     K2 = 10.0 ** -(pK2)
     return K1, K2
 
@@ -569,26 +594,33 @@ def kH2CO3_SWS_M10(TempK, Sal):
     # (2006)
     # Constants for K's on the SWS;
     # This is from page 141
-    pK10 = -126.34048 + 6320.813 / TempK + 19.568224 * log(TempK)
+    pK10 = -126.34048 + 6320.813 / TempK + 19.568224 * np.log(TempK)
     # This is from their table 2, page 140.
     A1 = 13.4038 * Sal ** 0.5 + 0.03206 * Sal - 5.242e-5 * Sal ** 2
     B1 = -530.659 * Sal ** 0.5 - 5.8210 * Sal
     C1 = -2.0664 * Sal ** 0.5
-    pK1 = pK10 + A1 + B1 / TempK + C1 * log(TempK)
+    pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
     K1 = 10.0 ** -pK1
     # This is from page 141
-    pK20 = -90.18333 + 5143.692 / TempK + 14.613358 * log(TempK)
+    pK20 = -90.18333 + 5143.692 / TempK + 14.613358 * np.log(TempK)
     # This is from their table 3, page 140.
     A2 = 21.3728 * Sal ** 0.5 + 0.1218 * Sal - 3.688e-4 * Sal ** 2
     B2 = -788.289 * Sal ** 0.5 - 19.189 * Sal
     C2 = -3.374 * Sal ** 0.5
-    pK2 = pK20 + A2 + B2 / TempK + C2 * log(TempK)
+    pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
     K2 = 10.0 ** -pK2
     return K1, K2
 
 
+def _kH2CO3_WMW14(TempK):
+    """Scale-independent part of WMW14 carbonic acid dissociation constants."""
+    pK1_0 = -126.34048 + 6320.813 / TempK + 19.568224 * np.log(TempK)
+    pK2_0 = -90.18333 + 5143.692 / TempK + 14.613358 * np.log(TempK)
+    return pK1_0, pK2_0
+
+
 def kH2CO3_SWS_WMW14(TempK, Sal):
-    """Carbonic acid dissociation constants following WMW14."""
+    """Carbonic acid dissociation constants, Seawater scale, following WMW14."""
     # === CO2SYS.m comments: =======
     # From Waters, Millero, Woosley 2014
     # Mar. Chem., 165, 66-67, 2014
@@ -596,17 +628,50 @@ def kH2CO3_SWS_WMW14(TempK, Sal):
     # Effectively, this is an update of Millero (2010) formulation
     # (WhichKs==14)
     # Constants for K's on the SWS;
-    pK10 = -126.34048 + 6320.813 / TempK + 19.568224 * log(TempK)
+    pK10, pK20 = _kH2CO3_WMW14(TempK)
     A1 = 13.409160 * Sal ** 0.5 + 0.031646 * Sal - 5.1895e-5 * Sal ** 2
     B1 = -531.3642 * Sal ** 0.5 - 5.713 * Sal
     C1 = -2.0669166 * Sal ** 0.5
-    pK1 = pK10 + A1 + B1 / TempK + C1 * log(TempK)
+    pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
     K1 = 10.0 ** -pK1
-    pK20 = -90.18333 + 5143.692 / TempK + 14.613358 * log(TempK)
     A2 = 21.225890 * Sal ** 0.5 + 0.12450870 * Sal - 3.7243e-4 * Sal ** 2
     B2 = -779.3444 * Sal ** 0.5 - 19.91739 * Sal
     C2 = -3.3534679 * Sal ** 0.5
-    pK2 = pK20 + A2 + B2 / TempK + C2 * log(TempK)
+    pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
+    K2 = 10.0 ** -pK2
+    return K1, K2
+
+
+def k_H2CO3_TOT_WMW14(TempK, Sal):
+    """Carbonic acid dissociation constants, Total scale, following WM13/WMW14."""
+    # Coefficients from the corrigendum document [WMW14]
+    pK10, pK20 = _kH2CO3_WMW14(TempK)
+    A1 = 13.568513 * Sal ** 0.5 + 0.031645 * Sal - 5.3834e-5 * Sal ** 2
+    B1 = -539.2304 * Sal ** 0.5 - 5.635 * Sal
+    C1 = -2.0901396 * Sal ** 0.5
+    pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
+    K1 = 10.0 ** -pK1
+    A2 = 21.389248 * Sal ** 0.5 + 0.12452358 * Sal - 3.7447e-4 * Sal ** 2
+    B2 = -787.3736 * Sal ** 0.5 - 19.84233 * Sal
+    C2 = -3.3773006 * Sal ** 0.5
+    pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
+    K2 = 10.0 ** -pK2
+    return K1, K2
+
+
+def k_H2CO3_FREE_WMW14(TempK, Sal):
+    """Carbonic acid dissociation constants, Free scale, following WM13/WMW14."""
+    # Coefficients from the corrigendum document [WMW14]
+    pK10, pK20 = _kH2CO3_WMW14(TempK)
+    A1 = 5.592953 * Sal ** 0.5 + 0.028845 * Sal - 6.388e-5 * Sal ** 2
+    B1 = -225.7489 * Sal ** 0.5 - 4.761 * Sal
+    C1 = -0.8715109 * Sal ** 0.5
+    pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
+    K1 = 10.0 ** -pK1
+    A2 = 13.396949 * Sal ** 0.5 + 0.12193009 * Sal - 3.8362e-4 * Sal ** 2
+    B2 = -472.8633 * Sal ** 0.5 - 19.03634 * Sal
+    C2 = -2.1563270 * Sal ** 0.5
+    pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
     K2 = 10.0 ** -pK2
     return K1, K2
 
@@ -617,7 +682,7 @@ def kH2CO3_TOT_SLH20(TempK, Sal):
     pK1 = (
         8510.63 / TempK  # ±1139.8
         - 172.4493  # ±26.131
-        + 26.32996 * log(TempK)  # ±3.9161
+        + 26.32996 * np.log(TempK)  # ±3.9161
         - 0.011555 * Sal
         + 0.0001152 * Sal ** 2
     )
@@ -625,11 +690,29 @@ def kH2CO3_TOT_SLH20(TempK, Sal):
     pK2 = (
         4226.23 / TempK  # ±1050.8
         - 59.4636  # ±24.016
-        + 9.60817 * log(TempK)  # ±3.5966
+        + 9.60817 * np.log(TempK)  # ±3.5966
         - 0.01781 * Sal
         + 0.0001122 * Sal ** 2
     )
     K2 = 10.0 ** -pK2  # this is on the Total pH scale in mol/kg-SW
+    return K1, K2
+
+
+def kH2CO3_TOT_SB21(TempK, Sal):
+    """Carbonic acid dissociation constants with K2 following SB21.
+    K1 comes from WMW14.
+    """
+    K1 = k_H2CO3_TOT_WMW14(TempK, Sal)[0]
+    pK2 = (
+        116.8067
+        - 3655.02 / TempK
+        - 16.45817 * np.log(TempK)
+        + 0.04523 * Sal
+        - 0.615 * np.sqrt(Sal)
+        - 0.0002799 * Sal ** 2
+        + 4.969 * Sal / TempK
+    )
+    K2 = 10.0 ** -pK2
     return K1, K2
 
 
@@ -645,11 +728,11 @@ def kH2S_TOT_YM95(TempK, Sal):
     lnkH2S = (
         225.838
         - 13275.3 / TempK
-        - 34.6435 * log(TempK)
-        + 0.3449 * sqrt(Sal)
+        - 34.6435 * np.log(TempK)
+        + 0.3449 * np.sqrt(Sal)
         - 0.0274 * Sal
     )
-    return exp(lnkH2S)
+    return np.exp(lnkH2S)
 
 
 def kNH3_SWS_YM95(TempK, Sal):
@@ -660,10 +743,10 @@ def kNH3_SWS_YM95(TempK, Sal):
         -6285.33 / TempK
         + 0.0001635 * TempK
         - 0.25444
-        + (0.46532 - 123.7184 / TempK) * sqrt(Sal)
+        + (0.46532 - 123.7184 / TempK) * np.sqrt(Sal)
         + (-0.01992 + 3.17556 / TempK) * Sal
     )
-    return exp(lnkNH3)
+    return np.exp(lnkNH3)
 
 
 def kNH3_TOT_CW95(TempK, Sal):

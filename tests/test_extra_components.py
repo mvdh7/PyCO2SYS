@@ -77,7 +77,7 @@ def test_ammonia_alpha():
     assert np.all(np.isclose(r4_ammonia["beta_alk"], r4_alpha["beta_alk"]))
 
 
-test_silicate_alpha()
-test_fluoride_beta()
-test_alpha_beta()
-test_ammonia_alpha()
+# test_silicate_alpha()
+# test_fluoride_beta()
+# test_alpha_beta()
+# test_ammonia_alpha()

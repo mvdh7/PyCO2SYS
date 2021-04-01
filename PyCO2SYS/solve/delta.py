@@ -8,7 +8,7 @@ from . import get
 
 
 # Set whether to use the approximate slopes [True] or exact (Autograd) slopes [False]
-USE_APPROX = False
+use_approximate_slopes = False
 
 
 def _pHfromTATC_r(pH, TA, TC, totals, Ks):
@@ -43,20 +43,14 @@ def _pHfromTATC_s_approx(pH, TA, TC, totals, Ks):
     )
 
 
-if USE_APPROX:
-
-    def pHfromTATC(pH, TA, TC, totals, Ks):
-        """Calculate delta-pH from pH and TC for solver `pHfromTATC`."""
+def pHfromTATC(pH, TA, TC, totals, Ks):
+    """Calculate delta-pH from pH and TC for solver `pHfromTATC`."""
+    if use_approximate_slopes:
         return -(
             _pHfromTATC_r(pH, TA, TC, totals, Ks)
             / _pHfromTATC_s_approx(pH, TA, TC, totals, Ks)
         )
-
-
-else:
-
-    def pHfromTATC(pH, TA, TC, totals, Ks):
-        """Calculate delta-pH from pH and TC for solver `pHfromTATC`."""
+    else:
         return -(
             _pHfromTATC_r(pH, TA, TC, totals, Ks)
             / _pHfromTATC_s(pH, TA, TC, totals, Ks)
@@ -92,20 +86,14 @@ def _pHfromTAfCO2_s_approx(pH, TA, fCO2, totals, Ks):
     return np.log(10) * (HCO3 + 4 * CO3 + BAlk * H / (KB + H) + OH + H)
 
 
-if USE_APPROX:
-
-    def pHfromTAfCO2(pH, TA, fCO2, totals, Ks):
-        """Calculate delta-pH from pH and fCO2 for solver `pHfromTAfCO2`."""
+def pHfromTAfCO2(pH, TA, fCO2, totals, Ks):
+    """Calculate delta-pH from pH and fCO2 for solver `pHfromTAfCO2`."""
+    if use_approximate_slopes:
         return -(
             _pHfromTAfCO2_r(pH, TA, fCO2, totals, Ks)
             / _pHfromTAfCO2_s_approx(pH, TA, fCO2, totals, Ks)
         )
-
-
-else:
-
-    def pHfromTAfCO2(pH, TA, fCO2, totals, Ks):
-        """Calculate delta-pH from pH and fCO2 for solver `pHfromTAfCO2`."""
+    else:
         return -(
             _pHfromTAfCO2_r(pH, TA, fCO2, totals, Ks)
             / _pHfromTAfCO2_s(pH, TA, fCO2, totals, Ks)
@@ -137,20 +125,14 @@ def _pHfromTACarb_s_approx(pH, TA, CARB, totals, Ks):
     return np.log(10) * (-CARB * H / K2 + BAlk * H / (KB + H) + OH + H)
 
 
-if USE_APPROX:
-
-    def pHfromTACarb(pH, TA, CARB, totals, Ks):
-        """Calculate delta-pH from pH and CARB for solver `pHfromTACarb`."""
+def pHfromTACarb(pH, TA, CARB, totals, Ks):
+    """Calculate delta-pH from pH and CARB for solver `pHfromTACarb`."""
+    if use_approximate_slopes:
         return -(
             _pHfromTACarb_r(pH, TA, CARB, totals, Ks)
             / _pHfromTACarb_s_approx(pH, TA, CARB, totals, Ks)
         )
-
-
-else:
-
-    def pHfromTACarb(pH, TA, CARB, totals, Ks):
-        """Calculate delta-pH from pH and CARB for solver `pHfromTACarb`."""
+    else:
         return -(
             _pHfromTACarb_r(pH, TA, CARB, totals, Ks)
             / _pHfromTACarb_s(pH, TA, CARB, totals, Ks)
@@ -181,20 +163,14 @@ def _pHfromTAHCO3_s_approx(pH, TA, HCO3, totals, Ks):
     return np.log(10) * (2 * HCO3 * K2 / H + BAlk * H / (KB + H) + OH + H)
 
 
-if USE_APPROX:
-
-    def pHfromTAHCO3(pH, TA, HCO3, totals, Ks):
-        """Calculate delta-pH from pH and HCO3 for solver `pHfromTAHCO3`."""
+def pHfromTAHCO3(pH, TA, HCO3, totals, Ks):
+    """Calculate delta-pH from pH and HCO3 for solver `pHfromTAHCO3`."""
+    if use_approximate_slopes:
         return -(
             _pHfromTAHCO3_r(pH, TA, HCO3, totals, Ks)
             / _pHfromTAHCO3_s_approx(pH, TA, HCO3, totals, Ks)
         )
-
-
-else:
-
-    def pHfromTAHCO3(pH, TA, HCO3, totals, Ks):
-        """Calculate delta-pH from pH and HCO3 for solver `pHfromTAHCO3`."""
+    else:
         return -(
             _pHfromTAHCO3_r(pH, TA, HCO3, totals, Ks)
             / _pHfromTAHCO3_s(pH, TA, HCO3, totals, Ks)

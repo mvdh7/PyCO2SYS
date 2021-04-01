@@ -6,7 +6,7 @@ From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you 
 
 ```python
 import PyCO2SYS as pyco2
-results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
+results = pyco2.sys(par1=None, par2=None, par1_type=None, par2_type=None, **kwargs)
 ```
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
@@ -17,27 +17,50 @@ If you wish to also calculate [uncertainties](../uncertainty), you should put th
 
     `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
 
+From v1.7.0, it is possible to run `pyco2.sys` without providing any carbonate system parameters or with just one parameter (see below).  All of the other optional arguments can still be used.  In this case, the `results` dict contains all the equilibrium constants and total salt contents under the specified conditions, e.g.:
+
+```python
+# Convert a pH value to all pH scales, but don't solve the whole system:
+results = pyco2.sys(par1=8.1, par1_type=3, **kwargs)
+
+# Evaluate all equilibrium constants and total salts at default conditions:
+results = pyco2.sys()
+```
+
 ## Arguments
 
 Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
 !!! inputs "`pyco2.sys` arguments"
 
+    For all arguments and results in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
+
     #### Carbonate system parameters
+
+    Either two, one or no carbonate system parameters can be provided.
 
     * `par1` and `par2`: values of two different carbonate system parameters.
     * `par1_type` and `par2_type`: which types of parameter `par1` and `par2` are.
 
-    These can be any pair of:
+    If two parameters are provided, these can be any pair of:
 
     * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
     * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
     * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1].  Which scale is given by the argument `opt_pH_scale`.
-    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm or **aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
+    * Any one of:
+        * **Partial pressure of CO<sub>2</sub>** (type `4`) in μatm,
+        * **Fugacity of CO<sub>2</sub>** (type `5`) in μatm,
+        * **Aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>, or
+        * **Dry mole fraction of CO<sub>2</sub>** (type `9`) in ppm.
     * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
 
-    For all arguments in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* or *amount content* values (as opposed to *concentration* or *molality*).
+    If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
+
+    * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales at the input conditions only.
+    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>f</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
+
+    If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents are returned, under the given conditions.
 
     #### Hydrographic conditions
 
@@ -103,6 +126,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements) **(default)**.
+        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
@@ -110,6 +134,7 @@ Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy ar
 
         * `1`: [D90a](../refs/#d) **(default)**.
         * `2`: [KRCB77](../refs/#k).
+        * `3`: [WM13](../refs/#w)/[WMW14](../refs/#w).
 
     * `opt_total_borate`: which **boron:salinity** relationship to use to estimate total borate (ignored if the `total_borate` argument is provided):
 
@@ -158,8 +183,9 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"aqueous_CO2"`/`"aqueous_CO2_out"`: **aqueous CO<sub>2</sub>** at input/output conditions in μmol·kg<sup>−1</sup>.
     * `"pCO2"`/`"pCO2_out"`: **seawater partial pressure of CO<sub>2</sub>** at input/output conditions in μatm.
     * `"fCO2"`/`"fCO2_out"`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
-    * `"xCO2"`/`"xCO2_out"`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
+    * `"xCO2"`/`"xCO2_out"`: **seawater dry mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
     * `"fugacity_factor"`/`"fugacity_factor_out"`: **fugacity factor** at input/output conditions for converting between CO<sub>2</sub> partial pressure and fugacity.
+    * `"vp_factor"`/`"vp_factor_out"`: **vapour pressure factor** at input/output conditions for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
 
     #### Alkalinity and its components
 

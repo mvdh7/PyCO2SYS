@@ -29,7 +29,6 @@ from . import (
     salts,
     solubility,
     solve,
-    test,
     uncertainty,
 )
 
@@ -47,7 +46,6 @@ __all__ = [
     "salts",
     "solubility",
     "solve",
-    "test",
     "uncertainty",
 ]
 __author__ = meta.authors
@@ -56,8 +54,11 @@ __version__ = meta.version
 # Aliases for top-level access
 from .engine import CO2SYS
 from .engine.nd import CO2SYS as sys
-CO2SYS_nd = sys
+from .engine.nd import assemble
 from .api import CO2SYS_wrap, CO2SYS_MATLABv3
-from .meta import say_hello  # because history
+from .meta import hello  # because history
 from .solve.get import speciation
 from .api.ezio import ezio
+# For backwards-compatibility
+CO2SYS_nd = sys
+say_hello = hello
