@@ -5,6 +5,7 @@
 version = "1.7.0"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Sandborn, Daniel E.",
     "Gregor, Luke",
     "Pierrot, Denis",
     "van Heuven, Steven M. A. C.",
@@ -17,8 +18,8 @@ authors = " and ".join(authorlist)
 def hello():
     print(
         """
-       M.P. Humphreys, L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
-                       E.R. Lewis & D.W.R. Wallace
+           M.P. Humphreys, D. Sandborn, L. Gregor, D. Pierrot, 
+            S.M.A.C. van Heuven, E.R. Lewis & D.W.R. Wallace
 
                              ~~~ present ~~~
 
