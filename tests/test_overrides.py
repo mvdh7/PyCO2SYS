@@ -1,11 +1,12 @@
 # Test that using the internal overrides doesn't affect the results
 import pandas as pd, PyCO2SYS as pyco2
 
-# Import input conditions: "compare_MATLAB_extd.csv" was generated in MATLAB
-# using "manuscript/compare_MATLABv3.m".
-co2matlab = pd.read_csv("manuscript/results/compare_MATLABv3.csv")
+# Import input conditions: "compare_MATLABv3_1_1.csv" was generated in MATLAB
+# using "manuscript/compare_MATLABv3_1_1.m".
+co2matlab = pd.read_csv("manuscript/results/compare_MATLABv3_1_1.csv")
 
 # Convert constants options
+co2matlab = co2matlab[co2matlab.KSO4CONSTANT < 3]
 co2matlab["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
     co2matlab["KSO4CONSTANT"].values, co2matlab["BORON"].values
 )
