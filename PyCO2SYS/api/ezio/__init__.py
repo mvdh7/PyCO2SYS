@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-# 
+#
 """EZIO: Easy Input/Output of 'CO2SYS.xlsx'-style spreadsheets"""
 
 import pandas as pd
@@ -9,12 +9,14 @@ from .ezio_utils import EZIO_calculate
 from .ezio_utils import save_output
 
 
-def ezio(path,
-         opt_pH_scale=1, #default values match those at https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
-         opt_k_bisulfate=1,
-         opt_k_carbonic=16,
-         opt_k_fluoride=1,
-         opt_total_borate=1):
+def ezio(
+    path,
+    opt_pH_scale=1,  # default values match those at https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
+    opt_k_bisulfate=1,
+    opt_k_carbonic=16,
+    opt_k_fluoride=1,
+    opt_total_borate=1,
+):
     """
     The main function for easy input/output of 'CO2SYS.xlsx'-style spreadsheets.
     Takes a spreadsheet as input, which MUST be formatted with the same columns
@@ -59,15 +61,18 @@ def ezio(path,
         Solved carbonate system parameters.
 
     """
-    input_file = get_spreadsheet(path) #compatible with both .csv and .xlsx, see input template.
-    output_df = EZIO_calculate(input_file,
-                               pH_scale = opt_pH_scale,
-                               k_bisulfate = opt_k_bisulfate,
-                               k_carbonic = opt_k_carbonic,
-                               k_fluoride = opt_k_fluoride,
-                               total_borate = opt_total_borate)
-    save_output(path, output_df) #.csv output, appends "_processed" to path.
+    input_file = get_spreadsheet(
+        path
+    )  # compatible with both .csv and .xlsx, see input template.
+    output_df = EZIO_calculate(
+        input_file,
+        pH_scale=opt_pH_scale,
+        k_bisulfate=opt_k_bisulfate,
+        k_carbonic=opt_k_carbonic,
+        k_fluoride=opt_k_fluoride,
+        total_borate=opt_total_borate,
+    )
+    save_output(path, output_df)  # .csv output, appends "_processed" to path.
     if isinstance(output_df, pd.DataFrame):
         print("Calculation completed and output .csv file created.")
     return output_df
-    
