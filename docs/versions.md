@@ -41,6 +41,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Can also run `pyco2.sys` with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
+    * Added spreadsheet-to-spreadsheet function `pyco2.ezio`.
 
     ***Internal updates***
 
