@@ -3,6 +3,7 @@
 # 
 """EZIO: Easy Input/Output of 'CO2SYS.xlsx'-style spreadsheets"""
 
+import pandas as pd
 from .ezio_utils import get_spreadsheet
 from .ezio_utils import EZIO_calculate
 from .ezio_utils import save_output
@@ -66,6 +67,7 @@ def ezio(path,
                                k_fluoride = opt_k_fluoride,
                                total_borate = opt_total_borate)
     save_output(path, output_df) #.csv output, appends "_processed" to path.
-    print("Calculation completed and output .csv file created.")
+    if isinstance(output_df, pd.DataFrame):
+        print("Calculation completed and output .csv file created.")
     return output_df
     
