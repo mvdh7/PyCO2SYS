@@ -281,6 +281,8 @@ def options_new2old(KSO4CONSTANT, BORON):
         (2, 1): 2,
         (1, 2): 3,
         (2, 2): 4,
+        (3, 1): 5,  # these two don't actually exist, but are needed for the
+        (3, 2): 6,  # validation tests
     }
     KSO4CONSTANT, BORON = _flattenfirst((KSO4CONSTANT, BORON), int)[0]
     pairs = zip(KSO4CONSTANT, BORON)
