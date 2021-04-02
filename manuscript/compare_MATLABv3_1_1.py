@@ -1,7 +1,7 @@
 from time import time
 import numpy as np, pandas as pd, PyCO2SYS as pyco2
 
-# Switch to CO2SYS-MATLAB v3 conditions (note: not identical to v2.0.5)
+# Switch to CO2SYS-MATLAB v3.1.1 conditions (note: not identical to v2.0.5)
 pyco2.solve.get.initial_pH_guess = 8.0  # don't use the more sophisticated pH guess
 pyco2.solve.get.pH_tolerance = 0.0001  # use a looser tolerance for pH solvers
 pyco2.solve.get.update_all_pH = False  # True keeps updating all pH's until all solved
@@ -9,8 +9,8 @@ pyco2.solve.get.halve_big_jumps = True  # different way to prevent too-big pH ju
 pyco2.solve.get.assume_pH_total = True  # replicate pH-Total assumption bug
 pyco2.solve.delta.use_approximate_slopes = True  # don't use Autograd for solver slopes
 
-# Import input conditions: "compare_MATLABv3.csv" was generated in MATLAB
-# using "compare_MATLABv3.m".
+# Import input conditions: "compare_MATLABv3_1_1.csv" was generated in MATLAB
+# using "compare_MATLABv3_1_1.m".
 co2matlab = pd.read_csv("manuscript/results/compare_MATLABv3_1_1.csv")
 
 # Convert constants options
