@@ -22,7 +22,7 @@ The citation for PyCO2SYS alone is:
 
 > Humphreys, M. P., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
-The DOI above refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
+The DOI refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
 
 ```python
 import PyCO2SYS as pyco2
