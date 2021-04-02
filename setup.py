@@ -10,7 +10,7 @@ setuptools.setup(
     version=__version__,
     author=__author__,
     author_email="m.p.humphreys@icloud.com",
-    description="Python implementation of CO2SYS",
+    description="PyCO2SYS: marine carbonate system calculations in Python",
     url="https://github.com/mvdh7/PyCO2SYS",
     packages=setuptools.find_packages(),
     install_requires=requirements,
