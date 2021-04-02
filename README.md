@@ -33,7 +33,9 @@ As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/james
 
 ## Installation
 
-Install from the Python Package Index:
+If you manage Python with conda, we recommend that you first install NumPy, pandas and xarray into the environment where PyCO2SYS is to be installed with conda.
+
+Then, you can install from the Python Package Index:
 
     pip install PyCO2SYS
 
