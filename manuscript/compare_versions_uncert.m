@@ -157,4 +157,7 @@ errs_v3 = struct2table(errs_v3);
 % errs_diff = struct2table(errs_diff);
 
 %% Save to file
+co2s_v3.PAR1 = P1;
+co2s_v3.PAR2 = P2;
+writetable(co2s_v3, 'results/compare_versions_co2s_v3.csv')
 writetable(errs_v3, 'results/compare_versions_uncert.csv')
