@@ -61,13 +61,7 @@ def compare_k_propagation(
     k_uncertainty = k_value * k_uncertainty_percent / 100
     kwargs_u = copy.deepcopy(kwargs)
     kwargs_u.update(
-        {
-            k_constant: rng.normal(
-                loc=k_value,
-                scale=k_uncertainty,
-                size=n_simulations,
-            )
-        }
+        {k_constant: rng.normal(loc=k_value, scale=k_uncertainty, size=n_simulations)}
     )
     # Solve MCS with uncertain k_constant
     results_u = pyco2.sys(**par_args, **kwargs_u)

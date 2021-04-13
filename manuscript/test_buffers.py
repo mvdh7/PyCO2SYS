@@ -8,12 +8,7 @@ rng = np.random.default_rng(7)
 npts = 1000
 alkalinity = rng.normal(loc=2300, scale=500, size=npts)
 dic = rng.normal(loc=2100, scale=500, size=npts)
-kwargs = dict(
-    par1=alkalinity,
-    par2=dic,
-    par1_type=1,
-    par2_type=2,
-)
+kwargs = dict(par1=alkalinity, par2=dic, par1_type=1, par2_type=2)
 
 # Solve the marine carbonate system
 r_explicit = pyco2.sys(**kwargs, buffers_mode="explicit")
@@ -54,12 +49,7 @@ def test_buffers():
 
 # Now set total sulfate and fluoride to zero
 kwargs_allzero = copy.deepcopy(kwargs)
-kwargs_allzero.update(
-    dict(
-        total_sulfate=0,
-        total_fluoride=0,
-    )
-)
+kwargs_allzero.update(dict(total_sulfate=0, total_fluoride=0))
 
 # Solve the marine carbonate system
 r_explicit_allzero = pyco2.sys(**kwargs_allzero, buffers_mode="explicit")
