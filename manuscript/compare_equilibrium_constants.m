@@ -77,3 +77,19 @@ co2s.PAR2TYPE = P2type * ones(npts, 1);
 % Easy MATLAB saving...
 co2s = struct2table(co2s);
 writetable(co2s, 'results/compare_equilibrium_constants_v3_1_1.csv')
+
+%% Repeat for v3.2.0
+[DATA, HEADERS] = ...
+    CO2SYSv3_2_0(P1, P2, P1type, P2type, sal, tempin, tempout, presin, ...
+    presout, si, phos, NH3, H2S, pHscales, K1K2, KSO4, KF, TB);
+clear co2s
+for V = 1:numel(HEADERS)
+    co2s.(HEADERS{V}) = DATA(:, V);
+end % for V
+co2s.PAR1 = P1 * ones(npts, 1);
+co2s.PAR2 = P2 * ones(npts, 1);
+co2s.PAR1TYPE = P1type * ones(npts, 1);
+co2s.PAR2TYPE = P2type * ones(npts, 1);
+% Easy MATLAB saving...
+co2s = struct2table(co2s);
+writetable(co2s, 'results/compare_equilibrium_constants_v3_2_0.csv')
