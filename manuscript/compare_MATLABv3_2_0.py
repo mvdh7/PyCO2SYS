@@ -155,8 +155,8 @@ def test_nd():
     assert np.all(co2nd.pH_sws.values == co2py.pHinSWS.values)
 
 
-test_co2py_matlab()
-test_nd()
+# test_co2py_matlab()
+# test_nd()
 
 
 # Reset to PyCO2SYS conditions
