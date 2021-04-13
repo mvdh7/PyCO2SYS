@@ -1,18 +1,18 @@
 # Uncertainty propagation
 
-PyCO2SYS provides tools to propagate uncertainties both in input parameters and in variables evaluated internally through its marine carbonate system calculations.
+PyCO2SYS provides tools to propagate uncertainties in all arguments through to all results of its marine carbonate system calculations.
 
 !!! question "Evaluating the derivatives"
 
-    All derivatives needed for uncertainty propagation are calculated using *forward finite-differences*.  Explicity, the derivative of output variable $f$ with respect to input $x$ is estimated with:
+    All derivatives needed for uncertainty propagation are calculated using *forward finite-differences*.  Explicity, the derivative of result $r$ with respect to argument $a$ is estimated with:
 
-    $f'(x) \approx \frac{f(x + \Delta x) - f(x)}{\Delta x}$
+    $\frac{\partial r(a)}{\partial a} \approx \frac{r(a + \Delta a) - r(a)}{\Delta a}$
 
-    As the input variables span many orders of magnitude, PyCO2SYS by default uses $\Delta x = 10^{-6} \cdot \mathrm{median}(x)$, which is different for each input variable.
+    As the input variables span many orders of magnitude, PyCO2SYS by default uses $\Delta a = 10^{-6} \cdot \mathrm{median}(a)$, which is different for each argument, or $10^{-6}$ where $\mathrm{median}(a) = 0$.
 
 ## Independent uncertainties
 
-If the uncertainty in each [argument](../co2sys_nd/#arguments) is independent – there is no covariance between uncertainties in different parameters – then you can use `PyCO2SYS.uncertainty.propagate` to propagate the parameter uncertainties through into any [result](../co2sys_nd/#results).
+If the uncertainty in each [argument](../co2sys_nd/#arguments) is independent – i.e. there is no covariance between uncertainties in different parameters – then you can use `PyCO2SYS.uncertainty.propagate` to propagate the parameter uncertainties through into any [result](../co2sys_nd/#results).
 
 ### Syntax
 
