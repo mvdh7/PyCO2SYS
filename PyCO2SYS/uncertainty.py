@@ -392,20 +392,31 @@ def forward_nd(
         is_pk = wrt.startswith("pk_")
         do_both = wrt.endswith("_both")
         if is_pk:
-            wrt_k = wrt[1:]
-            pk_values = -np.log10(CO2SYS_nd_results[wrt_k])
+            wrt_as_k = wrt[1:]
+            if do_both:
+                wrt_as_k = wrt_as_k[:-5]
+            print(wrt, is_pk, do_both, wrt_as_k)
+            pk_values = -np.log10(CO2SYS_nd_results[wrt_as_k])
             dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
             pk_values_plus = pk_values + dxs[wrt]
-            args_plus[wrt_k] = 10.0 ** -pk_values_plus
+            args_plus[wrt_as_k] = 10.0 ** -pk_values_plus
             if do_both:
-                args_plus[wrt_k + "_out"] = args_plus[wrt_k]
+                pk_values_out = -np.log10(CO2SYS_nd_results[wrt_as_k + "_out"])
+                pk_values_out_plus = pk_values_out + dxs[wrt]
+                args_plus[wrt_as_k + "_out"] = 10.0 ** -pk_values_out_plus
         else:
-            dxs[wrt] = _get_dx_wrt(
-                dx, CO2SYS_nd_results[wrt], dx_scaling, dx_func=dx_func
-            )
-            args_plus[wrt] = CO2SYS_nd_results[wrt] + dxs[wrt]
             if do_both:
-                args_plus[wrt + "_out"] = args_plus[wrt]
+                wrt_internal = wrt[:-5]
+            else:
+                wrt_internal = copy.deepcopy(wrt)
+            dxs[wrt] = _get_dx_wrt(
+                dx, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
+            )
+            args_plus[wrt_internal] = CO2SYS_nd_results[wrt_internal] + dxs[wrt]
+            if do_both:
+                args_plus[wrt_internal + "_out"] = (
+                    CO2SYS_nd_results[wrt_internal + "_out"] + dxs[wrt]
+                )
         results_plus = engine.nd.CO2SYS(**args_plus)
         for of in grads_of:
             CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[
