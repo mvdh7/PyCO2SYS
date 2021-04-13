@@ -13,18 +13,18 @@ def get_spreadsheet(path):  # Input file MUST be the same format as in CO2SYS Ex
     """
     Receives filepath for .csv or .xlsx spreadsheet structured as in Excel CO2SYS.
     First two lines are not read (the 'START' button and header groups in Excel).
-    
+
     Parameters
     ----------
     path : string filepath
-        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.  
+        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.
         Spreadsheet can be either .csv (comma delimited) or .xlsx (Microsoft Excel).
-        
+
     Returns
     -------
     input_file : Pandas dataframe
         read_csv() or read_excel() output.
-        
+
     """
     head, tail = os.path.splitext(path)  # Which filetype?
     input_file = pd.DataFrame()
@@ -45,7 +45,7 @@ def save_output(path, df):
     Parameters
     ----------
     path : string filepath
-        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.  
+        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.
     df : Pandas dataframe
         Result of PyCO2SYS solving algorithm, structured as in CO2SYS Excel.
 
@@ -73,8 +73,8 @@ def EZIO_calculate(
     """
     EZIO wrapper function around pyco2.sys().  Solves the inorganic carbonate
     system given the inputs of a CO2SYS Excel-structured spreadsheet.  Outputs
-    in similar fashion.  
-    
+    in similar fashion.
+
     Parameters
     ----------
     input_file : Pandas dataframe
@@ -94,47 +94,49 @@ def EZIO_calculate(
         Result of PyCO2SYS solving algorithm, structured as in CO2SYS Excel.
 
     """
-    output_df = pd.DataFrame(  # Initiate empty dataframe matching output format of CO2SYS Excel
-        {
-            "Salinity": [],  # Would this be better as a class?
-            "t(°C) in": [],
-            "P in (dbar)": [],
-            "Total P (μmol/kgW)": [],
-            "Total Si (μmol/kgW)": [],
-            "TA in (μmol/kgW)": [],
-            "TCO2 in (μmol/kgW)": [],
-            "pH in": [],
-            "fCO2 in (μatm)": [],
-            "pCO2 in (μatm)": [],
-            "HCO3 in (μmol/kgW)": [],
-            "CO3 in (μmol/kgW)": [],
-            "CO2 in (μmol/kgW)": [],
-            "B Alk in (μmol/kgW)": [],
-            "OH in (μmol/kgW)": [],
-            "P Alk in (μmol/kgW)": [],
-            "Si Alk in (μmol/kgW) ": [],
-            "Revelle in": [],
-            "ΩCa in": [],
-            "ΩAr in": [],
-            "xCO2 in (dry at 1 atm) (ppm)": [],
-            "-": [],
-            "t(°C) out": [],
-            "P out (dbar)": [],
-            "pH out": [],
-            "fCO2 out (μatm)": [],
-            "pCO2 out (μatm)": [],
-            "HCO3 out (μmol/kgW)": [],
-            "CO3 out (μmol/kgW)": [],
-            "CO2 out (μmol/kgW)": [],
-            "B Alk out (μmol/kgW)": [],
-            "OH out (μmol/kgW)": [],
-            "P Alk out (μmol/kgW)": [],
-            "Si Alk out (μmol/kgW)": [],
-            "Revelle out": [],
-            "ΩCa out": [],
-            "ΩAr out": [],
-            "xCO2 out (dry at 1 atm) (ppm)": [],
-        }
+    output_df = (
+        pd.DataFrame(  # Initiate empty dataframe matching output format of CO2SYS Excel
+            {
+                "Salinity": [],  # Would this be better as a class?
+                "t(°C) in": [],
+                "P in (dbar)": [],
+                "Total P (μmol/kgW)": [],
+                "Total Si (μmol/kgW)": [],
+                "TA in (μmol/kgW)": [],
+                "TCO2 in (μmol/kgW)": [],
+                "pH in": [],
+                "fCO2 in (μatm)": [],
+                "pCO2 in (μatm)": [],
+                "HCO3 in (μmol/kgW)": [],
+                "CO3 in (μmol/kgW)": [],
+                "CO2 in (μmol/kgW)": [],
+                "B Alk in (μmol/kgW)": [],
+                "OH in (μmol/kgW)": [],
+                "P Alk in (μmol/kgW)": [],
+                "Si Alk in (μmol/kgW) ": [],
+                "Revelle in": [],
+                "ΩCa in": [],
+                "ΩAr in": [],
+                "xCO2 in (dry at 1 atm) (ppm)": [],
+                "-": [],
+                "t(°C) out": [],
+                "P out (dbar)": [],
+                "pH out": [],
+                "fCO2 out (μatm)": [],
+                "pCO2 out (μatm)": [],
+                "HCO3 out (μmol/kgW)": [],
+                "CO3 out (μmol/kgW)": [],
+                "CO2 out (μmol/kgW)": [],
+                "B Alk out (μmol/kgW)": [],
+                "OH out (μmol/kgW)": [],
+                "P Alk out (μmol/kgW)": [],
+                "Si Alk out (μmol/kgW)": [],
+                "Revelle out": [],
+                "ΩCa out": [],
+                "ΩAr out": [],
+                "xCO2 out (dry at 1 atm) (ppm)": [],
+            }
+        )
     )
 
     for i in range(len(input_file)):
@@ -250,7 +252,7 @@ def EZIO_calculate(
                 "ΩCa in": results["saturation_calcite"],
                 "ΩAr in": results["saturation_aragonite"],
                 "xCO2 in (dry at 1 atm) (ppm)": results["xCO2"],
-                 "-": ["-"],
+                "-": ["-"],
                 "t(°C) out": results["temperature_out"],
                 "P out (dbar)": results["pressure_out"],
                 "pH out": results["pH_out"],

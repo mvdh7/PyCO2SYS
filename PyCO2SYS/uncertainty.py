@@ -16,6 +16,16 @@ pKs_OEDG18 = {
     "pk_aragonite": 0.02,
     "pk_calcite": 0.02,
 }
+# As above, but for the MATLAB-style interface
+pKs_OEDG18_ml = {
+    "pK0input": pKs_OEDG18["pk_CO2"],
+    "pK1input": pKs_OEDG18["pk_carbonic_1"],
+    "pK2input": pKs_OEDG18["pk_carbonic_2"],
+    "pKBinput": pKs_OEDG18["pk_borate"],
+    "pKWinput": pKs_OEDG18["pk_water"],
+    "pKArinput": pKs_OEDG18["pk_aragonite"],
+    "pKCainput": pKs_OEDG18["pk_calcite"],
+}
 
 
 def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
@@ -331,6 +341,16 @@ def forward_nd(
                 "p{}".format(gradable)
                 for gradable in engine.nd.gradables
                 if gradable.startswith("k_")
+            ]
+            + [
+                "{}_both".format(gradable)
+                for gradable in engine.nd.gradables
+                if gradable.startswith("k_") and not gradable.endswith("_out")
+            ]
+            + [
+                "p{}_both".format(gradable)
+                for gradable in engine.nd.gradables
+                if gradable.startswith("k_") and not gradable.endswith("_out")
             ],
         )
     ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."
@@ -363,24 +383,39 @@ def forward_nd(
         ]
         + list(CO2SYS_nd_kwargs.keys())
     )
-    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed}
+    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed if k in CO2SYS_nd_results}
     # Loop through requested parameters and calculate the gradients
     dxs = {wrt: None for wrt in grads_wrt}
     CO2SYS_derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
     for wrt in grads_wrt:
         args_plus = copy.deepcopy(args_fixed)
         is_pk = wrt.startswith("pk_")
+        do_both = wrt.endswith("_both")
         if is_pk:
-            wrt_k = wrt[1:]
-            pk_values = -np.log10(CO2SYS_nd_results[wrt_k])
+            wrt_as_k = wrt[1:]
+            if do_both:
+                wrt_as_k = wrt_as_k[:-5]
+            pk_values = -np.log10(CO2SYS_nd_results[wrt_as_k])
             dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
             pk_values_plus = pk_values + dxs[wrt]
-            args_plus[wrt_k] = 10.0 ** -pk_values_plus
+            args_plus[wrt_as_k] = 10.0 ** -pk_values_plus
+            if do_both:
+                pk_values_out = -np.log10(CO2SYS_nd_results[wrt_as_k + "_out"])
+                pk_values_out_plus = pk_values_out + dxs[wrt]
+                args_plus[wrt_as_k + "_out"] = 10.0 ** -pk_values_out_plus
         else:
+            if do_both:
+                wrt_internal = wrt[:-5]
+            else:
+                wrt_internal = copy.deepcopy(wrt)
             dxs[wrt] = _get_dx_wrt(
-                dx, CO2SYS_nd_results[wrt], dx_scaling, dx_func=dx_func
+                dx, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
             )
-            args_plus[wrt] = CO2SYS_nd_results[wrt] + dxs[wrt]
+            args_plus[wrt_internal] = CO2SYS_nd_results[wrt_internal] + dxs[wrt]
+            if do_both:
+                args_plus[wrt_internal + "_out"] = (
+                    CO2SYS_nd_results[wrt_internal + "_out"] + dxs[wrt]
+                )
         results_plus = engine.nd.CO2SYS(**args_plus)
         for of in grads_of:
             CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[

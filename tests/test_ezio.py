@@ -8,6 +8,7 @@ df_cols = [c for c in df.columns if c != "-"]
 df_numpy = df[df_cols].to_numpy(dtype=float)
 df_saved = pd.read_csv(filestem + "_processed.csv")
 
+
 def test_ezio_df():
     """Does the EZIO function return a pandas DataFrame with non-NaN values?"""
     assert isinstance(df, pd.DataFrame)
@@ -19,7 +20,7 @@ def test_ezio_output():
     assert isinstance(df_saved, pd.DataFrame)
     for col in df_cols:
         assert np.all(np.isclose(df[col].to_numpy(dtype=float), df_saved[col]))
-    
+
 
 # test_ezio_df()
 # test_ezio_output()

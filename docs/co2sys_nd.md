@@ -11,8 +11,6 @@ results = pyco2.sys(par1=None, par2=None, par1_type=None, par2_type=None, **kwar
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
 
-If you wish to also calculate [uncertainties](../uncertainty), you should put the `kwargs` into a dict and splat this into `pyco2.sys` with `**` as shown above, as you will need to use it again later.
-
 !!! warning "`sys == CO2SYS_nd`"
 
     `pyco2.sys` is and will remain identical to `pyco2.CO2SYS_nd`, which was introduced in v1.5.0 (and which still works in exactly the same way).
@@ -27,9 +25,11 @@ results = pyco2.sys(par1=8.1, par1_type=3, **kwargs)
 results = pyco2.sys()
 ```
 
+You can also use `pyco2.sys` to [propagate uncertainties](../uncertainty) through your marine carbonate system calculations.
+
 ## Arguments
 
-Each argument to `pyco2.sys` can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+Each argument to `pyco2.sys` described on this page can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
 !!! inputs "`pyco2.sys` arguments"
 

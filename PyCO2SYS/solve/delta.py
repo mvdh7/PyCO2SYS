@@ -23,9 +23,9 @@ _pHfromTATC_s = egrad(_pHfromTATC_r)
 def _pHfromTATC_s_approx(pH, TA, TC, totals, Ks):
     """Calculate residual alkalinity slope from pH and TC for solver `pHfromTATC`
     approximately, without using Autograd.
-    
+
     This is the original equation from CO2SYS for MATLAB.  It is not used in PyCO2SYS.
-    
+
     Based on CalculatepHfromTATC, version 04.01, 10-13-96, by Ernie Lewis.
     """
     K1 = Ks["K1"]
@@ -69,9 +69,9 @@ _pHfromTAfCO2_s = egrad(_pHfromTAfCO2_r)
 def _pHfromTAfCO2_s_approx(pH, TA, fCO2, totals, Ks):
     """Calculate residual alkalinity slope from pH and fCO2 for solver `pHfromTAfCO2`
     approximately, without using Autograd.
-    
+
     This is the original equation from CO2SYS for MATLAB.  It is not used in PyCO2SYS.
-    
+
     Based on CalculatepHfromTAfCO2, version 04.01, 10-13-97, by Ernie Lewis.
     """
     K0 = Ks["K0"]
@@ -112,9 +112,9 @@ _pHfromTACarb_s = egrad(_pHfromTACarb_r)
 def _pHfromTACarb_s_approx(pH, TA, CARB, totals, Ks):
     """Calculate residual alkalinity slope from pH and CARB for solver `pHfromTACarb`
     approximately, without using Autograd.
-    
+
     This is the original equation from CO2SYS for MATLAB.  It is not used in PyCO2SYS.
-    
+
     Based on CalculatepHfromTACarb, version 01.0, 06-12-2019, by Denis Pierrot.
     """
     K2 = Ks["K2"]
@@ -151,7 +151,7 @@ _pHfromTAHCO3_s = egrad(_pHfromTAHCO3_r)
 def _pHfromTAHCO3_s_approx(pH, TA, HCO3, totals, Ks):
     """Calculate residual alkalinity slope from pH and HCO3 for solver `pHfromTAHCO3`
     approximately, without using Autograd.
-    
+
     This is what the original equation would have been if it were in CO2SYS for MATLAB.
     It is not used in PyCO2SYS.
     """

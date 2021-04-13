@@ -2,8 +2,9 @@
 # Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Carbonate system solving in N dimensions."""
 
+import itertools
 from autograd import numpy as np
-from .. import convert, equilibria, salts, solve
+from .. import convert, equilibria, salts, solve, uncertainty
 
 # Define function input keys that should be converted to floats
 input_floats = {
@@ -84,7 +85,7 @@ def broadcast1024(*args):
 
 def condition(args, to_shape=None):
     """Condition n-d args for PyCO2SYS.
-    
+
     If NumPy can broadcast the args together, they are a valid combination, and they
     will be combined following NumPy broadcasting rules.
 
@@ -516,9 +517,19 @@ def CO2SYS(
     # Added in v1.7.0:
     vp_factor=None,
     vp_factor_out=None,
+    grads_of=None,
+    grads_wrt=None,
+    uncertainty_into=None,
+    uncertainty_from=None,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
-    args = condition(locals())
+    args = locals()
+    keys_u = ["grads_of", "grads_wrt", "uncertainty_into", "uncertainty_from"]
+    args_set = {k: v for k, v in args.items() if k not in keys_u and v is not None}
+    args_u = {}
+    for arg in keys_u:
+        args_u[arg] = args.pop(arg)
+    args = condition(args)
     # Prepare totals dict
     totals_optional = {
         "total_borate": "TB",
@@ -745,7 +756,7 @@ def CO2SYS(
         core_out = None
         others_out = None
         k_constants_out = None
-    return _get_results_dict(
+    results = _get_results_dict(
         args,
         totals,
         core_in,
@@ -755,6 +766,24 @@ def CO2SYS(
         others_out,
         k_constants_out,
     )
+    # Do uncertainty propagation, if requested
+    if grads_of is not None and grads_wrt is not None:
+        forward = uncertainty.forward_nd(results, grads_of, grads_wrt, **args_set)[0]
+        grads = {}
+        for of, wrt in itertools.product(grads_of, grads_wrt):
+            grads["d_{}__d_{}".format(of, wrt)] = forward[of][wrt]
+        results.update(grads)
+    if uncertainty_into is not None and uncertainty_from is not None:
+        uncertainties, components = uncertainty.propagate_nd(
+            results, uncertainty_into, uncertainty_from, **args_set
+        )
+        uncerts = {}
+        for into in uncertainty_into:
+            uncerts["u_{}".format(into)] = uncertainties[into]
+            for ufrom in uncertainty_from:
+                uncerts["u_{}__{}".format(into, ufrom)] = components[into][ufrom]
+        results.update(uncerts)
+    return results
 
 
 def assemble(

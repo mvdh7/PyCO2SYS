@@ -59,6 +59,8 @@ from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import hello  # because history
 from .solve.get import speciation
 from .api.ezio import ezio
+from .uncertainty import pKs_OEDG18 as u_pKs_OEDG18
+
 # For backwards-compatibility
 CO2SYS_nd = sys
 say_hello = hello

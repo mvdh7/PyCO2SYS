@@ -264,8 +264,7 @@ def TAfrompHCarb(pH, CARB, totals, k_constants):
 
 
 def TAfrompHHCO3(pH, HCO3, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion.
-    """
+    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion."""
     TC = TCfrompHHCO3(pH, HCO3, totals, k_constants)
     return TAfromTCpH(TC, pH, totals, k_constants)
 

@@ -42,6 +42,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
     * Added spreadsheet-to-spreadsheet function `pyco2.ezio`.
+    * Integrated uncertainty propagation into the main `pyco2.sys` function.
 
     ***Internal updates***
 
