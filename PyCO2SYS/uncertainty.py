@@ -383,7 +383,7 @@ def forward_nd(
         ]
         + list(CO2SYS_nd_kwargs.keys())
     )
-    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed}
+    args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed if k in CO2SYS_nd_results}
     # Loop through requested parameters and calculate the gradients
     dxs = {wrt: None for wrt in grads_wrt}
     CO2SYS_derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
@@ -395,7 +395,6 @@ def forward_nd(
             wrt_as_k = wrt[1:]
             if do_both:
                 wrt_as_k = wrt_as_k[:-5]
-            print(wrt, is_pk, do_both, wrt_as_k)
             pk_values = -np.log10(CO2SYS_nd_results[wrt_as_k])
             dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
             pk_values_plus = pk_values + dxs[wrt]

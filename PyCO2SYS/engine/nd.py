@@ -2,8 +2,9 @@
 # Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Carbonate system solving in N dimensions."""
 
+import itertools
 from autograd import numpy as np
-from .. import convert, equilibria, salts, solve
+from .. import convert, equilibria, salts, solve, uncertainty
 
 # Define function input keys that should be converted to floats
 input_floats = {
@@ -106,14 +107,7 @@ def condition(args, to_shape=None):
         # Broadcast the non-scalar args to a consistent shape
         args_conditioned = {
             k: np.broadcast_to(v, args_broadcast_shape)
-            if k
-            in [
-                "par1",
-                "par2",
-                "par1_type",
-                "par2_type",
-            ]
-            or not np.isscalar(v)
+            if k in ["par1", "par2", "par1_type", "par2_type",] or not np.isscalar(v)
             else v
             for k, v in args.items()
         }
@@ -249,10 +243,7 @@ def _get_results_dict(
     results = {}
     if core_in is not None:
         results.update(
-            {
-                "par1": args["par1"],
-                "par1_type": args["par1_type"],
-            }
+            {"par1": args["par1"], "par1_type": args["par1_type"],}
         )
         if "TA" in core_in and "TC" in core_in:
             results.update(
@@ -526,9 +517,19 @@ def CO2SYS(
     # Added in v1.7.0:
     vp_factor=None,
     vp_factor_out=None,
+    grads_of=None,
+    grads_wrt=None,
+    uncertainty_into=None,
+    uncertainty_from=None,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
-    args = condition(locals())
+    args = locals()
+    keys_u = ["grads_of", "grads_wrt", "uncertainty_into", "uncertainty_from"]
+    args_set = {k: v for k, v in args.items() if k not in keys_u and v is not None}
+    args_u = {}
+    for arg in keys_u:
+        args_u[arg] = args.pop(arg)
+    args = condition(args)
     # Prepare totals dict
     totals_optional = {
         "total_borate": "TB",
@@ -636,12 +637,7 @@ def CO2SYS(
                 core_in["PH"], args["opt_pH_scale"], totals, k_constants_in
             )
             others_in.update(
-                {
-                    "pHT": pH_total,
-                    "pHS": pH_sws,
-                    "pHF": pH_free,
-                    "pHN": pH_nbs,
-                }
+                {"pHT": pH_total, "pHS": pH_sws, "pHF": pH_free, "pHN": pH_nbs,}
             )
         # One of pCO2, fCO2, CO2(aq) or xCO2 only
         if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
@@ -681,12 +677,7 @@ def CO2SYS(
                 convert.fCO2_to_xCO2(fCO2, k_constants_in),
             )
             core_in.update(
-                {
-                    "PC": pCO2,
-                    "FC": fCO2,
-                    "CO2": CO2aq,
-                    "XC": xCO2,
-                }
+                {"PC": pCO2, "FC": fCO2, "CO2": CO2aq, "XC": xCO2,}
             )
     else:
         core_in = None
@@ -765,7 +756,7 @@ def CO2SYS(
         core_out = None
         others_out = None
         k_constants_out = None
-    return _get_results_dict(
+    results = _get_results_dict(
         args,
         totals,
         core_in,
@@ -775,6 +766,24 @@ def CO2SYS(
         others_out,
         k_constants_out,
     )
+    # Do uncertainty propagation, if requested
+    if grads_of is not None and grads_wrt is not None:
+        forward = uncertainty.forward_nd(results, grads_of, grads_wrt, **args_set)[0]
+        grads = {}
+        for of, wrt in itertools.product(grads_of, grads_wrt):
+            grads["d_{}__d_{}".format(of, wrt)] = forward[of][wrt]
+        results.update(grads)
+    if uncertainty_into is not None and uncertainty_from is not None:
+        uncertainties, components = uncertainty.propagate_nd(
+            results, uncertainty_into, uncertainty_from, **args_set
+        )
+        uncerts = {}
+        for into in uncertainty_into:
+            uncerts["u_{}".format(into)] = uncertainties[into]
+            for ufrom in uncertainty_from:
+                uncerts["u_{}__{}".format(into, ufrom)] = components[into][ufrom]
+        results.update(uncerts)
+    return results
 
 
 def assemble(

@@ -465,37 +465,17 @@ def _CO2SYS(
     core_in = solve.core(PAR1, PAR2, p1, p2, totals, Kis, True)
     # Calculate all other results at input conditions
     others_in = solve.others(
-        core_in,
-        TempCi,
-        Pdbari,
-        totals,
-        Kis,
-        pHScale,
-        WhichKs,
-        buffers_mode,
+        core_in, TempCi, Pdbari, totals, Kis, pHScale, WhichKs, buffers_mode,
     )
     # Solve the core MCS at output conditions
     TAtype = np.full(npts, 1)
     TCtype = np.full(npts, 2)
     core_out = solve.core(
-        core_in["TA"],
-        core_in["TC"],
-        TAtype,
-        TCtype,
-        totals,
-        Kos,
-        False,
+        core_in["TA"], core_in["TC"], TAtype, TCtype, totals, Kos, False,
     )
     # Calculate all other results at output conditions
     others_out = solve.others(
-        core_out,
-        TempCo,
-        Pdbaro,
-        totals,
-        Kos,
-        pHScale,
-        WhichKs,
-        buffers_mode,
+        core_out, TempCo, Pdbaro, totals, Kos, pHScale, WhichKs, buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
     return _outputdict(
