@@ -345,14 +345,12 @@ def forward_nd(
             + [
                 "{}_both".format(gradable)
                 for gradable in engine.nd.gradables
-                if gradable.startswith("k_")
-                and not gradable.endswith("_out")
+                if gradable.startswith("k_") and not gradable.endswith("_out")
             ]
             + [
                 "p{}_both".format(gradable)
                 for gradable in engine.nd.gradables
-                if gradable.startswith("k_")
-                and not gradable.endswith("_out")
+                if gradable.startswith("k_") and not gradable.endswith("_out")
             ],
         )
     ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."

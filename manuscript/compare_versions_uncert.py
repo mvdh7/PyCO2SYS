@@ -1,4 +1,4 @@
-import pandas as pd 
+import pandas as pd
 import PyCO2SYS as pyco2
 
 # Switch to CO2SYS-MATLAB v3.2.0 conditions (note: not identical to v3.1.1)
@@ -50,9 +50,9 @@ uncertainties_from = pyco2.uncertainty.pKs_OEDG18_ml
 uncertainties_from["PAR1"] = co2ml.UPAR1
 uncertainties_from["PAR2"] = co2ml.UPAR2
 # uncertainties_from = {"pK1input": 0.001}
-uncertainties = pd.DataFrame(pyco2.uncertainty.propagate(
-    co2py, uncertainties_into, uncertainties_from
-)[0])
+uncertainties = pd.DataFrame(
+    pyco2.uncertainty.propagate(co2py, uncertainties_into, uncertainties_from)[0]
+)
 
 # Compare uncertainties
 co2py_u = {}

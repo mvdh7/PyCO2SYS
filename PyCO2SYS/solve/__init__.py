@@ -306,7 +306,14 @@ def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
 
 
 def others(
-    core_solved, TempC, Pdbar, totals, Ks, pHScale, WhichKs, buffers_mode,
+    core_solved,
+    TempC,
+    Pdbar,
+    totals,
+    Ks,
+    pHScale,
+    WhichKs,
+    buffers_mode,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -379,7 +386,15 @@ def others(
         # Evaluate buffers with explicit equations, but these don't include nutrients
         # (i.e. only carbonate, borate and water alkalinities are accounted for)
         expl_ESM10 = buffers.explicit.all_ESM10(
-            TC, TAPeng, CO2, HCO3, CARB, PH, sw["OH"], sw["BAlk"], Ks["KB"],
+            TC,
+            TAPeng,
+            CO2,
+            HCO3,
+            CARB,
+            PH,
+            sw["OH"],
+            sw["BAlk"],
+            Ks["KB"],
         )
         for buffer in esm10buffers:
             allbuffers_ESM10[buffer] = np.where(

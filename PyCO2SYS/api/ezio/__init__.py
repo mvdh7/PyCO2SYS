@@ -17,8 +17,7 @@ def ezio(
     opt_k_fluoride=1,
     opt_total_borate=1,
 ):
-    """
-    The main function for easy input/output of 'CO2SYS.xlsx'-style spreadsheets.
+    """The main function for easy input/output of 'CO2SYS.xlsx'-style spreadsheets.
     Takes a spreadsheet as input, which MUST be formatted with the same columns
     as the input columns in CO2SYS.xlsx, in the following order:
         Salinity	

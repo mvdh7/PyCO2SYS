@@ -64,8 +64,34 @@ pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
 
 
 def test_co2py_matlab():
+    checkcols_1em4 = [
+        "OHout",
+        "BAlkin",
+        "BAlkout",
+        "CO2out",
+        "CO3in",
+        "CO3out",
+        "Hfreein",
+        "Hfreeout",
+        "NH3Alkin",
+        "NH3Alkout",
+        "OHin",
+        "OmegaARin",
+        "OmegaARout",
+        "OmegaCAin",
+        "OmegaCAout",
+        "SiAlkin",
+        "SiAlkout",
+        "fCO2in",
+        "fCO2out",
+        "pCO2in",
+        "pCO2out",
+        "xCO2in",
+        "xCO2out",
+    ]
+    checkcols_1em3 = ["CO2in"]
     # Test to 1e-5 %
-    checkcols = [
+    checkcols_1em5 = [
         col
         for col in pmad_co2py_matlab.index
         if col
@@ -78,26 +104,23 @@ def test_co2py_matlab():
             "H2S",
             "NH3",
             "KSO4CONSTANTS",
-            "CO2in",  # because of imprecision in different ways to calculate it
+            *checkcols_1em4,
+            *checkcols_1em3,
         ]
     ]
-    for ck in checkcols:
-        assert np.all(
-            (pmad_co2py_matlab[ck] < 1e-4)
-            | np.isnan(pmad_co2py_matlab[ck])
-        ), "Failed on {}".format(ck)
-    # Test to 1e-3 %
-    checkcols_1em3 = ["CO2in"]
-    assert np.all(
-        (pmad_co2py_matlab[checkcols_1em3] < 1e-3).values
-        | np.isnan(pmad_co2py_matlab[checkcols_1em3].values)
-    )
+    for col in checkcols_1em5:
+        assert (pmad_co2py_matlab[col] < 1e-5) | np.isnan(
+            pmad_co2py_matlab[col]
+        ), "Failed on {}".format(col)
     # Test to 1e-4 %
-    checkcols_1em4 = ["OHout", "BAlkin", "BAlkout", "CO2out", "CO3in", "CO3out",
-                      "Hfreein", "Hfreeout"]
     assert np.all(
         (pmad_co2py_matlab[checkcols_1em4] < 1e-4).values
         | np.isnan(pmad_co2py_matlab[checkcols_1em4].values)
+    )
+    # Test to 1e-3 %
+    assert np.all(
+        (pmad_co2py_matlab[checkcols_1em3] < 1e-3).values
+        | np.isnan(pmad_co2py_matlab[checkcols_1em3].values)
     )
 
 

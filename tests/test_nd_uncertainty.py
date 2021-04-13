@@ -26,7 +26,10 @@ uncertainties_from = {
     "pk_carbonic_1": 0.02,
 }
 uncertainties, components = pyco2.uncertainty.propagate_nd(
-    results, uncertainties_into, uncertainties_from, **kwargs,
+    results,
+    uncertainties_into,
+    uncertainties_from,
+    **kwargs,
 )
 
 
@@ -56,7 +59,11 @@ co2dict = pyco2.CO2SYS(
 uncert_old, components_old = pyco2.uncertainty.propagate(
     co2dict,
     ["pHin", "isoQin", "TCO2"],
-    {"PAR1": 2, "PAR2": 2, "pK1input": 0.02,},
+    {
+        "PAR1": 2,
+        "PAR2": 2,
+        "pK1input": 0.02,
+    },
     equilibria_in={"K1": kwargs["k_carbonic_1"]},
 )
 
