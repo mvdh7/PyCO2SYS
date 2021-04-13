@@ -1,4 +1,5 @@
-import pandas as pd
+import copy
+import pandas as pd, numpy as np
 import PyCO2SYS as pyco2
 
 # Switch to CO2SYS-MATLAB v3.2.0 conditions (note: not identical to v3.1.1)
@@ -54,7 +55,8 @@ uncertainties = pd.DataFrame(
     pyco2.uncertainty.propagate(co2py, uncertainties_into, uncertainties_from)[0]
 )
 
-# Compare uncertainties
+# Compare uncertainties --- doesn't really work with old MATLAB syntax, can't
+# propagate both input/output Ks simultaneously
 co2py_u = {}
 for k in uncertainties_into:
     co2py_u["u_{}_".format(k)] = uncertainties[k]
@@ -62,7 +64,106 @@ co2py_u = pd.DataFrame(co2py_u)
 co2u = co2ml_u - co2py_u
 co2u_pct = (100 * co2u / co2py_u).abs()
 
-# Reset to PyCO2SYS conditions
+#%% Do properly with pyco2.sys v1.7
+kwargs = {
+    "par1": co2ml["PAR1"],
+    "par2": co2ml["PAR2"],
+    "par1_type": co2ml["PAR1TYPE"],
+    "par2_type": co2ml["PAR2TYPE"],
+    "salinity": co2ml["SAL"],
+    "temperature": co2ml["TEMPIN"],
+    "temperature_out": co2ml["TEMPOUT"],
+    "pressure": co2ml["PRESIN"],
+    "pressure_out": co2ml["PRESOUT"],
+    "total_silicate": co2ml["SI"],
+    "total_phosphate": co2ml["PO4"],
+    "total_ammonia": co2ml["TNH4"],
+    "total_sulfide": co2ml["TH2S"],
+    "opt_pH_scale": co2ml["pHSCALEIN"],
+    "opt_k_carbonic": co2ml["K1K2CONSTANTS"],
+    "opt_k_bisulfate": co2ml["KSO4CONSTANT"],
+    "opt_k_fluoride": co2ml["KFCONSTANT"],
+    "opt_total_borate": co2ml["BORON"],
+}
+uncert_into = [
+    "alkalinity",
+    "dic",
+    "pCO2",
+    "fCO2",
+    "bicarbonate",
+    "carbonate",
+    "aqueous_CO2",
+    "saturation_calcite",
+    "saturation_aragonite",
+    "xCO2",
+    "pCO2_out",
+    "fCO2_out",
+    "bicarbonate_out",
+    "carbonate_out",
+    "aqueous_CO2_out",
+    "saturation_calcite_out",
+    "saturation_aragonite_out",
+    "xCO2_out",
+]
+uncert_from = copy.deepcopy(pyco2.u_pKs_OEDG18)
+uncert_from = {"{}_both".format(k): v for k, v in uncert_from.items()}
+uncert_from.update({"par1": co2ml.UPAR1.values, "par2": co2ml.UPAR2.values})
+results = pd.DataFrame(
+    pyco2.sys(**kwargs, uncertainty_into=uncert_into, uncertainty_from=uncert_from)
+)
+pyco2sys_u = pd.DataFrame(
+    {
+        "u_TAlk_": results.u_alkalinity,
+        "u_TCO2_": results.u_dic,
+        "u_pCO2in_": results.u_pCO2,
+        "u_fCO2in_": results.u_fCO2,
+        "u_HCO3in_": results.u_bicarbonate,
+        "u_CO3in_": results.u_carbonate,
+        "u_CO2in_": results.u_aqueous_CO2,
+        "u_OmegaCAin_": results.u_saturation_calcite,
+        "u_OmegaARin_": results.u_saturation_aragonite,
+        "u_xCO2in_": results.u_xCO2,
+        "u_pCO2out_": results.u_pCO2_out,
+        "u_fCO2out_": results.u_fCO2_out,
+        "u_HCO3out_": results.u_bicarbonate_out,
+        "u_CO3out_": results.u_carbonate_out,
+        "u_CO2out_": results.u_aqueous_CO2_out,
+        "u_OmegaCAout_": results.u_saturation_calcite_out,
+        "u_OmegaARout_": results.u_saturation_aragonite_out,
+        "u_xCO2out_": results.u_xCO2_out,
+    }
+)
+final_diff_pct = 100 * (co2ml_u[pyco2sys_u.columns] - pyco2sys_u) / pyco2sys_u
+final_diffs = pd.DataFrame(
+    {
+        "min_pct": final_diff_pct.min(),
+        "mean_pct": final_diff_pct.mean(),
+        "max_pct": final_diff_pct.max(),
+    }
+)
+
+
+def test_uncertainty_comparison_input_v3_2_0():
+    """Do MATLAB v3.2.0 and PyCO2SYS uncertainties agree?"""
+    for _, r in final_diffs.iterrows():
+        if r.name in [
+            "u_TAlk_",
+            "u_TCO2_",
+            "u_pCO2in_",
+            "u_fCO2in_",
+            "u_HCO3in_",
+            "u_CO3in_",
+            "u_CO2in_",
+            "u_OmegaCAin_",
+            "u_OmegaARin_",
+            "u_xCO2in_",
+        ]:
+            assert np.abs(r.mean_pct) < 1.001, "Failed on {}".format(r.name)
+
+
+# test_uncertainty_comparison_input_v3_2_0()
+
+#%% Reset to PyCO2SYS conditions
 pyco2.solve.get.initial_pH_guess = None
 pyco2.solve.get.pH_tolerance = 1e-8
 pyco2.solve.get.update_all_pH = False
