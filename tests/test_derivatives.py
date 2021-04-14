@@ -51,12 +51,7 @@ co2dict = pyco2.CO2SYS(
 grads_of = "all"
 grads_wrt = "all"
 co2derivs, dxs = pyco2.uncertainty.forward(
-    co2dict,
-    grads_of,
-    grads_wrt,
-    totals=None,
-    equilibria_in=None,
-    equilibria_out=None,
+    co2dict, grads_of, grads_wrt, totals=None, equilibria_in=None, equilibria_out=None,
 )
 
 

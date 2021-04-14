@@ -26,6 +26,9 @@ pKs_OEDG18_ml = {
     "pKArinput": pKs_OEDG18["pk_aragonite"],
     "pKCainput": pKs_OEDG18["pk_calcite"],
 }
+# OEDG18 with fractional total_borate too
+all_OEDG18 = copy.deepcopy(pKs_OEDG18)
+all_OEDG18.update({"total_borate__f": 0.02})
 
 
 def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
@@ -333,26 +336,26 @@ def forward_nd(
     its arguments.
     """
     # Check requested grads are possible
+    gradables = (
+        engine.nd.gradables
+        + [
+            "p{}".format(gradable)
+            for gradable in engine.nd.gradables
+            if gradable.startswith("k_")
+        ]
+        + [
+            "{}_both".format(gradable)
+            for gradable in engine.nd.gradables
+            if gradable.startswith("k_") and not gradable.endswith("_out")
+        ]
+        + [
+            "p{}_both".format(gradable)
+            for gradable in engine.nd.gradables
+            if gradable.startswith("k_") and not gradable.endswith("_out")
+        ]
+    )
     assert np.all(
-        np.isin(
-            grads_of,
-            engine.nd.gradables
-            + [
-                "p{}".format(gradable)
-                for gradable in engine.nd.gradables
-                if gradable.startswith("k_")
-            ]
-            + [
-                "{}_both".format(gradable)
-                for gradable in engine.nd.gradables
-                if gradable.startswith("k_") and not gradable.endswith("_out")
-            ]
-            + [
-                "p{}_both".format(gradable)
-                for gradable in engine.nd.gradables
-                if gradable.startswith("k_") and not gradable.endswith("_out")
-            ],
-        )
+        np.isin(grads_of, gradables)
     ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."
     if np.any([of.endswith("_out") for of in grads_of]):
         assert "temperature_out" in CO2SYS_nd_results, (
@@ -434,21 +437,27 @@ def propagate_nd(
     **CO2SYS_nd_kwargs,
 ):
     """Propagate uncertainties from requested CO2SYS_nd arguments to results."""
+    u_fractions = [k.split("__f")[0] for k in uncertainties_from if k.endswith("__f")]
+    u_froms = {k.split("__f")[0]: v for k, v in uncertainties_from.items()}
     CO2SYS_derivs = forward_nd(
         CO2SYS_nd_results,
         uncertainties_into,
-        uncertainties_from,
+        u_froms,
         dx=dx,
         dx_scaling=dx_scaling,
         dx_func=dx_func,
         **CO2SYS_nd_kwargs,
     )[0]
     nd_shape = engine.nd.broadcast1024(*CO2SYS_nd_results.values()).shape
-    uncertainties_from = engine.nd.condition(uncertainties_from, to_shape=nd_shape)
+    u_froms = engine.nd.condition(u_froms, to_shape=nd_shape)
     components = {
         u_into: {
             u_from: np.abs(CO2SYS_derivs[u_into][u_from]) * v_from
-            for u_from, v_from in uncertainties_from.items()
+            if u_from not in u_fractions
+            else np.abs(CO2SYS_derivs[u_into][u_from])
+            * v_from
+            * CO2SYS_nd_results[u_from]
+            for u_from, v_from in u_froms.items()
         }
         for u_into in uncertainties_into
     }

@@ -1,4 +1,3 @@
-import copy
 import pandas as pd, numpy as np
 import PyCO2SYS as pyco2
 
@@ -105,8 +104,8 @@ uncert_into = [
     "saturation_aragonite_out",
     "xCO2_out",
 ]
-uncert_from = copy.deepcopy(pyco2.u_pKs_OEDG18)
-uncert_from = {"{}_both".format(k): v for k, v in uncert_from.items()}
+uncert_from = {"{}_both".format(k): v for k, v in pyco2.uncertainty.pKs_OEDG18.items()}
+uncert_from["total_borate__f"] = pyco2.uncertainty_OEDG18["total_borate__f"]
 uncert_from.update({"par1": co2ml.UPAR1.values, "par2": co2ml.UPAR2.values})
 results = pd.DataFrame(
     pyco2.sys(**kwargs, uncertainty_into=uncert_into, uncertainty_from=uncert_from)
@@ -158,10 +157,10 @@ def test_uncertainty_comparison_input_v3_2_0():
             "u_OmegaARin_",
             "u_xCO2in_",
         ]:
-            assert np.abs(r.mean_pct) < 1.001, "Failed on {}".format(r.name)
+            assert np.abs(r.mean_pct) < 0.5, "Failed on {}".format(r.name)
 
 
-# test_uncertainty_comparison_input_v3_2_0()
+test_uncertainty_comparison_input_v3_2_0()
 
 #%% Reset to PyCO2SYS conditions
 pyco2.solve.get.initial_pH_guess = None

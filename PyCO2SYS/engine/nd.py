@@ -781,6 +781,7 @@ def CO2SYS(
         for into in uncertainty_into:
             uncerts["u_{}".format(into)] = uncertainties[into]
             for ufrom in uncertainty_from:
+                ufrom = ufrom.split("__f")[0]
                 uncerts["u_{}__{}".format(into, ufrom)] = components[into][ufrom]
         results.update(uncerts)
     return results

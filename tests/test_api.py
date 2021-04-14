@@ -47,7 +47,4 @@ def test_CO2sys_xarray():
     output = CO2SYS(dic=dic, pco2=430)
     assert isinstance(output, xr.Dataset)
     assert isinstance(output.TAlk, xr.DataArray)
-    assert output.TCO2.shape == (
-        2,
-        2,
-    )
+    assert output.TCO2.shape == (2, 2,)

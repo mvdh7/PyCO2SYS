@@ -59,10 +59,12 @@ results = pyco2.sys(
       * `uncertainty_from`: a dict of the uncertainties in the arguments to propagate through `pyco2.sys`.
 
     The keys of `uncertainty_from` can include any [arguments of `pyco2.sys`](../co2sys_nd/#arguments) that can have an uncertainty.  The key for each uncertainty in `uncertainty_from` should be the same as the corresponding key in the main [`pyco2.sys` results dict](../co2sys_nd/#results).
+
+    If you want to provide a fractional value for any uncertainty, simply append `"__f"` to the end of its key in `uncertainty_from`.
     
     For the equilibrium constants, if you wish to propagate an uncertainty in terms of a p<i>K</i> value rather than *K*, simply prefix the corresponding key in `uncertainty_from` with a `"p"` (e.g. use `"pk_carbonic_1"` instead of `"k_carbonic_1"`).  Uncertainties in equilibrium constants under input and output conditions are treated independently.  To use the same (covarying) uncertainty for both, append `"_both"` to the input condition key (e.g. `"k_carbonic_1_both"`).  In this case, you must have provided a value for either `temperature_out` or `pressure_out`.
     
-    The "standard" uncertainties in the equilbrium constants used by CO2SYS for MATLAB following [OEDG18](../refs/#o) are available in the correct format for `uncertainty_into` at `PyCO2SYS.u_pKs_OEDG18`.
+    The "standard" uncertainties in the equilbrium constants and total borate used by CO2SYS for MATLAB following [OEDG18](../refs/#o) are available in the correct format for `uncertainty_from` at `PyCO2SYS.uncertainty_OEDG18`.
 
     The values of `uncertainty_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.  Any parameters not included are assumed to have zero uncertainty.
 
@@ -109,4 +111,5 @@ results = pyco2.sys(
 
   * `grads_of` is equivalent to `uncertainty_into`.
   * `grads_wrt` (w.r.t. = with respect to) is equivalent to `uncertainty_from`, but values are not required, so it can be a list.  A dict is also fine; its values are ignored.
+  * The `"__f"` key extension cannot be used in `grads_wrt`.
   * For each result in `grads_of` and argument in `grads_wrt`, there is a new key `"d_<into>__d_<from>"` in the `results` dict, containing the derivative of the result with respect to the argument.
