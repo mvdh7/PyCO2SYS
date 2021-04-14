@@ -160,7 +160,7 @@ def test_uncertainty_comparison_input_v3_2_0():
             assert np.abs(r.mean_pct) < 0.5, "Failed on {}".format(r.name)
 
 
-test_uncertainty_comparison_input_v3_2_0()
+# test_uncertainty_comparison_input_v3_2_0()
 
 #%% Reset to PyCO2SYS conditions
 pyco2.solve.get.initial_pH_guess = None
