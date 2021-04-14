@@ -81,14 +81,15 @@ def test_round_robin():
 # # Generate a LaTeX table of the results
 # if True:
 #     varnames = {
-#         "alkalinity": r"$\ta$",
+#         "alkalinity": r"$\alk$",
 #         "dic": r"$\dic$",
 #         "pH": r"pH$_{\mathrm{T}}$",
-#         "pCO2": "$\pCOtwo$",
-#         "fCO2": "$\fCOtwo$",
-#         "carbonate": "$[\carb$]",
-#         "bicarbonate": "$[\bicarb]$",
-#         "aqueous_CO2": "$[\chem{CO_2(aq)}]$",
+#         "pCO2": r"$\pCOtwo$",
+#         "fCO2": r"$\fCOtwo$",
+#         "xCO2": r"$\xCOtwo$",
+#         "carbonate": r"$[\carb$]",
+#         "bicarbonate": r"$[\bicarb]$",
+#         "aqueous_CO2": r"$[\chem{CO_2(aq)}]$",
 #     }
 #     with open("manuscript/html/round_robin.tex", "w") as f:
 #         for var, name in varnames.items():
