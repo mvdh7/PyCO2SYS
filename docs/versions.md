@@ -42,7 +42,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
     * Added spreadsheet-to-spreadsheet function `pyco2.ezio`.
-    * Integrated uncertainty propagation into the main `pyco2.sys` function.
+    * Integrated uncertainty propagation into the main `pyco2.sys` function and expanded its capabilities.
 
     ***Internal updates***
 
@@ -52,7 +52,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.
     * Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).
     * Can now use `PyCO2SYS.hello()` to find version number and credits (alias for `PyCO2SYS.say_hello()`).
-    * The final component of DIC (or DIC itself) to be calculated is always computed by difference from the known components.
+    * The final component of DIC (or DIC itself) to be calculated is now always computed by difference from the known components.
     * Various functions in `convert` module renamed.
 
     ***Validation***
