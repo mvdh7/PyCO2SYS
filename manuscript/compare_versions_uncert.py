@@ -158,6 +158,17 @@ def test_uncertainty_comparison_input_v3_2_0():
             "u_xCO2in_",
         ]:
             assert np.abs(r.mean_pct) < 0.5, "Failed on {}".format(r.name)
+        elif r.name in [
+            # "u_pCO2out_",
+            # "u_fCO2out_",
+            "u_HCO3out_",
+            "u_CO3out_",
+            # "u_CO2out_",
+            # "u_OmegaCAout_",
+            # "u_OmegaARout_",
+            # "u_xCO2out_",
+        ]:
+            assert np.abs(r.mean_pct) < 10, "Failed on {}".format(r.name)
 
 
 # test_uncertainty_comparison_input_v3_2_0()
