@@ -14,7 +14,7 @@ co2ml = pd.read_csv("manuscript/results/compare_versions_co2s_v3.csv")
 co2ml_u = pd.read_csv("manuscript/results/compare_versions_uncert.csv", na_values=-999)
 
 # Import file created from .mat file provided by JD Sharp on 15 Apr 2021
-co2ml_u_jds = pd.read_csv("manuscript/results/compare_versions_uncert_jds.csv", na_values=-999)
+co2ml_u_jds = pd.read_csv("manuscript/results/compare_versions_uncert_JDS.csv", na_values=-999)
 
 # Convert constants options
 co2ml["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
@@ -115,6 +115,7 @@ uncert_into = [
     "xCO2_out",
 ]
 uncert_from = {"{}_both".format(k): v for k, v in pyco2.uncertainty.pKs_OEDG18.items()}
+# uncert_from.update(pyco2.uncertainty.pKs_OEDG18)
 uncert_from["total_borate__f"] = pyco2.uncertainty_OEDG18["total_borate__f"]
 uncert_from.update({"par1": co2ml.UPAR1.values, "par2": co2ml.UPAR2.values})
 results = pd.DataFrame(
