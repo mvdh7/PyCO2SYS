@@ -57,20 +57,20 @@ Update an existing installation:
 
 ## Basic use
 
-To solve the marine carbonate system from two of its parameters (`par1` and `par2`), just use:
+The only function you need is `pyco2.sys`.  To solve the marine carbonate system from two of its parameters (`par1` and `par2`), just use:
 
 ```python
 import PyCO2SYS as pyco2
 results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
-Each field in the `results` corresponds to a column in the original MATLAB output `DATA` or to a new output that is only available from PyCO2SYS.  The keys to the dict are described in the [online documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Inputs should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can also be provided to specify everything beyond the carbonate system parameters - [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
+The keys to the `results` dict are described in the [online documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Arguments should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can be provided to specify everything beyond the carbonate system parameters — [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
 
-You can also look at the [example scripts](https://github.com/mvdh7/PyCO2SYS/tree/master/examples) here in the repo, or there are also some [examples as Jupyter Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
+You can also look at the [examples Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 
 ## About
 
-PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) of the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
+PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) at the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
 
 Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md) before setting to work.
 
