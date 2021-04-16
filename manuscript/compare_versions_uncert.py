@@ -9,8 +9,12 @@ pyco2.solve.get.halve_big_jumps = True  # different way to prevent too-big pH ju
 pyco2.solve.get.assume_pH_total = False  # replicate pH-Total assumption bug
 pyco2.solve.delta.use_approximate_slopes = True  # don't use Autograd for solver slopes
 
+# Import files generated with compare_versions_uncert.m
 co2ml = pd.read_csv("manuscript/results/compare_versions_co2s_v3.csv")
 co2ml_u = pd.read_csv("manuscript/results/compare_versions_uncert.csv", na_values=-999)
+
+# Import file created from .mat file provided by JD Sharp on 15 Apr 2021
+co2ml_u_jds = pd.read_csv("manuscript/results/compare_versions_uncert_jds.csv", na_values=-999)
 
 # Convert constants options
 co2ml["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
@@ -62,6 +66,12 @@ for k in uncertainties_into:
 co2py_u = pd.DataFrame(co2py_u)
 co2u = co2ml_u - co2py_u
 co2u_pct = (100 * co2u / co2py_u).abs()
+
+# Compare with JD Sharp file
+max_diff_pyco2 = (co2py_u - co2ml_u_jds).abs().max()
+max_diff_jds = (co2ml_u - co2ml_u_jds).abs().max().loc[max_diff_pyco2.index]
+# ^ shows that differences between Python and MATLAB are not due to errors in my MATLAB
+#   because max_diff_pyco2 is everywhere much greater than max_diff_jds.
 
 #%% Do properly with pyco2.sys v1.7
 kwargs = {
