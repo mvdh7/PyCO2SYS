@@ -13,6 +13,7 @@ orr = dict(
     total_phosphate=0,
     total_silicate=0,
     opt_k_carbonic=10,
+    opt_total_borate=2,
 )
 grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
 grads_wrt = ["par1", "par2", "temperature", "salinity"]
@@ -45,6 +46,7 @@ orr = dict(
     total_phosphate=2,
     total_silicate=60,
     opt_k_carbonic=10,
+    opt_total_borate=2,
 )
 grads_wrt = ["total_phosphate", "total_silicate"]
 results = pyco2.sys(**orr, grads_of=grads_of, grads_wrt=grads_wrt)
@@ -60,6 +62,18 @@ orr3.set_index(["wrt", "program"], inplace=True)
 
 # Comparison with Orr et al. (2018) Table 4
 orr4 = pd.read_csv("manuscript/data/orr2018-table4.csv")
+orr = dict(
+    par1=2300,
+    par2=2000,
+    par1_type=1,
+    par2_type=2,
+    temperature=18,
+    salinity=35,
+    total_phosphate=2,
+    total_silicate=60,
+    opt_k_carbonic=10,
+    opt_total_borate=1,  # note this is different from Tables 2 and 3!
+)
 uncertainty_into = [
     c for c in orr4.columns if c not in ["wrt", "program", "with_k_uncertainties"]
 ]
@@ -99,7 +113,7 @@ def test_table2_OEDG18():
                 v_orr = orr2_groups.loc[wrt][of]
                 v_pyco2 = orr2.loc[wrt].loc["PyCO2SYS"][of]
                 assert np.isclose(
-                    v_orr, v_pyco2, rtol=0.03, atol=0
+                    v_orr, v_pyco2, rtol=1e-3, atol=0
                 ), "Failed on {} / {}".format(of, wrt)
 
 
@@ -111,7 +125,7 @@ def test_table3_OEDG18():
                 v_orr = orr3_groups.loc[wrt][of]
                 v_pyco2 = orr3.loc[wrt].loc["PyCO2SYS"][of]
                 assert np.isclose(
-                    v_orr, v_pyco2, rtol=0.03, atol=0
+                    v_orr, v_pyco2, rtol=1e-3, atol=0
                 ), "Failed on {} / {}".format(of, wrt)
 
 
