@@ -14,7 +14,9 @@ co2ml = pd.read_csv("manuscript/results/compare_versions_co2s_v3.csv")
 co2ml_u = pd.read_csv("manuscript/results/compare_versions_uncert.csv", na_values=-999)
 
 # Import file created from .mat file provided by JD Sharp on 15 Apr 2021
-co2ml_u_jds = pd.read_csv("manuscript/results/compare_versions_uncert_JDS.csv", na_values=-999)
+co2ml_u_jds = pd.read_csv(
+    "manuscript/results/compare_versions_uncert_JDS.csv", na_values=-999
+)
 
 # Convert constants options
 co2ml["KSO4CONSTANTS"] = pyco2.convert.options_new2old(
