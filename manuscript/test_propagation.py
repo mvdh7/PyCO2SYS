@@ -68,7 +68,7 @@ def compare_k_propagation(
     k_uncertainty__simulated = {k: np.std(results_u[k]) for k in test_vars}
     # Propagate uncertainty
     k_uncertainty__direct = pyco2.uncertainty.propagate_nd(
-        results, test_vars, {k_constant: k_uncertainty}, **kwargs_u
+        results, test_vars, {k_constant: k_uncertainty}, dx=1e-6, **kwargs
     )[0]
     return k_uncertainty__simulated, k_uncertainty__direct
 
@@ -90,7 +90,7 @@ def test_k_constant_single_propagation():
     p1 = 0
     for k_constant, p2 in itertools.product(k_constants, range(1, 8)):
         k_uncertainty__simulated, k_uncertainty__direct = compare_k_propagation(
-            p1, p2, k_constant, test_vars
+            p1, p2, k_constant, test_vars, k_uncertainty_percent=0.01
         )
         for v in test_vars:
             compare = get_compare(k_uncertainty__simulated[v], k_uncertainty__direct[v])
