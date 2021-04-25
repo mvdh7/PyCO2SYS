@@ -58,10 +58,42 @@ co2py_matlab = co2py.subtract(co2matlab)  # PyCO2SYS.CO2SYS vs MATLAB
 
 # Get maximum absolute differences in each variable
 mad_co2py_matlab = co2py_matlab.abs().max()
-
 # Max. abs. diff. as a percentage
 pmad_co2py_matlab = 100 * mad_co2py_matlab / co2matlab.mean()
 
+# Grouped differences - opt_k_carbonic isn't the problem
+mad__k_carbonic = co2py_matlab.abs()
+mad__k_carbonic["opt_k_carbonic"] = co2py.K1K2CONSTANTS
+mad__k_carbonic = mad__k_carbonic.groupby(by="opt_k_carbonic").max()
+
+# Grouped differences - opt_k_bisulfate isn't the problem
+mad__opt_k_bisulfate = co2py_matlab.abs()
+mad__opt_k_bisulfate["opt_k_bisulfate"] = co2py.KSO4CONSTANT
+mad__opt_k_bisulfate = mad__opt_k_bisulfate.groupby(by="opt_k_bisulfate").max()
+
+# Grouped differences - opt_pH_scale isn't the problem
+mad__opt_pH_scale = co2py_matlab.abs()
+mad__opt_pH_scale["opt_pH_scale"] = co2py.pHSCALEIN
+mad__opt_pH_scale = mad__opt_pH_scale.groupby(by="opt_pH_scale").max()
+
+# Grouped differences - par1/par2 combo IS the problem: 17, 12 and 18
+mad__par1_par2 = co2py_matlab.abs()
+mad__par1_par2["par1_type"] = co2py.PAR1TYPE
+mad__par1_par2["par2_type"] = co2py.PAR2TYPE
+mad__par1_par2 = mad__par1_par2.groupby(by=["par1_type", "par2_type"]).max()
+mad__par1_par_core = mad__par1_par2[
+    ["TAlk", "TCO2", "pHin", "pCO2in", "fCO2in", "CO3in", "HCO3in", "CO2in"]
+]
+
+# par1/par2 AND pH scale
+mad__p1p2pH = co2py_matlab.abs()
+mad__p1p2pH["par1_type"] = co2py.PAR1TYPE
+mad__p1p2pH["par2_type"] = co2py.PAR2TYPE
+mad__p1p2pH["opt_pH_scale"] = co2py.pHSCALEIN
+mad__p1p2pH = mad__p1p2pH.groupby(by=["par1_type", "par2_type", "opt_pH_scale"]).max()
+mad__p1p2pH_core = mad__p1p2pH[
+    ["TAlk", "TCO2", "pHin", "pCO2in", "fCO2in", "CO3in", "HCO3in", "CO2in"]
+]
 
 def test_co2py_matlab():
     checkcols_1em4 = [
