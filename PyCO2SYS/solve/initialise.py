@@ -57,9 +57,10 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     Hmin = np.where(c2 < 0, -c2 + sq21 / 3, -c1 / (c2 + sq21))
     H0 = np.where(
         c21min_positive,  # i.e. np.sqrt(c21min) is real
-        Hmin + np.sqrt(-(c2 * Hmin ** 2 + c1 * Hmin + c0) / sq21),
+        Hmin + np.sqrt(-(Hmin ** 3 + c2 * Hmin ** 2 + c1 * Hmin + c0) / sq21),
         1e-7,  # default pH=7 if 2nd order approx has no solution
     )
+    H0 = np.where(np.isnan(H0), 1e-7, H0)  # fail-safe
     return H0
 
 

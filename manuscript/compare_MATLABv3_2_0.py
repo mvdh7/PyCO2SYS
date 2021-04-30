@@ -76,14 +76,36 @@ mad__opt_pH_scale = co2py_matlab.abs()
 mad__opt_pH_scale["opt_pH_scale"] = co2py.pHSCALEIN
 mad__opt_pH_scale = mad__opt_pH_scale.groupby(by="opt_pH_scale").max()
 
+corevars = [
+    "TAlk",
+    "TCO2",
+    "pHin",
+    "pCO2in",
+    "fCO2in",
+    "CO3in",
+    "HCO3in",
+    "CO2in",
+    "pHout",
+    "pCO2out",
+    "fCO2out",
+    "CO3out",
+    "HCO3out",
+    "CO2out",
+]
+
 # Grouped differences - par1/par2 combo IS the problem: 17, 12 and 18
 mad__par1_par2 = co2py_matlab.abs()
 mad__par1_par2["par1_type"] = co2py.PAR1TYPE
 mad__par1_par2["par2_type"] = co2py.PAR2TYPE
 mad__par1_par2 = mad__par1_par2.groupby(by=["par1_type", "par2_type"]).max()
-mad__par1_par_core = mad__par1_par2[
-    ["TAlk", "TCO2", "pHin", "pCO2in", "fCO2in", "CO3in", "HCO3in", "CO2in"]
-]
+mad__par1_par_core = mad__par1_par2[corevars]
+
+# Grouped differences - par1/par2 combo IS the problem: 17, 12 and 18
+pmad__par1_par2 = 100 * co2py_matlab.abs() / co2py.mean()
+pmad__par1_par2["par1_type"] = co2py.PAR1TYPE
+pmad__par1_par2["par2_type"] = co2py.PAR2TYPE
+pmad__par1_par2 = pmad__par1_par2.groupby(by=["par1_type", "par2_type"]).max()
+pmad__par1_par_core = pmad__par1_par2[corevars]
 
 # par1/par2 AND pH scale
 mad__p1p2pH = co2py_matlab.abs()
@@ -91,39 +113,23 @@ mad__p1p2pH["par1_type"] = co2py.PAR1TYPE
 mad__p1p2pH["par2_type"] = co2py.PAR2TYPE
 mad__p1p2pH["opt_pH_scale"] = co2py.pHSCALEIN
 mad__p1p2pH = mad__p1p2pH.groupby(by=["par1_type", "par2_type", "opt_pH_scale"]).max()
-mad__p1p2pH_core = mad__p1p2pH[
-    ["TAlk", "TCO2", "pHin", "pCO2in", "fCO2in", "CO3in", "HCO3in", "CO2in"]
-]
+mad__p1p2pH_core = mad__p1p2pH[corevars]
+
 
 def test_co2py_matlab():
-    checkcols_1em4 = [
-        "OHout",
-        "BAlkin",
-        "BAlkout",
+    checkcols_1em5 = [
         "CO2out",
-        "CO3in",
-        "CO3out",
-        "Hfreein",
-        "Hfreeout",
-        "NH3Alkin",
-        "NH3Alkout",
         "OHin",
-        "OmegaARin",
-        "OmegaARout",
-        "OmegaCAin",
-        "OmegaCAout",
-        "SiAlkin",
-        "SiAlkout",
-        "fCO2in",
+        "OHout",
+        "SIRin",
+        "SIRout",
         "fCO2out",
-        "pCO2in",
         "pCO2out",
-        "xCO2in",
         "xCO2out",
     ]
     checkcols_1em3 = ["CO2in"]
-    # Test to 1e-5 %
-    checkcols_1em5 = [
+    # Test to 1e-6 %
+    checkcols_1em6 = [
         col
         for col in pmad_co2py_matlab.index
         if col
@@ -136,18 +142,18 @@ def test_co2py_matlab():
             "H2S",
             "NH3",
             "KSO4CONSTANTS",
-            *checkcols_1em4,
+            *checkcols_1em5,
             *checkcols_1em3,
         ]
     ]
-    for col in checkcols_1em5:
-        assert (pmad_co2py_matlab[col] < 1e-5) | np.isnan(
+    for col in checkcols_1em6:
+        assert (pmad_co2py_matlab[col] < 1e-6) | np.isnan(
             pmad_co2py_matlab[col]
         ), "Failed on {}".format(col)
-    # Test to 1e-4 %
+    # Test to 1e-5 %
     assert np.all(
-        (pmad_co2py_matlab[checkcols_1em4] < 1e-4).values
-        | np.isnan(pmad_co2py_matlab[checkcols_1em4].values)
+        (pmad_co2py_matlab[checkcols_1em5] < 1e-5).values
+        | np.isnan(pmad_co2py_matlab[checkcols_1em5].values)
     )
     # Test to 1e-3 %
     assert np.all(

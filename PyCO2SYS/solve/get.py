@@ -274,10 +274,6 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
     Newton-Raphson iterative method.
 
-    Although it is coded for H on the total pH scale, for the pH values occuring in
-    seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as
-    long as the K Constants are on that scale.
-
     Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
