@@ -49,6 +49,11 @@ def assemble(
         Ks["KSO4"] = pressured.KSO4(TempK, Sal, Pbar, RGas, WhoseKSO4)
     if "KF" not in Ks:
         Ks["KF"] = pressured.KF(TempK, Sal, Pbar, RGas, WhoseKF)
+    # Depressurise KSO4 and KF for pH scale conversions
+    if "KSO4_P0" not in Ks:
+        Ks["KSO4_P0"] = Ks["KSO4"] / pcx.KSO4fac(TempK, Pbar, RGas)
+    if "KF_P0" not in Ks:
+        Ks["KF_P0"] = Ks["KF"] / pcx.KFfac(TempK, Pbar, RGas)
     # Correct pH scale conversion factors for pressure.
     # Note that fH has been assumed to be independent of pressure.
     # The values KS and KF are already now pressure-corrected, so the pH scale

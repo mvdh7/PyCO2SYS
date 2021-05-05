@@ -11,7 +11,7 @@ PyCO2SYS\constants.py                                   12      0   100%
 PyCO2SYS\convert.py                                    117      9    92%
 PyCO2SYS\engine\__init__.py                             81      1    99%
 PyCO2SYS\engine\nd.py                                  187     32    83%
-PyCO2SYS\equilibria\__init__.py                         64      0   100%
+PyCO2SYS\equilibria\__init__.py                         68      0   100%
 PyCO2SYS\equilibria\p1atm.py                           231     14    94%
 PyCO2SYS\equilibria\pcx.py                              92      0   100%
 PyCO2SYS\equilibria\pressured.py                       104      0   100%
@@ -23,13 +23,13 @@ PyCO2SYS\solubility.py                                  49      0   100%
 PyCO2SYS\solve\__init__.py                             219      0   100%
 PyCO2SYS\solve\delta.py                                 67      0   100%
 PyCO2SYS\solve\get.py                                  287     67    77%
-PyCO2SYS\solve\initialise.py                            54      0   100%
+PyCO2SYS\solve\initialise.py                            57      0   100%
 PyCO2SYS\uncertainty.py                                151     14    91%
 manuscript\__init__.py                                   0      0   100%
 manuscript\compare_MATLABv2_0_5.py                      38      0   100%
 manuscript\compare_MATLABv3_1_1.py                      50      0   100%
-manuscript\compare_MATLABv3_2_0.py                      63     13    79%
-manuscript\compare_equilibrium_constants_v2_0_5.py      13      2    85%
+manuscript\compare_MATLABv3_2_0.py                      61      6    90%
+manuscript\compare_equilibrium_constants_v2_0_5.py      13      0   100%
 manuscript\compare_equilibrium_constants_v3_1_1.py      12      0   100%
 manuscript\compare_equilibrium_constants_v3_2_0.py      12      0   100%
 manuscript\compare_versions_uncert.py                   49      0   100%
@@ -53,4 +53,4 @@ tests\test_propagate_both.py                            41      0   100%
 validate\__init__.py                                     0      0   100%
 validate\buffers_auto_explicit.py                       16      0   100%
 ------------------------------------------------------------------------
-TOTAL                                                 3505    209    94%
+TOTAL                                                 3510    200    94%

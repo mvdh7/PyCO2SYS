@@ -64,7 +64,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * `par1`, `par2`, `par1_type` and `par2_type` arguments now always get broadcasted to the maximum size, even if they are scalar.
     * Erroneous `"k_phosphate_*"` keys corrected to `"k_phosphoric_"`.
     * Override values for equilibrium constants under output conditions now assigned correctly.
-    * Fixed minor error in initial pH estimate when solving from alkalinity and DIC.
+    * Fixed minor errors in initial pH estimates when solving from alkalinity and either DIC or [CO$_2$(aq)].
 
 ## 1.6
 

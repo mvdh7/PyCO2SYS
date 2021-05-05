@@ -160,8 +160,8 @@ def pH_to_all_scales(pH, pH_scale, totals, k_constants):
 def pH_sws_to_total_P0(TempK, totals, k_constants, WhoseKSO4, WhoseKF):
     """Determine SWS to Total pH scale correction factor at zero pressure."""
     k_constants_P0 = copy.deepcopy(k_constants)
-    k_constants_P0["KSO4"] = pressured.KSO4(TempK, totals["Sal"], 0.0, 1.0, WhoseKSO4)
-    k_constants_P0["KF"] = pressured.KF(TempK, totals["Sal"], 0.0, 1.0, WhoseKF)
+    k_constants_P0["KSO4"] = k_constants["KSO4_P0"]
+    k_constants_P0["KF"] = k_constants["KF_P0"]
     return pH_sws_to_total(totals, k_constants_P0)
 
 

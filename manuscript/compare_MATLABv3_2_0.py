@@ -117,16 +117,6 @@ mad__p1p2pH_core = mad__p1p2pH[corevars]
 
 
 def test_co2py_matlab():
-    checkcols_1em5 = [
-        "CO2out",
-        "OHin",
-        "OHout",
-        "SIRin",
-        "SIRout",
-        "fCO2out",
-        "pCO2out",
-        "xCO2out",
-    ]
     checkcols_1em3 = ["CO2in"]
     # Test to 1e-6 %
     checkcols_1em6 = [
@@ -142,7 +132,6 @@ def test_co2py_matlab():
             "H2S",
             "NH3",
             "KSO4CONSTANTS",
-            *checkcols_1em5,
             *checkcols_1em3,
         ]
     ]
@@ -150,11 +139,6 @@ def test_co2py_matlab():
         assert (pmad_co2py_matlab[col] < 1e-6) | np.isnan(
             pmad_co2py_matlab[col]
         ), "Failed on {}".format(col)
-    # Test to 1e-5 %
-    assert np.all(
-        (pmad_co2py_matlab[checkcols_1em5] < 1e-5).values
-        | np.isnan(pmad_co2py_matlab[checkcols_1em5].values)
-    )
     # Test to 1e-3 %
     assert np.all(
         (pmad_co2py_matlab[checkcols_1em3] < 1e-3).values
