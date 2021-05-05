@@ -360,7 +360,7 @@ def forward_nd(
     if np.any([of.endswith("_out") for of in grads_of]):
         assert "temperature_out" in CO2SYS_nd_results, (
             "PyCO2SYS error: you can only get gradients at output conditions if you calculated"
-            + "results at output conditions!"
+            + " results at output conditions!"
         )
     # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs.
     # These are arguments that always get a specific value, rather than being calculated
