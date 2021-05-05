@@ -332,7 +332,7 @@ def forward_nd(
     dx_func=None,
     **CO2SYS_nd_kwargs,
 ):
-    """Get forward finite-difference derivatives of CO2SYS_nd results with respect to
+    """Get forward finite-difference derivatives of pyco2.sys results with respect to
     its arguments.
     """
     # Check requested grads are possible
@@ -362,7 +362,9 @@ def forward_nd(
             "PyCO2SYS error: you can only get gradients at output conditions if you calculated"
             + "results at output conditions!"
         )
-    # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs
+    # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs.
+    # These are arguments that always get a specific value, rather than being calculated
+    # from e.g. temperature and salinity if not provided.
     keys_fixed = set(
         [
             "par1",
@@ -387,38 +389,46 @@ def forward_nd(
         + list(CO2SYS_nd_kwargs.keys())
     )
     args_fixed = {k: CO2SYS_nd_results[k] for k in keys_fixed if k in CO2SYS_nd_results}
-    # Loop through requested parameters and calculate the gradients
+    # Prepare dicts for results
     dxs = {wrt: None for wrt in grads_wrt}
     CO2SYS_derivs = {of: {wrt: None for wrt in grads_wrt} for of in grads_of}
+    # Loop through requested parameters and calculate the gradients
     for wrt in grads_wrt:
         args_plus = copy.deepcopy(args_fixed)
+        # Check for special cases
         is_pk = wrt.startswith("pk_")
         do_both = wrt.endswith("_both")
         if is_pk:
-            wrt_as_k = wrt[1:]
+            wrt_as_k = wrt[1:]  # remove the "p" prefix
             if do_both:
-                wrt_as_k = wrt_as_k[:-5]
+                wrt_as_k = wrt_as_k[:-5]  # remove the "_both" suffix
+            # Convert K to pK, increment pK by dx, then convert back to K (input)
             pk_values = -np.log10(CO2SYS_nd_results[wrt_as_k])
             dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
             pk_values_plus = pk_values + dxs[wrt]
             args_plus[wrt_as_k] = 10.0 ** -pk_values_plus
             if do_both:
+                # Convert K to pK, increment pK by dx, then convert back to K (output)
+                # Uses the same dx value as for the input condition
                 pk_values_out = -np.log10(CO2SYS_nd_results[wrt_as_k + "_out"])
                 pk_values_out_plus = pk_values_out + dxs[wrt]
                 args_plus[wrt_as_k + "_out"] = 10.0 ** -pk_values_out_plus
-        else:
+        else:  # if not is_pk
             if do_both:
-                wrt_internal = wrt[:-5]
+                wrt_internal = wrt[:-5]  # remove the "_both" suffix
             else:
                 wrt_internal = copy.deepcopy(wrt)
+            # Get the dx and increment the input argument by it
             dxs[wrt] = _get_dx_wrt(
                 dx, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
             )
             args_plus[wrt_internal] = CO2SYS_nd_results[wrt_internal] + dxs[wrt]
             if do_both:
+                # Increment the output argument by the same dx as for the input
                 args_plus[wrt_internal + "_out"] = (
                     CO2SYS_nd_results[wrt_internal + "_out"] + dxs[wrt]
                 )
+        # Solve again with the incremented arguments and save output
         results_plus = engine.nd.CO2SYS(**args_plus)
         for of in grads_of:
             CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[
@@ -436,9 +446,11 @@ def propagate_nd(
     dx_func=None,
     **CO2SYS_nd_kwargs,
 ):
-    """Propagate uncertainties from requested CO2SYS_nd arguments to results."""
+    """Propagate uncertainties from requested pyco2.sys arguments to results."""
+    # Identify special cases
     u_fractions = [k.split("__f")[0] for k in uncertainties_from if k.endswith("__f")]
     u_froms = {k.split("__f")[0]: v for k, v in uncertainties_from.items()}
+    # Get derivatives
     CO2SYS_derivs = forward_nd(
         CO2SYS_nd_results,
         uncertainties_into,
@@ -448,6 +460,7 @@ def propagate_nd(
         dx_func=dx_func,
         **CO2SYS_nd_kwargs,
     )[0]
+    # Calculate individual components of uncertainty
     nd_shape = engine.nd.broadcast1024(*CO2SYS_nd_results.values()).shape
     u_froms = engine.nd.condition(u_froms, to_shape=nd_shape)
     components = {
@@ -461,6 +474,7 @@ def propagate_nd(
         }
         for u_into in uncertainties_into
     }
+    # Combine components into final uncertainty, assuming all are independent
     uncertainties = {
         u_into: np.sqrt(
             np.sum(
