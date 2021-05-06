@@ -85,8 +85,7 @@ results = pd.DataFrame(
             "aqueous_CO2_out",
             "xCO2_out",
         ],
-        grads_wrt=["temperature", "salinity", "k_CO2",
-                   "k_carbonic_1", "k_carbonic_2"],
+        grads_wrt=["temperature", "salinity", "k_CO2", "k_carbonic_1", "k_carbonic_2"],
     )
 )
 
