@@ -146,7 +146,7 @@ def test_co2py_matlab():
     )
     # Update CO2in to MATLAB-style and compare again but stricter
     co2py["CO2in_MATLAB_style"] = co2py["fCO2in"] * co2py["K0input"]
-    assert (co2py.CO2in_MATLAB_style - co2matlab.CO2in).abs().max() < 1e-12
+    assert (co2py.CO2in_MATLAB_style - co2matlab.CO2in).abs().max() < 1e-10
 
 
 # Compare new n-d approach

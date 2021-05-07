@@ -117,6 +117,7 @@ uncert_into = [
     "xCO2_out",
 ]
 uncert_from = {"{}_both".format(k): v for k, v in pyco2.uncertainty.pKs_OEDG18.items()}
+# uncert_from = {"{}_out".format(k): v for k, v in pyco2.uncertainty.pKs_OEDG18.items()}
 # uncert_from.update(pyco2.uncertainty.pKs_OEDG18)
 uncert_from["total_borate__f"] = pyco2.uncertainty_OEDG18["total_borate__f"]
 uncert_from.update({"par1": co2ml.UPAR1.values, "par2": co2ml.UPAR2.values})
