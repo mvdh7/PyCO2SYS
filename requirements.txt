@@ -2,4 +2,4 @@ numpy >= 1.17
 pandas >= 1
 xarray >= 0.15
 openpyxl >= 3
-autograd @ git+git://github.com/HIPS/autograd.git@01eacff7a4f12e6f7aebde7c4cb4c1c2633f217d
+autograd-latest == 1.3
