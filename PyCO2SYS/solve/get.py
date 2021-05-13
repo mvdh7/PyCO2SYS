@@ -1,12 +1,17 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
 from autograd import numpy as np
 from .. import convert
 from . import delta, initialise
 
-pHTol = 1e-8  # tolerance for ending iterations in all pH solvers
+pH_tolerance = 1e-8  # tolerance for ending iterations in all pH solvers
+assume_pH_total = False  # Replicate CO2SYS-MATLAB bug for testing
+# To override the new initial pH guesser, and other settings for testing purposes
+initial_pH_guess = None
+update_all_pH = False
+halve_big_jumps = False
 
 
 def CarbfromTCH(TC, H, totals, k_constants):
@@ -74,7 +79,7 @@ def AlkParts(TC, pH, totals, k_constants):
     SiAlk = totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + H)
     NH3Alk = totals["TNH3"] * k_constants["KNH3"] / (k_constants["KNH3"] + H)
     H2SAlk = totals["TH2S"] * k_constants["KH2S"] / (k_constants["KH2S"] + H)
-    FREEtoTOT = convert.free2tot(totals, k_constants)
+    FREEtoTOT = convert.pH_free_to_total(totals, k_constants)
     Hfree = H / FREEtoTOT  # for H on the Total scale
     HSO4 = totals["TSO4"] / (
         1 + k_constants["KSO4"] / Hfree
@@ -144,7 +149,12 @@ def speciation(dic, pH, totals, k_constants):
     sw["BOH3"] = totals["TB"] - sw["BOH4"]
     # Water
     sw["OH"] = k_constants["KW"] / h_scale
-    sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
+    if assume_pH_total:
+        # Original CO2SYS-MATLAB approach, just here for testing
+        sw["Hfree"] = h_scale / convert.pH_free_to_total(totals, k_constants)
+    else:
+        # This is the default PyCO2SYS way - the original is a bug
+        sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
     # Phosphate
     sw.update(phosphate_components(h_scale, totals, k_constants))
     sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]
@@ -172,17 +182,21 @@ def speciation(dic, pH, totals, k_constants):
     sw["F"] = totals["TF"] - sw["HF"]
     # Extra alkalinity components (added in v1.6.0)
     sw["alpha"] = (
-        totals["alpha"] * k_constants["alpha"] / (k_constants["alpha"] + h_scale)
+        totals["total_alpha"]
+        * k_constants["k_alpha"]
+        / (k_constants["k_alpha"] + h_scale)
     )
-    sw["alphaH"] = totals["alpha"] - sw["alpha"]
-    sw["beta"] = totals["beta"] * k_constants["beta"] / (k_constants["beta"] + h_scale)
-    sw["betaH"] = totals["beta"] - sw["beta"]
+    sw["alphaH"] = totals["total_alpha"] - sw["alpha"]
+    sw["beta"] = (
+        totals["total_beta"] * k_constants["k_beta"] / (k_constants["k_beta"] + h_scale)
+    )
+    sw["betaH"] = totals["total_beta"] - sw["beta"]
     zlp = 4.5  # pK of 'zero level of protons' [WZK07]
     sw["alk_alpha"] = np.where(
-        -np.log10(k_constants["alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
+        -np.log10(k_constants["k_alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
     )
     sw["alk_beta"] = np.where(
-        -np.log10(k_constants["beta"]) <= zlp, -sw["betaH"], sw["beta"]
+        -np.log10(k_constants["k_beta"]) <= zlp, -sw["betaH"], sw["beta"]
     )
     # Total alkalinity
     sw["alk_total"] = (
@@ -250,8 +264,7 @@ def TAfrompHCarb(pH, CARB, totals, k_constants):
 
 
 def TAfrompHHCO3(pH, HCO3, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion.
-    """
+    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion."""
     TC = TCfrompHHCO3(pH, HCO3, totals, k_constants)
     return TAfromTCpH(TC, pH, totals, k_constants)
 
@@ -261,30 +274,41 @@ def _pHfromTAVX(TA, VX, totals, k_constants, initialfunc, deltafunc):
     """Calculate pH from total alkalinity and DIC or one of its components using a
     Newton-Raphson iterative method.
 
-    Although it is coded for H on the total pH scale, for the pH values occuring in
-    seawater (pH > 6) it will be equally valid on any pH scale (H terms negligible) as
-    long as the K Constants are on that scale.
-
     Based on the CalculatepHfromTA* functions, version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
-    pH = initialfunc(
-        TA, VX, totals["TB"], k_constants["K1"], k_constants["K2"], k_constants["KB"]
+    pH_guess_args = (
+        TA,
+        VX,
+        totals["TB"],
+        k_constants["K1"],
+        k_constants["K2"],
+        k_constants["KB"],
     )
-    deltapH = 1.0 + pHTol
-    while np.any(np.abs(deltapH) >= pHTol):
-        pHdone = np.abs(deltapH) < pHTol  # check which rows don't need updating
+    if initial_pH_guess is None:
+        pH = initialfunc(*pH_guess_args)
+    else:
+        assert np.isscalar(initial_pH_guess)
+        pH = np.full(np.broadcast(*pH_guess_args).shape, initial_pH_guess)
+    deltapH = 1.0 + pH_tolerance
+    while np.any(np.abs(deltapH) >= pH_tolerance):
+        pHdone = np.abs(deltapH) < pH_tolerance  # check which rows don't need updating
         deltapH = deltafunc(pH, TA, VX, totals, k_constants)  # the pH jump
         # To keep the jump from being too big:
         abs_deltapH = np.abs(deltapH)
-        np.sign_deltapH = np.sign(deltapH)
-        # Jump by 1 instead if `deltapH` > 5
-        deltapH = np.where(abs_deltapH > 5.0, np.sign_deltapH, deltapH)
-        # Jump by 0.5 instead if 1 < `deltapH` < 5
-        deltapH = np.where(
-            (abs_deltapH > 0.5) & (abs_deltapH <= 5.0), 0.5 * np.sign_deltapH, deltapH,
-        )  # assumes that once we're within 1 of the correct pH, we will converge
-        pH = np.where(pHdone, pH, pH + deltapH)  # only update rows that need it
+        # Original CO2SYS-MATLAB approach is this only:
+        deltapH = np.where(abs_deltapH > 1.0, deltapH / 2, deltapH)
+        if not halve_big_jumps:
+            # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+            abs_deltapH = np.abs(deltapH)
+            sign_deltapH = np.sign(deltapH)
+            deltapH = np.where(abs_deltapH > 1.0, sign_deltapH, deltapH)
+        if update_all_pH:
+            # Original CO2SYS-MATLAB approach, just here for testing
+            pH = pH + deltapH  # update all rows
+        else:
+            # This is the default PyCO2SYS way - the original is a bug
+            pH = np.where(pHdone, pH, pH + deltapH)  # only update rows that need it
     return pH
 
 
@@ -340,9 +364,6 @@ def TCfromTApH(TA, pH, totals, k_constants):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
 
     This calculates TC from TA and pH.
-    Though it is coded for H on the total pH scale, for the pH values occuring
-    in seawater (pH > 6) it will be equally valid on any pH scale (H terms
-    negligible) as long as the K Constants are on that scale.
 
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
     """

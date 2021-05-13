@@ -1,10 +1,11 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
-"""Define metadata about the PyCO2SYS package."""
+# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+"""Define metadata about PyCO2SYS."""
 
-version = "1.6.0"
+version = "1.7.0"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Sandborn, Daniel E.",
     "Gregor, Luke",
     "Pierrot, Denis",
     "van Heuven, Steven M. A. C.",
@@ -14,11 +15,11 @@ authorlist = [
 authors = " and ".join(authorlist)
 
 
-def say_hello():
+def hello():
     print(
         """
-       M.P. Humphreys, L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
-                       E.R. Lewis & D.W.R. Wallace
+           M.P. Humphreys, D. Sandborn, L. Gregor, D. Pierrot, 
+            S.M.A.C. van Heuven, E.R. Lewis & D.W.R. Wallace
 
                              ~~~ present ~~~
 

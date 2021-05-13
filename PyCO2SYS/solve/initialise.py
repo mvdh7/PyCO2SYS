@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Estimate initial pH values for iterative TA equation solvers."""
 
 from autograd import numpy as np
@@ -18,12 +18,14 @@ def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     c21min = c2 ** 2 - 3 * c1
     c21min_positive = c21min > 0
     sq21 = np.where(c21min_positive, np.sqrt(c21min), 0.0)
-    Hmin = np.where(c2 < 0, -c2 + sq21 / 3, -c1 / (c2 + sq21))
+    Hmin = np.where(c2 < 0, (sq21 - c2) / 3, -c1 / (c2 + sq21))
+    Hpoly = Hmin ** 3 + c2 * Hmin ** 2 + c1 * Hmin + c0
     H0 = np.where(
-        c21min_positive,  # i.e. np.sqrt(c21min) is real
-        Hmin + np.sqrt(-(c2 * Hmin ** 2 + c1 * Hmin + c0) / sq21),
+        c21min_positive & (Hpoly < 0),  # i.e. np.sqrt(c21min) is real
+        Hmin + np.sqrt(-Hpoly / sq21),
         1e-7,  # default pH=7 if 2nd order approx has no solution
     )
+    H0 = np.where(np.isnan(H0), 1e-7, H0)  # fail-safe
     return H0
 
 
@@ -54,12 +56,14 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     c21min = c2 ** 2 - 3 * c1
     c21min_positive = c21min > 0
     sq21 = np.where(c21min_positive, np.sqrt(c21min), 0.0)
-    Hmin = np.where(c2 < 0, -c2 + sq21 / 3, -c1 / (c2 + sq21))
+    Hmin = np.where(c2 < 0, (sq21 - c2) / 3, -c1 / (c2 + sq21))
+    Hpoly = Hmin ** 3 + c2 * Hmin ** 2 + c1 * Hmin + c0
     H0 = np.where(
-        c21min_positive,  # i.e. np.sqrt(c21min) is real
-        Hmin + np.sqrt(-(c2 * Hmin ** 2 + c1 * Hmin + c0) / sq21),
+        c21min_positive & (Hpoly < 0),  # i.e. np.sqrt(c21min) is real
+        Hmin + np.sqrt(-Hpoly / sq21),
         1e-7,  # default pH=7 if 2nd order approx has no solution
     )
+    H0 = np.where(np.isnan(H0), 1e-7, H0)  # fail-safe
     return H0
 
 
@@ -104,7 +108,7 @@ def fromCO3(CBAlk, CARB, TB, K1, K2, KB):
     H0 = np.where(
         CBAlk > 2 * CARB + TB,
         _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB),
-        1e-10,  # default pH=10 for low alkalinity
+        1e-3,  # default pH=3 for low alkalinity
     )
     return -np.log10(H0)
 

@@ -79,8 +79,8 @@ Click on each reference to see more details.
 ??? note "HDW18: Humphreys et al. (2018) *Mar. Chem.*"
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
-??? note "HGP20: Humphreys et al. (2020) *"PyCO2SYS: marine carbonate..."*"
-    Humphreys, M. P., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2020). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+??? note "HSG21: Humphreys et al. (2021) *"PyCO2SYS: marine carbonate..."*"
+    Humphreys, M. P., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 ??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
@@ -197,8 +197,11 @@ Click on each reference to see more details.
 
 ### S
 
+??? note "SB21: Schockman & Byrne (2021) *Geochim. Cosmochim. Acta*
+    Schockman, K. M., and Byrne, R. H. (2021). Spectrophotometric Determination of the Bicarbonate Dissociation Constant in Seawater. *Geochemica Cosmochimica Acta*, in press.  [doi:10.1016/j.gca.2021.02.008](https://doi.org/10.1016/j.gca.2021.02.008).
+
 ??? note "SLH20: Sulpis et al. (2020) *Ocean Sci.*"
-    Sulpis, O., Lauvset, S. K., and Hagens, M. (2020). Current estimates of K<sub>1</sub><sup>&ast;</sup> and K<sub>2</sub><sup>&ast;</sup> appear inconsistent with measured CO<sub>2</sub> system parameters in cold oceanic regions. *Ocean Science*, in press. [doi:10.5194/os-2020-19](https://doi.org/10.5194/os-2020-19).
+    Sulpis, O., Lauvset, S. K., and Hagens, M. (2020). Current estimates of K<sub>1</sub><sup>&ast;</sup> and K<sub>2</sub><sup>&ast;</sup> appear inconsistent with measured CO<sub>2</sub> system parameters in cold oceanic regions. *Ocean Science* 16(4), 847–862. [doi:10.5194/os-2020-19](https://doi.org/10.5194/os-2020-19).
 
 ??? note "SMB64: Sillén et al. (1964) *Chem. Soc. London*"
     Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.
@@ -207,6 +210,9 @@ Click on each reference to see more details.
     Sharp, J. D., Pierrot, D., Humphreys, M. P., Epitalon, J.-M., Orr, J. C., Lewis, E., Wallace, D. W. R. (2020). CO2-System-Extd, v3.0.  MATLAB (MathWorks).  Available from [github.com/jonathansharp/CO2-System-Extd](https://github.com/jonathansharp/CO2-System-Extd).
 
 ### T
+
+??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*
+    Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  *Deep-Sea Research II* 56, 554–577.  [doi:10.1016/j.dsr2.2008.12.009](https://doi.org/10.1016/j.dsr2.2008.12.009).
 
 ??? note "TWB82: Takahashi et al. (1982) in *"GEOSECS Pacific Expedition"*"
     Takahashi, T., Williams, R. T., and Bos, D. L. (1982). “Carbonate Chemistry,” in *GEOSECS Pacific Expedition: Hydrographic Data* (Washington, D. C.: National Science Foundation), 77–105.

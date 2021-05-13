@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020  Matthew Paul Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ from . import (
     salts,
     solubility,
     solve,
-    test,
     uncertainty,
 )
 
@@ -47,7 +46,6 @@ __all__ = [
     "salts",
     "solubility",
     "solve",
-    "test",
     "uncertainty",
 ]
 __author__ = meta.authors
@@ -56,7 +54,13 @@ __version__ = meta.version
 # Aliases for top-level access
 from .engine import CO2SYS
 from .engine.nd import CO2SYS as sys
-CO2SYS_nd = sys
+from .engine.nd import assemble
 from .api import CO2SYS_wrap, CO2SYS_MATLABv3
-from .meta import say_hello  # because history
+from .meta import hello  # because history
 from .solve.get import speciation
+from .api.ezio import ezio
+from .uncertainty import all_OEDG18 as uncertainty_OEDG18
+
+# For backwards-compatibility
+CO2SYS_nd = sys
+say_hello = hello
