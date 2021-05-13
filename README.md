@@ -1,6 +1,6 @@
 # PyCO2SYS
 
-![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=develop)
+[![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=develop)](https://github.com/mvdh7/PyCO2SYS/actions)
 [![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
 [![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=develop&style=flat)](https://pyco2sys.readthedocs.io/en/develop/)
