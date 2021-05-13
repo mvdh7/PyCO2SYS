@@ -7,7 +7,7 @@
       * New *minor* versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
       * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may significantly alter the results of calculations with default settings.
 
-    In general, we will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.
+    We will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.
 
 !!! warning
     *Will (not) break your code* refers **only** to the functions covered in this documentation.
@@ -29,9 +29,9 @@
 
 ## 1.7
 
-Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Documented in manuscript in preparation.
+Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in preparation.
 
-### 1.7.0 (forthcoming)
+### 1.7.0 (13 May 2021)
 
 !!! new-version "Changes in v1.7.0"
 
@@ -41,7 +41,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     * Can also run `pyco2.sys` with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.
     * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
     * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
-    * Added spreadsheet-to-spreadsheet function `pyco2.ezio`.
+    * Added spreadsheet-to-spreadsheet function `pyco2.ezio` (with thanks to [Daniel Sandborn](https://github.com/d-sandborn)).
     * Integrated uncertainty propagation into the main `pyco2.sys` function and expanded its capabilities.
 
     ***Internal updates***
