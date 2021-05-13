@@ -266,12 +266,12 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
 Calculates a wider variety of chemical buffer factors.
 
-### 1.2.1 (9 Apr 2020)
+### 1.2.1 (9 April 2020)
 
 !!! new-version "Changes in v1.2.1"
     * Fixed typo in [ESM10](../refs/#ESM10) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
 
-### 1.2.0 (8 Apr 2020)
+### 1.2.0 (8 April 2020)
 
 !!! new-version "Changes in v1.2.0"
     * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
@@ -285,12 +285,12 @@ Calculates a wider variety of chemical buffer factors.
 
 Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion molinities for consistency with forthcoming MATLAB "v1.21".
 
-### 1.1.1 (20 Mar 2020)
+### 1.1.1 (20 March 2020)
 
 !!! new-version "Changes in v1.1.1"
     * Removed unnecessary `WhoseTB` input to `assemble.equilibria`.
 
-### 1.1.0 (19 Mar 2020)
+### 1.1.0 (19 March 2020)
 
 !!! new-version "Changes in v1.1.0"
     * Updated pH-solving iterative functions so that iteration stops separately for each row once it reaches the tolerance threshold.
@@ -304,7 +304,7 @@ Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion moli
 
 ## 1.0
 
-### 1.0.1 (28 Feb 2020)
+### 1.0.1 (28 February 2020)
 
 Starts to make things more Pythonic.
 
@@ -313,7 +313,7 @@ Starts to make things more Pythonic.
       * Eliminated all global variables from the `_Constants` function.
       * Moved the as-close-as-possible version into module `original`. The default `from PyCO2SYS import CO2SYS` now imports the more Pythonic implementation.
 
-### 1.0.0 (3 Feb 2020)
+### 1.0.0 (3 February 2020)
 
 An as-close-as-possible clone of [MATLAB CO2SYS v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB).
 
