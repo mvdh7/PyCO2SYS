@@ -38,9 +38,9 @@ SALvalue = 33.1;
     BSal, U1, U2] = CO2SYSigen_uncert(PARvalues, PARTYPEs, SALvalue, pHSCALEIN_opts, ...
     K1K2CONSTANTS_opts, KSO4CONSTANTS_opts, KFCONSTANT_opts);
 tempin = 24;
-tempout = 24;  % 12;
+tempout = 12;
 presin = 1;
-presout = 1; % 1647;
+presout = 1647;
 si = 10;
 phos = 1;
 

@@ -155,6 +155,13 @@ final_diffs = pd.DataFrame(
     }
 )
 
+# Grouped differences
+fd__par1_par2 = final_diff_pct.copy()
+fd__par1_par2["par1_type"] = co2py.PAR1TYPE
+fd__par1_par2["par2_type"] = co2py.PAR2TYPE
+fd__par1_par2 = fd__par1_par2.groupby(by=["par1_type", "par2_type"]).mean()
+# fd__par1_par2 = fd__par1_par2[corevars]
+
 
 def test_uncertainty_comparison_input_v3_2_0():
     """Do MATLAB v3.2.0 and PyCO2SYS uncertainties agree?"""

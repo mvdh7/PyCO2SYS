@@ -47,6 +47,7 @@ go = time()
 co2py = pyco2.api.CO2SYS_MATLABv3(*co2inputs)
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
+# co2py["CO2in"] = co2py["K0input"] * co2py["fCO2in"]
 
 # Compare the results
 cvars = list(co2matlab.keys())
