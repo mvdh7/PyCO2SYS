@@ -227,6 +227,9 @@ Click on each reference to see more details.
 ??? note "W74: Weiss (1974) *Mar. Chem.*"
     Weiss, R. F. (1974). Carbon dioxide in water and seawater: the solubility of a non-ideal gas. *Marine Chemistry* 2, 203–215. <a href='https://doi.org/10.1016/0304-4203(74)90015-2'>doi:10.1016/0304-4203(74)90015-2</a>.
 
+??? note "WM13: Waters & Millero (2013) *Mar. Chem.*"
+    Waters, J.F., Millero, F.J. (2013). The free proton concentration scale for seawater pH. *Marine Chemistry* 149, 8–22. [doi:10.1016/j.marchem.2012.11.003](https://doi.org/10.1016/j.marchem.2012.11.003)
+
 ??? note "WMW14: Waters et al. (2014) *Mar. Chem.*"
     Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Marine Chemistry* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).
 

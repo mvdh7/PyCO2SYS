@@ -118,15 +118,15 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `6`: [MCHP73](../refs/#m) aka "GEOSECS" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
         * `7`: [MCHP73](../refs/#m) without certain species aka "Peng" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
         * `8`: [M79](../refs/#m) (0 < *T* < 50 °C, *S* = 0, freshwater only).
-        * `9`: [CW98](../refs/#c) (2 < *T* < 35 °C, 0 < *S* < 49, NBS scale, real and artificial seawater).
+        * `9`: [CW98](../refs/#c) (2 < *T* < 30 °C, 0 < *S* < 40, NBS scale, real seawater).
         * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater).
         * `11`: [MM02](../refs/#m) (0 < *T* < 45 °C, 5 < *S* < 42, Seawater scale, real seawater).
         * `12`: [MPL02](../refs/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, Seawater scale, field measurements).
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
-        * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
+        * `15`: [WMW14](../refs/#w) (0 < *T* < 45 °C, 0 < *S* < 45, Seawater scale, real seawater).
         * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements) **(default)**.
-        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale).
+        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale, real seawater).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
@@ -160,7 +160,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     #### Override equilibrium constants
 
     All the equilibrium constants needed by PyCO2SYS are estimated internally from temperature, salinity and pressure, and returned in the results.  However, you can also directly provide your own values for any of these constants instead.
-    
+
     To do this, the arguments have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide your own water dissociation constant value at input conditions of $10^{-14}$, use `k_water=1e-14`.
 
     If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.
