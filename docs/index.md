@@ -41,9 +41,14 @@ PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://www.nioz.nl/e
 
 ### Citation
 
-A paper describing PyCO2SYS is in preparation, so please check back here for updates.  In the meantime, if you use PyCO2SYS in your work, please cite it as:
+A paper describing PyCO2SYS is in review:
 
-!!! note "PyCO2SYS citation"
+!!! note "PyCO2SYS manuscript in review"
+    Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
+
+Please cite the PyCO2SYS software itself:
+
+!!! note "PyCO2SYS code citation"
     Humphreys, M. P., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
 
 The DOI refers to all versions of PyCO2SYS.  Please specify which version of PyCO2SYS you used.  You can find the version number that you are using in Python with:
