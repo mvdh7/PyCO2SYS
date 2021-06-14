@@ -30,18 +30,22 @@ There are also some usage examples that you can either download or run live in y
 
 ## Citation
 
-The citation for PyCO2SYS alone is:
+The citation for the PyCO2SYS code is:
 
 > Humphreys, M. P., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
-The DOI refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
+The DOI above refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
 
 ```python
 import PyCO2SYS as pyco2
 pyco2.hello()
 ```
 
-As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also cite the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
+There is also a manuscript in review:
+
+> Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
+
+As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/jamesorr/CO2SYS-MATLAB), you should also consider citing the original work by [Lewis and Wallace (1998)](https://pyco2sys.readthedocs.io/en/latest/refs/#l).
 
 ## Installation
 
