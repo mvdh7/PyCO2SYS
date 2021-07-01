@@ -280,7 +280,7 @@ def kH2CO3_TOT_RRV93(TempK, Sal):
         - 2307.1266 / TempK
         - 1.5529413 * np.log(TempK)
         + (-0.20760841 - 4.0484 / TempK) * np.sqrt(Sal)
-        + 0.08468345 * Sal
+        + 0.0846834 * Sal
         - 0.00654208 * np.sqrt(Sal) * Sal
     )
     K1 = np.exp(lnK1) * (  # this is on the total pH scale in mol/kg-H2O
