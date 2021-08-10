@@ -62,7 +62,7 @@ You should also cite the original work by [Lewis and Wallace (1998)](refs/#l), a
 
 ### History
 
-The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work.  Further (ongoing) modifications and additions to PyCO2SYS have been made by Matthew Humphreys, Luke Gregor and Daniel Sandborn ([HSS21](refs/#h)).
+The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work.  Further (ongoing) modifications and additions to the PyCO2SYS code and documentation have been made by Matthew Humphreys, Luke Gregor, Daniel Sandborn and Abigail Schiller ([HSS21](refs/#h)).
 
 ### License
 
