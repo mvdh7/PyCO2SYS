@@ -14,7 +14,7 @@ Please add a comment on the corresponding [issue](https://github.com/mvdh7/PyCO2
 
 ### Branches
 
-The *master* branch contains the most recent release, and nothing more.  Please do not submit pull requests directly to *master*.
+The *main* branch contains the most recent release, and nothing more.  Please do not submit pull requests directly to *main*.
 
 The *develop* branch is where the next version is being prepared.  When you have something ready to add, please submit your pull request to *develop*.  You may also wish to make your new fork from *develop* to be sure you are using the latest version.
 
@@ -32,7 +32,7 @@ Anyone making a substantial contribution will be invited to join the list of aut
 
 ## Documentation
 
-Documentation is available at [pyco2sys.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/master/docs) directory on *master* using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [pyco2sys.readthedocs.io/en/develop](https://pyco2sys.readthedocs.io/en/develop/).
+Documentation is available at [pyco2sys.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/main/docs) directory on *main* using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [pyco2sys.readthedocs.io/en/develop](https://pyco2sys.readthedocs.io/en/develop/).
 
 There is a repo of PyCO2SYS examples as [Jupyter Notebooks](https://jupyter.org/), which you can add to at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
 
