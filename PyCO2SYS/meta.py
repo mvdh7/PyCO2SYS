@@ -2,9 +2,10 @@
 # Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
-version = "1.7.0"
+version = "1.7.1"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Schiller, Abigail J.",
     "Sandborn, Daniel E.",
     "Gregor, Luke",
     "Pierrot, Denis",
