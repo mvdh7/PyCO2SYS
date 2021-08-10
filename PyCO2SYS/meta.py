@@ -2,9 +2,10 @@
 # Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
-version = "1.7.0"
+version = "1.7.1"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Schiller, Abigail J.",
     "Sandborn, Daniel E.",
     "Gregor, Luke",
     "Pierrot, Denis",
@@ -18,8 +19,9 @@ authors = " and ".join(authorlist)
 def hello():
     print(
         """
-           M.P. Humphreys, D. Sandborn, L. Gregor, D. Pierrot, 
-            S.M.A.C. van Heuven, E.R. Lewis & D.W.R. Wallace
+               M.P. Humphreys, A.J. Schiller, D.E. Sandborn,
+                L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
+                        E.R. Lewis & D.W.R. Wallace
 
                              ~~~ present ~~~
 

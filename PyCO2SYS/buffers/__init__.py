@@ -18,6 +18,7 @@ def _dlnOmega_dCARB(CARB, totals, Ks):
     return egrad(lambda CARB: np.log(solubility.CaCO3(CARB, totals, Ks)[0]))(CARB)
 
 
+@np.errstate(invalid="ignore")
 def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     """Get all ESM10 buffer factors with automatic differentiation.
 
@@ -60,6 +61,7 @@ def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
     }
 
 
+@np.errstate(divide="ignore")
 def isocap(TA, TC, PH, FC, totals, Ks):
     """d[TA]/d[TC] at constant fCO2, i.e. Q of HDW18."""
     dTA_dPH__FC = egrad(lambda PH: solve.get.TAfrompHfCO2(PH, FC, totals, Ks))(PH)
