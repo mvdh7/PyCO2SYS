@@ -171,6 +171,8 @@ def CO2SYS_wrap(
     # convert to a dataframe with the largest of the sizes providing the index
     # an error will be raised with information about the sizes if mismatched
     sizes = pd.Series({k: v.size for k, v in params.items()})
+    if len(params["buffers_mode"]) < max(sizes):
+        params["buffers_mode"] = np.full(max(sizes), params["buffers_mode"][0])
     try:
         df = pd.DataFrame(params, index=np.arange(max(sizes)))
     except ValueError:
