@@ -43,10 +43,10 @@ PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://www.nioz.nl/e
 
 A paper describing PyCO2SYS is in review:
 
-!!! note "PyCO2SYS preprint"
-    Humphreys, M. P., Lewis, E. R., Sharp, J. S., and Pierrot, D. (2021, in review).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions.*  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
+!!! note "PyCO2SYS manuscript in review"
+    Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
 
-If you use PyCO2SYS in your work, please cite the preprint, along with:
+Please cite the PyCO2SYS software itself:
 
 !!! note "PyCO2SYS code citation"
     Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
@@ -58,7 +58,7 @@ import PyCO2SYS as pyco2
 pyco2.hello()
 ```
 
-You should also cite the original work by [Lewis and Wallace (1998)](refs/#l), and specify which [optional sets of constants](co2sys_nd/#settings) you used in your calculations.
+You should also consider citing the original work by [Lewis and Wallace (1998)](refs/#l), and specify which [optional sets of constants](co2sys_nd/#settings) you used in your calculations.
 
 ### History
 

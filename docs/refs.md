@@ -79,6 +79,9 @@ Click on each reference to see more details.
 ??? note "HDW18: Humphreys et al. (2018) *Mar. Chem.*"
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
+??? note "HLSD21: Humphreys et al. (2021) *Geosci. Model Dev. Discuss*"
+    Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
+
 ??? note "HSS21: Humphreys et al. (2021) *"PyCO2SYS: marine carbonate..."*"
     Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
@@ -197,7 +200,7 @@ Click on each reference to see more details.
 
 ### S
 
-??? note "SB21: Schockman & Byrne (2021) *Geochim. Cosmochim. Acta*
+??? note "SB21: Schockman & Byrne (2021) *Geochim. Cosmochim. Acta*"
     Schockman, K. M., and Byrne, R. H. (2021). Spectrophotometric Determination of the Bicarbonate Dissociation Constant in Seawater. *Geochemica Cosmochimica Acta*, in press.  [doi:10.1016/j.gca.2021.02.008](https://doi.org/10.1016/j.gca.2021.02.008).
 
 ??? note "SLH20: Sulpis et al. (2020) *Ocean Sci.*"
@@ -211,7 +214,7 @@ Click on each reference to see more details.
 
 ### T
 
-??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*
+??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*"
     Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  *Deep-Sea Research II* 56, 554–577.  [doi:10.1016/j.dsr2.2008.12.009](https://doi.org/10.1016/j.dsr2.2008.12.009).
 
 ??? note "TWB82: Takahashi et al. (1982) in *"GEOSECS Pacific Expedition"*"
@@ -226,6 +229,9 @@ Click on each reference to see more details.
 
 ??? note "W74: Weiss (1974) *Mar. Chem.*"
     Weiss, R. F. (1974). Carbon dioxide in water and seawater: the solubility of a non-ideal gas. *Marine Chemistry* 2, 203–215. <a href='https://doi.org/10.1016/0304-4203(74)90015-2'>doi:10.1016/0304-4203(74)90015-2</a>.
+
+??? note "WM13: Waters & Millero (2013) *Mar. Chem.*"
+    Waters, J.F., Millero, F.J. (2013). The free proton concentration scale for seawater pH. *Marine Chemistry* 149, 8–22. [doi:10.1016/j.marchem.2012.11.003](https://doi.org/10.1016/j.marchem.2012.11.003).
 
 ??? note "WMW14: Waters et al. (2014) *Mar. Chem.*"
     Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Marine Chemistry* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).

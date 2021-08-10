@@ -1,10 +1,10 @@
 # PyCO2SYS
 
-[![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=develop)](https://github.com/mvdh7/PyCO2SYS/actions)
+[![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=master)](https://github.com/mvdh7/PyCO2SYS/actions)
 [![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
-[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=develop&style=flat)](https://pyco2sys.readthedocs.io/en/develop/)
-[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/develop/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/develop/.misc/coverage.txt)
+[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://pyco2sys.readthedocs.io/en/latest/)
+[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/master/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/master/.misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -38,7 +38,7 @@ The citation for the PyCO2SYS code is:
 
 > Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
-The DOI refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
+The DOI above refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
 
 ```python
 import PyCO2SYS as pyco2
