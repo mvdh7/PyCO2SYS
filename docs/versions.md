@@ -29,9 +29,9 @@
 
 ## 1.7
 
-Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in preparation.
+Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review.
 
-### 1.7.1 (forthcoming)
+### 1.7.1 (10 August 2021)
 
 !!! new-version "Changes in v1.7.1"
 
