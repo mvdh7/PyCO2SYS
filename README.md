@@ -1,10 +1,10 @@
 # PyCO2SYS
 
-[![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=master)](https://github.com/mvdh7/PyCO2SYS/actions)
+[![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=main)](https://github.com/mvdh7/PyCO2SYS/actions)
 [![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
 [![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://pyco2sys.readthedocs.io/en/latest/)
-[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/master/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/master/.misc/coverage.txt)
+[![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -22,7 +22,7 @@
 
 **PyCO2SYS** is a Python implementation of CO2SYS, based on the [MATLAB v2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB) but also including the updates made for [MATLAB CO2SYS v3](https://github.com/jonathansharp/CO2-System-Extd) as well as some additional related calculations.  PyCO2SYS solves the full marine carbonate system from the values of any two of its parameters.
 
-Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible).  See the scripts in [validate](https://github.com/mvdh7/PyCO2SYS/tree/master/validate) to see how and check this for yourself, and their [discussion](https://pyco2sys.readthedocs.io/en/latest/validate/) in the online docs.  **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
+Every combination of input parameters has been tested, with differences in the results small enough to be attributable to floating point errors and iterative solver endpoint differences (i.e. negligible).  See the scripts in [validate](https://github.com/mvdh7/PyCO2SYS/tree//validate) to see how and check this for yourself, and their [discussion](https://pyco2sys.readthedocs.io/en/latest/validate/) in the online docs.  **Please [let us know](https://github.com/mvdh7/PyCO2SYS/issues) ASAP if you discover a discrepancy that we have not spotted!**
 
 Documentation is available online at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).
 
@@ -76,7 +76,7 @@ You can also look at the [examples Notebooks](https://github.com/mvdh7/PyCO2SYS-
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) at the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
 
-Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md) before setting to work.
+Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/main/CONTRIBUTING.md) before setting to work.
 
 ## License
 
