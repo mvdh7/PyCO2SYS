@@ -38,6 +38,7 @@ Adds new syntax to return equilibrium constants and total salts without needing 
     ***Bug fixes***
 
     * Improved handling of zero-valued inputs.
+    * Adjusted `CO2SYS_wrap` to work with latest pandas release.
 
 ### 1.7.0 (13 May 2021)
 
