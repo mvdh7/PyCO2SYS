@@ -19,8 +19,9 @@ authors = " and ".join(authorlist)
 def hello():
     print(
         """
-           M.P. Humphreys, D. Sandborn, L. Gregor, D. Pierrot, 
-            S.M.A.C. van Heuven, E.R. Lewis & D.W.R. Wallace
+               M.P. Humphreys, A.J. Schiller, D.E. Sandborn,
+                L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
+                        E.R. Lewis & D.W.R. Wallace
 
                              ~~~ present ~~~
 
