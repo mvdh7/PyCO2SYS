@@ -4,6 +4,7 @@
 equations that have been reported in the literature.
 """
 
+from autograd import numpy as np
 from .. import solve
 
 
@@ -46,6 +47,7 @@ def isocap(CO2, pH, K1, K2, KB, KW, TB):
     ) / (K1 * CO2 * (2 * K2 + h) * (KB + h) ** 2)
 
 
+@np.errstate(invalid="ignore")
 def isocap_approx(TC, pCO2, K0, K1, K2):
     """Approximate isocapnic quotient of HDW18, Eq. 7."""
     return 1 + 2 * (K2 / (K0 * K1)) * TC / pCO2
