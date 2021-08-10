@@ -7,8 +7,7 @@ with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
 setuptools.setup(
     name="PyCO2SYS",
-    # version=__version__,
-    version="1.7.0.1",
+    version=__version__,
     author=__author__,
     author_email="m.p.humphreys@icloud.com",
     description="PyCO2SYS: marine carbonate system calculations in Python",
