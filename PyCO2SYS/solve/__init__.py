@@ -138,7 +138,6 @@ def getIcase(par1type, par2type, checks=True):
 def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks):
     """Fill part-empty core marine carbonate system variable columns with solutions."""
     # For convenience
-    K0 = Ks["K0"]
     PengCx = totals["PengCorrection"]
     # Convert any pCO2 and CO2(aq) values into fCO2
     PCgiven = np.isin(Icase, [14, 24, 34, 46, 47])
@@ -147,6 +146,19 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, totals, Ks):
     FC = np.where(CO2given, convert.CO2aq_to_fCO2(CO2, Ks), FC)
     XCgiven = np.isin(Icase, [19, 29, 39, 69, 79])
     FC = np.where(XCgiven, convert.xCO2_to_fCO2(XC, Ks), FC)
+    # Deal with zero-CARB or zero-HCO3 inputs
+    zCARB_1 = (Icase == 16) & (CARB == 0)
+    TC = np.where(zCARB_1, 0, TC)
+    Icase = np.where(zCARB_1, 12, Icase)
+    zCARB_3 = (Icase == 36) & (CARB == 0)
+    TC = np.where(zCARB_3, 0, TC)
+    Icase = np.where(zCARB_3, 23, Icase)
+    zHCO3_1 = (Icase == 17) & (HCO3 == 0)
+    TC = np.where(zHCO3_1, 0, TC)
+    Icase = np.where(zHCO3_1, 12, Icase)
+    zHCO3_3 = (Icase == 37) & (HCO3 == 0)
+    TC = np.where(zHCO3_3, 0, TC)
+    Icase = np.where(zHCO3_3, 23, Icase)
     # Solve the marine carbonate system
     F = Icase == 12  # input TA, TC
     if np.any(F):
@@ -306,7 +318,14 @@ def core(par1, par2, par1type, par2type, totals, Ks, convert_units=True):
 
 
 def others(
-    core_solved, TempC, Pdbar, totals, Ks, pHScale, WhichKs, buffers_mode,
+    core_solved,
+    TempC,
+    Pdbar,
+    totals,
+    Ks,
+    pHScale,
+    WhichKs,
+    buffers_mode,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -379,7 +398,15 @@ def others(
         # Evaluate buffers with explicit equations, but these don't include nutrients
         # (i.e. only carbonate, borate and water alkalinities are accounted for)
         expl_ESM10 = buffers.explicit.all_ESM10(
-            TC, TAPeng, CO2, HCO3, CARB, PH, sw["OH"], sw["BAlk"], Ks["KB"],
+            TC,
+            TAPeng,
+            CO2,
+            HCO3,
+            CARB,
+            PH,
+            sw["OH"],
+            sw["BAlk"],
+            Ks["KB"],
         )
         for buffer in esm10buffers:
             allbuffers_ESM10[buffer] = np.where(

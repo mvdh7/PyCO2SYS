@@ -35,7 +35,9 @@ Adds new syntax to return equilibrium constants and total salts without needing 
 
 !!! new-version "Changes in v1.7.1"
 
-    ...
+    ***Bug fixes***
+
+    * Improved handling of zero-valued inputs.
 
 ### 1.7.0 (13 May 2021)
 
