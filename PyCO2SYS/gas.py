@@ -6,7 +6,7 @@ from autograd import numpy as np
 from . import convert
 
 
-def fugacityfactor(TempC, WhichKs, RGas):
+def fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=1.0):
     """Calculate the fugacity factor."""
     # This assumes that the pressure is at one atmosphere, or close to it.
     # Otherwise, the Pres term in the exponent affects the results.
@@ -29,8 +29,18 @@ def fugacityfactor(TempC, WhichKs, RGas):
     return FugFac
 
 
-def vpfactor(TempC, Sal):
-    """Calculate the vapour pressure factor."""
+def vpfactor(temperature, salinity, pressure_atmosphere=1.0):
+    """Calculate the vapour pressure factor.
+    
+    Parameters
+    ----------
+    temperature : float
+        Seawater temperature in degrees C.
+    salinity : float
+        Practical salinity.
+    pressure_atmosphere : float, optional
+        Barometric pressure in atmospheres.  Default = 1.0 atm.
+    """
     # Weiss, R. F., and Price, B. A., Nitrous oxide solubility in water and
     #       seawater, Marine Chemistry 8:347-359, 1980.
     # They fit the data of Goff and Gratch (1946) with the vapor pressure
@@ -48,9 +58,10 @@ def vpfactor(TempC, Sal):
     #       33:449-455, 1954.
     #       This is eq. 10 on p. 350.
     #       This is in atmospheres.
-    TempK = convert.TempC2K(TempC)
-    VPWP = np.exp(24.4543 - 67.4509 * (100 / TempK) - 4.8489 * np.log(TempK / 100))
-    VPCorrWP = np.exp(-0.000544 * Sal)
+    tempK = convert.TempC2K(temperature)
+    # WP80 eq. (10)
+    VPWP = np.exp(24.4543 - 67.4509 * (100 / tempK) - 4.8489 * np.log(tempK / 100))
+    VPCorrWP = np.exp(-0.000544 * salinity)
     VPSWWP = VPWP * VPCorrWP
-    VPFac = 1.0 - VPSWWP  # this assumes 1 atmosphere
+    VPFac = pressure_atmosphere - VPSWWP
     return VPFac

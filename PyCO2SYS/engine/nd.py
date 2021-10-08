@@ -66,6 +66,9 @@ input_floats = {
     "total_beta",
     "k_beta",
     "k_beta_out",
+    # Added in v1.8.0:
+    "pressure_atmosphere",
+    "pressure_atmosphere_out",
 }
 
 
@@ -279,6 +282,9 @@ def _get_results_dict(
             # Added in v1.6.0:
             "total_alpha": totals["total_alpha"] * 1e6,
             "total_beta": totals["total_beta"] * 1e6,
+            # Added in v1.8.0:
+            "pressure_atmosphere": args["pressure_atmosphere"],
+            "pressure_atmosphere_out": args["pressure_atmosphere_out"],
         }
     )
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
@@ -445,6 +451,9 @@ gradables = [
     # Added in v1.7.0:
     "vp_factor",
     "vp_factor_out",
+    # Added in v1.8.0:
+    "pressure_atmosphere",
+    "pressure_atmosphere_out",
 ]
 
 
@@ -521,6 +530,9 @@ def CO2SYS(
     grads_wrt=None,
     uncertainty_into=None,
     uncertainty_from=None,
+    # Added in v1.8.0:
+    pressure_atmosphere=1.0,  # atm
+    pressure_atmosphere_out=1.0,  # atm
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = locals()
@@ -598,6 +610,7 @@ def CO2SYS(
         args["opt_k_fluoride"],
         args["opt_gas_constant"],
         Ks=k_constants_in,
+        pressure_atmosphere=args["pressure_atmosphere"],
     )
     # Solve the core marine carbonate system at input conditions, if provided
     if par1 is not None:
@@ -713,6 +726,7 @@ def CO2SYS(
             args["opt_k_fluoride"],
             args["opt_gas_constant"],
             Ks=k_constants_out,
+            pressure_atmosphere=args["pressure_atmosphere_out"],
         )
         # Solve the core marine carbonate system at output conditions, if requested
         if par1 is not None and par2 is not None:
