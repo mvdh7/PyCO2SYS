@@ -12,6 +12,7 @@ assume_pH_total = False  # Replicate CO2SYS-MATLAB bug for testing
 initial_pH_guess = None
 update_all_pH = False
 halve_big_jumps = False
+which_bicarbonate_root = -1  # set to -1 by default, +1 for the other DIC-HCO3 root
 
 
 def CarbfromTCH(TC, H, totals, k_constants):
@@ -489,7 +490,7 @@ def pHfromTCHCO3(TC, HCO3, totals, k_constants):
     if np.any(F):
         print("Some input HCO3 values are impossibly high given the input DIC;")
         print("returning np.nan.")
-    H = np.where(F, np.nan, (-b - np.sqrt(bsq_4ac)) / (2 * a))
+    H = np.where(F, np.nan, (-b + which_bicarbonate_root * np.sqrt(bsq_4ac)) / (2 * a))
     return -np.log10(H)
 
 
