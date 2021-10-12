@@ -21,9 +21,10 @@ def fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=1.0):
         - 0.0327957 * TempK ** 2
         + 3.16528 * 0.00001 * TempK ** 3
     )
-    # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
-    P1atm = 1.01325  # in bar
-    FugFac = np.exp((b + 2 * Delta) * P1atm / RT)
+    # # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
+    # P1atm = 1.01325  # in bar
+    p_bar = pressure_atmosphere * 1.01325  # units conversion
+    FugFac = np.exp((b + 2 * Delta) * p_bar / RT)
     # GEOSECS and Peng assume pCO2 = fCO2, or FugFac = 1
     FugFac = np.where((WhichKs == 6) | (WhichKs == 7), 1.0, FugFac)
     return FugFac
@@ -31,7 +32,7 @@ def fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=1.0):
 
 def vpfactor(temperature, salinity, pressure_atmosphere=1.0):
     """Calculate the vapour pressure factor.
-    
+
     Parameters
     ----------
     temperature : float

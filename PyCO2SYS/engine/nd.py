@@ -110,7 +110,14 @@ def condition(args, to_shape=None):
         # Broadcast the non-scalar args to a consistent shape
         args_conditioned = {
             k: np.broadcast_to(v, args_broadcast_shape)
-            if k in ["par1", "par2", "par1_type", "par2_type",] or not np.isscalar(v)
+            if k
+            in [
+                "par1",
+                "par2",
+                "par1_type",
+                "par2_type",
+            ]
+            or not np.isscalar(v)
             else v
             for k, v in args.items()
         }
@@ -246,7 +253,10 @@ def _get_results_dict(
     results = {}
     if core_in is not None:
         results.update(
-            {"par1": args["par1"], "par1_type": args["par1_type"],}
+            {
+                "par1": args["par1"],
+                "par1_type": args["par1_type"],
+            }
         )
         if "TA" in core_in and "TC" in core_in:
             results.update(
@@ -650,7 +660,12 @@ def CO2SYS(
                 core_in["PH"], args["opt_pH_scale"], totals, k_constants_in
             )
             others_in.update(
-                {"pHT": pH_total, "pHS": pH_sws, "pHF": pH_free, "pHN": pH_nbs,}
+                {
+                    "pHT": pH_total,
+                    "pHS": pH_sws,
+                    "pHF": pH_free,
+                    "pHN": pH_nbs,
+                }
             )
         # One of pCO2, fCO2, CO2(aq) or xCO2 only
         if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
@@ -690,7 +705,12 @@ def CO2SYS(
                 convert.fCO2_to_xCO2(fCO2, k_constants_in),
             )
             core_in.update(
-                {"PC": pCO2, "FC": fCO2, "CO2": CO2aq, "XC": xCO2,}
+                {
+                    "PC": pCO2,
+                    "FC": fCO2,
+                    "CO2": CO2aq,
+                    "XC": xCO2,
+                }
             )
     else:
         core_in = None
@@ -914,4 +934,5 @@ def assemble(
         args["opt_k_fluoride"],
         args["opt_gas_constant"],
         Ks=k_constants,
+        pressure_atmosphere=args["pressure_atmosphere"],
     )

@@ -75,7 +75,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
 
     For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `temperature=25`, `temperature_out=2.5`, `pressure=0`, and `pressure_out=1000`.
 
-    If neither `temperature_out` nor `pressure_out` is provided, then calculations will only be performed at the conditions specified by `temperature` and `pressure`, and none of the results with keys ending with `_out` will be returned in the `CO2_results` dict.  If only one of `temperature_out` nor `pressure_out` is provided, then we assume that the other one has the same values for the input and output calculations.
+    If neither `temperature_out` nor `pressure_out` is provided, then calculations will only be performed at the conditions specified by `temperature` and `pressure`, and none of the results with keys ending with `_out` will be returned in the `CO2_results` dict.  If only one of `temperature_out` or `pressure_out` is provided, then we assume that the other one has the same values for the input and output calculations.
 
     #### Nutrients and other solutes
 
@@ -100,6 +100,12 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     If `total_borate` is provided, then the `opt_total_borate` argument is ignored.
 
     Throughout, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
+
+    #### Atmospheric pressure
+
+    * `pressure_atmosphere`/`pressure_atmosphere_out`: atmospheric pressure in atm.
+
+    This is used for conversions between *p*CO<sub>2</sub>, *f*CO<sub>2</sub> and *x*CO<sub>2</sub>.  If no value is provided, then 1 atm is assumed.
 
     #### Settings
 

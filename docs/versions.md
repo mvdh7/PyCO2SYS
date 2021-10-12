@@ -27,6 +27,14 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
+## 1.8
+
+Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Fully documented in manuscript in review.
+
+### 1.8.0 (forthcoming)
+
+  * Adds `pressure_atmosphere` and `pressure_atmosphere_out` arguments, rather than assuming 1 atm total barometric pressure.
+
 ## 1.7
 
 Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review.
