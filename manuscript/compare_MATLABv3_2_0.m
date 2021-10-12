@@ -43,6 +43,11 @@ tic
     presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal);
 toc
 
+timef = @() CO2SYSv3_2_0(P1, P2, P1type_ext, P2type_ext, sal, ...
+    tempin, tempout, presin, presout, si, phos, nh3, h2s, pHscales, ...
+    K1K2, KSO4, KF, BSal);
+timeit(timef)
+
 %% Extract and save outputs
 clear co2s
 for V = 1:numel(HEADERS)
