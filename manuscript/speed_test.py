@@ -1,4 +1,5 @@
-import pandas as pd
+from time import time
+import pandas as pd, numpy as np
 import PyCO2SYS as pyco2
 
 gfile = 'C:/Users/mphum/Downloads/GLODAPv2.2021_Merged_Master_File.csv'
@@ -11,8 +12,8 @@ kwargs = {
     'salinity': glodap.G2salinity.to_numpy(),
     'temperature': glodap.G2temperature.to_numpy(),
     'pressure': glodap.G2pressure.to_numpy(),
-    # 'temperature_out': glodap.G2temperature.to_numpy(),
-    # 'pressure_out': glodap.G2pressure.to_numpy(),
+    'temperature_out': glodap.G2temperature.to_numpy(),
+    'pressure_out': glodap.G2pressure.to_numpy(),
     'total_silicate': glodap.G2silicate.to_numpy(),
     'total_phosphate': glodap.G2phosphate.to_numpy(),
     'opt_k_carbonic': 10,
@@ -20,3 +21,14 @@ kwargs = {
 }
 # Then run in console:
 # %timeit pyco2.sys(**kwargs)
+
+times = []
+for i in range(7):
+    print(i)
+    go = time()
+    pyco2.sys(**kwargs)
+    this_time = time() - go
+    times.append(this_time)
+    
+print(np.mean(times))
+print(np.std(times))

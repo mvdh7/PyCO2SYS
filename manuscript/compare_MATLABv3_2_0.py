@@ -192,3 +192,7 @@ pyco2.solve.get.update_all_pH = False
 pyco2.solve.get.halve_big_jumps = False
 pyco2.solve.get.assume_pH_total = False
 pyco2.solve.delta.use_approximate_slopes = False
+
+times = [0.895524, 0.898416, 0.969934, 0.957411, 0.958756, 1.032210, 0.924094]
+times_mean = np.mean(times)
+times_std = np.std(times)

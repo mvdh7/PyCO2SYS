@@ -19,7 +19,12 @@ for i = 1:7
     toc
 end
 
-%%
+%% MATLAB times
 times = [13.41, 13.33, 13.00, 12.53, 13.02, 13.29, 12.86];
 time_mean = mean(times);
 time_std = std(times);
+
+%% OCTAVE CLI times
+otimes = [15.26, 16.22, 16.19, 16.16, 16.27, 17.88, 17.45];
+otime_mean = mean(otimes);
+otime_std = std(otimes);
