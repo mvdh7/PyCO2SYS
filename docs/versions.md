@@ -39,8 +39,8 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
     ***Behind-the-scenes improvements***
 
-    * Adds additional constraint to the initial pH estimate for more robust results for the alkalinity-CO<sub>2</sub> fugacity input pair.
-    * Difference derivatives for uncertainties now have a fixed step size for each argument, instead of scaling depending on user inputs.
+    * Adds additional constraint to the initial pH estimate for more robust results for the alkalinity-CO<sub>2</sub> fugacity parameter pair.
+    * Difference derivatives for uncertainties now have a fixed step size for each argument, instead of scaling depending on arguments, for more reproducible results.
 
 ## 1.7
 
