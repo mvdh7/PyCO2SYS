@@ -16,8 +16,16 @@ orr = dict(
     opt_total_borate=2,
 )
 grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
+grads_of.append("pH_total")
 grads_wrt = ["par1", "par2", "temperature", "salinity"]
 results = pyco2.sys(**orr, grads_of=grads_of, grads_wrt=grads_wrt)
+for wrt in grads_wrt:
+    results["d_Hfree__d_{}".format(wrt)] = (
+        -np.log(10)
+        * 10 ** -results["pH_total"]
+        * results["d_pH_total__d_{}".format(wrt)]
+        * 1e6
+    )
 for wrt in grads_wrt:
     if wrt == "par1":
         wrt_label = "alkalinity"
@@ -51,6 +59,13 @@ orr = dict(
 grads_wrt = ["total_phosphate", "total_silicate"]
 results = pyco2.sys(**orr, grads_of=grads_of, grads_wrt=grads_wrt)
 for wrt in grads_wrt:
+    results["d_Hfree__d_{}".format(wrt)] = (
+        -np.log(10)
+        * 10 ** -results["pH_total"]
+        * results["d_pH_total__d_{}".format(wrt)]
+        * 1e6
+    )
+for wrt in grads_wrt:
     nrow = pd.Series({"wrt": wrt, "program": "PyCO2SYS"})
     for of in grads_of:
         nrow[of] = results["d_{}__d_{}".format(of, wrt)]
@@ -77,9 +92,13 @@ orr = dict(
 uncertainty_into = [
     c for c in orr4.columns if c not in ["wrt", "program", "with_k_uncertainties"]
 ]
+uncertainty_into.append("pH_total")
 uncertainty_from = {"par1": 2, "par2": 2, "total_phosphate": 0.1, "total_silicate": 4}
 results = pyco2.sys(
     **orr, uncertainty_into=uncertainty_into, uncertainty_from=uncertainty_from
+)
+results["u_Hfree"] = (
+    np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
 )
 nrow = pd.Series(
     {"wrt": "dic_alkalinity", "program": "PyCO2SYS", "with_k_uncertainties": "no"}
@@ -92,6 +111,9 @@ orr4 = orr4.append(nrow, ignore_index=True)
 uncertainty_from.update(pyco2.uncertainty_OEDG18)
 results = pyco2.sys(
     **orr, uncertainty_into=uncertainty_into, uncertainty_from=uncertainty_from
+)
+results["u_Hfree"] = (
+    np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
 )
 nrow = pd.Series(
     {"wrt": "dic_alkalinity", "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
@@ -109,36 +131,36 @@ def test_table2_OEDG18():
     """Does PyCO2SYS agree with OEDG18's Table 2?"""
     for wrt in orr2_groups.index:
         for of in orr2_groups.columns:
-            if of != "Hfree":
-                v_orr = orr2_groups.loc[wrt][of]
-                v_pyco2 = orr2.loc[wrt].loc["PyCO2SYS"][of]
-                assert np.isclose(
-                    v_orr, v_pyco2, rtol=1e-3, atol=0
-                ), "Failed on {} / {}".format(of, wrt)
+            # if of != "Hfree":
+            v_orr = orr2_groups.loc[wrt][of]
+            v_pyco2 = orr2.loc[wrt].loc["PyCO2SYS"][of]
+            assert np.isclose(
+                v_orr, v_pyco2, rtol=1e-3, atol=0
+            ), "Failed on {} / {}".format(of, wrt)
 
 
 def test_table3_OEDG18():
     """Does PyCO2SYS agree with OEDG18's Table 3?"""
     for wrt in orr3_groups.index:
         for of in orr3_groups.columns:
-            if of != "Hfree":
-                v_orr = orr3_groups.loc[wrt][of]
-                v_pyco2 = orr3.loc[wrt].loc["PyCO2SYS"][of]
-                assert np.isclose(
-                    v_orr, v_pyco2, rtol=1e-3, atol=0
-                ), "Failed on {} / {}".format(of, wrt)
+            # if of != "Hfree":
+            v_orr = orr3_groups.loc[wrt][of]
+            v_pyco2 = orr3.loc[wrt].loc["PyCO2SYS"][of]
+            assert np.isclose(
+                v_orr, v_pyco2, rtol=1e-3, atol=0
+            ), "Failed on {} / {}".format(of, wrt)
 
 
 def test_table4_OEDG18():
     """Does PyCO2SYS agree with OEDG18's Table 4?"""
     for with_k in orr4_groups.index:
         for of in orr4_groups.columns:
-            if of != "Hfree":
-                v_orr = orr4_groups.loc[with_k][of]
-                v_pyco2 = orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
-                assert np.isclose(
-                    v_orr, v_pyco2, rtol=1e-4, atol=0
-                ), "Failed on {} / {}".format(of, wrt)
+            # if of != "Hfree":
+            v_orr = orr4_groups.loc[with_k][of]
+            v_pyco2 = orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
+            assert np.isclose(
+                v_orr, v_pyco2, rtol=1e-4, atol=0
+            ), "Failed on {} / {}".format(of, wrt)
 
 
 # test_table2_OEDG18()

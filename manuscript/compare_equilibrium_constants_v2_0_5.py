@@ -57,7 +57,14 @@ def test_equilibrium_constants():
     ):
         pk_matlab = np.where(matlab[m].values == 0, -999.9, -np.log10(matlab[m].values))
         pk_python = np.where(python[p].values == 0, -999.9, -np.log10(python[p].values))
-        assert np.all(np.isclose(pk_matlab, pk_python, rtol=1e-12, atol=1e-16,))
+        assert np.all(
+            np.isclose(
+                pk_matlab,
+                pk_python,
+                rtol=1e-12,
+                atol=1e-16,
+            )
+        )
 
 
 def test_total_salts():
