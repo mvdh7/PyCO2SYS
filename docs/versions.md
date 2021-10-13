@@ -29,11 +29,18 @@
 
 ## 1.8
 
-Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Fully documented in manuscript in review.
+Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in manuscript in review.
 
 ### 1.8.0 (forthcoming)
 
-  * Adds `pressure_atmosphere` and `pressure_atmosphere_out` arguments, rather than assuming 1 atm total barometric pressure.
+    ***New features***
+
+    * Adds `pressure_atmosphere` and `pressure_atmosphere_out` arguments, rather than assuming 1 atm total barometric pressure.
+
+    ***Behind-the-scenes improvements***
+
+    * Adds additional constraint to the initial pH estimate for more robust results for the alkalinity-CO<sub>2</sub> fugacity input pair.
+    * Difference derivatives for uncertainties now have a fixed step size for each argument, instead of scaling depending on user inputs.
 
 ## 1.7
 

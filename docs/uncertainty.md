@@ -8,7 +8,7 @@ PyCO2SYS provides tools to propagate uncertainties in all arguments through to a
 
     $\frac{\partial r(a)}{\partial a} \approx \frac{r(a + \Delta a) - r(a)}{\Delta a}$
 
-    As the input variables span many orders of magnitude, PyCO2SYS by default uses $\Delta a = 10^{-6} \cdot \mathrm{median}(a)$, which is different for each argument, or $10^{-6}$ where $\mathrm{median}(a) = 0$.
+    As the different arguments span many orders of magnitude, PyCO2SYS uses a different $\Delta a$ value for each argument.
 
 ## Independent uncertainties
 
