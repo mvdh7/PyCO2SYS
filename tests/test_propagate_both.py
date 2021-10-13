@@ -79,14 +79,14 @@ def test_propagate_both():
     """
     for k in ks:
         b, j, m = propagate_both_and_compare(k)
-        assert np.isclose(b, j, rtol=1e-4, atol=1e-8), "Failed on {}".format(k)
-        assert np.isclose(b, m, rtol=1e-4, atol=1e-8), "Failed on {}".format(k)
-        assert np.isclose(j, m, rtol=1e-4, atol=1e-8), "Failed on {}".format(k)
+        assert np.isclose(b, j, rtol=1e-3, atol=1e-6), "Failed on {}".format(k)
+        assert np.isclose(b, m, rtol=1e-3, atol=1e-6), "Failed on {}".format(k)
+        assert np.isclose(j, m, rtol=1e-3, atol=1e-6), "Failed on {}".format(k)
     for pk in pks:
         b, j, m = propagate_both_and_compare(pk)
-        assert np.isclose(b, j, rtol=1e-4, atol=1e-8), "Failed on {}".format(pk)
-        assert np.isclose(b, m, rtol=1e-4, atol=1e-8), "Failed on {}".format(pk)
-        assert np.isclose(j, m, rtol=1e-4, atol=1e-8), "Failed on {}".format(pk)
+        assert np.isclose(b, j, rtol=1e-3, atol=1e-6), "Failed on {}".format(pk)
+        assert np.isclose(b, m, rtol=1e-3, atol=1e-6), "Failed on {}".format(pk)
+        assert np.isclose(j, m, rtol=1e-3, atol=1e-6), "Failed on {}".format(pk)
 
 
 # test_propagate_both()
