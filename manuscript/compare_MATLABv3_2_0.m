@@ -43,10 +43,22 @@ tic
     presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal);
 toc
 
-timef = @() CO2SYSv3_2_0(P1, P2, P1type_ext, P2type_ext, sal, ...
-    tempin, tempout, presin, presout, si, phos, nh3, h2s, pHscales, ...
-    K1K2, KSO4, KF, BSal);
-timeit(timef)
+tic; CO2SYSv3_2_0(P1, P2, P1type_ext, P2type_ext, sal, tempin, tempout, ...
+    presin, presout, si, phos, nh3, h2s, pHscales, K1K2, KSO4, KF, BSal); toc
+
+% MATLAB speed
+times = [0.841421 0.745802 0.566908 0.692229 0.580068 0.750647 0.565886];
+times_mean = mean(times);
+times_std = std(times);
+% GNU Octave speed
+otimes = [0.638882 0.636931 0.643419 0.641328 0.652003 0.649709 0.644479];
+otimes_mean = mean(otimes);
+otimes_std = std(otimes);
+
+% timef = @() CO2SYSv3_2_0(P1, P2, P1type_ext, P2type_ext, sal, ...
+%     tempin, tempout, presin, presout, si, phos, nh3, h2s, pHscales, ...
+%     K1K2, KSO4, KF, BSal);
+% timeit(timef)
 
 %% Extract and save outputs
 clear co2s
