@@ -22,21 +22,21 @@ PyCO2SYS/salts.py                                       69      0   100%
 PyCO2SYS/solubility.py                                  49      0   100%
 PyCO2SYS/solve/__init__.py                             230      0   100%
 PyCO2SYS/solve/delta.py                                 67      0   100%
-PyCO2SYS/solve/get.py                                  287     67    77%
-PyCO2SYS/solve/initialise.py                            57      0   100%
-PyCO2SYS/uncertainty.py                                151     14    91%
+PyCO2SYS/solve/get.py                                  288     67    77%
+PyCO2SYS/solve/initialise.py                            60      0   100%
+PyCO2SYS/uncertainty.py                                155     14    91%
 manuscript/__init__.py                                   0      0   100%
 manuscript/compare_MATLAB_derivatives.py                23      0   100%
 manuscript/compare_MATLABv2_0_5.py                      38      0   100%
 manuscript/compare_MATLABv3_1_1.py                      50      0   100%
-manuscript/compare_MATLABv3_2_0.py                      63      0   100%
+manuscript/compare_MATLABv3_2_0.py                      66      0   100%
 manuscript/compare_equilibrium_constants_v2_0_5.py      13      0   100%
 manuscript/compare_equilibrium_constants_v3_1_1.py      12      0   100%
 manuscript/compare_equilibrium_constants_v3_2_0.py      12      0   100%
 manuscript/compare_versions_uncert.py                   53      0   100%
 manuscript/round_robin.py                               28      0   100%
 manuscript/test_buffers.py                              38      0   100%
-manuscript/test_orr2018_uncertainties.py                76      0   100%
+manuscript/test_orr2018_uncertainties.py                81      0   100%
 manuscript/test_propagation.py                          84      0   100%
 manuscript/test_titration.py                            31      0   100%
 manuscript/test_weiss1974.py                            10      0   100%
@@ -54,4 +54,4 @@ tests/test_propagate_both.py                            41      0   100%
 validate/__init__.py                                     0      0   100%
 validate/buffers_auto_explicit.py                       16      0   100%
 ------------------------------------------------------------------------
-TOTAL                                                 3556    194    95%
+TOTAL                                                 3572    194    95%
