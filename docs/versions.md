@@ -31,7 +31,7 @@
 
 Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in manuscript in review.
 
-### 1.8.0 (forthcoming)
+### 1.8.0 (27 October 2021)
 
     ***New features***
 
@@ -44,7 +44,7 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
 ## 1.7
 
-Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review.
+Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review ([Humphreys et al., 2021, *Geosci. Model Dev. Discuss.](https://doi.org/10.5194/gmd-2021-159)).
 
 ### 1.7.1 (10 August 2021)
 
