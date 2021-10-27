@@ -73,7 +73,7 @@ def test_old_new():
 
 
 def test_uncertainty_old_new():
-    assert np.all(uncert_old["pHin"] - uncertainties["pH"].ravel() == 0)
+    assert np.all(np.isclose(uncert_old["pHin"], uncertainties["pH"].ravel()))
 
 
 # test_old_new()

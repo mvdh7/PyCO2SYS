@@ -19,7 +19,7 @@ def prepare(TempC, Pdbar, equilibria):
 
 
 def assemble(
-    TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=None
+    TempC, Pdbar, totals, pHScale, WhichKs, WhoseKSO4, WhoseKF, WhichR, Ks=None, pressure_atmosphere=1.0,
 ):
     """Evaluate all stoichiometric equilibrium constants, converted to the
     chosen pH scale, and corrected for pressure.
@@ -104,9 +104,9 @@ def assemble(
     if "K0" not in Ks:
         Ks["K0"] = p1atm.kCO2_W74(TempK, Sal)
     if "FugFac" not in Ks:
-        Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas)
+        Ks["FugFac"] = gas.fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=pressure_atmosphere)
     if "VPFac" not in Ks:
-        Ks["VPFac"] = gas.vpfactor(TempC, Sal)
+        Ks["VPFac"] = gas.vpfactor(TempC, Sal, pressure_atmosphere=pressure_atmosphere)
     Ks = convert.get_pHfactor_to_Free(TempK, Sal, totals, Ks, pHScale, WhichKs)
     # Aragonite and calcite solubility products
     if "KAr" not in Ks:

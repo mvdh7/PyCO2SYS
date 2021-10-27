@@ -3,6 +3,7 @@
 """Estimate initial pH values for iterative TA equation solvers."""
 
 from autograd import numpy as np
+from . import get
 
 
 @np.errstate(invalid="ignore")
@@ -39,6 +40,13 @@ def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
         CBAlk > 0,
         _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB),
         1e-3,  # default pH=3 for negative alkalinity
+    )
+    # Added in v1.8.0: additional constraint given that CBAlk <= 2 * TC + TB (see M13)
+    TC = CO2 * (H0 ** 2 + K1 * H0 + K1 * K2) / H0 ** 2
+    H0 = np.where(
+        CBAlk > 2 * TC + TB,
+        1e-7,
+        H0,
     )
     return -np.log10(H0)
 

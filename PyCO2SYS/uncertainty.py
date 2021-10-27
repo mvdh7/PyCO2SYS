@@ -36,8 +36,9 @@ def _get_dx_wrt(dx, var, dx_scaling, dx_func=None):
     assert dx_scaling in [
         "none",
         "median",
+        "explicit",
         "custom",
-    ], "`dx_scaling` must be 'none' or 'median'."
+    ], "`dx_scaling` must be 'none', 'median', 'explicit' or 'custom'."
     if dx_scaling == "none":
         dx_wrt = dx
     elif dx_scaling == "median":
@@ -323,6 +324,64 @@ def propagate(
     return uncertainties, components
 
 
+# Added in v1.8.0: standard dx values
+# Should contain the same keys as pyco2.engine.nd.input_floats
+# TODO: merge this with ^?
+dx_values = {
+    "fugacity_factor": 1e-5,
+    "gas_constant": 1e-4,
+    "k_ammonia": 1e-16,
+    "k_aragonite": 1e-13,
+    "k_bisulfate": 1e-7,
+    "k_borate": 1e-15,
+    "k_calcite": 1e-13,
+    "k_carbonic_1": 1e-12,
+    "k_carbonic_2": 1e-15,
+    "k_CO2": 1e-8,
+    "k_fluoride": 1e-9,
+    "k_phosphoric_1": 1e-4,  # needs to be weirdly low, not sure why
+    "k_phosphoric_2": 1e-12,
+    "k_phosphoric_3": 1e-15,
+    "k_silicate": 1e-16,
+    "k_sulfide": 1e-13,
+    "k_water": 1e-20,
+    "par1": 1e-4,  # higher to cope with pH input
+    "par2": 1e-4,  # higher to cope with pH input
+    "pressure": 1e-3,
+    "salinity": 1e-3,
+    "temperature": 1e-3,
+    "total_alpha": 1e-3,
+    "total_ammonia": 1e-3,
+    "total_beta": 1e-3,
+    "total_borate": 1e-3,
+    "total_calcium": 1e-3,
+    "total_fluoride": 1e-3,
+    "total_phosphate": 1e-3,
+    "total_silicate": 1e-3,
+    "total_sulfate": 1e-3,
+    "total_sulfide": 1e-3,
+    "vp_factor": 1e-5,
+    "pressure_atmosphere": 1e-4,
+}
+# Set all output condition values equal to the input condition ones
+dx_values.update(
+    {
+        "{}_out".format(k): v
+        for k, v in dx_values.items()
+        if k.startswith("k_")
+        or k
+        in [
+            "temperature",
+            "pressure",
+            "fugacity_factor",
+            "gas_constant",
+            "vp_factor",
+            "pressure_atmosphere",
+        ]
+    }
+)
+
+
 def forward_nd(
     CO2SYS_nd_results,
     grads_of,
@@ -404,7 +463,10 @@ def forward_nd(
                 wrt_as_k = wrt_as_k[:-5]  # remove the "_both" suffix
             # Convert K to pK, increment pK by dx, then convert back to K (input)
             pk_values = -np.log10(CO2SYS_nd_results[wrt_as_k])
-            dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
+            # # Up to v1.7.1:
+            # dxs[wrt] = _get_dx_wrt(dx, pk_values, dx_scaling, dx_func=dx_func)
+            # From v1.8.0:
+            dxs[wrt] = 1e-4  # standard for all pK uncertainties
             pk_values_plus = pk_values + dxs[wrt]
             args_plus[wrt_as_k] = 10.0 ** -pk_values_plus
             if do_both:
@@ -419,9 +481,17 @@ def forward_nd(
             else:
                 wrt_internal = copy.deepcopy(wrt)
             # Get the dx and increment the input argument by it
-            dxs[wrt] = _get_dx_wrt(
-                dx, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
-            )
+            # # Up to v1.7.1:
+            # dxs[wrt] = _get_dx_wrt(
+            #     dx, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
+            # )
+            # From v1.8.0:
+            if wrt_internal in ["k_alpha", "k_beta", "k_alpha_out", "k_beta_out"]:
+                dxs[wrt] = _get_dx_wrt(
+                    1e-4, CO2SYS_nd_results[wrt_internal], dx_scaling, dx_func=dx_func
+                )
+            else:
+                dxs[wrt] = dx_values[wrt_internal]
             args_plus[wrt_internal] = CO2SYS_nd_results[wrt_internal] + dxs[wrt]
             if do_both:
                 # Increment the output argument by the same dx as for the input
@@ -429,11 +499,9 @@ def forward_nd(
                     CO2SYS_nd_results[wrt_internal + "_out"] + dxs[wrt]
                 )
         # Solve again with the incremented arguments and save output
-        results_plus = engine.nd.CO2SYS(**args_plus)
+        r_plus = engine.nd.CO2SYS(**args_plus)
         for of in grads_of:
-            CO2SYS_derivs[of][wrt] = (results_plus[of] - CO2SYS_nd_results[of]) / dxs[
-                wrt
-            ]
+            CO2SYS_derivs[of][wrt] = (r_plus[of] - CO2SYS_nd_results[of]) / dxs[wrt]
     return CO2SYS_derivs, dxs
 
 
