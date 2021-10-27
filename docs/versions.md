@@ -33,6 +33,8 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
 ### 1.8.0 (27 October 2021)
 
+!!! new-version "Changes in v1.8.0"
+
     ***New features***
 
     * Adds `pressure_atmosphere` and `pressure_atmosphere_out` arguments, rather than assuming 1 atm total barometric pressure.
