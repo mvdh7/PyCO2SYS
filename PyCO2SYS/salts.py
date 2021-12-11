@@ -75,13 +75,16 @@ def sulfate_MR66(salinity):
 
 
 def get_total_borate(salinity, opt_k_carbonic, opt_total_borate):
-    """Calculate total borate from salinity for the given options."""
-    total_borate = np.zeros_like(salinity)  # pure water
+    """Calculate total borate in mol/kg-sw from salinity for the given settings."""
+    # Pure water: zero total borate (case 8 stays like this)
+    total_borate = np.zeros_like(salinity)
+    # GEOSECS cases: follow C65, irrespective of opt_total_borate
     total_borate = np.where(
         (opt_k_carbonic == 6) | (opt_k_carbonic == 7),
         borate_C65(salinity),
         total_borate,
     )
+    # All other cases: follow opt_total_borate
     F = (opt_k_carbonic != 6) & (opt_k_carbonic != 7) & (opt_k_carbonic != 8)
     total_borate = np.where(
         F & (opt_total_borate == 1), borate_U74(salinity), total_borate
@@ -93,14 +96,15 @@ def get_total_borate(salinity, opt_k_carbonic, opt_total_borate):
 
 
 def get_total_calcium(salinity, opt_k_carbonic):
-    """Calculate total calcium from salinity for the given options."""
-    F = (opt_k_carbonic == 6) | (opt_k_carbonic == 7)  # GEOSECS values
+    """Calculate total calcium in mol/kg-sw from salinity for the given settings."""
+    F = (opt_k_carbonic == 6) | (opt_k_carbonic == 7)  # identify GEOSECS cases
     total_calcium = np.where(F, calcium_C65(salinity), calcium_RT67(salinity))
     return total_calcium
 
 
 def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
-    """Estimate total molinities of calcium, borate, fluoride and sulfate from salinity.
+    """Estimate total substance contents of calcium, borate, fluoride and sulfate, all
+    in mol/kg-sw, from salinity, for the given settings.
 
     Subfunctions based on Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
@@ -110,11 +114,11 @@ def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
         total_borate = get_total_borate(salinity, opt_k_carbonic, opt_total_borate)
         totals["TB"] = total_borate
     if "TF" not in totals:
-        TF = fluoride_R65(salinity)
-        totals["TF"] = TF
+        total_fluoride = fluoride_R65(salinity)
+        totals["TF"] = total_fluoride
     if "TSO4" not in totals:
-        TSO4 = sulfate_MR66(salinity)
-        totals["TSO4"] = TSO4
+        total_sulfate = sulfate_MR66(salinity)
+        totals["TSO4"] = total_sulfate
     if "TCa" not in totals:
         total_calcium = get_total_calcium(salinity, opt_k_carbonic)
         totals["TCa"] = total_calcium
@@ -138,31 +142,31 @@ def assemble(
     """Estimate total molinities from salinity and assemble along with other salts and
     related variables.
     """
-    # Pure Water case:
+    # Pure water case: set salinity to zero
     salinity = np.where(opt_k_carbonic == 8, 0.0, salinity)
-    # GEOSECS and Pure Water:
+    # GEOSECS and pure water cases: set nutrients to zero
     F = (opt_k_carbonic == 6) | (opt_k_carbonic == 8)
     total_phosphate = np.where(F, 0.0, total_phosphate)
     total_silicate = np.where(F, 0.0, total_silicate)
     total_ammonia = np.where(F, 0.0, total_ammonia)
     total_sulfide = np.where(F, 0.0, total_sulfide)
-    # Convert micromol to mol
+    # Convert µmol to mol for user-provided nutrients
     total_phosphate = total_phosphate * 1e-6
     total_silicate = total_silicate * 1e-6
     total_ammonia = total_ammonia * 1e-6
     total_sulfide = total_sulfide * 1e-6
+    # Assemble dict of all
     totals = from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=totals)
-    # The vector `PengCorrection` is used to modify the value of TA, for those
-    # cases where opt_k_carbonic==7, since PAlk(Peng) = PAlk(Dickson) + TP.
+    # `peng_correction` is used to modify the value of total alkalinity, for those
+    # cases where opt_k_carbonic is 7, since PAlk(Peng) = PAlk(Dickson) + TP.
     # Thus, PengCorrection is 0 for all cases where opt_k_carbonic is not 7.
     peng_correction = np.where(opt_k_carbonic == 7, total_phosphate, 0.0)
-    # Add everything else to `totals` dict
+    totals["PengCorrection"] = peng_correction
+    # Insert everything else into the `totals` dict
     totals["TPO4"] = total_phosphate
     totals["TSi"] = total_silicate
     totals["TNH3"] = total_ammonia
     totals["TH2S"] = total_sulfide
-    totals[
-        "Sal"
-    ] = salinity  # this is input `Sal` but with pure water case forced to 0.0
-    totals["PengCorrection"] = peng_correction
+    # This is input `Sal` but with pure water case reset to zero
+    totals["Sal"] = salinity
     return totals
