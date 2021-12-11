@@ -132,7 +132,7 @@ def assemble(
     # Silicate
     if "KSi" not in k_constants:
         k_constants["KSi"] = (
-            pressured.k_constantsi(
+            pressured.KSi(
                 temperature_K,
                 salinity,
                 pressure_bar,
