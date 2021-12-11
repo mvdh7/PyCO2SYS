@@ -76,7 +76,7 @@ def sulfate_MR66(salinity):
 
 def _co2sys_TB(salinity, WhichKs, WhoseTB):
     """Calculate total borate from salinity for the given options."""
-    TB = np.where(WhichKs == 8, 0.0, np.nan)  # pure water
+    TB = np.zeros_like(salinity)  # pure water
     TB = np.where((WhichKs == 6) | (WhichKs == 7), borate_C65(salinity), TB)
     F = (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8)
     TB = np.where(F & (WhoseTB == 1), borate_U74(salinity), TB)
