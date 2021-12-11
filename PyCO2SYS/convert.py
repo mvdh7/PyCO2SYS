@@ -38,22 +38,22 @@ def fCO2_to_CO2aq(fCO2, k_constants):
     return fCO2 * k_constants["K0"]
 
 
-def TempC2K(TempC):
+def celsius_to_kelvin(TempC):
     """Convert temperature from degC to K."""
     return TempC + constants.Tzero
 
 
-def TempK2C(TempK):
+def kelvin_to_celsius(TempK):
     """Convert temperature from K to degC."""
     return TempK - constants.Tzero
 
 
-def Pdbar2bar(Pdbar):
+def decibar_to_bar(Pdbar):
     """Convert pressure from dbar to bar."""
     return Pdbar / 10.0
 
 
-def Pbar2dbar(Pbar):
+def bar_to_decibar(Pbar):
     """Convert pressure from bar to dbar."""
     return Pbar * 10.0
 

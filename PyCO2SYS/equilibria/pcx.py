@@ -16,7 +16,7 @@ def KSO4fac(TempK, Pbar, RGas):
     # === CO2SYS.m comments: =======
     # This is from Millero, 1995, which is the same as Millero, 1983.
     # It is assumed that KS is on the free pH scale.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -18.03 + 0.0466 * TempC + 0.000316 * TempC ** 2
     Kappa = (-4.53 + 0.09 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -27,7 +27,7 @@ def KFfac(TempK, Pbar, RGas):
     # === CO2SYS.m comments: =======
     # This is from Millero, 1995, which is the same as Millero, 1983.
     # It is assumed that KF is on the free pH scale.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -9.78 - 0.009 * TempC - 0.000942 * TempC ** 2
     Kappa = (-3.91 + 0.054 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -35,7 +35,7 @@ def KFfac(TempK, Pbar, RGas):
 
 def KBfac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for KB."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     # Freshwater; this doesn't matter since TB = 0 for this case
     KBfac = np.where(WhichKs == 8, 1.0, np.nan)
     # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
@@ -75,7 +75,7 @@ def KBfac(TempK, Pbar, RGas, WhichKs):
 
 def KWfac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for KW."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = np.full(np.shape(TempK), np.nan)
     Kappa = np.full(np.shape(TempK), np.nan)
     F = WhichKs == 8  # freshwater case
@@ -99,7 +99,7 @@ def KWfac(TempK, Pbar, RGas, WhichKs):
 
 def KP1fac(TempK, Pbar, RGas):
     """Calculate pressure correction factor for KP1."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -14.51 + 0.1211 * TempC - 0.000321 * TempC ** 2
     Kappa = (-2.67 + 0.0427 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -107,7 +107,7 @@ def KP1fac(TempK, Pbar, RGas):
 
 def KP2fac(TempK, Pbar, RGas):
     """Calculate pressure correction factor for KP2."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -23.12 + 0.1758 * TempC - 0.002647 * TempC ** 2
     Kappa = (-5.15 + 0.09 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -115,7 +115,7 @@ def KP2fac(TempK, Pbar, RGas):
 
 def KP3fac(TempK, Pbar, RGas):
     """Calculate pressure correction factor for KP3."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -26.57 + 0.202 * TempC - 0.003042 * TempC ** 2
     Kappa = (-4.08 + 0.0714 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -128,7 +128,7 @@ def KSifac(TempK, Pbar, RGas):
     # values have been estimated from the values of boric acid. HOWEVER,
     # there is no listing of the values in the table.
     # Here we use the values for boric acid.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -29.48 + 0.1622 * TempC - 0.002608 * TempC ** 2
     Kappa = -2.84 / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -140,7 +140,7 @@ def KH2Sfac(TempK, Pbar, RGas):
     # Millero 1995 gives values for deltaV in fresh water instead of SW.
     # Millero 1995 gives -b0 as -2.89 instead of 2.89.
     # Millero 1983 is correct for both.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -11.07 - 0.009 * TempC - 0.000942 * TempC ** 2
     Kappa = (-2.89 + 0.054 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -150,7 +150,7 @@ def KNH3fac(TempK, Pbar, RGas):
     """Calculate pressure correction factor for KNH3."""
     # === CO2SYS.m comments: =======
     # The corrections are from Millero, 1995, which are the same as Millero, 1983.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaV = -26.43 + 0.0889 * TempC - 0.000905 * TempC ** 2
     Kappa = (-5.03 + 0.0814 * TempC) / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
@@ -158,7 +158,7 @@ def KNH3fac(TempK, Pbar, RGas):
 
 def K1fac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for K1."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     K1fac = np.full(
         np.shape(TempK), np.nan
     )  # because GEOSECS doesn't use _pcxKfac p1atm.
@@ -192,7 +192,7 @@ def K1fac(TempK, Pbar, RGas, WhichKs):
 
 def K2fac(TempK, Pbar, RGas, WhichKs):
     """Calculate pressure correction factor for K2."""
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     K2fac = np.full(
         np.shape(TempK), np.nan
     )  # because GEOSECS doesn't use _pcxKfac p1atm.

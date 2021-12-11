@@ -24,7 +24,7 @@ def k_calcite_M83(TempK, Sal, Pbar, RGas):
     # sd fit = .01 (for Sal part, not part independent of Sal)
     KCa = 10.0 ** logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
     lnKCafac = (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (RGas * TempK)
     KCa = KCa * np.exp(lnKCafac)
@@ -40,7 +40,7 @@ def k_aragonite_M83(TempK, Sal, Pbar, RGas):
     # sd fit = .009 (for Sal part, not part independent of Sal)
     KAr = 10.0 ** logKAr  # this is in (mol/kg-SW)^2
     # Add pressure correction for aragonite [M79]:
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
     # Same as Millero, GCA 1995 except for typos (-.5304, -.3692,
     #   and 10^3 for Kappa factor)
@@ -84,7 +84,7 @@ def k_calcite_I75(TempK, Sal, Pbar, RGas):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     # ==============================
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     KCa = KCa * np.exp((36 - 0.2 * TempC) * Pbar / (RGas * TempK))
     return KCa
 
@@ -108,7 +108,7 @@ def k_aragonite_GEOSECS(TempK, Sal, Pbar, RGas):
     # but their paper is not even on this topic).
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
-    TempC = convert.TempK2C(TempK)
+    TempC = convert.kelvin_to_celsius(TempK)
     KAr = KAr * np.exp((33.3 - 0.22 * TempC) * Pbar / (RGas * TempK))
     return KAr
 
