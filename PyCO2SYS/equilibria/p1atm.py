@@ -31,7 +31,7 @@ def kHSO4_FREE_D90a(TempK, Sal):
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
     logTempK = np.log(TempK)
-    IonS = salts.ionstr_DOE94(Sal)
+    IonS = salts.ionic_strength_DOE94(Sal)
     lnKSO4 = (
         -4276.1 / TempK
         + 141.328
@@ -60,7 +60,7 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     # The rms error is .0021 in pKS, or about .5% in KS.
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
-    IonS = salts.ionstr_DOE94(Sal)
+    IonS = salts.ionic_strength_DOE94(Sal)
     pKSO4 = 647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(IonS)
     return 10.0 ** -pKSO4 * (1 - 0.001005 * Sal)
 
@@ -95,7 +95,7 @@ def kHF_FREE_DR79(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    IonS = salts.ionstr_DOE94(Sal)
+    IonS = salts.ionic_strength_DOE94(Sal)
     lnKF = 1590.2 / TempK - 12.641 + 1.525 * IonS ** 0.5
     return np.exp(lnKF) * (1 - 0.001005 * Sal)
 
@@ -246,7 +246,7 @@ def kSi_SWS_YM95(TempK, Sal):
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KSi was given on the SWS pH scale in mol/kg-H2O, but is converted here
     # to mol/kg-sw.
-    IonS = salts.ionstr_DOE94(Sal)
+    IonS = salts.ionic_strength_DOE94(Sal)
     lnKSi = (
         -8904.2 / TempK
         + 117.4
