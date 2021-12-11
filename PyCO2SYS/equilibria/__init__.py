@@ -28,7 +28,7 @@ def assemble(
     opt_k_bisulfate,
     opt_k_fluoride,
     opt_gas_constant,
-    k_constants=None,
+    Ks=None,
     pressure_atmosphere=1.0,
 ):
     """Evaluate all stoichiometric equilibrium constants, converted to the chosen pH
@@ -48,6 +48,7 @@ def assemble(
 
     Based on a subset of Constants, version 04.01, 10-13-97, by Ernie Lewis.
     """
+    k_constants = Ks  # temporary fix
     temperature_K, pressure_bar, k_constants = prepare(
         temperature, pressure, k_constants
     )
