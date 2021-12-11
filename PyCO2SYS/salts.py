@@ -75,7 +75,11 @@ def sulfate_MR66(salinity):
 
 
 def get_total_borate(salinity, opt_k_carbonic, opt_total_borate):
-    """Calculate total borate in mol/kg-sw from salinity for the given settings."""
+    """Calculate total borate in mol/kg-sw from salinity for the given settings.
+
+    GEOSECS cases follow C65, irrespective of user-provided opt_total_borate.
+    All other cases follow user's opt_total_borate (i.e. U74 or LKB10).
+    """
     # Pure water: zero total borate (case 8 stays like this)
     total_borate = np.zeros_like(salinity)
     # GEOSECS cases: follow C65, irrespective of opt_total_borate
@@ -96,7 +100,10 @@ def get_total_borate(salinity, opt_k_carbonic, opt_total_borate):
 
 
 def get_total_calcium(salinity, opt_k_carbonic):
-    """Calculate total calcium in mol/kg-sw from salinity for the given settings."""
+    """Calculate total calcium in mol/kg-sw from salinity for the given settings.
+
+    GEOSECS cases follow C65; all others (including freshwater) follow RT67.
+    """
     F = (opt_k_carbonic == 6) | (opt_k_carbonic == 7)  # identify GEOSECS cases
     total_calcium = np.where(F, calcium_C65(salinity), calcium_RT67(salinity))
     return total_calcium
@@ -106,7 +113,7 @@ def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
     """Estimate total substance contents of calcium, borate, fluoride and sulfate, all
     in mol/kg-sw, from salinity, for the given settings.
 
-    Subfunctions based on Constants, version 04.01, 10-13-97, by Ernie Lewis.
+    Subfunctions based on Constants, version 04.01, 1997-10-13, by Ernie Lewis.
     """
     if totals is None:
         totals = {}
@@ -139,8 +146,9 @@ def assemble(
     opt_total_borate,
     totals=None,
 ):
-    """Estimate total molinities from salinity and assemble along with other salts and
-    related variables.
+    """Estimate all total substance contents from salinity for the given settings and
+    assemble into a dict along with user-provided total salt contents and related
+    variables.
     """
     # Pure water case: set salinity to zero
     salinity = np.where(opt_k_carbonic == 8, 0.0, salinity)
@@ -167,6 +175,6 @@ def assemble(
     totals["TSi"] = total_silicate
     totals["TNH3"] = total_ammonia
     totals["TH2S"] = total_sulfide
-    # This is input `Sal` but with pure water case reset to zero
+    # This is input `salinity` but with freshwater case values set to zero
     totals["Sal"] = salinity
     return totals
