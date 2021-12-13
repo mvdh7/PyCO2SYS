@@ -158,7 +158,8 @@ def speciation(dic, pH, totals, k_constants):
         sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
     # Phosphate
     sw.update(phosphate_components(h_scale, totals, k_constants))
-    sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]
+    sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]  # Dickson
+    # sw["PAlk"] = sw["H2PO4"] + 2 * sw["HPO4"] + 3 * sw["PO4"]  # charge-balance
     # Silicate
     sw["H3SiO4"] = sw["SiAlk"] = (
         totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
