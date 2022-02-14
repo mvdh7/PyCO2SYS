@@ -43,7 +43,7 @@ PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://www.nioz.nl/e
 
 A paper describing PyCO2SYS is freely available:
 
-!!! note "PyCO2SYS manuscript in review"
+!!! note "PyCO2SYS manuscript"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15–43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
 
 Please cite the PyCO2SYS software itself:
