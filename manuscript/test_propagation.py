@@ -150,7 +150,7 @@ def check_par1par2(uncertainties_in):
         par1types = partypes[~fixedpar]
         for i in range(7):
             ijcase = pyco2.solve.getIcase(par1types[i], j, checks=False)
-            if ijcase not in [45, 48, 58]:
+            if ijcase not in [405, 408, 508]:
                 print(ijcase)
                 compare1, compare2, compareBoth = compare_par1par2(
                     i, j, uncertainties_in
