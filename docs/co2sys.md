@@ -13,7 +13,7 @@ from PyCO2SYS import CO2SYS
 # Run CO2SYS
 CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
     PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-    NH3=0.0, H2S=0.0, KFCONSTANT=1, buffers_mode=1,
+    NH3=0.0, H2S=0.0, KFCONSTANT=1, opts_buffers_mode=1,
     totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
 
 # Get (e.g.) aragonite saturation state, output conditions
@@ -39,7 +39,7 @@ df1 = co2sys(
     temp_in=25, temp_out=25, pres_in=0, pres_out=0,
     sal=35, si=0, po4=0, nh3=0, h2s=0,
     K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
-    buffers_mode=1, verbose=True)
+    opts_buffers_mode=1, verbose=True)
 ```
 
 !!! warning "`CO2SYS_wrap`: incomplete functionality"
@@ -141,12 +141,12 @@ Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, an
         * `1`: [DR79](../refs/#d) (default, consistent with CO2SYS for MATLAB).
         * `2`: [PF87](../refs/#p).
 
-    * `buffers_mode`: how to calculate the various buffer factors (or not).
+    * `opts_buffers_mode`: how to calculate the various buffer factors (or not).
         * `1`: using automatic differentiation, which accounts for the effects of all equilibrating solutes (default).
         * `2`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `0`: not at all.
 
-    For `buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
+    For `opts_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
 
     * `WhichR`: what value to use for the ideal gas constant *R*:
         * `1`: DOEv2 (default, consistent with all previous CO2SYS software).
@@ -209,7 +209,7 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
     #### Buffer factors
 
-    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `buffers_mode`.
+    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `opts_buffers_mode`.
 
     * `"RFin"`/`"RFout"`: **Revelle factor** at input/output conditions[^2].
     * `"psi_in"`/`"psi_out"`: *ψ* of [FCG94](../refs/#f) at input/output conditions.
@@ -290,9 +290,9 @@ The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
-[^2]: In `buffers_mode=2`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
+[^2]: In `opts_buffers_mode=2`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
 
-[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `buffers_mode=2` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
+[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `opts_buffers_mode=2` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
 
 ## The original CO2SYS clone
 

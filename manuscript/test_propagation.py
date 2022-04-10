@@ -26,7 +26,7 @@ kwargs = {
     "opt_k_bisulfate": 1,
     "opt_total_borate": 1,
     "opt_k_fluoride": 2,
-    "buffers_mode": 1,
+    "opts_buffers_mode": 1,
     "total_alpha": 5.0,
     "total_beta": 10.0,
 }

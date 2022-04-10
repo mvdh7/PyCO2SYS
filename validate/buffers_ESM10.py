@@ -26,7 +26,7 @@ cdict = pyco2.sys(
     opt_k_carbonic=10,  # not sure which options were used by ESM10...
     opt_k_fluoride=1,
     opt_total_borate=2,
-    buffers_mode=1,
+    opts_buffers_mode=1,
 )
 
 # Recreate ESM10 Fig. 2

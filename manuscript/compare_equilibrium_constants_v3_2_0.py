@@ -24,7 +24,7 @@ python = pd.DataFrame(
         total_silicate=matlab.SI.values,
         total_ammonia=matlab.TNH4.values,
         total_sulfide=matlab.TH2S.values,
-        buffers_mode=0,
+        opts_buffers_mode=0,
     )
 )
 

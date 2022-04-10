@@ -341,7 +341,7 @@ def _outputs_grad(args, core_in, core_out, others_in, others_out, totals, Kis, K
     }
 
 
-def _outputs_nograd(args, buffers_mode):
+def _outputs_nograd(args, opts_buffers_mode):
     """Assemble non-Autograd-able portion of CO2SYS's output dict."""
     return {
         "PAR1TYPE": args["PAR1TYPE"],
@@ -353,20 +353,20 @@ def _outputs_nograd(args, buffers_mode):
         "BORON": args["BORON"],
         "pHSCALEIN": args["pHSCALEIN"],
         # Added in v1.3.0:
-        "buffers_mode": buffers_mode,
+        "opts_buffers_mode": opts_buffers_mode,
         # Added in v1.4.1:
         "WhichR": args["WhichR"],
     }
 
 
 def _outputdict(
-    args, core_in, core_out, others_in, others_out, totals, Kis, Kos, buffers_mode
+    args, core_in, core_out, others_in, others_out, totals, Kis, Kos, opts_buffers_mode
 ):
     """Assemble CO2SYS's complete output dict."""
     outputs_grad = _outputs_grad(
         args, core_in, core_out, others_in, others_out, totals, Kis, Kos
     )
-    outputs_nograd = _outputs_nograd(args, buffers_mode)
+    outputs_nograd = _outputs_nograd(args, opts_buffers_mode)
     return {**outputs_grad, **outputs_nograd}
 
 
@@ -389,7 +389,7 @@ def _CO2SYS(
     KSO4CONSTANT,
     KFCONSTANT,
     BORON,
-    buffers_mode,
+    opts_buffers_mode,
     WhichR,
     KSO4CONSTANTS=0,
     totals=None,
@@ -420,7 +420,7 @@ def _CO2SYS(
             "KSO4CONSTANT": KSO4CONSTANT,
             "KFCONSTANT": KFCONSTANT,
             "BORON": BORON,
-            "buffers_mode": buffers_mode,
+            "opts_buffers_mode": opts_buffers_mode,
             "KSO4CONSTANTS": KSO4CONSTANTS,
             "WhichR": WhichR,
         }
@@ -442,7 +442,7 @@ def _CO2SYS(
     WhoseKSO4 = args["KSO4CONSTANT"]
     WhoseKF = args["KFCONSTANT"]
     WhoseTB = args["BORON"]
-    buffers_mode = args["buffers_mode"]
+    opts_buffers_mode = args["opts_buffers_mode"]
     WhichR = args["WhichR"]
     # Prepare to solve the core marine carbonate system at input conditions
     if totals is not None:
@@ -472,7 +472,7 @@ def _CO2SYS(
         Kis,
         pHScale,
         WhichKs,
-        buffers_mode,
+        opts_buffers_mode,
     )
     # Solve the core MCS at output conditions
     TAtype = np.full(npts, 1)
@@ -495,11 +495,19 @@ def _CO2SYS(
         Kos,
         pHScale,
         WhichKs,
-        buffers_mode,
+        opts_buffers_mode,
     )
     # Save data directly as a dict to avoid ordering issues
     return _outputdict(
-        args, core_in, core_out, others_in, others_out, totals, Kis, Kos, buffers_mode
+        args,
+        core_in,
+        core_out,
+        others_in,
+        others_out,
+        totals,
+        Kis,
+        Kos,
+        opts_buffers_mode,
     )
 
 
@@ -521,7 +529,7 @@ def CO2SYS(
     NH3=0.0,
     H2S=0.0,
     KFCONSTANT=1,
-    buffers_mode=1,
+    opts_buffers_mode=1,
     totals=None,
     equilibria_in=None,
     equilibria_out=None,
@@ -556,7 +564,7 @@ def CO2SYS(
         KSO4CONSTANT,
         KFCONSTANT,
         BORON,
-        buffers_mode,
+        opts_buffers_mode,
         WhichR,
         KSO4CONSTANTS=KSO4CONSTANTS,
         totals=totals,
