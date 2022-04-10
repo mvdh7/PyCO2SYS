@@ -75,7 +75,7 @@ def _overridekwargs(co2dict, co2kwargs_plus, kwarg, wrt, dx, dx_scaling, dx_func
         pKvalues = -np.log10(co2kwargs_plus[kwarg][wrt_stem])
         dx_wrt = _get_dx_wrt(dx, pKvalues, dx_scaling, dx_func=dx_func)
         pKvalues_plus = pKvalues + dx_wrt
-        co2kwargs_plus[kwarg][wrt_stem] = 10.0 ** -pKvalues_plus
+        co2kwargs_plus[kwarg][wrt_stem] = 10.0**-pKvalues_plus
     else:
         Kvalues = co2kwargs_plus[kwarg][wrt_stem]
         dx_wrt = _get_dx_wrt(dx, Kvalues, dx_scaling, dx_func=dx_func)
@@ -468,13 +468,13 @@ def forward_nd(
             # From v1.8.0:
             dxs[wrt] = 1e-4  # standard for all pK uncertainties
             pk_values_plus = pk_values + dxs[wrt]
-            args_plus[wrt_as_k] = 10.0 ** -pk_values_plus
+            args_plus[wrt_as_k] = 10.0**-pk_values_plus
             if do_both:
                 # Convert K to pK, increment pK by dx, then convert back to K (output)
                 # Uses the same dx value as for the input condition
                 pk_values_out = -np.log10(CO2SYS_nd_results[wrt_as_k + "_out"])
                 pk_values_out_plus = pk_values_out + dxs[wrt]
-                args_plus[wrt_as_k + "_out"] = 10.0 ** -pk_values_out_plus
+                args_plus[wrt_as_k + "_out"] = 10.0**-pk_values_out_plus
         else:  # if not is_pk
             if do_both:
                 wrt_internal = wrt[:-5]  # remove the "_both" suffix

@@ -137,8 +137,8 @@ def getIcase(par1type, par2type, checks=True):
             np.isin(Icase, [405, 408, 409, 508, 509, 809])
         ), "Combinations of pCO2, fCO2, xCO2 and [CO2(aq)] are not valid argument pairs."
         assert ~np.any(
-            np.isin(Icase, [610, 611, 1011]), "Combinations of [CO3] and/or saturation states are not valid."
-        )
+            np.isin(Icase, [610, 611, 1011])
+        ), "Combinations of [CO3] and/or saturation states are not valid."
     return Icase
 
 

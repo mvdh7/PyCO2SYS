@@ -18,8 +18,8 @@ def fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=1.0):
     b = (
         -1636.75
         + 12.0408 * TempK
-        - 0.0327957 * TempK ** 2
-        + 3.16528 * 0.00001 * TempK ** 3
+        - 0.0327957 * TempK**2
+        + 3.16528 * 0.00001 * TempK**3
     )
     # # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
     # P1atm = 1.01325  # in bar

@@ -22,7 +22,7 @@ def k_calcite_M83(TempK, Sal, Pbar, RGas):
     logKCa = logKCa + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * np.sqrt(Sal)
     logKCa = logKCa - 0.07711 * Sal + 0.0041249 * np.sqrt(Sal) * Sal
     # sd fit = .01 (for Sal part, not part independent of Sal)
-    KCa = 10.0 ** logKCa  # this is in (mol/kg-SW)^2 at zero pressure
+    KCa = 10.0**logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
     TempC = convert.kelvin_to_celsius(TempK)
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
@@ -38,7 +38,7 @@ def k_aragonite_M83(TempK, Sal, Pbar, RGas):
     logKAr = logKAr + (-0.068393 + 0.0017276 * TempK + 88.135 / TempK) * np.sqrt(Sal)
     logKAr = logKAr - 0.10018 * Sal + 0.0059415 * np.sqrt(Sal) * Sal
     # sd fit = .009 (for Sal part, not part independent of Sal)
-    KAr = 10.0 ** logKAr  # this is in (mol/kg-SW)^2
+    KAr = 10.0**logKAr  # this is in (mol/kg-SW)^2
     # Add pressure correction for aragonite [M79]:
     TempC = convert.kelvin_to_celsius(TempK)
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
@@ -60,7 +60,7 @@ def k_calcite_P0_I75(TempK, Sal):
         -34.452
         - 39.866 * Sal ** (1 / 3)
         + 110.21 * np.log10(Sal)
-        - 0.0000075752 * TempK ** 2
+        - 0.0000075752 * TempK**2
     )
 
 

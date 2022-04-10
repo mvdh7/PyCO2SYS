@@ -31,12 +31,12 @@ def _pHfromTATC_s_approx(pH, TA, TC, totals, Ks):
     K1 = Ks["K1"]
     K2 = Ks["K2"]
     KB = Ks["KB"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     BAlk = totals["TB"] * KB / (KB + H)
     OH = Ks["KW"] / H
-    Denom = H ** 2 + K1 * H + K1 * K2
+    Denom = H**2 + K1 * H + K1 * K2
     return np.log(10) * (
-        TC * K1 * H * (H ** 2 + K1 * K2 + 4 * H * K2) / Denom ** 2
+        TC * K1 * H * (H**2 + K1 * K2 + 4 * H * K2) / Denom**2
         + BAlk * H / (KB + H)
         + OH
         + H
@@ -78,11 +78,11 @@ def _pHfromTAfCO2_s_approx(pH, TA, fCO2, totals, Ks):
     K1 = Ks["K1"]
     K2 = Ks["K2"]
     KB = Ks["KB"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     BAlk = totals["TB"] * KB / (KB + H)
     OH = Ks["KW"] / H
     HCO3 = K0 * K1 * fCO2 / H
-    CO3 = K0 * K1 * K2 * fCO2 / H ** 2
+    CO3 = K0 * K1 * K2 * fCO2 / H**2
     return np.log(10) * (HCO3 + 4 * CO3 + BAlk * H / (KB + H) + OH + H)
 
 
@@ -119,7 +119,7 @@ def _pHfromTACarb_s_approx(pH, TA, CARB, totals, Ks):
     """
     K2 = Ks["K2"]
     KB = Ks["KB"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     BAlk = totals["TB"] * KB / (KB + H)
     OH = Ks["KW"] / H
     return np.log(10) * (-CARB * H / K2 + BAlk * H / (KB + H) + OH + H)
@@ -157,7 +157,7 @@ def _pHfromTAHCO3_s_approx(pH, TA, HCO3, totals, Ks):
     """
     K2 = Ks["K2"]
     KB = Ks["KB"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     BAlk = totals["TB"] * KB / (KB + H)
     OH = Ks["KW"] / H
     return np.log(10) * (2 * HCO3 * K2 / H + BAlk * H / (KB + H) + OH + H)

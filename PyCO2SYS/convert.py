@@ -125,7 +125,7 @@ def fH_PTBO87(TempK, Sal):
     # They reference the GEOSECS report, but round the value
     # given there off so that it is about .008 (1#) lower. It
     # doesn't agree with the check value they give on p. 456.
-    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * Sal ** 2
+    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * Sal**2
 
 
 def fH_TWB82(TempK, Sal):
@@ -133,7 +133,7 @@ def fH_TWB82(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
     # v. 3, 1982 (p. 80).
-    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * Sal ** 2
+    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * Sal**2
 
 
 def pH_to_all_scales(pH, pH_scale, totals, k_constants):

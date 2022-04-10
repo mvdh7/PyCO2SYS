@@ -778,7 +778,7 @@ def CO2SYS(
                 # Takahashi et al. (2009) DSR2 Eq. 2
                 core_out["PC"] = core_in["PC"] * np.exp(
                     0.0433 * (temperature_out - temperature)
-                    - 4.35e-5 * (temperature_out ** 2 - temperature ** 2)
+                    - 4.35e-5 * (temperature_out**2 - temperature**2)
                 )
                 core_out["FC"] = convert.pCO2_to_fCO2(core_out["PC"], k_constants_out)
                 core_out["CO2"] = convert.fCO2_to_CO2aq(core_out["FC"], k_constants_out)
