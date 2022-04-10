@@ -126,3 +126,13 @@ def CaCO3(CARB, totals, Ks):
     OmegaCa = CARB * totals["TCa"] / Ks["KCa"]
     OmegaAr = CARB * totals["TCa"] / Ks["KAr"]
     return OmegaCa, OmegaAr
+
+
+def CARB_from_OC(OC, totals, Ks):
+    """Calculate [CO3] given saturation state w.r.t. calcite."""
+    return OC * Ks["KCa"] / totals["TCa"]
+
+
+def CARB_from_OA(OA, totals, Ks):
+    """Calculate [CO3] given saturation state w.r.t. aragonite."""
+    return OA * Ks["KAr"] / totals["TCa"]
