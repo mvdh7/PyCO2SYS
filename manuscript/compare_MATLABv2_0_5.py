@@ -39,7 +39,7 @@ co2inputs = [
     ]
 ]
 go = time()
-co2py = pyco2.CO2SYS(*co2inputs, opts_buffers_mode=0)
+co2py = pyco2.CO2SYS(*co2inputs, opt_buffers_mode=0)
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
 
@@ -48,7 +48,7 @@ co2py = pd.DataFrame(co2py)
 # )
 # short_ix = co2py.index[short]
 # co2py_short = pd.DataFrame(
-#     pyco2.CO2SYS(*[i[short] for i in co2inputs], opts_buffers_mode=0)
+#     pyco2.CO2SYS(*[i[short] for i in co2inputs], opt_buffers_mode=0)
 # )
 # short_diff = co2py.loc[short_ix, "BAlkin"].values - co2py_short["BAlkin"].values
 

@@ -43,7 +43,7 @@ We can conveniently run a round-robin test with PyCO2SYS for any given set of in
     # Run the test
     res, diff = pyco2.test.roundrobin(par1, par2, par1type, par2type,
         sal, temp, pres, si, phos, pHscale, k1k2c, kso4c, NH3=nh3, H2S=h2s,
-        opts_buffers_mode=0)
+        opt_buffers_mode=0)
 
 Running the round-robin test with the inputs in the example code above gave the following maximum absolute differences across all input pair combinations:
 
@@ -160,7 +160,7 @@ Although explicit check values are not available, we can attempt to recreate fig
 <img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/validate/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
 </p>
 
-Switching between `opts_buffers_mode=2` and `opts_buffers_mode=1` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
+Switching between `opt_buffers_mode=2` and `opt_buffers_mode=1` in PyCO2SYS does not alter this figure sufficiently for any differences to be visible.
 
 ### Uncertainty propagation
 
@@ -245,7 +245,7 @@ There are three separate reasons for the difference, the first two of which coul
 
 PyCO2SYS corrects errors 1 and 2 above.  By default, PyCO2SYS also evaluates the Revelle factor using automatic differentiation, which is inherently more accurate.
 
-With `opts_buffers_mode=2`, PyCO2SYS does use the finite-difference approach but it reduces the DIC perturbation size from 1 to 0.01 μmol/kg-sw to increase its accuracy.  If we revert both this change and the corrections above, then PyCO2SYS returns Revelle factors that agree with CO2SYS for MATLAB to within 10<sup>−6</sup>%.
+With `opt_buffers_mode=2`, PyCO2SYS does use the finite-difference approach but it reduces the DIC perturbation size from 1 to 0.01 μmol/kg-sw to increase its accuracy.  If we revert both this change and the corrections above, then PyCO2SYS returns Revelle factors that agree with CO2SYS for MATLAB to within 10<sup>−6</sup>%.
 
 [^1]: The pH tolerance threshold for all iterative solvers is controlled by `PyCO2SYS.solve.get.pH_tolerance`.
 

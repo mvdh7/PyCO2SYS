@@ -3,8 +3,8 @@ from PyCO2SYS.api import CO2SYS_wrap as co2sys
 
 # Calculate buffers both ways under standard conditions
 testvars = {"alk": 2300, "dic": 2150}
-auto = co2sys(**testvars, opts_buffers_mode=1)
-expl = co2sys(**testvars, opts_buffers_mode=2)
+auto = co2sys(**testvars, opt_buffers_mode=1)
+expl = co2sys(**testvars, opt_buffers_mode=2)
 
 # Extract calculated buffer factors
 buffers = {

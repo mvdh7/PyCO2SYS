@@ -349,7 +349,7 @@ def others(
     Ks,
     pHScale,
     WhichKs,
-    opts_buffers_mode,
+    opt_buffers_mode,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -377,8 +377,8 @@ def others(
     pHT, pHS, pHF, pHN = convert.pH_to_all_scales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
     assert np.all(
-        np.isin(opts_buffers_mode, [0, 1, 2])
-    ), "Valid options for opts_buffers_mode are 0, 1, or 2."
+        np.isin(opt_buffers_mode, [0, 1, 2])
+    ), "Valid options for opt_buffers_mode are 0, 1, or 2."
     isoQx = np.full(np.shape(Sal), np.nan)
     isoQ = np.full(np.shape(Sal), np.nan)
     Revelle = np.full(np.shape(Sal), np.nan)
@@ -394,7 +394,7 @@ def others(
     allbuffers_ESM10 = {
         buffer: np.full(np.shape(Sal), np.nan) for buffer in esm10buffers
     }
-    F = opts_buffers_mode == 1
+    F = opt_buffers_mode == 1
     if np.any(F):
         # Evaluate buffers with automatic differentiation [added v1.3.0]
         auto_ESM10 = buffers.all_ESM10(
@@ -417,7 +417,7 @@ def others(
         Revelle = np.where(
             F, buffers.RevelleFactor_ESM10(TC, allbuffers_ESM10["gammaTC"]), Revelle
         )
-    F = opts_buffers_mode == 2
+    F = opt_buffers_mode == 2
     if np.any(F):
         # Evaluate buffers with explicit equations, but these don't include nutrients
         # (i.e. only carbonate, borate and water alkalinities are accounted for)
@@ -446,7 +446,7 @@ def others(
         Revelle = np.where(
             F, buffers.explicit.RevelleFactor(TAPeng, TC, totals, Ks), Revelle
         )
-    F = opts_buffers_mode != 0
+    F = opt_buffers_mode != 0
     if np.any(F):
         # Approximate isocapnic quotient of HDW18
         isoQx = np.where(

@@ -207,7 +207,7 @@ def forward(
             "KSO4CONSTANT",
             "KFCONSTANT",
             "BORON",
-            "opts_buffers_mode",
+            "opt_buffers_mode",
             "WhichR",
         ]
     }
@@ -443,7 +443,7 @@ def forward_nd(
             "opt_k_fluoride",
             "opt_pH_scale",
             "opt_total_borate",
-            "opts_buffers_mode",
+            "opt_buffers_mode",
         ]
         + list(CO2SYS_nd_kwargs.keys())
     )

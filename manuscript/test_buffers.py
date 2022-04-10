@@ -11,8 +11,8 @@ dic = rng.normal(loc=2100, scale=500, size=npts)
 kwargs = dict(par1=alkalinity, par2=dic, par1_type=1, par2_type=2)
 
 # Solve the marine carbonate system
-r_explicit = pyco2.sys(**kwargs, opts_buffers_mode=2)
-r_automatic = pyco2.sys(**kwargs, opts_buffers_mode=1)
+r_explicit = pyco2.sys(**kwargs, opt_buffers_mode=2)
+r_automatic = pyco2.sys(**kwargs, opt_buffers_mode=1)
 
 # Compare the buffers
 buffers = [
@@ -52,8 +52,8 @@ kwargs_allzero = copy.deepcopy(kwargs)
 kwargs_allzero.update(dict(total_sulfate=0, total_fluoride=0))
 
 # Solve the marine carbonate system
-r_explicit_allzero = pyco2.sys(**kwargs_allzero, opts_buffers_mode=2)
-r_automatic_allzero = pyco2.sys(**kwargs_allzero, opts_buffers_mode=1)
+r_explicit_allzero = pyco2.sys(**kwargs_allzero, opt_buffers_mode=2)
+r_automatic_allzero = pyco2.sys(**kwargs_allzero, opt_buffers_mode=1)
 
 # Compare the buffers
 buffers_difference_allzero = {}

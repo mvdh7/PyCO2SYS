@@ -25,7 +25,7 @@ python = pd.DataFrame(
         opt_k_fluoride=1,
         total_phosphate=matlab.PO4.values,
         total_silicate=matlab.SI.values,
-        opts_buffers_mode=0,
+        opt_buffers_mode=0,
     )
 )
 

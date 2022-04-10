@@ -37,7 +37,7 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
     ***Breaking changes***
 
-    * For consistency with other settings, `buffers_mode` kwarg key changed to `opts_buffers_mode` and values are now integers rather than strings.
+    * For consistency with other settings, `buffers_mode` kwarg key changed to `opt_buffers_mode` and values are now integers rather than strings.
 
     ***New features***
 
@@ -256,7 +256,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     * The Revelle factor and all other buffer factors added in v1.2 are now evaluated using automatic differentiation, which means that the effects of all equilibrating species are taken into account.
         * The original, non-automatic functions that do not account for nutrient effects are still available in `buffers.explicit`.
-        * Can switch between calculation methods using new optional input `opts_buffers_mode`.
+        * Can switch between calculation methods using new optional input `opt_buffers_mode`.
     * Corrected Revelle factor calculations:
         * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO2SYS for MATLAB!*
         * Decreased DIC perturbation size for more accurate finite-difference "explicit" evaluation.

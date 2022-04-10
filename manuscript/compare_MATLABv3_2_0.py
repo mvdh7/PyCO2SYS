@@ -43,7 +43,7 @@ co2inputs = [
     ]
 ]
 go = time()
-# co2py = pyco2.CO2SYS(*co2inputs, opts_buffers_mode=1, WhichR=3)
+# co2py = pyco2.CO2SYS(*co2inputs, opt_buffers_mode=1, WhichR=3)
 co2py = pyco2.api.CO2SYS_MATLABv3(*co2inputs)
 print("PyCO2SYS runtime = {:.6f} s".format(time() - go))
 co2py = pd.DataFrame(co2py)
