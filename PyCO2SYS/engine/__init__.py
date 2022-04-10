@@ -521,7 +521,7 @@ def CO2SYS(
     NH3=0.0,
     H2S=0.0,
     KFCONSTANT=1,
-    buffers_mode="auto",
+    buffers_mode=1,
     totals=None,
     equilibria_in=None,
     equilibria_out=None,

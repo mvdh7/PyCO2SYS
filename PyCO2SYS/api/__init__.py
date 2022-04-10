@@ -28,7 +28,7 @@ def CO2SYS_wrap(
     KSO4_constants=1,
     KF_constant=1,
     pHscale_in=1,
-    buffers_mode="auto",
+    buffers_mode=1,
     verbose=True,
 ):
     """
@@ -102,11 +102,11 @@ def CO2SYS_wrap(
         2  =  Seawater scale
         3  =  Free scale
         4  =  NBS scale
-    buffers_mode : str
+    buffers_mode : int
         Which method to use to evaluate buffer factors.
-        'auto'      =  automatic differentiation (DEFAULT)
-        'explicit'  =  explicit equations but without nutrient effects
-        'none'      =  do not calculate buffers, return NaNs for them
+        1  =  automatic differentiation (DEFAULT)
+        2  =  explicit equations but without nutrient effects
+        0  =  do not calculate buffers, return NaNs for them
 
     Returns
     -------
@@ -291,7 +291,7 @@ def CO2SYS_MATLABv3(
     KSO4CONSTANT,
     KFCONSTANT,
     BORON,
-    buffers_mode="auto",
+    buffers_mode=1,
     WhichR=3,
     totals=None,
     equilibria_in=None,

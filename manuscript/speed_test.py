@@ -17,7 +17,7 @@ kwargs = {
     "total_silicate": glodap.G2silicate.to_numpy(),
     "total_phosphate": glodap.G2phosphate.to_numpy(),
     "opt_k_carbonic": 10,
-    "buffers_mode": "explicit",
+    "buffers_mode": 2,
 }
 # Then run in console:
 # %timeit pyco2.sys(**kwargs)

@@ -491,7 +491,7 @@ def CO2SYS(
     opt_k_fluoride=1,
     opt_pH_scale=1,
     opt_total_borate=1,
-    buffers_mode="auto",
+    buffers_mode=1,
     k_ammonia=None,
     k_ammonia_out=None,
     k_borate=None,

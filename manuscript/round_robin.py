@@ -18,7 +18,7 @@ kwargs = dict(
     k_alpha=1e-4,
     total_beta=6,
     k_beta=1e-8,
-    buffers_mode="none",  # don't bother calculating buffer factors
+    buffers_mode=0,  # don't bother calculating buffer factors
 )
 
 # Solve the system initially
