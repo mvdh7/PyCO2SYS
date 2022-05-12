@@ -275,7 +275,7 @@ def _get_results_dict(
             "opt_total_borate": args["opt_total_borate"],
             "opt_gas_constant": args["opt_gas_constant"],
             "opt_pH_scale": args["opt_pH_scale"],
-            "buffers_mode": args["buffers_mode"],
+            "opt_buffers_mode": args["opt_buffers_mode"],
             "salinity": totals["Sal"],
             "temperature": args["temperature"],
             "pressure": args["pressure"],
@@ -491,7 +491,7 @@ def CO2SYS(
     opt_k_fluoride=1,
     opt_pH_scale=1,
     opt_total_borate=1,
-    buffers_mode="auto",
+    opt_buffers_mode=1,
     k_ammonia=None,
     k_ammonia_out=None,
     k_borate=None,
@@ -646,7 +646,7 @@ def CO2SYS(
             k_constants_in,
             args["opt_pH_scale"],
             args["opt_k_carbonic"],
-            args["buffers_mode"],
+            args["opt_buffers_mode"],
         )
     elif par1 is not None and par2 is None:
         core_in = {}
@@ -768,7 +768,7 @@ def CO2SYS(
                 k_constants_out,
                 args["opt_pH_scale"],
                 args["opt_k_carbonic"],
-                args["buffers_mode"],
+                args["opt_buffers_mode"],
             )
         elif par1 is not None and par2 is None:
             core_out = {}
@@ -778,7 +778,7 @@ def CO2SYS(
                 # Takahashi et al. (2009) DSR2 Eq. 2
                 core_out["PC"] = core_in["PC"] * np.exp(
                     0.0433 * (temperature_out - temperature)
-                    - 4.35e-5 * (temperature_out ** 2 - temperature ** 2)
+                    - 4.35e-5 * (temperature_out**2 - temperature**2)
                 )
                 core_out["FC"] = convert.pCO2_to_fCO2(core_out["PC"], k_constants_out)
                 core_out["CO2"] = convert.fCO2_to_CO2aq(core_out["FC"], k_constants_out)

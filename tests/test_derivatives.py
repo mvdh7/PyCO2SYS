@@ -10,7 +10,7 @@ par1type, par2type = np.meshgrid(partypes, partypes)
 par1type = par1type.ravel()
 par2type = par2type.ravel()
 icases = pyco2.solve.getIcase(par1type, par2type, checks=False)
-goodpars = ~np.isin(icases, [45, 48, 58]) & ~(par1type == par2type)
+goodpars = ~np.isin(icases, [405, 408, 508]) & ~(par1type == par2type)
 par1type = par1type[goodpars]
 par2type = par2type[goodpars]
 par1 = pars[par1type - 1]

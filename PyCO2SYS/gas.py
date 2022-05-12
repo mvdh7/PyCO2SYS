@@ -12,14 +12,14 @@ def fugacityfactor(TempC, WhichKs, RGas, pressure_atmosphere=1.0):
     # Otherwise, the Pres term in the exponent affects the results.
     # Following Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # Delta and B are in cm**3/mol.
-    TempK = convert.TempC2K(TempC)
+    TempK = convert.celsius_to_kelvin(TempC)
     RT = RGas * TempK
     Delta = 57.7 - 0.118 * TempK
     b = (
         -1636.75
         + 12.0408 * TempK
-        - 0.0327957 * TempK ** 2
-        + 3.16528 * 0.00001 * TempK ** 3
+        - 0.0327957 * TempK**2
+        + 3.16528 * 0.00001 * TempK**3
     )
     # # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
     # P1atm = 1.01325  # in bar
@@ -59,7 +59,7 @@ def vpfactor(temperature, salinity, pressure_atmosphere=1.0):
     #       33:449-455, 1954.
     #       This is eq. 10 on p. 350.
     #       This is in atmospheres.
-    tempK = convert.TempC2K(temperature)
+    tempK = convert.celsius_to_kelvin(temperature)
     # WP80 eq. (10)
     VPWP = np.exp(24.4543 - 67.4509 * (100 / tempK) - 4.8489 * np.log(tempK / 100))
     VPCorrWP = np.exp(-0.000544 * salinity)

@@ -12,7 +12,7 @@ def all_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     """Buffer factors from ESM10 with corrections for typographical errors described by
     RAH18 and OEDG18.
     """
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     # Evaluate ESM10 subfunctions (from their Table 1)
     S = HCO3 + 4 * CO3 + H * BAlk / (KB + H) + H + OH  # -OH => +OH in v1.2.1
     # Typo in ESM10 carried through here, spotted by Jim Orr, following OEDG18
@@ -20,12 +20,12 @@ def all_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
     Q = HCO3 - H * BAlk / (KB + H) - H - OH  # see RAH18
     AC = HCO3 + 2 * CO3
     # Calculate buffer factors
-    gammaTC = TC - AC ** 2 / S
-    betaTC = (TC * S - AC ** 2) / AC
+    gammaTC = TC - AC**2 / S
+    betaTC = (TC * S - AC**2) / AC
     omegaTC = TC - AC * P / Q  # corrected, see RAH18 supp. info.
     ## omegaTC = TC - AC*P/HCO3 # original ESM10 equation, WRONG
-    gammaTA = (AC ** 2 - TC * S) / AC
-    betaTA = AC ** 2 / TC - S
+    gammaTA = (AC**2 - TC * S) / AC
+    betaTA = AC**2 / TC - S
     omegaTA = AC - TC * Q / P  # corrected as for omegaTC (RAH18), HCO3 => Q
     ## omegaTA = AC - TC*HCO3/P # original ESM10 equation, WRONG
     return {
@@ -40,10 +40,10 @@ def all_ESM10(TC, TA, CO2, HCO3, CO3, pH, OH, BAlk, KB):
 
 def isocap(CO2, pH, K1, K2, KB, KW, TB):
     """Isocapnic quotient of HDW18, Eq. 8."""
-    h = 10.0 ** -pH
+    h = 10.0**-pH
     return (
-        (K1 * CO2 * h + 4 * K1 * K2 * CO2 + KW * h + h ** 3) * (KB + h) ** 2
-        + KB * TB * h ** 3
+        (K1 * CO2 * h + 4 * K1 * K2 * CO2 + KW * h + h**3) * (KB + h) ** 2
+        + KB * TB * h**3
     ) / (K1 * CO2 * (2 * K2 + h) * (KB + h) ** 2)
 
 

@@ -38,22 +38,22 @@ def fCO2_to_CO2aq(fCO2, k_constants):
     return fCO2 * k_constants["K0"]
 
 
-def TempC2K(TempC):
+def celsius_to_kelvin(TempC):
     """Convert temperature from degC to K."""
     return TempC + constants.Tzero
 
 
-def TempK2C(TempK):
+def kelvin_to_celsius(TempK):
     """Convert temperature from K to degC."""
     return TempK - constants.Tzero
 
 
-def Pdbar2bar(Pdbar):
+def decibar_to_bar(Pdbar):
     """Convert pressure from dbar to bar."""
     return Pdbar / 10.0
 
 
-def Pbar2dbar(Pbar):
+def bar_to_decibar(Pbar):
     """Convert pressure from bar to dbar."""
     return Pbar * 10.0
 
@@ -125,7 +125,7 @@ def fH_PTBO87(TempK, Sal):
     # They reference the GEOSECS report, but round the value
     # given there off so that it is about .008 (1#) lower. It
     # doesn't agree with the check value they give on p. 456.
-    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * Sal ** 2
+    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * Sal**2
 
 
 def fH_TWB82(TempK, Sal):
@@ -133,7 +133,7 @@ def fH_TWB82(TempK, Sal):
     # === CO2SYS.m comments: =======
     # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
     # v. 3, 1982 (p. 80).
-    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * Sal ** 2
+    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * Sal**2
 
 
 def pH_to_all_scales(pH, pH_scale, totals, k_constants):

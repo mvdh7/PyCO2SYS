@@ -5,5 +5,5 @@
 
 def SIratio(HCO3, pHfree):
     """Substrate:inhibitor ratio (SIR) of B15 in mol-HCO3−/μmol-H+."""
-    Hfree = 10.0 ** -pHfree
+    Hfree = 10.0**-pHfree
     return HCO3 / (Hfree * 1e6)
