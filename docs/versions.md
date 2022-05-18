@@ -46,7 +46,7 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
     ***Dependencies***
 
-    * Switched to autograd v1.4
+    * Switched to Autograd v1.4.
 
 ### 1.8.0 (27 October 2021)
 
