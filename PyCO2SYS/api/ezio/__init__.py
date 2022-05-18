@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 #
 """EZIO: Easy Input/Output of 'CO2SYS.xlsx'-style spreadsheets"""
 
@@ -20,30 +20,30 @@ def ezio(
     """The main function for easy input/output of 'CO2SYS.xlsx'-style spreadsheets.
     Takes a spreadsheet as input, which MUST be formatted with the same columns
     as the input columns in CO2SYS.xlsx, in the following order:
-        Salinity	
-        t(°C)	
-        P (dbars)	
-        Total P (μmol/kgSW)	
-        Total Si (μmol/kgSW)	
-        t(oC)	
-        P (dbars)	
-        TA (μmol/kgSW)	
-        TCO2 (μmol/kgSW)	
-        pH   (Chosen Scale)	
-        fCO2 (μatm)	
+        Salinity
+        t(°C)
+        P (dbars)
+        Total P (μmol/kgSW)
+        Total Si (μmol/kgSW)
+        t(oC)
+        P (dbars)
+        TA (μmol/kgSW)
+        TCO2 (μmol/kgSW)
+        pH   (Chosen Scale)
+        fCO2 (μatm)
         pCO2 (μatm)
-    
+
     This is accomplished by simply copying the leftmost cells (col A-L) from
     'CO2SYS.xlsx' (or the template provided at pyco2sys.readthedocs.io) and
     pasting the cells into a blank speadsheet to be saved as .csv or .xlsx.
-    
+
     The resulting dataframe is saved as a .csv file in the same directory
     as the input file, with the tag '_processed.csv' appended.
 
     Parameters
     ----------
     path : string filepath
-        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.  
+        Filepath in local system to 'CO2SYS.xlsx'-style spreadsheet.
         Spreadsheet can be either .csv (comma delimited) or .xlsx (Microsoft Excel).
     opt_pH_scale : int, optional
         pH scale as defined by ZW01. The default is 1 (Total).

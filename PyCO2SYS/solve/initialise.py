@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Estimate initial pH values for iterative TA equation solvers."""
 
 from autograd import numpy as np
@@ -16,11 +16,11 @@ def _goodH0_CO2(CBAlk, CO2, TB, K1, K2, KB):
     c2 = KB - (TB * KB + K1 * CO2) / CBAlk
     c1 = -K1 * (2 * K2 * CO2 + KB * CO2) / CBAlk
     c0 = -2 * K1 * K2 * KB * CO2 / CBAlk
-    c21min = c2 ** 2 - 3 * c1
+    c21min = c2**2 - 3 * c1
     c21min_positive = c21min > 0
     sq21 = np.where(c21min_positive, np.sqrt(c21min), 0.0)
     Hmin = np.where(c2 < 0, (sq21 - c2) / 3, -c1 / (c2 + sq21))
-    Hpoly = Hmin ** 3 + c2 * Hmin ** 2 + c1 * Hmin + c0
+    Hpoly = Hmin**3 + c2 * Hmin**2 + c1 * Hmin + c0
     H0 = np.where(
         c21min_positive & (Hpoly < 0),  # i.e. np.sqrt(c21min) is real
         Hmin + np.sqrt(-Hpoly / sq21),
@@ -42,7 +42,7 @@ def fromCO2(CBAlk, CO2, TB, K1, K2, KB):
         1e-3,  # default pH=3 for negative alkalinity
     )
     # Added in v1.8.0: additional constraint given that CBAlk <= 2 * TC + TB (see M13)
-    TC = CO2 * (H0 ** 2 + K1 * H0 + K1 * K2) / H0 ** 2
+    TC = CO2 * (H0**2 + K1 * H0 + K1 * K2) / H0**2
     H0 = np.where(
         CBAlk > 2 * TC + TB,
         1e-7,
@@ -61,11 +61,11 @@ def _goodH0_TC(CBAlk, TC, TB, K1, K2, KB):
     c2 = KB * (1 - TB / CBAlk) + K1 * (1 - TC / CBAlk)
     c1 = K1 * (KB * (1 - TB / CBAlk - TC / CBAlk) + K2 * (1 - 2 * TC / CBAlk))
     c0 = K1 * K2 * KB * (1 - (2 * TC + TB) / CBAlk)
-    c21min = c2 ** 2 - 3 * c1
+    c21min = c2**2 - 3 * c1
     c21min_positive = c21min > 0
     sq21 = np.where(c21min_positive, np.sqrt(c21min), 0.0)
     Hmin = np.where(c2 < 0, (sq21 - c2) / 3, -c1 / (c2 + sq21))
-    Hpoly = Hmin ** 3 + c2 * Hmin ** 2 + c1 * Hmin + c0
+    Hpoly = Hmin**3 + c2 * Hmin**2 + c1 * Hmin + c0
     H0 = np.where(
         c21min_positive & (Hpoly < 0),  # i.e. np.sqrt(c21min) is real
         Hmin + np.sqrt(-Hpoly / sq21),
@@ -103,7 +103,7 @@ def _goodH0_CO3(CBAlk, CARB, TB, K1, K2, KB):
     a = CARB
     b = CARB * KB + K2 * (2 * CARB - CBAlk)
     c = K2 * KB * (2 * CARB + TB - CBAlk)
-    H0 = (-b + np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+    H0 = (-b + np.sqrt(b**2 - 4 * a * c)) / (2 * a)
     return H0
 
 
@@ -130,7 +130,7 @@ def _goodH0_HCO3(CBAlk, HCO3, TB, K1, K2, KB):
     a = HCO3 - CBAlk
     b = KB * (HCO3 + TB - CBAlk) + 2 * K2 * HCO3
     c = 2 * K2 * KB * HCO3
-    H0 = (-b - np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+    H0 = (-b - np.sqrt(b**2 - 4 * a * c)) / (2 * a)
     return H0
 
 

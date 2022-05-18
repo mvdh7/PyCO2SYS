@@ -79,11 +79,11 @@ Click on each reference to see more details.
 ??? note "HDW18: Humphreys et al. (2018) *Mar. Chem.*"
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
-??? note "HLSD22: Humphreys et al. (2022) *Geosci. Model Dev.*"
-    Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15–43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
+??? note "HLSD21: Humphreys et al. (2021) *Geosci. Model Dev. Discuss*"
+    Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
 
-??? note "HSS21: Humphreys et al. (2021) *"PyCO2SYS: marine carbonate..."*"
-    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+??? note "HSS22: Humphreys et al. (2022) *"PyCO2SYS: marine carbonate..."*"
+    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 ??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
@@ -103,6 +103,9 @@ Click on each reference to see more details.
 
 ??? note "KRCB77: Khoo et al. (1977) *Anal. Chem.*"
     Khoo, K. H., Ramette, R. W., Culberson, C. H., and Bates, R. G. (1977). Determination of hydrogen ion concentrations in seawater from 5 to 40C: standard potentials at salinities from 20 to 45 per mille. *Analytical Chemistry* 49, 29–34. [doi:10.1021/ac50009a016](https://doi.org/10.1021/ac50009a016).
+
+??? note "KSK18: Kuliński et al. (2018) *Mar. Chem.*"
+    Kuliński, K., Szymczycha, B., Koziorowska, K., Hammer, K., Schneider, B. (2018). Anomaly of total boron concentration in the brackish waters of the Baltic Sea and its consequence for the CO<sub>2</sub> system calculations. *Marine Chemistry* 204, 11-19. [doi:10.1016/j.marchem.2018.05.007](https://doi.org/10.1016/j.marchem.2018.05.007).
 
 ### L
 

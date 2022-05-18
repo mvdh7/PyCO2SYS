@@ -30,9 +30,9 @@ There are also some usage examples that you can either download or run live in y
 
 ## Citation
 
-A paper describing PyCO2SYS is freely available:
+A paper describing PyCO2SYS is in review:
 
-> Humphreys, M. P., Lewis, E. R., Sharp, J. S., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15–43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
+> Humphreys, M. P., Lewis, E. R., Sharp, J. S., and Pierrot, D. (2021, in review).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions.*  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
 
 The citation for the PyCO2SYS code is:
 

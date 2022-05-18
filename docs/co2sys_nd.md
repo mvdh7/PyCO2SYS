@@ -52,7 +52,10 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * **Fugacity of CO<sub>2</sub>** (type `5`) in μatm,
         * **Aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>, or
         * **Dry mole fraction of CO<sub>2</sub>** (type `9`) in ppm.
-    * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
+    * Any one of:
+        * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>,
+        * **Saturation state w.r.t. calcite** (type `10`), or
+        * **Saturation state w.r.t. aragonite** (type `11`).
     * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
 
     If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
@@ -64,7 +67,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
 
     #### Hydrographic conditions
 
-    * `salinity`: **practical salinity** (dimensionless, default 35).
+    * `salinity`: **practical salinity** (dimensionless).
     * `temperature`: **temperature** at which `par1` and `par2` arguments are provided in °C (default 25 °C).
     * `pressure`: **water pressure** at which `par1` and `par2` arguments are provided in dbar (default 0 dbar).
 
@@ -146,17 +149,18 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
 
         * `1`: [U74](../refs/#u) **(default)**.
         * `2`: [LKB10](../refs/#l).
+        * `3`: [KSK18](../refs/#k).
 
     * `opt_k_fluoride`: which equilibrium constant parameterisation to use for **hydrogen fluoride dissociation:**
         * `1`: [DR79](../refs/#d) **(default)**.
         * `2`: [PF87](../refs/#p).
 
-    * `buffers_mode`: how to calculate the various **buffer factors** (or not).
-        * `"auto"`: using automatic differentiation, which accounts for the effects of all equilibrating solutes **(default)**.
-        * `"explicit"`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
-        * `"none"`: not at all.
+    * `opt_buffers_mode`: how to calculate the various **buffer factors** (or not).
+        * `1`: using automatic differentiation, which accounts for the effects of all equilibrating solutes **(default)**.
+        * `2`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
+        * `0`: not at all.
 
-    For `buffers_mode`, `"auto"` is the recommended and most accurate calculation, and it is a little faster to compute than `"explicit"`.  If `"none"` is selected, then the corresponding outputs have the value `nan`.
+    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
 
     * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
         * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
@@ -223,7 +227,7 @@ The keys ending with `_out` are only available if at least one of the `temperatu
 
     #### Buffer factors
 
-    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `buffers_mode`.
+    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `opt_buffers_mode`.
 
     * `"revelle_factor"`/`"revelle_factor_out"`: **Revelle factor** at input/output conditions[^2].
     * `"psi"`/`"psi_out"`: *ψ* of [FCG94](../refs/#f) at input/output conditions.
@@ -305,6 +309,6 @@ The keys ending with `_out` are only available if at least one of the `temperatu
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
 
-[^2]: In `buffers_mode='explicit'`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
+[^2]: In `opt_buffers_mode=2`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
 
-[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `buffers_mode='explicit'` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
+[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `opt_buffers_mode=2` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).

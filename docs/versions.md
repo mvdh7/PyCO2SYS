@@ -29,7 +29,24 @@
 
 ## 1.8
 
-Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in manuscript in review.
+Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in published manuscript ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
+
+### 1.8.1 (18 May 2022)
+
+!!! new-version "Changes in v1.8.1"
+
+    ***Breaking changes***
+
+    * For consistency with other settings, `buffers_mode` kwarg key changed to `opt_buffers_mode` and its values are now integers rather than strings.
+
+    ***New features***
+
+    * Adds new `par1_type` / `par2_type` options `10` and `11` for saturation states with respect to calcite and aragonite.
+    * Adds [KSK18](../refs/#k) parameterisation for estimating total borate from salinity.
+
+    ***Dependencies***
+
+    * Switched to Autograd v1.4.
 
 ### 1.8.0 (27 October 2021)
 
@@ -244,7 +261,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
 
     * The Revelle factor and all other buffer factors added in v1.2 are now evaluated using automatic differentiation, which means that the effects of all equilibrating species are taken into account.
         * The original, non-automatic functions that do not account for nutrient effects are still available in `buffers.explicit`.
-        * Can switch between calculation methods using new optional input `buffers_mode`.
+        * Can switch between calculation methods using new optional input `opt_buffers_mode`.
     * Corrected Revelle factor calculations:
         * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO2SYS for MATLAB!*
         * Decreased DIC perturbation size for more accurate finite-difference "explicit" evaluation.

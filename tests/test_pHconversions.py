@@ -4,7 +4,7 @@ import numpy as np, PyCO2SYS as pyco2
 npts = 100
 pHScale = np.full(npts, 1)  # start on Total scale
 pH_T_i = np.random.normal(size=npts, loc=8, scale=1)
-H_T_i = 10.0 ** -pH_T_i
+H_T_i = 10.0**-pH_T_i
 
 # Set and get total molinities
 Sal = np.full(npts, 31.0)

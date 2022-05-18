@@ -34,21 +34,21 @@ co2inputs = [
         "KFCONSTANT",
     ]
 ]
-co2py = pyco2.CO2SYS(*co2inputs, buffers_mode="auto")
+co2py = pyco2.CO2SYS(*co2inputs, opt_buffers_mode=1)
 
 # Get override input dicts from co2py and use them in CO2SYS
 totals = pyco2.engine.dict2totals_umol(co2py)
 equilibria_in, equilibria_out = pyco2.engine.dict2equilibria(co2py)
 co2py_override = pyco2.CO2SYS(
     *co2inputs,
-    buffers_mode="auto",
+    opt_buffers_mode=1,
     totals=totals,
     equilibria_in=equilibria_in,
     equilibria_out=equilibria_out
 )
 
 # Compare results - should be ~identical
-co2py_diff = {k: co2py_override[k] - co2py[k] for k in co2py if k != "buffers_mode"}
+co2py_diff = {k: co2py_override[k] - co2py[k] for k in co2py if k != "opt_buffers_mode"}
 co2py_diff = pd.DataFrame(co2py_diff)
 co2py_diff_absmax = co2py_diff.abs().max()
 

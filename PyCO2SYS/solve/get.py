@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
 from autograd import numpy as np
@@ -22,12 +22,12 @@ def CarbfromTCH(TC, H, totals, k_constants):
     """
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    return TC * K1 * K2 / (H ** 2 + K1 * H + K1 * K2)
+    return TC * K1 * K2 / (H**2 + K1 * H + K1 * K2)
 
 
 def CarbfromTCpH(TC, pH, totals, k_constants):
     """Calculate carbonate ion from dissolved inorganic carbon and pH."""
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return CarbfromTCH(TC, H, totals, k_constants)
 
 
@@ -36,12 +36,12 @@ def HCO3fromTCH(TC, H, totals, k_constants):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+]."""
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    return TC * K1 * H / (H ** 2 + K1 * H + K1 * K2)
+    return TC * K1 * H / (H**2 + K1 * H + K1 * K2)
 
 
 def HCO3fromTCpH(TC, pH, totals, k_constants):
     """Calculate bicarbonate ion from dissolved inorganic carbon and pH."""
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return HCO3fromTCH(TC, H, totals, k_constants)
 
 
@@ -58,7 +58,7 @@ def AlkParts(TC, pH, totals, k_constants):
 
     Based on CalculateAlkParts, version 01.03, 10-10-97, by Ernie Lewis.
     """
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     HCO3 = HCO3fromTCH(TC, H, totals, k_constants)
     CO3 = CarbfromTCH(TC, H, totals, k_constants)
     BAlk = totals["TB"] * k_constants["KB"] / (k_constants["KB"] + H)
@@ -68,11 +68,11 @@ def AlkParts(TC, pH, totals, k_constants):
         * (
             k_constants["KP1"] * k_constants["KP2"] * H
             + 2 * k_constants["KP1"] * k_constants["KP2"] * k_constants["KP3"]
-            - H ** 3
+            - H**3
         )
         / (
-            H ** 3
-            + k_constants["KP1"] * H ** 2
+            H**3
+            + k_constants["KP1"] * H**2
             + k_constants["KP1"] * k_constants["KP2"] * H
             + k_constants["KP1"] * k_constants["KP2"] * k_constants["KP3"]
         )
@@ -109,12 +109,12 @@ def phosphate_components(h_scale, totals, k_constants):
     KP1 = k_constants["KP1"]
     KP2 = k_constants["KP2"]
     KP3 = k_constants["KP3"]
-    denom = h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3
+    denom = h_scale**3 + KP1 * h_scale**2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3
     return {
         "PO4": tPO4 * KP1 * KP2 * KP3 / denom,
         "HPO4": tPO4 * KP1 * KP2 * h_scale / denom,
-        "H2PO4": tPO4 * KP1 * h_scale ** 2 / denom,
-        "H3PO4": tPO4 * h_scale ** 3 / denom,
+        "H2PO4": tPO4 * KP1 * h_scale**2 / denom,
+        "H3PO4": tPO4 * h_scale**3 / denom,
     }
 
 
@@ -127,8 +127,8 @@ def alkalinity_phosphate(h_scale, totals, k_constants):
     KP3 = k_constants["KP3"]
     return (
         totals["TPO4"]
-        * (KP1 * KP2 * h_scale + 2 * KP1 * KP2 * KP3 - h_scale ** 3)
-        / (h_scale ** 3 + KP1 * h_scale ** 2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3)
+        * (KP1 * KP2 * h_scale + 2 * KP1 * KP2 * KP3 - h_scale**3)
+        / (h_scale**3 + KP1 * h_scale**2 + KP1 * KP2 * h_scale + KP1 * KP2 * KP3)
     )
 
 
@@ -137,7 +137,7 @@ def speciation(dic, pH, totals, k_constants):
     """Calculate the full chemical speciation of seawater given DIC and pH.
     Based on CalculateAlkParts by Ernie Lewis.
     """
-    h_scale = 10.0 ** -pH  # on the pH scale declared by the user
+    h_scale = 10.0**-pH  # on the pH scale declared by the user
     sw = {}
     # Carbonate
     sw["HCO3"] = HCO3fromTCH(dic, h_scale, totals, k_constants)
@@ -158,7 +158,8 @@ def speciation(dic, pH, totals, k_constants):
         sw["Hfree"] = h_scale * k_constants["pHfactor_to_Free"]
     # Phosphate
     sw.update(phosphate_components(h_scale, totals, k_constants))
-    sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]
+    sw["PAlk"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]  # Dickson
+    # sw["PAlk"] = sw["H2PO4"] + 2 * sw["HPO4"] + 3 * sw["PO4"]  # charge-balance
     # Silicate
     sw["H3SiO4"] = sw["SiAlk"] = (
         totals["TSi"] * k_constants["KSi"] / (k_constants["KSi"] + h_scale)
@@ -243,7 +244,7 @@ def TCfrompHHCO3(pH, HCO3, totals, k_constants):
     """
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return HCO3 * (1 + H / K1 + K2 / H)
 
 
@@ -252,10 +253,10 @@ def TCfrompHCarb(pH, CARB, totals, k_constants):
 
     Follows ZW01 Appendix B (7).
     """
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    return CARB * (1 + H / K2 + H ** 2 / (K1 * K2))
+    return CARB * (1 + H / K2 + H**2 / (K1 * K2))
 
 
 def TAfrompHCarb(pH, CARB, totals, k_constants):
@@ -356,8 +357,8 @@ def fCO2fromTCpH(TC, pH, totals, k_constants):
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    H = 10.0 ** -pH
-    return TC * H ** 2 / (H ** 2 + K1 * H + K1 * K2) / K0
+    H = 10.0**-pH
+    return TC * H**2 / (H**2 + K1 * H + K1 * K2) / K0
 
 
 @np.errstate(invalid="ignore")
@@ -376,8 +377,8 @@ def TCfromTApH(TA, pH, totals, k_constants):
     CAlk = np.where(F, np.nan, TA - TA_TC0_pH)
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    H = 10.0 ** -pH
-    TC = CAlk * (H ** 2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
+    H = 10.0**-pH
+    TC = CAlk * (H**2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
     return TC
 
 
@@ -413,8 +414,8 @@ def TCfrompHfCO2(pH, fCO2, totals, k_constants):
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    H = 10.0 ** -pH
-    return K0 * fCO2 * (H ** 2 + K1 * H + K1 * K2) / H ** 2
+    H = 10.0**-pH
+    return K0 * fCO2 * (H**2 + K1 * H + K1 * K2) / H**2
 
 
 @np.errstate(invalid="ignore")
@@ -429,7 +430,7 @@ def pHfromTCCarb(TC, CARB, totals, k_constants):
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
     RR = 1 - TC / CARB
-    Discr = K1 ** 2 - 4 * K1 * K2 * RR
+    Discr = K1**2 - 4 * K1 * K2 * RR
     F = (CARB >= TC) | (Discr <= 0)
     if np.any(F):
         print("Some input CO3 values are impossibly high given the input DIC;")
@@ -446,15 +447,15 @@ def fCO2frompHCarb(pH, CARB, totals, k_constants):
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    H = 10.0 ** -pH
-    return CARB * H ** 2 / (K0 * K1 * K2)
+    H = 10.0**-pH
+    return CARB * H**2 / (K0 * K1 * K2)
 
 
 def fCO2frompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate CO2 fugacity from pH and bicarbonate ion."""
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return HCO3 * H / (K0 * K1)
 
 
@@ -485,7 +486,7 @@ def pHfromTCHCO3(TC, HCO3, totals, k_constants):
     a = HCO3 / K1
     b = HCO3 - TC
     c = HCO3 * K2
-    bsq_4ac = b ** 2 - 4 * a * c
+    bsq_4ac = b**2 - 4 * a * c
     F = (HCO3 >= TC) | (bsq_4ac <= 0)
     if np.any(F):
         print("Some input HCO3 values are impossibly high given the input DIC;")
@@ -499,7 +500,7 @@ def CarbfromfCO2HCO3(fCO2, HCO3, totals, k_constants):
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    return HCO3 ** 2 * K2 / (K0 * fCO2 * K1)
+    return HCO3**2 * K2 / (K0 * fCO2 * K1)
 
 
 def fCO2fromCarbHCO3(CARB, HCO3, totals, k_constants):
@@ -507,7 +508,7 @@ def fCO2fromCarbHCO3(CARB, HCO3, totals, k_constants):
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
     K2 = k_constants["K2"]
-    return HCO3 ** 2 * K2 / (CARB * K1 * K0)
+    return HCO3**2 * K2 / (CARB * K1 * K0)
 
 
 def fCO2fromTATC(TA, TC, totals, k_constants):
@@ -550,19 +551,19 @@ def HCO3frompHfCO2(pH, fCO2, totals, k_constants):
     """Calculate bicarbonate ion from pH and CO2 fugacity."""
     K0 = k_constants["K0"]
     K1 = k_constants["K1"]
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return K0 * K1 * fCO2 / H
 
 
 def HCO3frompHCarb(pH, CARB, totals, k_constants):
     """Calculate bicarbonate ion from pH and carbonate ion."""
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return CARB * H / k_constants["K2"]
 
 
 def CarbfrompHHCO3(pH, HCO3, totals, k_constants):
     """Calculate bicarbonate ion from pH and carbonate ion."""
-    H = 10.0 ** -pH
+    H = 10.0**-pH
     return k_constants["K2"] * HCO3 / H
 
 
