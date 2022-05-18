@@ -67,7 +67,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
 
     #### Hydrographic conditions
 
-    * `salinity`: **practical salinity** (dimensionless).
+    * `salinity`: **practical salinity** (default 35).
     * `temperature`: **temperature** at which `par1` and `par2` arguments are provided in °C (default 25 °C).
     * `pressure`: **water pressure** at which `par1` and `par2` arguments are provided in dbar (default 0 dbar).
 
