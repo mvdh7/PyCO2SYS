@@ -149,6 +149,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
 
         * `1`: [U74](../refs/#u) **(default)**.
         * `2`: [LKB10](../refs/#l).
+        * `3`: [KSK18](../refs/#k).
 
     * `opt_k_fluoride`: which equilibrium constant parameterisation to use for **hydrogen fluoride dissociation:**
         * `1`: [DR79](../refs/#d) **(default)**.

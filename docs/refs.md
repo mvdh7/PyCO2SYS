@@ -104,6 +104,9 @@ Click on each reference to see more details.
 ??? note "KRCB77: Khoo et al. (1977) *Anal. Chem.*"
     Khoo, K. H., Ramette, R. W., Culberson, C. H., and Bates, R. G. (1977). Determination of hydrogen ion concentrations in seawater from 5 to 40C: standard potentials at salinities from 20 to 45 per mille. *Analytical Chemistry* 49, 29–34. [doi:10.1021/ac50009a016](https://doi.org/10.1021/ac50009a016).
 
+??? note "KSK18: Kuliński et al. (2018) *Mar. Chem.*"
+    Kuliński, K., Szymczycha, B., Koziorowska, K., Hammer, K., Schneider, B. (2018). Anomaly of total boron concentration in the brackish waters of the Baltic Sea and its consequence for the CO<sub>2</sub> system calculations. *Marine Chemistry* 204, 11-19. [doi:10.1016/j.marchem.2018.05.007](https://doi.org/10.1016/j.marchem.2018.05.007).
+
 ### L
 
 ??? note "LDK00: Lueker et al. (2000) *Mar. Chem.*"

@@ -22,6 +22,13 @@ def borate_C65(salinity):
     return 0.0004106 * salinity / 35
 
 
+def borate_KSK18(salinity):
+    """Total borate in mol/kg-sw following KSK18."""
+    # Note that the reference provided an equation for μmol/kg-sw
+    # This function divides it by a factor of 1e6 to convert to mol/kg-sw
+    return (10.838 * salinity + 13.821) / 1e6
+
+
 def borate_U74(salinity):
     """Total borate in mol/kg-sw following U74."""
     # === CO2SYS.m comments: =======
@@ -95,6 +102,9 @@ def get_total_borate(salinity, opt_k_carbonic, opt_total_borate):
     )
     total_borate = np.where(
         F & (opt_total_borate == 2), borate_LKB10(salinity), total_borate
+    )
+    total_borate = np.where(
+        F & (opt_total_borate == 3), borate_KSK18(salinity), total_borate
     )
     return total_borate
 
