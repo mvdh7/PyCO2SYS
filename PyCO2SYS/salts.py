@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
-"""Estimate total molinities of seawater solutes from practical salinity."""
+"""Estimate total substance contents of seawater solutes from practical salinity."""
 
 from autograd import numpy as np
 
