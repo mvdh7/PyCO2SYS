@@ -42,7 +42,6 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
     ***New features***
 
     * Adds new `par1_type` / `par2_type` options `10` and `11` for saturation states with respect to calcite and aragonite.
-    * Adds [KSK18](../refs/#k) parameterisation for estimating total borate from salinity.
 
 ### 1.8.0 (27 October 2021)
 
