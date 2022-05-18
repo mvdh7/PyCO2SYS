@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
 from autograd import numpy as np

@@ -82,8 +82,8 @@ Click on each reference to see more details.
 ??? note "HLSD21: Humphreys et al. (2021) *Geosci. Model Dev. Discuss*"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.7: marine carbonate system calculations in Python.  *Geoscientific Model Development Discussions* [preprint].  [doi:10.5194/gmd-2021-159](https://doi.org/10.5194/gmd-2021-159).
 
-??? note "HSS21: Humphreys et al. (2021) *"PyCO2SYS: marine carbonate..."*"
-    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2021). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+??? note "HSS22: Humphreys et al. (2022) *"PyCO2SYS: marine carbonate..."*"
+    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 ??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).

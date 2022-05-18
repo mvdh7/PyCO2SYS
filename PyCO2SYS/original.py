@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2021  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """An as-close-as-possible clone of CO2SYS-MATLAB v2.0.5."""
 
 from copy import deepcopy
