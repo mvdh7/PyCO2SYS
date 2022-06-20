@@ -76,7 +76,7 @@ You can also look at the [examples Notebooks](https://github.com/mvdh7/PyCO2SYS-
 
 PyCO2SYS is maintained by [Dr Matthew Humphreys](https://mvdh.xyz/) at the [NIOZ (Royal Netherlands Institute for Sea Research)](https://www.nioz.nl/en) with the support of the main developers of all previous versions of CO<sub>2</sub>SYS.
 
-Contributions are welcome; please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/main/CONTRIBUTING.md) before setting to work.
+Contributions are welcome - please check the [guidelines](https://github.com/mvdh7/PyCO2SYS/blob/main/CONTRIBUTING.md) before setting to work.
 
 ## License
 
