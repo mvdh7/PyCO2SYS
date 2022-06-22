@@ -3,7 +3,7 @@
 """Solve the marine carbonate system from any two of its variables."""
 
 from autograd import numpy as np
-from . import delta, initialise, get
+from . import delta, dom, initialise, get
 from .. import bio, buffers, convert, gas, solubility
 
 __all__ = ["delta", "initialise", "get"]
