@@ -119,6 +119,26 @@ def get_total_calcium(salinity, opt_k_carbonic):
     return total_calcium
 
 
+def get_reference_composition(salinity):
+    """Calculate the total salts in the Reference Composition of MFWM08 (Table 4) in
+    units of mol/kg-seawater (column x_i).
+    """
+    rc = {
+        "Na": 0.4860597,
+        "Mg": 0.0547421,
+        "Ca": 0.0106568,
+        "K": 0.0105797,
+        "Sr": 0.0000940,
+        "Cl": 0.5657647,
+        "SO4": 0.0292643,
+        "CO2": 0.0017803 + 0.0002477 + 0.0000100,
+        "Br": 0.0008728,
+        "BOH3": 0.0001045 + 0.0003258,
+        "F": 0.0000708,
+    }
+    return {k: v * salinity / 35 for k, v in rc.keys()}
+
+
 def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
     """Estimate total substance contents of calcium, borate, fluoride and sulfate, all
     in mol/kg-sw, from salinity, for the given settings.
