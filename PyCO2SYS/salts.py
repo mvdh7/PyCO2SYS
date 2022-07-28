@@ -136,7 +136,7 @@ def get_reference_composition(salinity):
         "BOH3": 0.0001045 + 0.0003258,
         "F": 0.0000708,
     }
-    return {k: v * salinity / 35 for k, v in rc.keys()}
+    return {k: v * salinity / 35 for k, v in rc.items()}
 
 
 def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
