@@ -2,8 +2,8 @@
 # Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Equations and parameters for modelling marine organic matter."""
 
-from autograd import numpy as np
-from .. import salts
+from autograd import numpy as np, elementwise_grad as egrad
+from .. import constants, salts
 
 # Bold values for fulvic/humic acids from Milne et al. (2001) Table 4
 nd_fulvic = {
@@ -56,7 +56,7 @@ def nica(cH, chi, nd_params):
 
 def nica_charge(cH, chi, nd_params):
     """Charge on DOM from the NICA equation."""
-    return nica(cH, chi, nd_params) - nd_params["QmaxH1"] - nd_params["QmaxH2"]
+    return nica(cH, chi, nd_params) - nd_params["Qmax_H1"] - nd_params["Qmax_H2"]
 
 
 def donnan_volume(ionic_strength, nd_params):
@@ -79,6 +79,11 @@ def charge_balance(log10_chi, c_ions, z_ions, ionic_strength, nd_params):
     return nica_charge(cH, chi, nd_params) - donnan_charge(
         chi, c_ions, z_ions, ionic_strength, nd_params
     )
+
+
+def charge_balance_grad(log10_chi, c_ions, z_ions, ionic_strength, nd_params):
+    """Calculate derivative of charge balance condition w.r.t. log10(chi)."""
+    return egrad(charge_balance)(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
 
 
 def solve_chi(
@@ -104,9 +109,18 @@ def solve_chi(
     return log10_chi
 
 
-def get_ions(sw, salinity):
+def psi_to_chi(psi, temperature):
+    return np.exp(-psi / (constants.k_boltzmann * (temperature + constants.Tzero)))
+
+
+def chi_to_psi(chi, temperature):
+    return -np.log(chi) * constants.k_boltzmann * (temperature + constants.Tzero)
+
+
+def get_ions(sw, salinity, rc=None):
     """Generate c_ions and z_ions arrays."""
-    rc = salts.get_reference_composition(salinity)
+    if rc is None:
+        rc = salts.get_reference_composition(salinity)
     density = 1.01  # kg/L --------------------- NEEDS UPDATING TO A FUNCTION! USE GSW?
     c_ions = (
         np.array(
@@ -141,6 +155,7 @@ def get_ions(sw, salinity):
     )  # order must match c_ions!
     # Enforce charge balance with Cl (because it is the most abundant ion)
     c_ions[:, 7] = np.sum(c_ions * z_ions, axis=1)
+    assert np.all(c_ions[:, 7] >= 0)
     return c_ions, z_ions
 
 
