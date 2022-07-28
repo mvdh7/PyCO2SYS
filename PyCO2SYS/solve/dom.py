@@ -2,6 +2,7 @@
 # Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Equations and parameters for modelling marine organic matter."""
 
+import gsw
 from autograd import numpy as np, elementwise_grad as egrad
 from .. import constants, salts
 
@@ -117,11 +118,21 @@ def chi_to_psi(chi, temperature):
     return -np.log(chi) * constants.k_boltzmann * (temperature + constants.Tzero)
 
 
-def get_ions(sw, salinity, rc=None):
+def get_ions(sw, salinity, temperature, pressure, rc=None):
     """Generate c_ions and z_ions arrays."""
-    if rc is None:
-        rc = salts.get_reference_composition(salinity)
-    density = 1.01  # kg/L --------------------- NEEDS UPDATING TO A FUNCTION! USE GSW?
+    # Calculate density to convert to per litre
+    latitude, longitude = 0, 0  # ------------------ DECIDE HOW TO DEAL WITH THIS LATER
+    salinity_absolute = gsw.conversions.SA_from_SP(
+        salinity, pressure, latitude, longitude
+    )
+    temperature_conservative = gsw.conversions.CT_from_t(
+        salinity_absolute, temperature, pressure
+    )
+    density = (
+        gsw.density.rho(salinity_absolute, temperature_conservative, pressure) / 1000
+    )  # kg/L
+    # Assemble arrays
+    rc = salts.get_reference_composition(salinity, rc=rc)
     c_ions = (
         np.array(
             [
@@ -132,7 +143,7 @@ def get_ions(sw, salinity, rc=None):
                 rc["Ca"].ravel(),  # could be from sw?
                 rc["K"].ravel(),
                 rc["Sr"].ravel(),
-                np.zeros_like(rc["Cl"].ravel()),
+                rc["Cl"].ravel(),
                 sw["SO4"].ravel(),
                 sw["HSO4"].ravel(),
                 rc["Br"].ravel(),
@@ -147,24 +158,45 @@ def get_ions(sw, salinity, rc=None):
                 sw["NH4"].ravel(),
                 sw["HS"].ravel(),
             ]
-        ).transpose()
+        )
         * density
-    )
+    ).transpose()
     z_ions = np.array(
         [1, -1, 1, 2, 2, 1, 2, -1, -2, -1, -1, -1, -2, -1, -1, -1, -1, -2, -3, 1, -1]
     )  # order must match c_ions!
-    # Enforce charge balance with Cl (because it is the most abundant ion)
-    c_ions[:, 7] = np.sum(c_ions * z_ions, axis=1)
-    assert np.all(c_ions[:, 7] >= 0)
+    # Enforce charge balance with Na and Cl (because they are probably most abundant)
+    cb = np.sum(c_ions * z_ions, axis=1)  # charge balance
+    # Where charge balance is negative, add extra Na
+    iNa = 2  # index of column in c_ions containing Na
+    cNa = c_ions[:, iNa]
+    cNa = np.where(cb < 0, cNa - cb, cNa)
+    c_ions[:, iNa] = cNa
+    # Where charge balance is positive, add extra Cl
+    iCl = 7  # index of column in c_ions containing Cl
+    cCl = c_ions[:, iCl]
+    cCl = np.where(cb > 0, cCl + cb, cCl)
+    c_ions[:, iCl] = cCl
+    assert np.all(c_ions >= 0)
     return c_ions, z_ions
 
 
+def get_ionic_strength(c_ions, z_ions):
+    return 0.5 * np.sum(c_ions * z_ions**2, axis=1)
+
+
 def get_dom_bound_protons(
-    total_dom, sw, salinity, nd_params, log10_chi_guess=None, niter=100
+    total_dom,
+    sw,
+    salinity,
+    temperature,
+    pressure,
+    nd_params,
+    log10_chi_guess=None,
+    niter=100,
 ):
     """Interface function to calculate amount of DOM-bound protons."""
-    c_ions, z_ions = get_ions(sw, salinity)
-    ionic_strength = 0.5 * np.sum(c_ions * z_ions**2, axis=1)
+    c_ions, z_ions = get_ions(sw, salinity, temperature, pressure)
+    ionic_strength = get_ionic_strength(c_ions, z_ions)
     log10_chi = solve_chi(
         c_ions,
         z_ions,

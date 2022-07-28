@@ -119,11 +119,11 @@ def get_total_calcium(salinity, opt_k_carbonic):
     return total_calcium
 
 
-def get_reference_composition(salinity):
+def get_reference_composition(salinity, rc=None):
     """Calculate the total salts in the Reference Composition of MFWM08 (Table 4) in
     units of mol/kg-seawater (column x_i).
     """
-    rc = {
+    rc_official = {
         "Na": 0.4860597,
         "Mg": 0.0547421,
         "Ca": 0.0106568,
@@ -136,7 +136,14 @@ def get_reference_composition(salinity):
         "BOH3": 0.0001045 + 0.0003258,
         "F": 0.0000708,
     }
-    return {k: v * salinity / 35 for k, v in rc.items()}
+    if rc is None:
+        rc = {}
+    else:
+        assert np.all(np.isin(list(rc.keys()), list(rc_official.keys())))
+    for k, v in rc_official.items():
+        if k not in rc:
+            rc[k] = v * salinity / 35
+    return rc
 
 
 def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
