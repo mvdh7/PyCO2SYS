@@ -87,16 +87,19 @@ def charge_balance_grad(log10_chi, c_ions, z_ions, ionic_strength, nd_params):
     return egrad(charge_balance)(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
 
 
-def solve_chi(
-    c_ions, z_ions, ionic_strength, nd_params, log10_chi_guess=None, niter=100
-):
+def solve_chi(c_ions, z_ions, ionic_strength, nd_params, log10_chi_guess=None):
     """Solve charge balance for log10(chi) with Newton-Raphson."""
     if log10_chi_guess is None:
-        log10_chi = np.full_like(c_ions[:, 0], 5.0)  # first guess if needed
+        log10_chi = np.full_like(c_ions[:, 0], 3.0)  # first guess if needed
     else:
         log10_chi = log10_chi_guess * 1.0
     max_step = 1.0
-    for i in range(niter):
+    log10_chi_tolerance = 1e-8
+    log10_chi_delta = np.full_like(log10_chi, max_step)
+    while np.any(np.abs(log10_chi_delta) >= log10_chi_tolerance):
+        chi_done = (
+            np.abs(log10_chi_delta) < log10_chi_tolerance
+        )  # check which rows don't need updating
         log10_chi_delta = -(
             charge_balance(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
             / charge_balance_grad(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
@@ -106,7 +109,9 @@ def solve_chi(
             max_step * np.sign(log10_chi_delta),
             log10_chi_delta,
         )
-        log10_chi = log10_chi + log10_chi_delta
+        log10_chi = np.where(
+            chi_done, log10_chi, log10_chi + log10_chi_delta
+        )  # only update rows that need it
     return log10_chi
 
 

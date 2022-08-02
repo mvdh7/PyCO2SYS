@@ -34,13 +34,11 @@ ionic_strength = dom.get_ionic_strength(c_ions, z_ions)
 c_H = 10**-pH
 
 # Do calculations - fulvic
-log10_chi_fulvic = dom.solve_chi(
-    c_ions, z_ions, ionic_strength, dom.nd_fulvic, niter=50
-)
+log10_chi_fulvic = dom.solve_chi(c_ions, z_ions, ionic_strength, dom.nd_fulvic)
 chi_fulvic = 10.0**log10_chi_fulvic
 Q_H_fulvic = dom.nica(c_H, chi_fulvic, dom.nd_fulvic)
 # Do calculations - humic
-log10_chi_humic = dom.solve_chi(c_ions, z_ions, ionic_strength, dom.nd_humic, niter=50)
+log10_chi_humic = dom.solve_chi(c_ions, z_ions, ionic_strength, dom.nd_humic)
 chi_humic = 10.0**log10_chi_humic
 Q_H_humic = dom.nica(c_H, chi_humic, dom.nd_humic)
 
