@@ -87,19 +87,24 @@ def charge_balance_grad(log10_chi, c_ions, z_ions, ionic_strength, nd_params):
     return egrad(charge_balance)(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
 
 
-def solve_chi(c_ions, z_ions, ionic_strength, nd_params, log10_chi_guess=None):
+def solve_chi(
+    c_ions, z_ions, ionic_strength, nd_params, log10_chi_guess=None, safety_break=100
+):
     """Solve charge balance for log10(chi) with Newton-Raphson."""
+    # Assign first guess value, if not provided
     if log10_chi_guess is None:
-        log10_chi = np.full_like(c_ions[:, 0], 3.0)  # first guess if needed
+        log10_chi = np.full_like(c_ions[:, 0], 3.0)
     else:
         log10_chi = log10_chi_guess * 1.0
+    # Set tolerances and limits and prepare for loop
     max_step = 1.0
     log10_chi_tolerance = 1e-8
     log10_chi_delta = np.full_like(log10_chi, max_step)
+    i = 0  # for safety break
     while np.any(np.abs(log10_chi_delta) >= log10_chi_tolerance):
-        chi_done = (
-            np.abs(log10_chi_delta) < log10_chi_tolerance
-        )  # check which rows don't need updating
+        # Check which rows don't need updating
+        chi_done = np.abs(log10_chi_delta) < log10_chi_tolerance
+        # Calculate chi adjustment and check it's not too big
         log10_chi_delta = -(
             charge_balance(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
             / charge_balance_grad(log10_chi, c_ions, z_ions, ionic_strength, nd_params)
@@ -109,9 +114,13 @@ def solve_chi(c_ions, z_ions, ionic_strength, nd_params, log10_chi_guess=None):
             max_step * np.sign(log10_chi_delta),
             log10_chi_delta,
         )
-        log10_chi = np.where(
-            chi_done, log10_chi, log10_chi + log10_chi_delta
-        )  # only update rows that need it
+        # Only update rows that need it
+        log10_chi = np.where(chi_done, log10_chi, log10_chi + log10_chi_delta)
+        # Stop loop if we're not converging
+        i += 1
+        if i >= safety_break:
+            log10_chi = np.where(chi_done, log10_chi, np.nan)
+            break
     return log10_chi
 
 
