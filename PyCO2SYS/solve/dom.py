@@ -77,7 +77,7 @@ def charge_balance(log10_chi, c_ions, z_ions, ionic_strength, nd_params):
     """Overall charge balance to solve for log10(chi)."""
     chi = 10.0**log10_chi
     cH = c_ions[:, 0]  # assumes first ion column is always H!
-    return nica_charge(cH, chi, nd_params) - donnan_charge(
+    return nica_charge(cH, chi, nd_params) + donnan_charge(
         chi, c_ions, z_ions, ionic_strength, nd_params
     )
 
@@ -92,7 +92,7 @@ def solve_chi(
 ):
     """Solve charge balance for log10(chi) with Newton-Raphson."""
     if log10_chi_guess is None:
-        log10_chi = np.full_like(c_ions[:, 0], 0.0)  # first guess if needed
+        log10_chi = np.full_like(c_ions[:, 0], 5.0)  # first guess if needed
     else:
         log10_chi = log10_chi_guess * 1.0
     max_step = 1.0
@@ -136,46 +136,39 @@ def get_ions(sw, salinity, temperature, pressure, rc=None):
     c_ions = (
         np.array(
             [
-                sw["Hfree"].ravel(),
-                sw["OH"].ravel(),
-                rc["Na"].ravel(),
-                rc["Mg"].ravel(),
-                rc["Ca"].ravel(),  # could be from sw?
-                rc["K"].ravel(),
-                rc["Sr"].ravel(),
-                rc["Cl"].ravel(),
-                sw["SO4"].ravel(),
-                sw["HSO4"].ravel(),
-                rc["Br"].ravel(),
-                sw["F"].ravel(),
-                sw["CO3"].ravel(),
-                sw["HCO3"].ravel(),
-                sw["BOH4"].ravel(),
-                sw["H3SiO4"].ravel(),
-                sw["H2PO4"].ravel(),
-                sw["HPO4"].ravel(),
-                sw["PO4"].ravel(),
-                sw["NH4"].ravel(),
-                sw["HS"].ravel(),
+                sw["Hfree"],
+                rc["Na"] + rc["K"] + sw["NH4"],
+                sw["OH"]
+                + rc["Cl"]
+                + rc["Br"]
+                + sw["F"]
+                + sw["HSO4"]
+                + sw["HCO3"]
+                + sw["BOH4"]
+                + sw["H3SiO4"]
+                + sw["H2PO4"]
+                + sw["HS"],
+                rc["Mg"] + rc["Ca"] + rc["Sr"],
+                sw["SO4"] + sw["CO3"] + sw["HPO4"],
+                sw["PO4"],
             ]
         )
         * density
     ).transpose()
-    z_ions = np.array(
-        [1, -1, 1, 2, 2, 1, 2, -1, -2, -1, -1, -1, -2, -1, -1, -1, -1, -2, -3, 1, -1]
-    )  # order must match c_ions!
-    # Enforce charge balance with Na and Cl (because they are probably most abundant)
+    z_ions = np.array([1, 1, -1, 2, -2, 3])  # order must match c_ions!
+    # Enforce charge balance with +1 ions (i.e. Na and Cl, because they are probably
+    # the most abundant)
     cb = np.sum(c_ions * z_ions, axis=1)  # charge balance
     # Where charge balance is negative, add extra Na
-    iNa = 2  # index of column in c_ions containing Na
-    cNa = c_ions[:, iNa]
-    cNa = np.where(cb < 0, cNa - cb, cNa)
-    c_ions[:, iNa] = cNa
+    iCat1 = 1  # index of column in c_ions containing +1 cations (except H+)
+    cCat1 = c_ions[:, iCat1]
+    cCat1 = np.where(cb < 0, cCat1 - cb, cCat1)
+    c_ions[:, iCat1] = cCat1
     # Where charge balance is positive, add extra Cl
-    iCl = 7  # index of column in c_ions containing Cl
-    cCl = c_ions[:, iCl]
-    cCl = np.where(cb > 0, cCl + cb, cCl)
-    c_ions[:, iCl] = cCl
+    iAni1 = 2  # index of column in c_ions containing -1 anions
+    cAni1 = c_ions[:, iAni1]
+    cAni1 = np.where(cb > 0, cAni1 + cb, cAni1)
+    c_ions[:, iAni1] = cAni1
     assert np.all(c_ions >= 0)
     return c_ions, z_ions
 
@@ -184,26 +177,26 @@ def get_ionic_strength(c_ions, z_ions):
     return 0.5 * np.sum(c_ions * z_ions**2, axis=1)
 
 
-def get_dom_bound_protons(
-    total_dom,
-    sw,
-    salinity,
-    temperature,
-    pressure,
-    nd_params,
-    log10_chi_guess=None,
-    niter=100,
-):
-    """Interface function to calculate amount of DOM-bound protons."""
-    c_ions, z_ions = get_ions(sw, salinity, temperature, pressure)
-    ionic_strength = get_ionic_strength(c_ions, z_ions)
-    log10_chi = solve_chi(
-        c_ions,
-        z_ions,
-        ionic_strength,
-        nd_params,
-        log10_chi_guess=log10_chi_guess,
-        niter=niter,
-    )
-    QH = nica(c_ions[:, 0], chi, nd_params)  # mol/kg-DOM
-    return QH * total_dom * 1e-6  # assuming total_dom is in mg-DOM/kg-sw
+# def get_dom_bound_protons(
+#     total_dom,
+#     sw,
+#     salinity,
+#     temperature,
+#     pressure,
+#     nd_params,
+#     log10_chi_guess=None,
+#     niter=100,
+# ):
+#     """Interface function to calculate amount of DOM-bound protons."""
+#     c_ions, z_ions = get_ions(sw, salinity, temperature, pressure)
+#     ionic_strength = get_ionic_strength(c_ions, z_ions)
+#     log10_chi = solve_chi(
+#         c_ions,
+#         z_ions,
+#         ionic_strength,
+#         nd_params,
+#         log10_chi_guess=log10_chi_guess,
+#         niter=niter,
+#     )
+#     QH = nica(c_ions[:, 0], chi, nd_params)  # mol/kg-DOM
+#     return QH * total_dom * 1e-6  # assuming total_dom is in mg-DOM/kg-sw
