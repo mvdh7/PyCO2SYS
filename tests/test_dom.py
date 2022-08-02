@@ -123,4 +123,4 @@ plt.savefig("tests/test_dom.png")
 
 #%%
 r = pyco2.sys(par1=2300, par2=2100, par1_type=1, par2_type=2, salinity=35)
-print(r["pH"])
+print(r["isocapnic_quotient"])
