@@ -1,7 +1,6 @@
 from autograd import numpy as np
 import PyCO2SYS as pyco2
 from PyCO2SYS.solve import dom
-import gsw
 
 # Test values
 pH = np.linspace(-2, 14, num=100)
@@ -48,6 +47,7 @@ from matplotlib import pyplot as plt
 fix, axs = plt.subplots(nrows=3, ncols=2, dpi=300, figsize=(6, 7.5))
 
 ax = axs[0, 0]
+ax.text(0, 1.05, "(a)", transform=ax.transAxes)
 ax.plot(pH, Q_H_fulvic, label="Fulvic")
 ax.plot(pH, Q_H_humic, label="Humic")
 # Q_H_constantchi = dom.nica(c_H, 10, dom.nd_fulvic)
@@ -57,6 +57,7 @@ ax.set_ylabel("$Q_\mathrm{H}$")
 ax.legend()
 
 ax = axs[1, 0]
+ax.text(0, 1.05, "(b)", transform=ax.transAxes)
 ax.plot(pH[1:], -np.diff(Q_H_fulvic) / pHstep, label="Fulvic")
 ax.plot(pH[1:], -np.diff(Q_H_humic) / pHstep, label="Humic")
 # ax.plot(pH[1:], -np.diff(Q_H_constantchi) / pHstep, label="$\chi$ constant")
@@ -65,19 +66,23 @@ ax.set_ylabel("d$Q_\mathrm{H}$ / dpH")
 # ax.legend()
 
 ax = axs[0, 1]
+ax.text(0, 1.05, "(d)", transform=ax.transAxes)
 ax.axhline(0, c="k", lw=0.8)
 ax.plot(
     pH,
-    dom.charge_balance(log10_chi_fulvic, c_ions, z_ions, ionic_strength, dom.nd_fulvic),
+    dom.charge_balance(log10_chi_fulvic, c_ions, z_ions, ionic_strength, dom.nd_fulvic)
+    * 1e15,
 )
 ax.plot(
     pH,
-    dom.charge_balance(log10_chi_humic, c_ions, z_ions, ionic_strength, dom.nd_humic),
+    dom.charge_balance(log10_chi_humic, c_ions, z_ions, ionic_strength, dom.nd_humic)
+    * 1e15,
 )
 ax.set_xlabel("pH")
-ax.set_ylabel("Charge balance at best $\chi$")
+ax.set_ylabel("Charge balance at\nfitted $\chi$ × 10$^{15}$")
 
 ax = axs[1, 1]
+ax.text(0, 1.05, "(e)", transform=ax.transAxes)
 l10 = np.linspace(-5, 5, num=100)
 i = 62
 ax.plot(
@@ -99,12 +104,14 @@ ax.set_xlabel("log$_{10}$ $\chi$")
 ax.set_ylabel("Charge balance")
 
 ax = axs[2, 0]
+ax.text(0, 1.05, "(c)", transform=ax.transAxes)
 ax.plot(pH, 10.0**log10_chi_fulvic)
 ax.plot(pH, 10.0**log10_chi_humic)
 ax.set_xlabel("pH")
 ax.set_ylabel("$\chi$")
 
 ax = axs[2, 1]
+ax.text(0, 1.05, "(f)", transform=ax.transAxes)
 ax.plot(pH, -np.log10(chi_fulvic * c_H) - pH)
 ax.plot(pH, -np.log10(chi_humic * c_H) - pH)
 # ax.axline((0, 0), slope=1, c="k", lw=0.8)
@@ -112,6 +119,7 @@ ax.set_xlabel("pH")
 ax.set_ylabel("p($\chi c_\mathrm{H}$) $-$ pH")
 
 plt.tight_layout()
+plt.savefig("tests/test_dom.png")
 
 #%%
 r = pyco2.sys(par1=2300, par2=2100, par1_type=1, par2_type=2, salinity=35)
