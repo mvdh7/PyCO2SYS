@@ -4,7 +4,7 @@
 
 from autograd import numpy as np
 from .. import convert
-from . import delta, initialise
+from . import delta, dom, initialise
 
 pH_tolerance = 1e-8  # tolerance for ending iterations in all pH solvers
 assume_pH_total = False  # Replicate CO2SYS-MATLAB bug for testing
@@ -200,6 +200,22 @@ def speciation(dic, pH, totals, k_constants):
     sw["alk_beta"] = np.where(
         -np.log10(k_constants["k_beta"]) <= zlp, -sw["betaH"], sw["beta"]
     )
+    # NICA-Donnan for DOM
+    temperature = 298.15  # placeholder
+    pressure = 0  # placeholder
+    nd_params = dom.nd_fulvic  # placeholder
+    total_dom = 1.0  # mg-DOM/kg-sw placeholder
+    if nd_params is not None:
+        c_ions, z_ions = dom.get_ions(sw, totals["Sal"], temperature, pressure, rc=None)
+        ionic_strength = dom.get_ionic_strength(c_ions, z_ions)
+        log10_chi = dom.solve_chi(c_ions, z_ions, ionic_strength, nd_params)
+        sw["alk_dom"] = (
+            dom.nica_charge(sw["Hfree"], 10.0**log10_chi, nd_params)
+            * total_dom
+            * 1e-6
+        )
+    else:
+        sw["alk_dom"] = 0
     # Total alkalinity
     sw["alk_total"] = (
         sw["HCO3"]
@@ -215,6 +231,7 @@ def speciation(dic, pH, totals, k_constants):
         - sw["HF"]
         + sw["alk_alpha"]
         + sw["alk_beta"]
+        + sw["alk_dom"]
     )
     return sw
 

@@ -93,13 +93,13 @@ def solve_chi(
     """Solve charge balance for log10(chi) with Newton-Raphson."""
     # Assign first guess value, if not provided
     if log10_chi_guess is None:
-        log10_chi = np.full_like(c_ions[:, 0], 3.0)
+        log10_chi = np.full(np.shape(c_ions[:, 0]), 3.0)
     else:
         log10_chi = log10_chi_guess * 1.0
     # Set tolerances and limits and prepare for loop
     max_step = 1.0
     log10_chi_tolerance = 1e-8
-    log10_chi_delta = np.full_like(log10_chi, max_step)
+    log10_chi_delta = np.full(np.shape(log10_chi), max_step)
     i = 0  # for safety break
     while np.any(np.abs(log10_chi_delta) >= log10_chi_tolerance):
         # Check which rows don't need updating
@@ -146,7 +146,10 @@ def get_ions(sw, salinity, temperature, pressure, rc=None):
         gsw.density.rho(salinity_absolute, temperature_conservative, pressure) / 1000
     )  # kg/L
     # Assemble arrays
+    if np.shape(salinity) == ():
+        salinity = np.array([salinity])
     rc = salts.get_reference_composition(salinity, rc=rc)
+    sw = {k: np.array([v]) if np.shape(v) == () else v for k, v in sw.items()}
     c_ions = (
         np.array(
             [
@@ -177,12 +180,15 @@ def get_ions(sw, salinity, temperature, pressure, rc=None):
     iCat1 = 1  # index of column in c_ions containing +1 cations (except H+)
     cCat1 = c_ions[:, iCat1]
     cCat1 = np.where(cb < 0, cCat1 - cb, cCat1)
-    c_ions[:, iCat1] = cCat1
     # Where charge balance is positive, add extra Cl
     iAni1 = 2  # index of column in c_ions containing -1 anions
     cAni1 = c_ions[:, iAni1]
     cAni1 = np.where(cb > 0, cAni1 + cb, cAni1)
-    c_ions[:, iAni1] = cAni1
+    # Reconstruct c_ions with new columns
+    assert iCat1 == 1 and iAni1 == 2
+    c_ions = np.concatenate(
+        (np.array([c_ions[:, 0], cCat1, cAni1]).transpose(), c_ions[:, 3:]), axis=1
+    )
     assert np.all(c_ions >= 0)
     return c_ions, z_ions
 

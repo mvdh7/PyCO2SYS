@@ -1,12 +1,12 @@
 from autograd import numpy as np
-from PyCO2SYS import salts
+import PyCO2SYS as pyco2
 from PyCO2SYS.solve import dom
 import gsw
 
 # Test values
 pH = np.linspace(-2, 14, num=100)
 pHstep = np.mean(np.diff(pH))
-# pH = np.array([8.0])
+# pH = 8.0#np.array([8.0])
 
 sw = {}
 sw["Hfree"] = 10.0**-pH
@@ -112,3 +112,7 @@ ax.set_xlabel("pH")
 ax.set_ylabel("p($\chi c_\mathrm{H}$) $-$ pH")
 
 plt.tight_layout()
+
+#%%
+r = pyco2.sys(par1=2300, par2=2100, par1_type=1, par2_type=2, salinity=35)
+print(r["pH"])
