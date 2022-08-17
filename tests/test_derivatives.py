@@ -1,6 +1,6 @@
 # Check that the outputs of PyCO2SYS.uncertainty.forward are all dicts of floats
-import PyCO2SYS as pyco2
 import numpy as np
+import PyCO2SYS as pyco2
 
 # Initialise a co2dict
 # - generate all combinations of marine carbonate system parameters
@@ -29,6 +29,8 @@ k1k2c = 16
 kso4c = 3
 phscale = 3
 # - get the co2dict
+# for i in range(len(par1)):
+    # print(i)
 co2dict = pyco2.CO2SYS(
     par1,
     par2,
@@ -47,6 +49,7 @@ co2dict = pyco2.CO2SYS(
     H2S=h2s,
     NH3=nh3,
 )
+# print('done')
 # - propagate the uncertainties
 grads_of = "all"
 grads_wrt = "all"
@@ -73,3 +76,7 @@ def test_dxs_are_floats():
     assert isinstance(dxs, dict)
     for dx in dxs.values():
         assert isinstance(dx, float)
+
+
+test_derivs_are_floats()
+test_dxs_are_floats()

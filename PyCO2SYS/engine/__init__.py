@@ -451,6 +451,7 @@ def _CO2SYS(
     totals = salts.assemble(
         args["SAL"], TSi, TP, TNH3, TH2S, WhichKs, WhoseTB, totals=totals
     )
+    totals["total_dom"] = 0.0
     if Kis is not None:
         Kis = condition(Kis, npts=npts)[0]
     Kis = equilibria.assemble(

@@ -53,7 +53,7 @@ def test_CO2sys_xarray():
     )
 
 
-# test_CO2sys_api()
-# test_CO2sys_api_vector()
-# test_CO2sys_raise_error()
-# test_CO2sys_xarray()
+test_CO2sys_api()
+test_CO2sys_api_vector()
+test_CO2sys_raise_error()
+test_CO2sys_xarray()

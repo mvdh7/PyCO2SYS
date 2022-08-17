@@ -56,7 +56,7 @@ __version__ = meta.version
 # Aliases for top-level access
 from .engine import CO2SYS
 from .engine.nd import CO2SYS as sys
-from .engine.nd import assemble
+# from .engine.nd import assemble
 from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import hello  # because history
 from .solve.get import speciation

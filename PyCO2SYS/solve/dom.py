@@ -150,9 +150,7 @@ def get_ions(sw, salinity, temperature, pressure, rc=None):
         salinity = np.array([salinity])
     rc = salts.get_reference_composition(salinity, rc=rc)
     sw = {k: np.array([v]) if np.shape(v) == () else v for k, v in sw.items()}
-    c_ions = (
-        np.array(
-            [
+    c_ions = [
                 sw["Hfree"],
                 rc["Na"] + rc["K"] + sw["NH4"],
                 sw["OH"]
@@ -169,9 +167,9 @@ def get_ions(sw, salinity, temperature, pressure, rc=None):
                 sw["SO4"] + sw["CO3"] + sw["HPO4"],
                 sw["PO4"],
             ]
-        )
-        * density
-    ).transpose()
+    c_ions_max_size = max([len(v) for v in c_ions])
+    c_ions = np.array([v * np.ones(c_ions_max_size) for v in c_ions])
+    c_ions = (c_ions * density).transpose()
     z_ions = np.array([1, 1, -1, 2, -2, 3])  # order must match c_ions!
     # Enforce charge balance with +1 ions (i.e. Na and Cl, because they are probably
     # the most abundant)

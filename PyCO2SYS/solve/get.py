@@ -133,7 +133,8 @@ def alkalinity_phosphate(h_scale, totals, k_constants):
 
 
 @np.errstate(invalid="ignore")
-def speciation(dic, pH, totals, k_constants):
+def speciation(dic, pH, totals, k_constants, nd_params=dom.nd_humic):
+    # PLACEHOLDER nd_params - should be None!
     """Calculate the full chemical speciation of seawater given DIC and pH.
     Based on CalculateAlkParts by Ernie Lewis.
     """
@@ -203,8 +204,7 @@ def speciation(dic, pH, totals, k_constants):
     # NICA-Donnan for DOM
     temperature = 298.15  # placeholder
     pressure = 0  # placeholder
-    nd_params = dom.nd_fulvic  # placeholder
-    total_dom = 1.0  # mg-DOM/kg-sw placeholder
+    total_dom = totals['total_dom']  # mg-DOM/kg-sw
     if nd_params is not None:
         c_ions, z_ions = dom.get_ions(sw, totals["Sal"], temperature, pressure, rc=None)
         ionic_strength = dom.get_ionic_strength(c_ions, z_ions)
