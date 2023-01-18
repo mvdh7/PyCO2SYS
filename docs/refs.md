@@ -79,7 +79,7 @@ Click on each reference to see more details.
 ??? note "HDW18: Humphreys et al. (2018) *Mar. Chem.*"
     Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. *Marine Chemistry* 199, 1–11. [doi:10.1016/j.marchem.2017.12.006](https://doi.org/10.1016/j.marchem.2017.12.006).
 
-??? note "HLSD22: Humphreys et al. (2022) *Geosci. Model Dev.*"
+??? note "HLSP22: Humphreys et al. (2022) *Geosci. Model Dev.*"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15–43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
 
 ??? note "HSS22: Humphreys et al. (2022) *"PyCO2SYS: marine carbonate..."*"
