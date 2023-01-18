@@ -35,9 +35,14 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
 !!! new-version "Changes in v1.8.2"
 
+    ***New features**
+
+    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](../refs/#w).
+
     ***Bug fixes***
 
     * Fixed logicals in `solve.core()` that had meant no results were returned for parameter type combinations 7-10, 7-11, 8-10 and 8-11.
+    * Updated Autograd version for compatibility with Python 3.11.
 
 ### 1.8.1 (18 May 2022)
 
