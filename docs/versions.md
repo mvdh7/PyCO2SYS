@@ -31,6 +31,12 @@
 
 Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in published manuscript ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
 
+### 1.8.2 (forthcoming)
+
+!!! new-version "Changes in v1.8.2"
+
+    
+
 ### 1.8.1 (18 May 2022)
 
 !!! new-version "Changes in v1.8.1"
