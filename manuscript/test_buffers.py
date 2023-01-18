@@ -81,3 +81,6 @@ def test_buffers_allzero():
         else:
             atol = 1e-11
         assert buffers_percent_allzero[buffer] < atol
+
+
+# test_buffers_allzero()

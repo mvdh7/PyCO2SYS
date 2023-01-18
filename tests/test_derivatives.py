@@ -73,3 +73,7 @@ def test_dxs_are_floats():
     assert isinstance(dxs, dict)
     for dx in dxs.values():
         assert isinstance(dx, float)
+
+
+# test_derivs_are_floats()
+# test_dxs_are_floats()

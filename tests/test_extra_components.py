@@ -56,25 +56,23 @@ r4_alpha = pyco2.sys(
 
 
 def test_silicate_alpha():
-    assert np.all(np.isclose(r0["alkalinity_silicate"], r1["alkalinity_alpha"]))
-    assert np.all(np.isclose(r0["H3SiO4"], r1["alpha"]))
-    assert np.all(np.isclose(r0["H4SiO4"], r1["alphaH"]))
+    assert np.allclose(r0["alkalinity_silicate"], r1["alkalinity_alpha"])
+    assert np.allclose(r0["H3SiO4"], r1["alpha"])
+    assert np.allclose(r0["H4SiO4"], r1["alphaH"])
 
 
 def test_fluoride_beta():
-    assert np.all(np.isclose(r0["HF"], -r2["alkalinity_beta"]))
+    assert np.allclose(r0["HF"], -r2["alkalinity_beta"])
 
 
 def test_alpha_beta():
-    assert np.all(np.isclose(r0["alkalinity_silicate"], r3["alkalinity_alpha"]))
-    assert np.all(np.isclose(r0["alkalinity_borate"], r3["alkalinity_beta"]))
+    assert np.allclose(r0["alkalinity_silicate"], r3["alkalinity_alpha"])
+    assert np.allclose(r0["alkalinity_borate"], r3["alkalinity_beta"])
 
 
 def test_ammonia_alpha():
-    assert np.all(
-        np.isclose(r4_ammonia["alkalinity_ammonia"], r4_alpha["alkalinity_alpha"])
-    )
-    assert np.all(np.isclose(r4_ammonia["beta_alk"], r4_alpha["beta_alk"]))
+    assert np.allclose(r4_ammonia["alkalinity_ammonia"], r4_alpha["alkalinity_alpha"])
+    assert np.allclose(r4_ammonia["beta_alk"], r4_alpha["beta_alk"])
 
 
 # test_silicate_alpha()

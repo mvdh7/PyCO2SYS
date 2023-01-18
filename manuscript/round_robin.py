@@ -71,8 +71,8 @@ def test_round_robin():
     for k, v in rr_diff.items():
         # print(k, np.max(np.abs(v)))
         # print(pyco2.solve.get.pH_tolerance)
-        assert np.all(
-            np.isclose(np.max(np.abs(v)), 0, rtol=0, atol=pyco2.solve.get.pH_tolerance)
+        assert np.allclose(
+            np.max(np.abs(v)), 0, rtol=0, atol=pyco2.solve.get.pH_tolerance
         )
 
 
