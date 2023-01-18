@@ -209,7 +209,7 @@ def speciation(dic, pH, totals, k_constants, nd_params=dom.nd_humic):
         c_ions, z_ions = dom.get_ions(sw, totals["Sal"], temperature, pressure, rc=None)
         ionic_strength = dom.get_ionic_strength(c_ions, z_ions)
         log10_chi = dom.solve_chi(c_ions, z_ions, ionic_strength, nd_params)
-        sw["alk_dom"] = (
+        sw["alk_dom"] = -(
             dom.nica_charge(sw["Hfree"], 10.0**log10_chi, nd_params)
             * total_dom
             * 1e-6
