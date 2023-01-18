@@ -182,112 +182,123 @@ def fill(Icase, TA, TC, PH, PC, FC, CARB, HCO3, CO2, XC, OC, OA, totals, Ks):
     CARB = np.where(OCgiven, solubility.CARB_from_OC(OC, totals, Ks), CARB)
     CARB = np.where(OAgiven, solubility.CARB_from_OA(OA, totals, Ks), CARB)
     # === SOLVE THE MARINE CARBONATE SYSTEM ============================================
-    F = Icase == 102  # input TA, TC
+    # ----------------------------------------------------------------------------------
+    # Arguments: TA and TC -------------------------------------------------------------
+    F = Icase == 102
     if np.any(F):
         PH = np.where(F, get.pHfromTATC(TA - PengCx, TC, totals, Ks), PH)
         # ^pH is returned on the same scale as `Ks`
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = Icase == 103  # input TA, pH
+    # Arguments: TA and pH -------------------------------------------------------------
+    F = Icase == 103
     if np.any(F):
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = (
-        (Icase == 104) | (Icase == 105) | (Icase == 108) | (Icase == 109)
-    )  # input TA, [pCO2|fCO2|CO2aq|xCO2]
+    # Arguments: TA and pCO2, fCO2, CO2aq or xCO2 --------------------------------------
+    F = np.isin(Icase, [104, 105, 108, 109])
     if np.any(F):
         PH = np.where(F, get.pHfromTAfCO2(TA - PengCx, FC, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
         HCO3 = np.where(Icase == 108, TC - CARB - CO2, HCO3)
-    F = (Icase == 106) | (Icase == 110) | (Icase == 111)  # input TA, [CARB|OC|OA]
+    # Arguments: TA and CARB, OC or OA -------------------------------------------------
+    F = np.isin(Icase, [106, 110, 111])
     if np.any(F):
         PH = np.where(F, get.pHfromTACarb(TA - PengCx, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = Icase == 107  # input TA, HCO3
+    # Arguments: TA and HCO3 -----------------------------------------------------------
+    F = Icase == 107
     if np.any(F):
         PH = np.where(F, get.pHfromTAHCO3(TA - PengCx, HCO3, totals, Ks), PH)
         TC = np.where(F, get.TCfromTApH(TA - PengCx, PH, totals, Ks), TC)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
-    F = Icase == 203  # input TC, pH
+    # ----------------------------------------------------------------------------------
+    # Arguments: TC and pH -------------------------------------------------------------
+    F = Icase == 203
     if np.any(F):
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = (
-        (Icase == 204) | (Icase == 205) | (Icase == 208) | (Icase == 209)
-    )  # input TC, [pCO2|fCO2|CO2aq|xCO2]
+    # Arguments: TC and pCO2, fCO2, CO2aq or xCO2 --------------------------------------
+    F = np.isin(Icase, [204, 205, 208, 209])
     if np.any(F):
         PH = np.where(F, get.pHfromTCfCO2(TC, FC, totals, Ks), PH)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
         HCO3 = np.where(Icase == 208, TC - CARB - CO2, HCO3)
-    F = (Icase == 206) | (Icase == 210) | (Icase == 211)  # input TC, [CARB|OC|OA]
+    # Arguments: TC and CARB, OC or OA -------------------------------------------------
+    F = np.isin(Icase, [206, 210, 211])
     if np.any(F):
         PH = np.where(F, get.pHfromTCCarb(TC, CARB, totals, Ks), PH)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = Icase == 207  # input TC, HCO3
+    # Arguments: TC and HCO3 -----------------------------------------------------------
+    F = Icase == 207
     if np.any(F):
         PH = np.where(F, get.pHfromTCHCO3(TC, HCO3, totals, Ks), PH)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
-    F = (
-        (Icase == 304) | (Icase == 305) | (Icase == 308) | (Icase == 309)
-    )  # input pH, [pCO2|fCO2|CO2aq|xCO2]
+    # ----------------------------------------------------------------------------------
+    # Arguments: pH and pCO2, fCO2, CO2aq or xCO2 --------------------------------------
+    F = np.isin(Icase, [304, 305, 308, 309])
     if np.any(F):
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
         HCO3 = np.where(Icase == 308, TC - CARB - CO2, HCO3)
-    F = (Icase == 306) | (Icase == 310) | (Icase == 311)  # input pH, [CARB|OC|OA]
+    # Arguments: pH and CARB, OC or OA -------------------------------------------------
+    F = np.isin(Icase, [306, 310, 311])
     if np.any(F):
         FC = np.where(F, get.fCO2frompHCarb(PH, CARB, totals, Ks), FC)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
-    F = Icase == 307  # input pH, HCO3
+    # Arguments: pH and HCO3 -----------------------------------------------------------
+    F = Icase == 307
     if np.any(F):
         TC = np.where(F, get.TCfrompHHCO3(PH, HCO3, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         FC = np.where(F, get.fCO2fromTCpH(TC, PH, totals, Ks), FC)
         CARB = np.where(F, get.CarbfromTCpH(TC, PH, totals, Ks), CARB)
-    F = np.isin(
-        Icase, [406, 506, 608, 609, 410, 510, 610, 910, 411, 511, 611, 911]
-    )  # input [pCO2|fCO2|CO2aq|xCO2], [CARB|OC|OA]
+    # ----------------------------------------------------------------------------------
+    # Arguments: pCO2, fCO2, CO2aq or xCO2 and CARB, OC or OA --------------------------
+    F = np.isin(Icase, [406, 410, 411, 506, 510, 511, 608, 810, 811, 609, 910, 911])
     if np.any(F):
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
         HCO3 = np.where(F, get.HCO3fromTCpH(TC, PH, totals, Ks), HCO3)
         HCO3 = np.where(Icase == 608, TC - CARB - CO2, HCO3)
-    F = (
-        (Icase == 407) | (Icase == 507) | (Icase == 708) | (Icase == 709)
-    )  # input [pCO2|fCO2|CO2aq|xCO2], HCO3
+    # Arguments: pCO2, fCO2, CO2aq or xCO2 and HCO3 ------------------------------------
+    F = np.isin(Icase, [407, 507, 708, 709])
     if np.any(F):
         CARB = np.where(F, get.CarbfromfCO2HCO3(FC, HCO3, totals, Ks), CARB)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TC = np.where(Icase == 708, CO2 + HCO3 + CARB, TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
-    F = (Icase == 607) | (Icase == 610) | (Icase == 611)  # input [CO3|OC|OA], HCO3
+    # ----------------------------------------------------------------------------------
+    # Arguments: CARB, OC or OA and HCO3 ----------------------------------------------
+    F = np.isin(Icase, [607, 710, 711])
     if np.any(F):
         FC = np.where(F, get.fCO2fromCarbHCO3(CARB, HCO3, totals, Ks), FC)
         PH = np.where(F, get.pHfromfCO2Carb(FC, CARB, totals, Ks), PH)
         TC = np.where(F, get.TCfrompHfCO2(PH, FC, totals, Ks), TC)
         TA = np.where(F, get.TAfromTCpH(TC, PH, totals, Ks) + PengCx, TA)
+    # ----------------------------------------------------------------------------------
     # By now, an fCO2 value is available for each sample.
     # Generate the associated pCO2 and CO2(aq) values:
     PC = np.where(~PCgiven, convert.fCO2_to_pCO2(FC, Ks), PC)
