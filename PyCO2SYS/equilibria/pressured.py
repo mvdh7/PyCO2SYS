@@ -199,6 +199,34 @@ def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     return K1, K2
 
 
+def kCO2_W74(temperature_K, salinity, pressure_bar, gas_constant, pressure_atmosphere):
+    """Calculate Henry's constant for CO2 solubility following W74.
+
+    Parameters
+    ----------
+    temperature_K : float
+        Temperature in K.
+    salinity : float
+        Practical salinity.
+    pressure_bar : float
+        Hydrostatic pressure in bar.
+    gas_constant : float
+        Universal gas constant in ml / (bar * K * mol).
+    pressure_atmosphere : float
+        Atmospheric pressure in atm.
+
+    Returns
+    -------
+    float
+        CO2 solubility constant with pressure correction applied following W74.
+    """
+    kCO2 = p1atm.kCO2_W74(temperature_K, salinity)
+    kCO2 = kCO2 * pcx.kCO2_factor(
+        temperature_K, pressure_bar, gas_constant, pressure_atmosphere
+    )
+    return kCO2
+
+
 # Original notes from CO2SYS-MATLAB regarding pressure corrections:
 # ****************************************************************************
 # Correct dissociation constants for pressure

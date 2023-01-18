@@ -160,12 +160,16 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `2`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `0`: not at all.
 
-    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
+    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `np.nan`.
 
     * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
         * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
         * `2`: DOEv3.
         * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) **(default)**.
+
+    * `opt_pressured_kCO2`: whether to correct the CO<sub>2</sub> solubility constant for hydrostatic pressure following [W74](../refs/#w) (see discussion in section 2.1.3 of [OE15](../refs/#o)):
+        * `0`: do not apply the correction (**default**, and the only option before v1.8.2).
+        * `1`: apply the correction.
 
     #### Override equilibrium constants
 
