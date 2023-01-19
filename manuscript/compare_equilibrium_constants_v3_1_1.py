@@ -1,3 +1,4 @@
+import warnings
 import pandas as pd, numpy as np
 import PyCO2SYS as pyco2
 
@@ -58,8 +59,14 @@ def test_equilibrium_constants():
         ("KH2Sinput", "k_sulfide"),
         ("KH2Soutput", "k_sulfide_out"),
     ):
-        pk_matlab = np.where(matlab[m].values == 0, -999.9, -np.log10(matlab[m].values))
-        pk_python = np.where(python[p].values == 0, -999.9, -np.log10(python[p].values))
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
+            pk_matlab = np.where(
+                matlab[m].values == 0, -999.9, -np.log10(matlab[m].values)
+            )
+            pk_python = np.where(
+                python[p].values == 0, -999.9, -np.log10(python[p].values)
+            )
         assert np.all(np.isclose(pk_matlab, pk_python, rtol=1e-12, atol=1e-16))
 
 
