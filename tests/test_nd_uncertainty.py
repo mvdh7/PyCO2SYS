@@ -69,11 +69,11 @@ uncert_old, components_old = pyco2.uncertainty.propagate(
 
 
 def test_old_new():
-    assert np.all(co2dict["pHin"] - results["pH"].ravel() == 0)
+    assert np.allclose(co2dict["pHin"], results["pH"].ravel())
 
 
 def test_uncertainty_old_new():
-    assert np.all(np.isclose(uncert_old["pHin"], uncertainties["pH"].ravel()))
+    assert np.allclose(uncert_old["pHin"], uncertainties["pH"].ravel())
 
 
 # test_old_new()

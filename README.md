@@ -14,6 +14,7 @@
   - [Introduction](#introduction)
   - [Citation](#citation)
   - [Installation](#installation)
+  - [Documentation](#documentation)
   - [Basic use](#basic-use)
   - [About](#about)
   - [License](#license)
@@ -59,6 +60,10 @@ Update an existing installation:
 
     pip install PyCO2SYS --upgrade --no-cache-dir
 
+## Documentation
+
+Documentation for the current release, based on the `main` branch, is available at [PyCo2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  The documentation for the in-development next version, based on the `develop` branch, is rendered at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS/).
+
 ## Basic use
 
 The only function you need is `pyco2.sys`.  To solve the marine carbonate system from two of its parameters (`par1` and `par2`), just use:
@@ -68,7 +73,7 @@ import PyCO2SYS as pyco2
 results = pyco2.sys(par1, par2, par1_type, par2_type, **kwargs)
 ```
 
-The keys to the `results` dict are described in the [online documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Arguments should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can be provided to specify everything beyond the carbonate system parameters — [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
+The keys to the `results` dict are described in the [documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/#results).  Arguments should be provided as scalars or NumPy arrays in any mutually broadcastable combination.  A large number of optional `kwargs` can be provided to specify everything beyond the carbonate system parameters — [read the docs!](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/).
 
 You can also look at the [examples Notebooks](https://github.com/mvdh7/PyCO2SYS-examples) that you can try out without needing to install anything on your computer.
 

@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 #
 """EZIO: Easy Input/Output of CO2SYS.xlsx-style spreadsheets"""
 """Utilities"""
@@ -271,7 +271,7 @@ def EZIO_calculate(
                 "xCO2 out (dry at 1 atm) (ppm)": results["xCO2_out"],
             }
         )
-        output_df = output_df.append(
-            output_newrow
+        output_df = pd.concat(
+            (output_df, output_newrow), ignore_index=True
         )  # Add the new row to the growing output file, run again for subsequent samples.
     return output_df

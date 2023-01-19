@@ -6,7 +6,9 @@ From v1.6.0, the recommended way to run PyCO2SYS is to calculate everything you 
 
 ```python
 import PyCO2SYS as pyco2
-results = pyco2.sys(par1=None, par2=None, par1_type=None, par2_type=None, **kwargs)
+results = pyco2.sys(
+    par1=None, par2=None, par1_type=None, par2_type=None, **kwargs
+)
 ```
 
 The simplest possible syntax above only requires values for two carbonate system parameters (`par1` and `par2`) and the types of these parameters (`par1_type` and `par2_type`).  Everything else is assigned default values.  To override the default values, add in the relevant `kwargs` from below.
@@ -20,6 +22,11 @@ From v1.7.0, it is possible to run `pyco2.sys` without providing any carbonate s
 ```python
 # Convert a pH value to all pH scales, but don't solve the whole system:
 results = pyco2.sys(par1=8.1, par1_type=3, **kwargs)
+
+# Convert an fCO2 value to another temperature, but don't solve:
+results = pyco2.sys(
+    par1=400, par1_type=5, temperature=12, temperature_out=25, **kwargs
+)
 
 # Evaluate all equilibrium constants and total salts at default conditions:
 results = pyco2.sys()
@@ -160,12 +167,16 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `2`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
         * `0`: not at all.
 
-    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
+    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `np.nan`.
 
     * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
         * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
         * `2`: DOEv3.
         * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) **(default)**.
+
+    * `opt_pressured_kCO2`: whether to correct the CO<sub>2</sub> solubility constant for hydrostatic pressure following [W74](../refs/#w) (see discussion in section 2.1.3 of [OE15](../refs/#o)):
+        * `0`: do not apply the correction (**default** and the only option before v1.8.2).
+        * `1`: apply the correction.
 
     #### Override equilibrium constants
 

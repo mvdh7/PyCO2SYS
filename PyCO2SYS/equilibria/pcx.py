@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate presure correction factors for equilibrium constants."""
 
 from autograd import numpy as np
@@ -225,3 +225,32 @@ def K2fac(TempK, Pbar, RGas, WhichKs):
     # Not by a lot for deltaV, but by much for Kappa.
     K2fac = np.where(F, Kfac(deltaV, Kappa, Pbar, TempK, RGas), K2fac)
     return K2fac
+
+
+def kCO2_factor(temperature_K, pressure_bar, gas_constant, pressure_atmosphere):
+    """Calculate the pressure correction factor for kCO2 following W74 eq. 5.
+
+    Parameters
+    ----------
+    temperature_K : float
+        Temperature in K.
+    pressure_bar : float
+        Hydrostatic pressure in bar.
+    gas_constant : float
+        Universal gas constant in ml / (bar * K * mol).
+    pressure_atmosphere : float
+        Atmospheric pressure in atm.
+
+    Returns
+    -------
+    float
+        Pressure correction factor for kCO2.
+    """
+    vCO2 = 32.3  # partial molar volume of CO2 in ml / mol
+    # Note that PyCO2SYS's gas_constant R is in bar units, not atm, so the pressures
+    # and equation here are all converted into bar, unlike in the original W74.
+    return np.exp(
+        (1.01325 - (pressure_bar + pressure_atmosphere * 1.01325))
+        * vCO2
+        / (gas_constant * temperature_K)
+    )

@@ -1,8 +1,8 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
-version = "1.8.1"
+version = "1.8.2"
 authorlist = [
     "Humphreys, Matthew P.",
     "Schiller, Abigail J.",

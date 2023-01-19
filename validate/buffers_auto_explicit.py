@@ -66,3 +66,6 @@ if False:
 
 def test_auto_explicit():
     assert compare.loc["Difference"].abs().max() < 1e-6
+
+
+# test_auto_explicit()

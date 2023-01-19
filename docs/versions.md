@@ -29,7 +29,20 @@
 
 ## 1.8
 
-Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions.  Uncertainty analysis updated for more reproducible results.  Fully documented in published manuscript ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
+Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorous validated and fully documented in published manuscript ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
+
+### 1.8.2 (19 January 2023)
+
+!!! new-version "Changes in v1.8.2"
+
+    ***New features***
+
+    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](../refs/#w).  These have been added to CO2SYS-MATLAB by Jon Sharp at the same time with consistent results (differences less than 10<sup>−4</sup> %).  These pressure corrections are not enabled by default, for consistency with previous versions.
+
+    ***Bug fixes***
+
+    * Fixed logicals in `solve.core()` that had meant no results were returned for parameter type combinations `7, 10`, `7, 11`, `8, 10` and `8, 11`.
+    * Updated Autograd version for compatibility with Python 3.11.
 
 ### 1.8.1 (18 May 2022)
 

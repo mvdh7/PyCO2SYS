@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
 from autograd import numpy as np
@@ -30,6 +30,7 @@ def assemble(
     opt_gas_constant,
     Ks=None,
     pressure_atmosphere=1.0,
+    opt_pressured_kCO2=0,
 ):
     """Evaluate all stoichiometric equilibrium constants, converted to the chosen pH
     scale, and corrected for pressure.
@@ -183,15 +184,23 @@ def assemble(
             )
             * pHfactor
         )
-    # K0 for CO2 dissolution - no pressure or pH scale corrections applied
+    # K0 for CO2 dissolution
     if "K0" not in k_constants:
-        k_constants["K0"] = p1atm.kCO2_W74(temperature_K, salinity)
+        k_constants["K0"] = np.where(
+            opt_pressured_kCO2 == 1,
+            pressured.kCO2_W74(
+                temperature_K, salinity, pressure_bar, gas_constant, pressure_atmosphere
+            ),
+            p1atm.kCO2_W74(temperature_K, salinity),
+        )
     if "FugFac" not in k_constants:
-        k_constants["FugFac"] = gas.fugacityfactor(
+        k_constants["FugFac"] = gas.fugacity_factor(
             temperature,
             opt_k_carbonic,
             gas_constant,
+            pressure_bar,
             pressure_atmosphere=pressure_atmosphere,
+            opt_pressured_kCO2=opt_pressured_kCO2,
         )
     if "VPFac" not in k_constants:
         k_constants["VPFac"] = gas.vpfactor(

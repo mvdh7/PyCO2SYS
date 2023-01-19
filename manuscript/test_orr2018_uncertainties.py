@@ -33,12 +33,12 @@ for wrt in grads_wrt:
         wrt_label = "dic"
     else:
         wrt_label = wrt
-    nrow = pd.Series({"wrt": wrt_label, "program": "PyCO2SYS"})
+    nrow = pd.DataFrame({"wrt": [wrt_label], "program": "PyCO2SYS"})
     for of in grads_of:
         nrow[of] = results["d_{}__d_{}".format(of, wrt)]
         if of == "Hfree":
             nrow[of] *= 1e3
-    orr2 = orr2.append(nrow, ignore_index=True)
+    orr2 = pd.concat((orr2, nrow), ignore_index=True)
 orr2_groups = orr2.groupby("wrt").mean()
 orr2.set_index(["wrt", "program"], inplace=True)
 
@@ -66,12 +66,12 @@ for wrt in grads_wrt:
         * 1e6
     )
 for wrt in grads_wrt:
-    nrow = pd.Series({"wrt": wrt, "program": "PyCO2SYS"})
+    nrow = pd.DataFrame({"wrt": [wrt], "program": "PyCO2SYS"})
     for of in grads_of:
         nrow[of] = results["d_{}__d_{}".format(of, wrt)]
         if of == "Hfree":
             nrow[of] *= 1e3
-    orr3 = orr3.append(nrow, ignore_index=True)
+    orr3 = pd.concat((orr3, nrow), ignore_index=True)
 orr3_groups = orr3.groupby("wrt").mean()
 orr3.set_index(["wrt", "program"], inplace=True)
 
@@ -100,14 +100,14 @@ results = pyco2.sys(
 results["u_Hfree"] = (
     np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
 )
-nrow = pd.Series(
-    {"wrt": "dic_alkalinity", "program": "PyCO2SYS", "with_k_uncertainties": "no"}
+nrow = pd.DataFrame(
+    {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "no"}
 )
 for into in uncertainty_into:
     nrow[into] = results["u_{}".format(into)]
     if into == "Hfree":
         nrow[into] *= 1e3
-orr4 = orr4.append(nrow, ignore_index=True)
+orr4 = pd.concat((orr4, nrow), ignore_index=True)
 uncertainty_from.update(pyco2.uncertainty_OEDG18)
 results = pyco2.sys(
     **orr, uncertainty_into=uncertainty_into, uncertainty_from=uncertainty_from
@@ -115,14 +115,14 @@ results = pyco2.sys(
 results["u_Hfree"] = (
     np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
 )
-nrow = pd.Series(
-    {"wrt": "dic_alkalinity", "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
+nrow = pd.DataFrame(
+    {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
 )
 for into in uncertainty_into:
     nrow[into] = results["u_{}".format(into)]
     if into == "Hfree":
         nrow[into] *= 1e3
-orr4 = orr4.append(nrow, ignore_index=True)
+orr4 = pd.concat((orr4, nrow), ignore_index=True)
 orr4_groups = orr4.groupby("with_k_uncertainties").mean()
 orr4.set_index(["wrt", "program", "with_k_uncertainties"], inplace=True)
 

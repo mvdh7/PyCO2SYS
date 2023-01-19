@@ -20,7 +20,7 @@ The *develop* branch is where the next version is being prepared.  When you have
 
 ### Code style
 
-Every module and function must have at least a simple docstring, loosely following the guidelines of [PEP 257](https://www.python.org/dev/peps/pep-0257/).
+Every module and function must have at least a simple docstring.  I am in the process of updating the docstrings to follow the [numpydoc](https://numpydoc.readthedocs.io/en/stable/format.html) format, so please follow this for any new additions.
 
 Functions that are "private" and not intended to be used by the typical end user should begin with an underscore.  These still require a docstring.
 
@@ -32,7 +32,7 @@ Anyone making a substantial contribution will be invited to join the list of aut
 
 ## Documentation
 
-Documentation is available at [pyco2sys.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/main/docs) directory on *main* using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [pyco2sys.readthedocs.io/en/develop](https://pyco2sys.readthedocs.io/en/develop/).
+Documentation is available at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/main/docs) directory on `main` using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS/).
 
 There is a repo of PyCO2SYS examples as [Jupyter Notebooks](https://jupyter.org/), which you can add to at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
 

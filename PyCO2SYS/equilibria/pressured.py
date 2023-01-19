@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Correct equilibrium constants for pressure."""
 
 from autograd import numpy as np
@@ -197,6 +197,34 @@ def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     K1 = K1 * pcx.K1fac(TempK, Pbar, RGas, WhichKs)
     K2 = K2 * pcx.K2fac(TempK, Pbar, RGas, WhichKs)
     return K1, K2
+
+
+def kCO2_W74(temperature_K, salinity, pressure_bar, gas_constant, pressure_atmosphere):
+    """Calculate Henry's constant for CO2 solubility following W74.
+
+    Parameters
+    ----------
+    temperature_K : float
+        Temperature in K.
+    salinity : float
+        Practical salinity.
+    pressure_bar : float
+        Hydrostatic pressure in bar.
+    gas_constant : float
+        Universal gas constant in ml / (bar * K * mol).
+    pressure_atmosphere : float
+        Atmospheric pressure in atm.
+
+    Returns
+    -------
+    float
+        CO2 solubility constant with pressure correction applied following W74.
+    """
+    kCO2 = p1atm.kCO2_W74(temperature_K, salinity)
+    kCO2 = kCO2 * pcx.kCO2_factor(
+        temperature_K, pressure_bar, gas_constant, pressure_atmosphere
+    )
+    return kCO2
 
 
 # Original notes from CO2SYS-MATLAB regarding pressure corrections:

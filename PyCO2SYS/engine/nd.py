@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2022  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Carbonate system solving in N dimensions."""
 
 import itertools
@@ -543,6 +543,8 @@ def CO2SYS(
     # Added in v1.8.0:
     pressure_atmosphere=1.0,  # atm
     pressure_atmosphere_out=1.0,  # atm
+    # Added in v1.8.2:
+    opt_pressured_kCO2=0,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = locals()
@@ -621,6 +623,7 @@ def CO2SYS(
         args["opt_gas_constant"],
         Ks=k_constants_in,
         pressure_atmosphere=args["pressure_atmosphere"],
+        opt_pressured_kCO2=args["opt_pressured_kCO2"],
     )
     # Solve the core marine carbonate system at input conditions, if provided
     if par1 is not None:
@@ -747,6 +750,7 @@ def CO2SYS(
             args["opt_gas_constant"],
             Ks=k_constants_out,
             pressure_atmosphere=args["pressure_atmosphere_out"],
+            opt_pressured_kCO2=args["opt_pressured_kCO2"],
         )
         # Solve the core marine carbonate system at output conditions, if requested
         if par1 is not None and par2 is not None:
@@ -864,6 +868,7 @@ def assemble(
     k_alpha=None,
     total_beta=None,
     k_beta=None,
+    opt_pressured_kCO2=0,
 ):
     args = condition(locals())
     # Prepare totals dict
@@ -935,4 +940,5 @@ def assemble(
         args["opt_gas_constant"],
         Ks=k_constants,
         pressure_atmosphere=args["pressure_atmosphere"],
+        opt_pressured_kCO2=args["opt_pressured_kCO2"],
     )
