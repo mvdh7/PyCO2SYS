@@ -103,6 +103,7 @@ mad__par1_par_core = mad__par1_par2[corevars]
 
 # Grouped differences - par1/par2 combo IS the problem: 17, 12 and 18
 pmad__par1_par2 = 100 * co2py_matlab.abs() / co2py.mean()
+pmad__par1_par2 = pmad__par1_par2.copy()
 pmad__par1_par2["par1_type"] = co2py.PAR1TYPE
 pmad__par1_par2["par2_type"] = co2py.PAR2TYPE
 pmad__par1_par2 = pmad__par1_par2.groupby(by=["par1_type", "par2_type"]).max()
