@@ -37,11 +37,11 @@ Adds barometric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub
 
     ***New features**
 
-    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](../refs/#w).
+    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](../refs/#w).  These have been added to CO2SYS-MATLAB by Jon Sharp at the same time with consistent results (differences less than 10<sup>−4</sup>).  These pressure corrections are not enabled by default, for consistency with previous versions.
 
     ***Bug fixes***
 
-    * Fixed logicals in `solve.core()` that had meant no results were returned for parameter type combinations 7-10, 7-11, 8-10 and 8-11.
+    * Fixed logicals in `solve.core()` that had meant no results were returned for parameter type combinations `7, 10`, `7, 11`, `8, 10` and `8, 11`.
     * Updated Autograd version for compatibility with Python 3.11.
 
 ### 1.8.1 (18 May 2022)
