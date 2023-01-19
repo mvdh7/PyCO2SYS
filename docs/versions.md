@@ -35,7 +35,9 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
 !!! new-version "Changes in v1.8.3"
 
-    
+    ***Bug fixes***
+
+    * Added `opt_pressured_kCO2` to the results dict.
 
 ### 1.8.2 (19 January 2023)
 
