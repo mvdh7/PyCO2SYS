@@ -37,7 +37,7 @@ A paper describing PyCO2SYS is freely available:
 
 The citation for the PyCO2SYS code is:
 
-> Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
+> Humphreys, M. P., Cala, B. A., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
 
 The DOI above refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
 
