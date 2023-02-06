@@ -10,6 +10,12 @@ Click on each reference to see more details.
 ??? note "B76: Berner (1976) *Am. J. Sci.*"
     Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. *American Journal of Science* 276, 713–730. [doi:10.2475/ajs.276.6.713](https://doi.org/10.2475/ajs.276.6.713).
 
+??? note "BMB87: Bischoff et al. (1987) *Geochim. Cosmochim. Acta*"
+    Bischoff, W. D., Mackenzie, F. T., and Bishop, F. C. (1987). Stabilities of synthetic magnesian calcites in aqueous solution: Comparison with biogenic materials. *Geochimica et Cosmochimica Acta* 51, 1413–1423. [doi:10.1016/0016-7037(87)90325-5](https://doi.org/10.1016/0016-7037(87)90325-5).
+
+??? note "BP89: Busenberg & Plummer (1989) *Geochim. Cosmochim. Acta*"
+    Busenberg, E., and Plummer, L. N. (1989). Thermodynamics of magnesian calcite solid-solutions at 25°C and 1 atm total pressure. *Geochimica et Cosmochimica Acta* 53, 1189–1208. [doi:10.1016/0016-7037(89)90056-2](https://doi.org/10.1016/0016-7037(89)90056-2).
+
 ??? note "BTSP79: Broecker et al. (1979) *Science*"
     Broecker, W. S., Takahashi, T., Simpson, H. J., and Peng, T.-H. (1979). Fate of Fossil Fuel Carbon Dioxide and the Global Carbon Budget. *Science* 206, 409–418. [doi:10.1126/science.206.4417.409](https://doi.org/10.1126/science.206.4417.409).
 
@@ -159,6 +165,9 @@ Click on each reference to see more details.
 ??? note "MM02: Mojica Prieto & Millero (2002) *Geochim. Cosmochim. Acta*"
     Mojica Prieto, F. J., and Millero, F. J. (2002). The values of pK<sub>1</sub> + pK<sub>2</sub> for the dissociation of carbonic acid in seawater. *Geochimica et Cosmochimica Acta* 66, 2529–2540. <a href='https://doi.org/10.1016/S0016-7037(02)00855-4'>doi:10.1016/S0016-7037(02)00855-4</a>.
 
+??? note "MM84: Mucci & Morse (1984) *Geochim. Cosmochim. Acta*"
+    Mucci, A., and Morse, J. W. (1984). The solubility of calcite in seawater solutions of various magnesium concentration, It = 0.697 m at 25 °C and one atmosphere total pressure. *Geochimica et Cosmochimica Acta* 48, 815–822. [doi:10.1016/0016-7037(84)90103-0](https://doi.org/10.1016/0016-7037(84)90103-0).
+
 ??? note "MPL02: Millero et al. (2002) *Deep-Sea Res. Pt. I* "
     Millero, F. J., Pierrot, D., Lee, K., Wanninkhof, R., Feely, R., Sabine, C. L., et al. (2002). Dissociation constants for carbonic acid determined from field measurements. *Deep-Sea Research Part I* 49, 1705–1723. <a href='https://doi.org/10.1016/S0967-0637(02)00093-6'>doi:10.1016/S0967-0637(02)00093-6</a>.
 
@@ -180,6 +189,9 @@ Click on each reference to see more details.
 
 ??? note "PF87: Perez & Fraga (1987) *Mar. Chem.*"
     Perez, F. F., and Fraga, F. (1987). Association constant of fluoride and hydrogen ions in seawater. *Marine Chemistry* 21, 161–168. <a href='https://doi.org/10.1016/0304-4203(87)90036-3'>doi:10.1016/0304-4203(87)90036-3</a>.
+
+??? note "PM74: Plummer & Mackenzie (1974) *Am. J. Sci.*"
+    Plummer, L. N., and Mackenzie, F. T. (1974). Predicting mineral solubility from rate data; application to the dissolution of magnesian calcites. *American Journal of Science* 274, 61–83. [doi:10.2475/ajs.274.1.61](10.2475/ajs.274.1.61).
 
 ??? note "PTBO87: Peng et al. (1987) *Tellus B*"
     Peng, T.-H., Takahashi, T., Broecker, W. S., and Olafsson, J. (1987). Seasonal variability of carbon dioxide, nutrients and oxygen in the northern North Atlantic surface water: observations and a model. *Tellus B* 39, 439–458. [doi:10.3402/tellusb.v39i5.15361](https://doi.org/10.3402/tellusb.v39i5.15361).
@@ -220,6 +232,9 @@ Click on each reference to see more details.
 
 ### T
 
+??? note "TP77: Thorstenson & Plummer (1977) *Am. J. Sci.*"
+    Thorstenson, D. C., and Plummer, L. N. (1977). Equilibrium criteria for two-component solids reacting with fixed composition in an aqueous phase; example, the magnesian calcites. *American Journal of Science* 277, 1203. [doi:10.2475/ajs.277.9.1203](https://doi.org/10.2475/ajs.277.9.1203).
+
 ??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*"
     Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  *Deep-Sea Research II* 56, 554–577.  [doi:10.1016/j.dsr2.2008.12.009](https://doi.org/10.1016/j.dsr2.2008.12.009).
 
@@ -236,8 +251,14 @@ Click on each reference to see more details.
 ??? note "W74: Weiss (1974) *Mar. Chem.*"
     Weiss, R. F. (1974). Carbon dioxide in water and seawater: the solubility of a non-ideal gas. *Marine Chemistry* 2, 203–215. <a href='https://doi.org/10.1016/0304-4203(74)90015-2'>doi:10.1016/0304-4203(74)90015-2</a>.
 
+??? note "W84: Walter (1984) *Geochim. Cosmochim. Acta*"
+    Walter, L. M. (1984). Magnesian calcite stabilities: A reevaluation. *Geochimica et Cosmochimica Acta* 48, 1059–1069. [doi:10.1016/0016-7037(84)90196-0](https://doi.org/10.1016/0016-7037(84)90196-0).
+
 ??? note "WM13: Waters & Millero (2013) *Mar. Chem.*"
     Waters, J.F., Millero, F.J. (2013). The free proton concentration scale for seawater pH. *Marine Chemistry* 149, 8–22. [doi:10.1016/j.marchem.2012.11.003](https://doi.org/10.1016/j.marchem.2012.11.003).
+
+??? note "WM84: Walter & Morse (1984) *J. Sediment. Res.*"
+    Walter, L. M., and Morse, J. W. (1984). Reactive surface area of skeletal carbonates during dissolution; effect of grain size. *Journal of Sediment Research* 54, 1081–1090. [doi:10.1306/212F8562-2B24-11D7-8648000102C1865D](https://doi.org/10.1306/212F8562-2B24-11D7-8648000102C1865D).
 
 ??? note "WMG12: Woosley et al. (2012) *J. Geophys. Res. Oceans*"
     Woosley, R. J., Millero, F. J., and Grosell, M. (2012). The solubility of fish-produced high magnesium calcite in seawater. *Journal of Geophysical Research: Oceans* 117. [doi:10.1029/2011JC007599](https://doi.org/10.1029/2011JC007599).
