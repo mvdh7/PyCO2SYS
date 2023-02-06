@@ -150,6 +150,9 @@ Click on each reference to see more details.
 ??? note "MCHP73: Mehrbach et al. (1973) *Limnol. Oceanogr.*"
     Mehrbach, C., Culberson, C. H., Hawley, J. E., and Pytkowicz, R. M. (1973). Measurement of the Apparent Dissociation Constants of Carbonic Acid in Seawater at Atmospheric Pressure. *Limnology and Oceanography* 18, 897–907. [doi:10.4319/lo.1973.18.6.0897](https://doi.org/10.4319/lo.1973.18.6.0897).
 
+??? note "MFWM08: Millero et al. (2008) *Deep-Sea Res. Pt I*"
+    Millero, F. J., Feistel, R., Wright, D. G., and McDougall, T. J. (2008).  The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, *Deep-Sea Research Part I* 55, 50–72. [doi:10.1016/j.dsr.2007.10.001](https://doi.org/10.1016/j.dsr.2007.10.001).
+
 ??? note "MGH06: Millero et al. (2006) *Mar. Chem.*"
     Millero, F. J., Graham, T. B., Huang, F., Bustos-Serrano, H., and Pierrot, D. (2006). Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. *Marine Chemistry* 100, 80–94. [doi:10.1016/j.marchem.2005.12.001](https://doi.org/10.1016/j.marchem.2005.12.001).
 
@@ -235,6 +238,9 @@ Click on each reference to see more details.
 
 ??? note "WM13: Waters & Millero (2013) *Mar. Chem.*"
     Waters, J.F., Millero, F.J. (2013). The free proton concentration scale for seawater pH. *Marine Chemistry* 149, 8–22. [doi:10.1016/j.marchem.2012.11.003](https://doi.org/10.1016/j.marchem.2012.11.003).
+
+??? note "WMG12: Woosley et al. (2012) *J. Geophys. Res. Oceans*"
+    Woosley, R. J., Millero, F. J., and Grosell, M. (2012). The solubility of fish-produced high magnesium calcite in seawater. *Journal of Geophysical Research: Oceans* 117. [doi:10.1029/2011JC007599](https://doi.org/10.1029/2011JC007599).
 
 ??? note "WMW14: Waters et al. (2014) *Mar. Chem.*"
     Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. *Marine Chemistry* 165, 66–67. [doi:10.1016/j.marchem.2014.07.004](https://doi.org/10.1016/j.marchem.2014.07.004).

@@ -105,11 +105,18 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     * `total_borate`: **total borate** in μmol·kg<sup>−1</sup>.
     * `total_calcium`: **total calcium** in μmol·kg<sup>−1</sup>.
     * `total_fluoride`: **total fluoride** in μmol·kg<sup>−1</sup>.
+    * `total_magnesium`: **total magnesium** in μmol·kg<sup>−1</sup>.
     * `total_sulfate`: **total sulfate** in μmol·kg<sup>−1</sup>.
 
     If `total_borate` is provided, then the `opt_total_borate` argument is ignored.
 
     Throughout, the kg in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O.
+
+    #### Magnesian calcite
+
+    PyCO2SYS calculates the saturation state with respect to magnesian calcite of varying Mg content following four different relationships (see Results section on [carbonate mineral saturation](#carbonate-mineral-saturation)).
+
+    * `calcite_Mg_percent`: the **percent of Mg in calcite** (i.e. 100 * mol-Mg / (mol-Mg + mol-Ca)).
 
     #### Atmospheric pressure
 

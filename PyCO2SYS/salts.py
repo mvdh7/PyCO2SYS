@@ -119,6 +119,33 @@ def get_total_calcium(salinity, opt_k_carbonic):
     return total_calcium
 
 
+def get_reference_composition(salinity, rc=None):
+    """Calculate the total salts in the Reference Composition of MFWM08 (Table 4) in
+    units of mol/kg-seawater (column x_i).
+    """
+    rc_official = {
+        "Na": 0.4860597,
+        "Mg": 0.0547421,
+        "Ca": 0.0106568,
+        "K": 0.0105797,
+        "Sr": 0.0000940,
+        "Cl": 0.5657647,
+        "SO4": 0.0292643,
+        "CO2": 0.0017803 + 0.0002477 + 0.0000100,
+        "Br": 0.0008728,
+        "BOH3": 0.0001045 + 0.0003258,
+        "F": 0.0000708,
+    }
+    if rc is None:
+        rc = {}
+    else:
+        assert np.all(np.isin(list(rc.keys()), list(rc_official.keys())))
+    for k, v in rc_official.items():
+        if k not in rc:
+            rc[k] = v * salinity / 35
+    return rc
+
+
 def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
     """Estimate total substance contents of calcium, borate, fluoride and sulfate, all
     in mol/kg-sw, from salinity, for the given settings.
@@ -139,6 +166,8 @@ def from_salinity(salinity, opt_k_carbonic, opt_total_borate, totals=None):
     if "TCa" not in totals:
         total_calcium = get_total_calcium(salinity, opt_k_carbonic)
         totals["TCa"] = total_calcium
+    if "TMg" not in totals:
+        totals["TMg"] = get_reference_composition(salinity)["Mg"]
     if "total_alpha" not in totals:
         totals["total_alpha"] = 0.0
     if "total_beta" not in totals:

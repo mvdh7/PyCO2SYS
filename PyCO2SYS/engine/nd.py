@@ -297,6 +297,9 @@ def _get_results_dict(
             "pressure_atmosphere_out": args["pressure_atmosphere_out"],
             # Added in v1.8.3 (but should have been added in v1.8.2):
             "opt_pressured_kCO2": args["opt_pressured_kCO2"],
+            # Also added in v1.8.3:
+            "total_magnesium": totals["TMg"] * 1e6,
+            "calcite_Mg_percent": args["calcite_Mg_percent"],
         }
     )
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
@@ -466,6 +469,9 @@ gradables = [
     # Added in v1.8.0:
     "pressure_atmosphere_out",
     "pressure_atmosphere",
+    # Added in v1.8.3:
+    "total_magnesium",
+    "calcite_Mg_percent",
 ]
 
 
@@ -547,6 +553,9 @@ def CO2SYS(
     pressure_atmosphere_out=1.0,  # atm
     # Added in v1.8.2:
     opt_pressured_kCO2=0,
+    # Added in v1.8.3:
+    total_magnesium=None,
+    calcite_Mg_percent=0,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = locals()
@@ -561,6 +570,7 @@ def CO2SYS(
         "total_borate": "TB",
         "total_calcium": "TCa",
         "total_fluoride": "TF",
+        "total_magnesium": "TMg",
         "total_sulfate": "TSO4",
         "total_alpha": "total_alpha",
         "total_beta": "total_beta",
