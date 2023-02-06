@@ -14,13 +14,19 @@ def _deltaKappaCalcite_I75(TempC):
     KappaKCa = (-11.76 + 0.3692 * TempC) / 1000
     return deltaVKCa, KappaKCa
 
-
-def k_calcite_M83(TempK, Sal, Pbar, RGas):
-    """Calcite solubility following M83."""
+def logk_calcite_M83_ts(TempK, Sal):
+    """Calcite solubility following M83 but excluding pressure correction."""
     logKCa = -171.9065 - 0.077993 * TempK + 2839.319 / TempK
     logKCa = logKCa + 71.595 * np.log10(TempK)
     logKCa = logKCa + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * np.sqrt(Sal)
     logKCa = logKCa - 0.07711 * Sal + 0.0041249 * np.sqrt(Sal) * Sal
+    return logKCa
+    
+
+
+def k_calcite_M83(TempK, Sal, Pbar, RGas):
+    """Calcite solubility following M83."""
+    logKCa = logk_calcite_M83_ts(TempK, Sal)
     # sd fit = .01 (for Sal part, not part independent of Sal)
     KCa = 10.0**logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
@@ -29,6 +35,66 @@ def k_calcite_M83(TempK, Sal, Pbar, RGas):
     lnKCafac = (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (RGas * TempK)
     KCa = KCa * np.exp(lnKCafac)
     return KCa
+
+
+
+
+
+def k_mgcalcite(TempK, Sal, Pbar, RGas, calcite_Mg_percent):
+    """Magnesian calcite solubility for varying compositions."""
+    logKCa = logk_calcite_M83_ts(TempK, Sal) 
+    logKCa_25_0 = logk_calcite_M83_ts(273.15+25, 0)
+    MgContent = calcite_Mg_percent / 100
+    # calculate the correction factor (offset of magnesian calcite compared to calcite)
+    # curve 1, biogenic, minimally treated based on [PM74, recalculated TP77]
+    coef_bio = [-234.13194855,   85.74778794,   -1.61786329,   -8.51219119]
+    logKMgCa_25_0_bio = (coef_bio[0]*MgContent**3 + coef_bio[1]*MgContent**2 + 
+                            coef_bio[2]*MgContent**1 + coef_bio[3])
+    corr_bio = logKCa_25_0 - logKMgCa_25_0_bio
+    # curve 2, biogenic, based on  [WM74, B87, BP89]
+    coef_bio_treat = [7.86286001,  0.04450687, -8.39289072]
+    logKMgCa_25_0_bio_treat = (coef_bio_treat[0]*MgContent**2 + 
+                            coef_bio_treat[1]*MgContent**1 + coef_bio_treat[2])
+    corr_bio_treat = logKCa_25_0 - logKMgCa_25_0_bio_treat
+    # curve 3, synthetic, based on [MM84, B87]
+    coef_synth = [3.38134966,  0.54870137, -8.52124947]
+    logKMgCa_25_0_synth = (coef_synth[0]*MgContent**2 + 
+                            coef_synth[1]*MgContent**1 + coef_synth[2])
+    corr_synth = logKCa_25_0 - logKMgCa_25_0_synth
+    # fish calicte [WMG12]:
+    corr_fish = logk_calcite_M83_ts(273.15+25, 36.5) - (-5.89)     
+    #calculate logKMgCa
+    logKMgCa_bio = logKCa - corr_bio
+    logKMgCa_bio_treat = logKCa - corr_bio_treat
+    logKMgCa_synth = logKCa - corr_synth
+    logKMgCa_fish = logKCa - corr_fish    
+    #calculate  KMgCa
+    KMgCa_bio = 10.0**logKMgCa_bio  # this is in (mol/kg-SW)^2 at zero pressure
+    KMgCa_bio_treat = 10.0**logKMgCa_bio_treat  # this is in (mol/kg-SW)^2 at zero pressure
+    KMgCa_synth = 10.0**logKMgCa_synth  # this is in (mol/kg-SW)^2 at zero pressure
+    KMgCa_fish = 10.0**logKMgCa_fish  # this is in (mol/kg-SW)^2 at zero pressure    
+    # Add pressure correction for Mg-calcite [I75, M79]
+    TempC = convert.kelvin_to_celsius(TempK)
+    deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(TempC)
+    # molar volume correction for Mg content, based on [RB62, PR90, A77]
+    # derived from doing a linear fit through experimental data
+    # for varying Mg content
+    deltaVKMgCa = deltaVKCa + 10.22 * MgContent    
+    KappaKMgCa = KappaKCa
+    lnKMgCafac = (-deltaVKMgCa + 0.5 * KappaKMgCa * Pbar) * Pbar / (RGas * TempK)
+    KMgCa_bio = KMgCa_bio * np.exp(lnKMgCafac)
+    KMgCa_bio_treat = KMgCa_bio_treat * np.exp(lnKMgCafac)
+    KMgCa_synth = KMgCa_synth * np.exp(lnKMgCafac)    
+    # for fish with fixed Mg content
+    deltaVKMgCa_fish = deltaVKCa + 10.22 * 0.479
+    lnKMgCafac_fish = (-deltaVKMgCa_fish + 0.5 * KappaKMgCa * Pbar) * Pbar / (RGas * TempK)
+    KMgCa_fish = KMgCa_fish * np.exp(lnKMgCafac_fish)  
+    return KMgCa_bio, KMgCa_bio_treat, KMgCa_synth, KMgCa_fish
+    
+    
+    
+    
+    
 
 
 def k_aragonite_M83(TempK, Sal, Pbar, RGas):
@@ -126,6 +192,20 @@ def CaCO3(CARB, totals, Ks):
     OmegaCa = CARB * totals["TCa"] / Ks["KCa"]
     OmegaAr = CARB * totals["TCa"] / Ks["KAr"]
     return OmegaCa, OmegaAr
+
+def MgCaCO3(CARB, totals, Ks, calcite_Mg_percent):
+    """Calculate Mg-calcite solubility.
+    This is defined by: Omega = [CO3--]*[Ca++]**(1-x)*[Mg++]**(x)/Ksp,
+          where Ksp is the solubility product of Mg-calcite 
+          and x is the mole fraction of Mg++.
+    from Woosley et al. (2012), https://doi.org/10.1029/2011JC007599
+    """
+    MgContent = calcite_Mg_percent / 100
+    OmegaMgCa_bio = CARB * totals["TCa"]**(1-MgContent) * totals["TMg"]**MgContent / Ks["KMgCa_bio"]
+    OmegaMgCa_bio_treat = CARB * totals["TCa"]**(1-MgContent) * totals["TMg"]**MgContent / Ks["KMgCa_bio_treat"]
+    OmegaMgCa_synth = CARB * totals["TCa"]**(1-MgContent) * totals["TMg"]**MgContent / Ks["KMgCa_synth"]
+    OmegaMgCa_fish = CARB * totals["TCa"]**(1-0.479) * totals["TMg"]**0.479 / Ks["KMgCa_fish"]
+    return OmegaMgCa_bio, OmegaMgCa_bio_treat, OmegaMgCa_synth, OmegaMgCa_fish
 
 
 def CARB_from_OC(OC, totals, Ks):
