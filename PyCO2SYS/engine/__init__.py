@@ -473,6 +473,7 @@ def _CO2SYS(
         pHScale,
         WhichKs,
         opt_buffers_mode,
+        0,
     )
     # Solve the core MCS at output conditions
     TAtype = np.full(npts, 1)
@@ -496,6 +497,7 @@ def _CO2SYS(
         pHScale,
         WhichKs,
         opt_buffers_mode,
+        0,
     )
     # Save data directly as a dict to avoid ordering issues
     return _outputdict(

@@ -242,6 +242,10 @@ The keys ending with `_out` are only available if at least one of the `temperatu
 
     * `"saturation_calcite"`/`"saturation_calcite_out"`: **saturation state of calcite** at input/output conditions.
     * `"saturation_aragonite"`/`"saturation_aragonite_out"`: **saturation state of aragonite** at input/output conditions.
+    * `"saturation_Mg_calcite_biogenic"`/`"saturation_Mg_calcite_biogenic_out"`: **saturation state of magnesian calcite (biogenic, minimally treated)** at input/output conditions.
+    * `"saturation_Mg_calcite_biogenic_treated"`/`"saturation_Mg_calcite_biogenic_treated_out"`: **saturation state of magnesian calcite (biogenic, treated)** at input/output conditions.
+    * `"saturation_Mg_calcite_synthetic"`/`"saturation_Mg_calcite_synthetic_out"`: **saturation state of magnesian calcite (synthetic)** at input/output conditions.
+    * `"saturation_Mg_calcite_fish"`/`"saturation_Mg_calcite_fish_out"`: **saturation state of magnesian calcite (fish, fixed 47.9% Mg)** at input/output conditions.
 
     #### Buffer factors
 

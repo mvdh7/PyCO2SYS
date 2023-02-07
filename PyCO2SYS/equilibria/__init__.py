@@ -9,14 +9,14 @@ from .. import constants, convert, gas, solubility
 __all__ = ["p1atm", "pcx", "pressured"]
 
 
-def prepare(temperature, pressure, equilibria):
+def prepare(temperature, pressure, k_constants):
     """Initialise equilibria dict if needed and convert temperature/pressure units to
     Kelvin/bar."""
     temperature_K = convert.celsius_to_kelvin(temperature)
     pressure_bar = convert.decibar_to_bar(pressure)
-    if equilibria is None:
-        equilibria = {}
-    return temperature_K, pressure_bar, equilibria
+    if k_constants is None:
+        k_constants = {}
+    return temperature_K, pressure_bar, k_constants
 
 
 def assemble(
@@ -31,6 +31,7 @@ def assemble(
     Ks=None,
     pressure_atmosphere=1.0,
     opt_pressured_kCO2=0,
+    calcite_Mg_percent=0,
 ):
     """Evaluate all stoichiometric equilibrium constants, converted to the chosen pH
     scale, and corrected for pressure.
@@ -55,7 +56,7 @@ def assemble(
     )
     salinity = totals["Sal"]
     # Set ideal gas constant
-    if "gas_constant" not in k_constants:
+    if "RGas" not in k_constants:
         k_constants["RGas"] = constants.RGasConstant(opt_gas_constant)
     gas_constant = k_constants["RGas"]
     # Get KSO4 and KF, at pressure, and always on the Free pH scale
@@ -230,6 +231,51 @@ def assemble(
                 temperature_K, salinity, pressure_bar, gas_constant
             ),
         )
+    # Magnesian calcite solubility products
+    KMgCa_bio, KMgCa_bio_treat, KMgCa_synth, KMgCa_fish = solubility.k_Mg_calcite(
+        temperature_K, salinity, pressure_bar, gas_constant, calcite_Mg_percent
+    )
+    if "KMgCa_bio" not in k_constants:
+        k_constants["KMgCa_bio"] = KMgCa_bio
+        lim_bio = 27
+        if np.any(calcite_Mg_percent > lim_bio):
+            print("PyCO2SYS WARNING:")
+            print(
+                "    Some calcite_Mg_percent too high (>{}) for k_Mg_calcite_biogenic!".format(
+                    lim_bio
+                )
+            )
+            print(
+                "    Your results for this and saturation_Mg_calcite_biogenic may be meaningless."
+            )
+    if "KMgCa_bio_treat" not in k_constants:
+        k_constants["KMgCa_bio_treat"] = KMgCa_bio_treat
+        lim_bio_treat = 20
+        if np.any(calcite_Mg_percent > lim_bio_treat):
+            print("PyCO2SYS WARNING:")
+            print(
+                "    Some calcite_Mg_percent too high (>{}) for k_Mg_calcite_biogenic_treated!".format(
+                    lim_bio_treat
+                )
+            )
+            print(
+                "    Your results for this and saturation_Mg_calcite_biogenic may be meaningless."
+            )
+    if "KMgCa_synth" not in k_constants:
+        k_constants["KMgCa_synth"] = KMgCa_synth
+        lim_synth = 22
+        if np.any(calcite_Mg_percent > lim_synth):
+            print("PyCO2SYS WARNING:")
+            print(
+                "    Some calcite_Mg_percent too high (>{}) for k_Mg_calcite_synthetic!".format(
+                    lim_synth
+                )
+            )
+            print(
+                "    Your results for this and saturation_Mg_calcite_synthetic may be meaningless."
+            )
+    if "KMgCa_fish" not in k_constants:
+        k_constants["KMgCa_fish"] = KMgCa_fish
     # Extra alkalinity components
     if "k_alpha" not in k_constants:
         k_constants["k_alpha"] = 1e-7

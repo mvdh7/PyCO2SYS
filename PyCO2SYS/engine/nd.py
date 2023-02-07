@@ -181,6 +181,13 @@ def _get_in_out(core, others, k_constants, suffix=""):
         # Added in v1.6.0:
         add_if_in_others("alkalinity_alpha", "alk_alpha", factor=1e6)
         add_if_in_others("alkalinity_beta", "alk_beta", factor=1e6)
+        # Added in v1.8.3:
+        add_if_in_others("saturation_Mg_calcite_biogenic", "OmegaMgCa_bio", factor=1)
+        add_if_in_others(
+            "saturation_Mg_calcite_biogenic_treated", "OmegaMgCa_bio_treat", factor=1
+        )
+        add_if_in_others("saturation_Mg_calcite_synthetic", "OmegaMgCa_synth", factor=1)
+        add_if_in_others("saturation_Mg_calcite_fish", "OmegaMgCa_fish", factor=1)
         for c in [
             "HCO3",
             "CO3",
@@ -234,6 +241,11 @@ def _get_in_out(core, others, k_constants, suffix=""):
                 # Added in v1.6.0:
                 "k_alpha": k_constants["k_alpha"],
                 "k_beta": k_constants["k_beta"],
+                # Added in v1.8.3:
+                "k_Mg_calcite_biogenic": k_constants["KMgCa_bio"],
+                "k_Mg_calcite_biogenic_treated": k_constants["KMgCa_bio_treat"],
+                "k_Mg_calcite_synthetic": k_constants["KMgCa_synth"],
+                "k_Mg_calcite_fish": k_constants["KMgCa_fish"],
             }
         )
     return {"{}{}".format(k, suffix): v for k, v in io.items()}
@@ -472,6 +484,10 @@ gradables = [
     # Added in v1.8.3:
     "total_magnesium",
     "calcite_Mg_percent",
+    "k_Mg_calcite_biogenic",
+    "k_Mg_calcite_biogenic_treated",
+    "k_Mg_calcite_synthetic",
+    "k_Mg_calcite_fish",
 ]
 
 
@@ -556,6 +572,10 @@ def CO2SYS(
     # Added in v1.8.3:
     total_magnesium=None,
     calcite_Mg_percent=0,
+    k_Mg_calcite_biogenic=None,
+    k_Mg_calcite_biogenic_treated=None,
+    k_Mg_calcite_synthetic=None,
+    k_Mg_calcite_fish=None,
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = locals()
@@ -613,6 +633,10 @@ def CO2SYS(
         "k_water": "KW",
         "k_calcite": "KCa",
         "k_aragonite": "KAr",
+        "k_Mg_calcite_biogenic": "KMgCa_bio",
+        "k_Mg_calcite_biogenic_treated": "KMgCa_bio_treat",
+        "k_Mg_calcite_synthetic": "KMgCa_synth",
+        "k_Mg_calcite_fish": "KMgCa_fish",
         "k_alpha": "k_alpha",
         "k_beta": "k_beta",
     }
@@ -636,6 +660,7 @@ def CO2SYS(
         Ks=k_constants_in,
         pressure_atmosphere=args["pressure_atmosphere"],
         opt_pressured_kCO2=args["opt_pressured_kCO2"],
+        calcite_Mg_percent=args["calcite_Mg_percent"],
     )
     # Solve the core marine carbonate system at input conditions, if provided
     if par1 is not None:
@@ -662,6 +687,7 @@ def CO2SYS(
             args["opt_pH_scale"],
             args["opt_k_carbonic"],
             args["opt_buffers_mode"],
+            args["calcite_Mg_percent"],
         )
     elif par1 is not None and par2 is None:
         core_in = {}
@@ -763,6 +789,7 @@ def CO2SYS(
             Ks=k_constants_out,
             pressure_atmosphere=args["pressure_atmosphere_out"],
             opt_pressured_kCO2=args["opt_pressured_kCO2"],
+            calcite_Mg_percent=args["calcite_Mg_percent"],
         )
         # Solve the core marine carbonate system at output conditions, if requested
         if par1 is not None and par2 is not None:
@@ -785,6 +812,7 @@ def CO2SYS(
                 args["opt_pH_scale"],
                 args["opt_k_carbonic"],
                 args["opt_buffers_mode"],
+                args["calcite_Mg_percent"],
             )
         elif par1 is not None and par2 is None:
             core_out = {}
@@ -835,6 +863,9 @@ def CO2SYS(
                 uncerts["u_{}__{}".format(into, ufrom)] = components[into][ufrom]
         results.update(uncerts)
     return results
+
+
+# below not used anywhere (I think) --- MPH 2023-02-07
 
 
 def assemble(

@@ -35,9 +35,14 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
 !!! new-version "Changes in v1.8.3"
 
+    ***New features***
+
+    * Added various magnesian calcite solubility constants and saturation states.
+
     ***Bug fixes***
 
     * Added `opt_pressured_kCO2` to the results dict.
+    * User-provided `gas_constant` value now actually used internally as intended.
 
 ### 1.8.2 (19 January 2023)
 

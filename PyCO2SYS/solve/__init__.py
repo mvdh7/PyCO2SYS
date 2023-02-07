@@ -361,6 +361,7 @@ def others(
     pHScale,
     WhichKs,
     opt_buffers_mode,
+    calcite_Mg_percent,
 ):
     """Calculate all peripheral marine carbonate system variables returned by CO2SYS."""
     # Unpack for convenience
@@ -384,6 +385,13 @@ def others(
     sw["PAlk"] = sw["PAlk"] + totals["PengCorrection"]
     # CaCO3 solubility
     OmegaCa, OmegaAr = solubility.CaCO3(CARB, totals, Ks)
+    # Magnesian calcite solubility
+    (
+        OmegaMgCa_bio,
+        OmegaMgCa_bio_treat,
+        OmegaMgCa_synth,
+        OmegaMgCa_fish,
+    ) = solubility.MgCaCO3(CARB, totals, Ks, calcite_Mg_percent)
     # Just for reference, convert pH at input conditions to the other scales
     pHT, pHS, pHF, pHN = convert.pH_to_all_scales(PH, pHScale, totals, Ks)
     # Get buffers as and if requested
@@ -490,6 +498,11 @@ def others(
         "psi": psi,
         # Added in v1.4.0:
         "SIR": SIR,
+        # Added in v1.8.3:
+        "OmegaMgCa_bio": OmegaMgCa_bio,
+        "OmegaMgCa_bio_treat": OmegaMgCa_bio_treat,
+        "OmegaMgCa_synth": OmegaMgCa_synth,
+        "OmegaMgCa_fish": OmegaMgCa_fish,
     }
     # Added in v1.6.0:
     others_out.update(sw)
