@@ -39,7 +39,8 @@ for wrt in grads_wrt:
         if of == "Hfree":
             nrow[of] *= 1e3
     orr2 = pd.concat((orr2, nrow), ignore_index=True)
-orr2_groups = orr2.groupby("wrt").mean()
+orr2_groups = orr2.drop(columns="program")
+orr2_groups = orr2_groups.groupby("wrt").mean()
 orr2.set_index(["wrt", "program"], inplace=True)
 
 # Comparison with Orr et al. (2018) Table 3
@@ -72,7 +73,8 @@ for wrt in grads_wrt:
         if of == "Hfree":
             nrow[of] *= 1e3
     orr3 = pd.concat((orr3, nrow), ignore_index=True)
-orr3_groups = orr3.groupby("wrt").mean()
+orr3_groups = orr3.drop(columns="program")
+orr3_groups = orr3_groups.groupby("wrt").mean()
 orr3.set_index(["wrt", "program"], inplace=True)
 
 # Comparison with Orr et al. (2018) Table 4
@@ -123,7 +125,8 @@ for into in uncertainty_into:
     if into == "Hfree":
         nrow[into] *= 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
-orr4_groups = orr4.groupby("with_k_uncertainties").mean()
+orr4_groups = orr4.drop(columns=["wrt", "program"])
+orr4_groups = orr4_groups.groupby("with_k_uncertainties").mean()
 orr4.set_index(["wrt", "program", "with_k_uncertainties"], inplace=True)
 
 
