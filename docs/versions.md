@@ -29,7 +29,7 @@
 
 ## 1.8
 
-Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorous validated and fully documented in published manuscript ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
+Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorously validated and fully documented in peer-reviewed journal article ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
 
 ### 1.8.2 (19 January 2023)
 
