@@ -1,5 +1,0 @@
-numpy >= 1.17
-pandas >= 1
-xarray >= 0.15
-openpyxl >= 3
-autograd >= 1.4
