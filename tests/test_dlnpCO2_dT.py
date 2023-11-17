@@ -71,4 +71,4 @@ def test_dlnpCO2_dT():
     assert np.mean(abs_diff_pct) < 0.01
 
 
-test_dlnpCO2_dT()
+# test_dlnpCO2_dT()
