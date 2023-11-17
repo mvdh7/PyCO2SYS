@@ -21,7 +21,6 @@ def test_CO2sys_api_vector():
 
 
 def test_CO2sys_raise_error():
-
     try:
         output = CO2SYS(dic=2000)
         output = Exception
