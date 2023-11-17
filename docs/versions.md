@@ -46,6 +46,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
     ***Technical***
 
     * Updated from building with setup.py to pyproject.toml.
+    * Updated `pyco2.equilibria.p1atm.kH2CO3_NBS_MCHP73` (used for `opt_k_carbonic` options `6` and `7`) to update any salinity values less than 10<sup>–16</sup> to be 10<sup>–16</sup>, because zero salinities give a NaN for <i>K</i><sub>2</sub>, which causes autograd problems.  This should not make any practical difference, because the parameterisation is only valid for salinities above 19.
 
 ### 1.8.2 (19 January 2023)
 

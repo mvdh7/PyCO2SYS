@@ -560,7 +560,9 @@ def get_lnpCO2(
         pressure_atmosphere=pressure_atmosphere,
         opt_pressured_kCO2=opt_pressured_kCO2,
     )
-    fCO2 = get.fCO2fromTATC(alkalinity, dic, totals, k_constants)
+    fCO2 = get.fCO2fromTATC(
+        alkalinity - totals["PengCorrection"], dic, totals, k_constants
+    )
     pCO2 = convert.fCO2_to_pCO2(fCO2, k_constants)
     return np.log(pCO2)
 
