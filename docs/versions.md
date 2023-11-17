@@ -39,6 +39,10 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
     * Added `"dlnpCO2_dT"` result, the theoretical effect of temperature on the natural log of <i>p</i>CO<sub>2</sub>.
 
+    ***Default options***
+
+    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](../refs/#l)) for consistency with best practice guide.
+
     ***Technical***
 
     * Updated from building with setup.py to pyproject.toml.

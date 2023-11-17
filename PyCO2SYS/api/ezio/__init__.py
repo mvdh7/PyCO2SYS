@@ -13,7 +13,7 @@ def ezio(
     path,
     opt_pH_scale=1,  # default values match those at https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/
     opt_k_bisulfate=1,
-    opt_k_carbonic=16,
+    opt_k_carbonic=10,
     opt_k_fluoride=1,
     opt_total_borate=1,
 ):
