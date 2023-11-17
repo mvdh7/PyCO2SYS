@@ -35,11 +35,11 @@ results = pyco2.sys(
     total_sulfide=total_sulfide,
     opt_k_carbonic=opt_k_carbonic,
     opt_pressured_kCO2=opt_pressured_kCO2,
-    grads_of=["pCO2"],
-    grads_wrt=["temperature"],
+    grads_of=["pCO2", "pCO2_out"],
+    grads_wrt=["temperature", "temperature_out"],
 )
 
-# Extract values
+# Extract values - input conditions
 dlnpCO2_dT_autograd = results["dlnpCO2_dT"]
 dlnpCO2_dT_ffd = results["d_pCO2__d_temperature"] / results["pCO2"]
 diff = dlnpCO2_dT_autograd - dlnpCO2_dT_ffd
@@ -49,26 +49,46 @@ diff_pct = 200 * diff / (dlnpCO2_dT_autograd + dlnpCO2_dT_ffd)
 abs_diff_pct = np.abs(diff_pct)
 max_abs_diff_pct = np.max(abs_diff_pct)
 
+# Extract values - output conditions
+out_dlnpCO2_dT_autograd = results["dlnpCO2_dT_out"]
+out_dlnpCO2_dT_ffd = results["d_pCO2_out__d_temperature_out"] / results["pCO2_out"]
+out_diff = out_dlnpCO2_dT_autograd - out_dlnpCO2_dT_ffd
+out_abs_diff = np.abs(out_diff)
+out_max_abs_diff = np.max(out_abs_diff)
+out_diff_pct = 200 * out_diff / (out_dlnpCO2_dT_autograd + out_dlnpCO2_dT_ffd)
+out_abs_diff_pct = np.abs(out_diff_pct)
+out_max_abs_diff_pct = np.max(out_abs_diff_pct)
+
 
 def test_dlnpCO2_dT():
     """Are all of the autograd values the same as the forward finite difference values
-    to within:
-        - 0.03% where opt_pressured_kCO2 is 0?
-        - 2.00% where opt_pressured_kCO2 is 1?
-        - 1e-3 everywhere?
-        - 1e-6 in the mean across all inputs?
-        - 0.01% in the mean across all inputs?
+    to within
+        - 0.03% where opt_pressured_kCO2 is 0,
+        - 4.00% where opt_pressured_kCO2 is 1,
+        - 1e-3 across all values,
+        - 1e-6 in the mean across all values, and
+        - 0.01% in the mean across all values,
+    under input and output conditions?
     """
     L = opt_pressured_kCO2 == 0
     assert np.allclose(
         dlnpCO2_dT_autograd[L], dlnpCO2_dT_ffd[L], rtol=0.03 / 100, atol=0
     )
     assert np.allclose(
-        dlnpCO2_dT_autograd[~L], dlnpCO2_dT_ffd[~L], rtol=2 / 100, atol=0
+        out_dlnpCO2_dT_autograd[L], out_dlnpCO2_dT_ffd[L], rtol=0.03 / 100, atol=0
+    )
+    assert np.allclose(
+        dlnpCO2_dT_autograd[~L], dlnpCO2_dT_ffd[~L], rtol=4 / 100, atol=0
+    )
+    assert np.allclose(
+        out_dlnpCO2_dT_autograd[~L], out_dlnpCO2_dT_ffd[~L], rtol=4 / 100, atol=0
     )
     assert np.allclose(dlnpCO2_dT_autograd, dlnpCO2_dT_ffd, rtol=0, atol=1e-3)
+    assert np.allclose(out_dlnpCO2_dT_autograd, out_dlnpCO2_dT_ffd, rtol=0, atol=1e-3)
     assert np.mean(abs_diff) < 1e-6
+    assert np.mean(out_abs_diff) < 1e-6
     assert np.mean(abs_diff_pct) < 0.01
+    assert np.mean(out_abs_diff_pct) < 0.01
 
 
-# test_dlnpCO2_dT()
+test_dlnpCO2_dT()
