@@ -413,13 +413,14 @@ def forward_nd(
             if gradable.startswith("k_") and not gradable.endswith("_out")
         ]
     )
-    assert np.all(
-        np.isin(grads_of, gradables)
-    ), "PyCO2SYS error: all grads_of must be in the list at PyCO2SYS.engine.nd.gradables."
+    assert np.all(np.isin(grads_of, gradables)), (
+        "PyCO2SYS error: all grads_of must be in the list at "
+        + "PyCO2SYS.engine.nd.gradables."
+    )
     if np.any([of.endswith("_out") for of in grads_of]):
         assert "temperature_out" in CO2SYS_nd_results, (
-            "PyCO2SYS error: you can only get gradients at output conditions if you calculated"
-            + " results at output conditions!"
+            "PyCO2SYS error: you can only get gradients at output conditions if you "
+            + "calculated results at output conditions!"
         )
     # Extract CO2SYS_nd fixed args from CO2SYS_nd_results and CO2SYS_nd_kwargs.
     # These are arguments that always get a specific value, rather than being calculated
@@ -444,6 +445,7 @@ def forward_nd(
             "opt_pH_scale",
             "opt_total_borate",
             "opt_buffers_mode",
+            "opt_pressured_kCO2",
         ]
         + list(CO2SYS_nd_kwargs.keys())
     )

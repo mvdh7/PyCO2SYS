@@ -297,6 +297,8 @@ def _get_results_dict(
             # Added in v1.8.0:
             "pressure_atmosphere": args["pressure_atmosphere"],
             "pressure_atmosphere_out": args["pressure_atmosphere_out"],
+            # Added in v1.8.3 (but should have been in v1.8.2):
+            "opt_pressured_kCO2": args["opt_pressured_kCO2"],
         }
     )
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
