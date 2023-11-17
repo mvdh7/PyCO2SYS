@@ -210,6 +210,8 @@ def _get_in_out(core, others, k_constants, suffix=""):
         ]:
             if c in others:
                 io[c] = others[c] * 1e6
+        # Added in v1.8.3:
+        add_if_in_others("dlnpCO2_dT", "dlnpCO2_dT", factor=1)
     if k_constants is not None:
         io.update(
             {
@@ -426,35 +428,60 @@ gradables = [
     "total_sulfide",
     "xCO2_out",
     "xCO2",
-    # Added in v1.6.0:
+    # Added in v1.6.0 ("_out" versions added in v1.8.3):
+    "alpha_out",
     "alpha",
+    "alphaH_out",
     "alphaH",
+    "beta_out",
     "beta",
+    "betaH_out",
     "betaH",
+    "BOH3_out",
     "BOH3",
+    "BOH4_out",
     "BOH4",
+    "CO2_out",
     "CO2",
+    "CO3_out",
     "CO3",
+    "F_out",
     "F",
+    "H2PO4_out",
     "H2PO4",
+    "H2S_out",
     "H2S",
+    "H3PO4_out",
     "H3PO4",
+    "H3SiO4_out",
     "H3SiO4",
+    "H4SiO4_out",
     "H4SiO4",
+    "HCO3_out",
     "HCO3",
+    "HF_out",
     "HF",
+    "Hfree_out",
     "Hfree",
+    "HPO4_out",
     "HPO4",
+    "HS_out",
     "HS",
+    "HSO4_out",
     "HSO4",
     "k_alpha_out",
     "k_alpha",
     "k_beta_out",
     "k_beta",
+    "NH3_out",
     "NH3",
+    "NH4_out",
     "NH4",
+    "OH_out",
     "OH",
+    "PO4_out",
     "PO4",
+    "SO4_out",
     "SO4",
     "total_alpha",
     "total_beta",
@@ -464,6 +491,9 @@ gradables = [
     # Added in v1.8.0:
     "pressure_atmosphere_out",
     "pressure_atmosphere",
+    # Added in v1.8.3:
+    "dlnpCO2_dT_out",
+    "dlnpCO2_dT",
 ]
 
 
@@ -610,8 +640,10 @@ def CO2SYS(
             for k, v in args.items()
             if k in k_constants_optional
         }
+        k_constants_in_raw = k_constants_in.copy()
     else:
         k_constants_in = None
+        k_constants_in_raw = None
     k_constants_in = equilibria.assemble(
         args["temperature"],
         args["pressure"],
@@ -650,6 +682,21 @@ def CO2SYS(
             args["opt_pH_scale"],
             args["opt_k_carbonic"],
             args["opt_buffers_mode"],
+        )
+        others_in["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(
+            core_in["TA"],
+            core_in["TC"],
+            args["temperature"],
+            args["pressure"],
+            totals,
+            args["opt_pH_scale"],
+            args["opt_k_carbonic"],
+            args["opt_k_bisulfate"],
+            args["opt_k_fluoride"],
+            args["opt_gas_constant"],
+            k_constants_in_raw,
+            args["pressure_atmosphere"],
+            args["opt_pressured_kCO2"],
         )
     elif par1 is not None and par2 is None:
         core_in = {}
@@ -737,8 +784,10 @@ def CO2SYS(
                 for k, v in args.items()
                 if k in k_constants_optional_out
             }
+            k_constants_out_raw = k_constants_out.copy()
         else:
             k_constants_out = None
+            k_constants_out_raw = None
         k_constants_out = equilibria.assemble(
             args["temperature_out"],
             args["pressure_out"],
@@ -773,6 +822,21 @@ def CO2SYS(
                 args["opt_pH_scale"],
                 args["opt_k_carbonic"],
                 args["opt_buffers_mode"],
+            )
+            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(
+                core_out["TA"],
+                core_out["TC"],
+                args["temperature_out"],
+                args["pressure_out"],
+                totals,
+                args["opt_pH_scale"],
+                args["opt_k_carbonic"],
+                args["opt_k_bisulfate"],
+                args["opt_k_fluoride"],
+                args["opt_gas_constant"],
+                k_constants_out_raw,
+                args["pressure_atmosphere_out"],
+                args["opt_pressured_kCO2"],
             )
         elif par1 is not None and par2 is None:
             core_out = {}

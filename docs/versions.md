@@ -35,6 +35,10 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
 !!! new-version "Changes in v1.8.3"
 
+    ***New features***
+
+    * Added `"dlnpCO2_dT"` result, the theoretical effect of temperature on the natural log of <i>p</i>CO<sub>2</sub>.
+
     ***Technical***
 
     * Updated from building with setup.py to pyproject.toml.

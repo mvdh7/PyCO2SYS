@@ -49,7 +49,7 @@ Click on each reference to see more details.
 ??? note "EG70: Edmond & Gieskes (1970) *Geochim. Cosmochim. Acta*"
     Edmond, J. M., and Gieskes, J. M. T. M. (1970). On the calculation of the degree of saturation of sea water with respect to calcium carbonate under in situ conditions. *Geochimica et Cosmochimica Acta* 34(12), 1261–1291. <a href='https://doi.org/10.1016/0016-7037(70)90041-4'>doi:10.1016/0016-7037(70)90041-4</a>.
 
-??? note "ESM10: Egleston et al. (2010) *Global Biogeochem. Cy.*"
+??? note "ESM10: Egleston et al. (2010) *Global Biogeochem. Cycles*"
     Egleston, E. S., Sabine, C. L., and Morel, F. M. M. (2010). Revelle revisited: Buffer factors that quantify the response of ocean chemistry to changes in DIC and alkalinity. *Global Biogeochemical Cycles* 24, GB1002. [doi:10.1029/2008GB003407](https://doi.org/10.1029/2008GB003407).
 
 ### F
@@ -216,6 +216,9 @@ Click on each reference to see more details.
     Sharp, J. D., Pierrot, D., Humphreys, M. P., Epitalon, J.-M., Orr, J. C., Lewis, E., Wallace, D. W. R. (2020). CO2-System-Extd, v3.0.  MATLAB (MathWorks).  Available from [github.com/jonathansharp/CO2-System-Extd](https://github.com/jonathansharp/CO2-System-Extd).
 
 ### T
+
+??? note "TOG93: Takahashi et al. (1993) *Global Biogeochem. Cycles*"
+    Takahashi, T., Olafsson, J., Goddard, J. G., Chipman, D. W., and Sutherland, S. C. (1993).  Seasonal variation of CO<sub>2</sub> and nutirents in the high-latitude surface oceans: a comparative study.  *Global Biogeochemical Cycles* 7(4), 843-878.  [doi:10.1029/93GB02263](https://doi.org/10.1029/93GB02263).
 
 ??? note "TSW09: Takahashi et al. (2009) *Deep-Sea Res. Pt. II*"
     Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  *Deep-Sea Research II* 56, 554–577.  [doi:10.1016/j.dsr2.2008.12.009](https://doi.org/10.1016/j.dsr2.2008.12.009).

@@ -250,6 +250,7 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"omega_alk"`/`"omega_alk_out"`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
     * `"isocapnic_quotient"`/`"isocapnic_quotient_out"`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `"isocapnic_quotient_approx"`/`"isocapnic_quotient_approx_out"`: **isocapnic quotient approximation** of [HDW18](../refs/#h) at input/output conditions.
+    * `"dlnpCO2_dT"`/`"dlnpCO2_dT_out"`: **temperature derivative of ln(<i>p</i>CO<sub>2</sub>)** at input/output conditions (see [TOG93](../refs/#t)).
 
     #### Biological properties
 
