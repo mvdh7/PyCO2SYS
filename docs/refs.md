@@ -176,7 +176,10 @@ Click on each reference to see more details.
 ### P
 
 ??? note "PF87: Perez & Fraga (1987) *Mar. Chem.*"
-    Perez, F. F., and Fraga, F. (1987). Association constant of fluoride and hydrogen ions in seawater. *Marine Chemistry* 21, 161–168. <a href='https://doi.org/10.1016/0304-4203(87)90036-3'>doi:10.1016/0304-4203(87)90036-3</a>.
+    Perez, F. F., and Fraga, F. (1987). Association constant of fluoride and hydrogen ions in seawater. *Marine Chemistry* 21, 161–168. [doi:10.1016/0304-4203(87)90036-3](https://doi.org/10.1016/0304-4203(87)90036-3).
+
+??? note "PLR18: Papadimitriou et al. (2018) *Geochim. Cosmochim. Acta*"
+    Papadimitriou, S., Loucaides, S., Rérolle, V. M. C., Kennedy, P., Achterberg, E. P., Dickson, A. G., Mowlem, M., and Kennedy, H. (2018). The stoichiometric dissociation constants of carbonic acid in seawater brines from 298 to 267 K. *Geochimica et Cosmochimica Acta* 220, 55–70.  [doi:10.1016/j.gca.2017.09.037](https://doi.org/10.1016/j.gca.2017.09.037).
 
 ??? note "PTBO87: Peng et al. (1987) *Tellus B*"
     Peng, T.-H., Takahashi, T., Broecker, W. S., and Olafsson, J. (1987). Seasonal variability of carbon dioxide, nutrients and oxygen in the northern North Atlantic surface water: observations and a model. *Tellus B* 39, 439–458. [doi:10.3402/tellusb.v39i5.15361](https://doi.org/10.3402/tellusb.v39i5.15361).

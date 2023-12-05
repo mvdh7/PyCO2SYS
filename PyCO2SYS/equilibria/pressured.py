@@ -193,6 +193,8 @@ def KC(TempK, Sal, Pbar, RGas, WhichKs, fH, SWStoTOT0):
     K1, K2 = _getKC(WhichKs == 16, p1atm.kH2CO3_TOT_SLH20, SWStoTOT0, K1, K2, ts)
     # Added v1.7.0:
     K1, K2 = _getKC(WhichKs == 17, p1atm.kH2CO3_TOT_SB21, SWStoTOT0, K1, K2, ts)
+    # Added v1.8.3:
+    K1, K2 = _getKC(WhichKs == 18, p1atm.kH2CO3_TOT_PLR18, SWStoTOT0, K1, K2, ts)
     # Now correct for seawater pressure
     K1 = K1 * pcx.K1fac(TempK, Pbar, RGas, WhichKs)
     K2 = K2 * pcx.K2fac(TempK, Pbar, RGas, WhichKs)

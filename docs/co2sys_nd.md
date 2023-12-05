@@ -143,6 +143,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `15`: [WMW14](../refs/#w) (0 < *T* < 45 °C, 0 < *S* < 45, Seawater scale, real seawater).
         * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
         * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale, real seawater).
+        * `18`: [PLR18](../refs/#p) (–6 < *T* < 25 °C, 33 < *S* < 100, Total scale, real seawater).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 

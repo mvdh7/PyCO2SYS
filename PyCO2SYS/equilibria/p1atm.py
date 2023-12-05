@@ -719,6 +719,32 @@ def kH2CO3_TOT_SB21(TempK, Sal):
     return K1, K2
 
 
+def kH2CO3_TOT_PLR18(TempK, Sal):
+    """Carbonic acid dissociation constants following PLR18.
+
+    For 33 < salinity < 100, -6 < temperature < 25 °C.
+    """
+    pK1 = (
+        -176.48
+        + 6.14528 * Sal**0.5
+        - 0.127714 * Sal
+        + 7.396e-5 * Sal**2
+        + (9914.37 - 622.886 * Sal**0.5 + 29.714 * Sal) / TempK
+        + (26.05129 - 0.666812 * Sal**0.5) * np.log(TempK)
+    )
+    pK2 = (
+        -323.52692
+        + 27.557655 * Sal**0.5
+        + 0.154922 * Sal
+        - 2.48396e-4 * Sal**2
+        + (14763.287 - 1014.819 * Sal**0.5 - 14.35223 * Sal) / TempK
+        + (50.385807 - 4.4630415 * Sal**0.5) * np.log(TempK)
+    )
+    K1 = 10.0**-pK1
+    K2 = 10.0**-pK2
+    return K1, K2
+
+
 def kH2S_TOT_YM95(TempK, Sal):
     """Hydrogen sulfide dissociation constant following YM95."""
     # === CO2SYS_v1_21.m comments: =======

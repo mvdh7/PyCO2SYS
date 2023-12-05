@@ -38,15 +38,16 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
     ***New features***
 
     * Added `"dlnpCO2_dT"` result, the theoretical effect of temperature on the natural log of <i>p</i>CO<sub>2</sub>.
+    * Added the [PLR18](../refs/#p) parameterisation of the carbonic acid constants for sea-ice brines.
 
     ***Default options***
 
-    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](../refs/#l)) for consistency with best practice guide.
+    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](../refs/#l)) for consistency with the best practice guide.
 
     ***Bug fixes***
     
-    * Updated `pyco2.equilibria.p1atm.kH2CO3_NBS_MCHP73` (used for `opt_k_carbonic` options `6` and `7`) to update any salinity values less than 10<sup>–16</sup> to be 10<sup>–16</sup>, because zero salinities give a NaN for <i>K</i><sub>2</sub>, which causes autograd problems.  This should not make any practical difference, because the parameterisation is only valid for salinities above 19.
-    * Added `opt_pressured_kCO2` to results dict and incorporated it properly into the uncertainty propagation functions.
+    * Updated `pyco2.equilibria.p1atm.kH2CO3_NBS_MCHP73` (used for `opt_k_carbonic` options `6` and `7`) to update any salinity values less than 10<sup>–16</sup> to be 10<sup>–16</sup>, because zero salinities give a NaN for <i>K</i><sub>2</sub>, which causes problems for Autograd.  This should not make any practical difference, because the parameterisation is only valid for salinities above 19.
+    * Added `opt_pressured_kCO2` to results dict and incorporated it correctly into the uncertainty propagation functions.
 
     ***Technical***
 
