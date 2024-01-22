@@ -69,16 +69,16 @@ def get_bh_H24(temperature, salinity, fCO2):
         The coefficient bh in J / mol.
     """
     c, t, tt, s, ss, f, ff, ts, tf, sf = (
-        3.04922833e04,
-        1.28284037e02,
-        -1.16283855e00,
-        2.19427895e01,
-        -7.59989816e-01,
-        -1.44685166e01,
-        -4.61544927e-04,
-        -2.61544492e00,
-        1.53786868e-01,
-        2.42207318e-01,
+        3.13184463e04,
+        1.39487529e02,
+        -1.21087624e00,
+        -4.22484243e00,
+        -6.52212406e-01,
+        -1.69522191e01,
+        -5.47585838e-04,
+        -3.02071783e00,
+        1.66972942e-01,
+        3.09654019e-01,
     )
     return (
         c
@@ -257,7 +257,7 @@ def ups_quadratic_TOG93(temperature):
     -------
         υ in 1 / °C.
     """
-    2 * aq_TOG93 * t + bq_TOG93
+    return 2 * aq_TOG93 * temperature + bq_TOG93
 
 
 def expUps_quadratic_TOG93(temperature, temperature_out):
