@@ -179,6 +179,14 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `0`: do not apply the correction (**default** and the only option before v1.8.2).
         * `1`: apply the correction.
 
+    * `opt_adjust_temperature`: how to convert <i>p</i>CO<sub>2</sub>, <i>ƒ</i>CO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> to a different temperature, when only one parameter is provided.
+        * `1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](../refs/#h) (**default**). 
+        * `2`: using the constant <i>υ<sub>h</sub></i> fitted to the [TOG93](../refs/#t) dataset by [H24](../refs/#h).
+        * `3`: using the constant theoretical <i>υ<sub>x</sub></i> of [H24](../refs/#h).
+        * `4`: following the [H24](../refs/#h) approach but using a user-provided $b_h$ value (given with the kwarg `bh_upsilon`).
+        * `5`: using the linear fit of [TOG93](../refs/#t).
+        * `6`: using the quadratic fit of [TOG93](../refs/#t) (default before v1.8.3).
+
     #### Override equilibrium constants
 
     All the equilibrium constants needed by PyCO2SYS are estimated internally from temperature, salinity and pressure, and returned in the results.  However, you can also directly provide your own values for any of these constants instead.
