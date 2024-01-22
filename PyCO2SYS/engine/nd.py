@@ -304,6 +304,7 @@ def _get_results_dict(
             "opt_pressured_kCO2": args["opt_pressured_kCO2"],
             # Also added in v1.8.3:
             "opt_adjust_temperature": args["opt_adjust_temperature"],
+            "opt_which_fCO2_insitu": args["opt_which_fCO2_insitu"],
             "bh_upsilon": args["bh_upsilon"],
         }
     )
@@ -588,6 +589,7 @@ def CO2SYS(
     opt_pressured_kCO2=0,
     # Added in v1.8.3:
     opt_adjust_temperature=1,
+    opt_which_fCO2_insitu=1,
     bh_upsilon=28995.0,  # J / mol
 ):
     """Run CO2SYS with n-dimensional args allowed."""
@@ -855,8 +857,8 @@ def CO2SYS(
                 args["pressure_atmosphere_out"],
                 args["opt_pressured_kCO2"],
             )
-            others_out["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args)
-            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args)
+            others_out["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args_out)
+            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args_out)
         elif par1 is not None and par2 is None:
             core_out = {}
             others_out = {}
@@ -867,6 +869,17 @@ def CO2SYS(
                 # H24 adjustments are applied to fCO2
                 L = args["opt_adjust_temperature"] == 1
                 if np.any(L):
+                    fCO2_insitu = np.where(
+                        args["opt_which_fCO2_insitu"] == 1,
+                        core_in["FC"] * 1e6,
+                        core_in["FC"]
+                        * 1e6
+                        * upsilon.expUps_TOG93_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            k_constants_in["RGas"],
+                        ),
+                    )
                     core_out["FC"] = np.where(
                         L,
                         core_in["FC"]
@@ -874,8 +887,9 @@ def CO2SYS(
                             args["temperature"],
                             args["temperature_out"],
                             args["salinity"],
-                            core_in["FC"],
+                            fCO2_insitu,
                             k_constants_in["RGas"],
+                            opt_which_fCO2_insitu=opt_which_fCO2_insitu,
                         ),
                         core_out["FC"],
                     )

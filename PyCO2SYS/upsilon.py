@@ -118,7 +118,7 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
 
 
 def expUps_parameterised_H24(
-    temperature, temperature_out, salinity, fCO2, gas_constant
+    temperature, temperature_out, salinity, fCO2, gas_constant, opt_which_fCO2_insitu=1
 ):
     """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
     with a constant bh coefficient based on a parameterisation with the OceanSODA-ETZH
@@ -136,7 +136,11 @@ def expUps_parameterised_H24(
     array-like
         The adjustment factor exp(Υ).
     """
-    bh = get_bh_H24(temperature, salinity, fCO2)
+    bh = np.where(
+        opt_which_fCO2_insitu == 1,
+        get_bh_H24(temperature, salinity, fCO2),
+        get_bh_H24(temperature_out, salinity, fCO2),
+    )
     return expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh)
 
 

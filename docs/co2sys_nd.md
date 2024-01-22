@@ -187,6 +187,8 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `5`: using the linear fit of [TOG93](../refs/#t).
         * `6`: using the quadratic fit of [TOG93](../refs/#t) (default before v1.8.3).
 
+    * `opt_which_fCO2_insitu`: whether the input (`1`, **default**) or output (`2`) condition <i>p</i>CO<sub>2</sub>, <i>ƒ</i>CO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining <i>b<sub>h</sub></i> with the parameterisation of [H24](../refs/#h).  Only applies when `opt_adjust_temperature` is `1`.
+
     #### Override equilibrium constants
 
     All the equilibrium constants needed by PyCO2SYS are estimated internally from temperature, salinity and pressure, and returned in the results.  However, you can also directly provide your own values for any of these constants instead.
