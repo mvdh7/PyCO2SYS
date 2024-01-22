@@ -211,6 +211,7 @@ def _get_in_out(core, others, k_constants, suffix=""):
             if c in others:
                 io[c] = others[c] * 1e6
         # Added in v1.8.3:
+        add_if_in_others("dlnfCO2_dT", "dlnfCO2_dT", factor=1)
         add_if_in_others("dlnpCO2_dT", "dlnpCO2_dT", factor=1)
     if k_constants is not None:
         io.update(
@@ -494,6 +495,8 @@ gradables = [
     "pressure_atmosphere_out",
     "pressure_atmosphere",
     # Added in v1.8.3:
+    "dlnfCO2_dT_out",
+    "dlnfCO2_dT",
     "dlnpCO2_dT_out",
     "dlnpCO2_dT",
 ]
@@ -685,7 +688,7 @@ def CO2SYS(
             args["opt_k_carbonic"],
             args["opt_buffers_mode"],
         )
-        others_in["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(
+        dln_args_in = (
             core_in["TA"],
             core_in["TC"],
             args["temperature"],
@@ -700,6 +703,8 @@ def CO2SYS(
             args["pressure_atmosphere"],
             args["opt_pressured_kCO2"],
         )
+        others_in["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args_in)
+        others_in["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args_in)
     elif par1 is not None and par2 is None:
         core_in = {}
         others_in = {}
@@ -825,7 +830,7 @@ def CO2SYS(
                 args["opt_k_carbonic"],
                 args["opt_buffers_mode"],
             )
-            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(
+            dln_args_out = (
                 core_out["TA"],
                 core_out["TC"],
                 args["temperature_out"],
@@ -840,6 +845,9 @@ def CO2SYS(
                 args["pressure_atmosphere_out"],
                 args["opt_pressured_kCO2"],
             )
+            others_out["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args)
+            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args)
+
         elif par1 is not None and par2 is None:
             core_out = {}
             others_out = {}

@@ -37,7 +37,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
     ***New features***
 
-    * Added `"dlnpCO2_dT"` result, the theoretical effect of temperature on the natural log of <i>p</i>CO<sub>2</sub>.
+    * Added `"dlnfCO2_dT"` and `"dlnpCO2_dT"` results, the theoretical effect of temperature on the natural log of <i>ƒ</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
     * Added the [PLR18](../refs/#p) parameterisation of the carbonic acid constants for sea-ice brines.
 
     ***Default options***

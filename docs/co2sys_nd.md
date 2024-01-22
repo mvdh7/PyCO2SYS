@@ -68,7 +68,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
 
     * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales at the input conditions only.
-    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>f</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
+    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>ƒ</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
 
     If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents are returned, under the given conditions.
 
@@ -251,6 +251,7 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"omega_alk"`/`"omega_alk_out"`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
     * `"isocapnic_quotient"`/`"isocapnic_quotient_out"`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `"isocapnic_quotient_approx"`/`"isocapnic_quotient_approx_out"`: **isocapnic quotient approximation** of [HDW18](../refs/#h) at input/output conditions.
+    * `"dlnpCO2_dT"`/`"dlnpCO2_dT_out"`: **temperature derivative of ln(<i>ƒ</i>CO<sub>2</sub>)** at input/output conditions (see [TOG93](../refs/#t)).
     * `"dlnpCO2_dT"`/`"dlnpCO2_dT_out"`: **temperature derivative of ln(<i>p</i>CO<sub>2</sub>)** at input/output conditions (see [TOG93](../refs/#t)).
 
     #### Biological properties
