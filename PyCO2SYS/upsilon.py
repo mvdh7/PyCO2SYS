@@ -271,9 +271,9 @@ def expUps_quadratic_TOG93(temperature, temperature_out):
     Parameters
     ----------
     temperature : array-like
-        Starting temperature (t0) in °C or K.
+        Starting temperature (t0) in °C.
     temperature_out : array-like
-        Adjusted temperature (t1) in °C or K.
+        Adjusted temperature (t1) in °C.
 
     Returns
     -------
