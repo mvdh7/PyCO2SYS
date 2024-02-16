@@ -31,6 +31,28 @@
 
 Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorously validated and fully documented in peer-reviewed journal article ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).
 
+### 1.8.3 (16 February 2024)
+
+!!! new-version "Changes in v1.8.3"
+
+    ***New features***
+
+    * Added `"dlnfCO2_dT"` and `"dlnpCO2_dT"` results, the theoretical effect of temperature on the natural log of <i>ƒ</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
+    * Added the [PLR18](../refs/#p) parameterisation of the carbonic acid constants for sea-ice brines.
+
+    ***Default options***
+
+    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](../refs/#l)) for consistency with the best practice guide.
+
+    ***Bug fixes***
+    
+    * Updated `pyco2.equilibria.p1atm.kH2CO3_NBS_MCHP73` (used for `opt_k_carbonic` options `6` and `7`) to update any salinity values less than 10<sup>–16</sup> to be 10<sup>–16</sup>, because zero salinities give a NaN for <i>K</i><sub>2</sub>, which causes problems for Autograd.  This should not make any practical difference, because the parameterisation is only valid for salinities above 19.
+    * Added `opt_pressured_kCO2` to results dict and incorporated it correctly into the uncertainty propagation functions.
+
+    ***Technical***
+
+    * Updated from building with setup.py to pyproject.toml.
+
 ### 1.8.2 (19 January 2023)
 
 !!! new-version "Changes in v1.8.2"
@@ -76,7 +98,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
 ## 1.7
 
-Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review ([Humphreys et al., 2021, *Geosci. Model Dev. Discuss.](https://doi.org/10.5194/gmd-2021-159)).
+Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review ([Humphreys et al., 2021, *Geosci. Model Dev. Discuss.*](https://doi.org/10.5194/gmd-2021-159)).
 
 ### 1.7.1 (10 August 2021)
 

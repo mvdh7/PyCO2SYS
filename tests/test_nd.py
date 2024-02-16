@@ -40,7 +40,7 @@ def test_conditioning():
 # test_conditioning()
 
 
-#%% Now move on to the main function
+# %% Now move on to the main function
 par1 = [2300, 2150, 8.3]
 par2 = [2150]
 par1_type = [1, 1, 3]

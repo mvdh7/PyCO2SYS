@@ -31,25 +31,9 @@ from . import (
     solubility,
     solve,
     uncertainty,
+    upsilon,
 )
 
-__all__ = [
-    "api",
-    "bio",
-    "buffers",
-    "constants",
-    "convert",
-    "engine",
-    "equilibria",
-    "gas",
-    "meta",
-    "minimal",
-    "original",
-    "salts",
-    "solubility",
-    "solve",
-    "uncertainty",
-]
 __author__ = meta.authors
 __version__ = meta.version
 

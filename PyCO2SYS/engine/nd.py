@@ -4,7 +4,7 @@
 
 import itertools
 from autograd import numpy as np
-from .. import convert, equilibria, salts, solve, uncertainty
+from .. import convert, equilibria, salts, solve, uncertainty, upsilon
 
 # Define function input keys that should be converted to floats
 input_floats = {
@@ -69,6 +69,8 @@ input_floats = {
     # Added in v1.8.0:
     "pressure_atmosphere_out",
     "pressure_atmosphere",
+    # Added in v1.8.3:
+    "bh_upsilon",
 }
 
 
@@ -210,6 +212,9 @@ def _get_in_out(core, others, k_constants, suffix=""):
         ]:
             if c in others:
                 io[c] = others[c] * 1e6
+        # Added in v1.8.3:
+        add_if_in_others("dlnfCO2_dT", "dlnfCO2_dT", factor=1)
+        add_if_in_others("dlnpCO2_dT", "dlnpCO2_dT", factor=1)
     if k_constants is not None:
         io.update(
             {
@@ -295,6 +300,12 @@ def _get_results_dict(
             # Added in v1.8.0:
             "pressure_atmosphere": args["pressure_atmosphere"],
             "pressure_atmosphere_out": args["pressure_atmosphere_out"],
+            # Added in v1.8.3 (but should have been in v1.8.2):
+            "opt_pressured_kCO2": args["opt_pressured_kCO2"],
+            # Also added in v1.8.3:
+            "opt_adjust_temperature": args["opt_adjust_temperature"],
+            "opt_which_fCO2_insitu": args["opt_which_fCO2_insitu"],
+            "bh_upsilon": args["bh_upsilon"],
         }
     )
     results.update(_get_in_out(core_in, others_in, k_constants_in, suffix=""))
@@ -426,35 +437,60 @@ gradables = [
     "total_sulfide",
     "xCO2_out",
     "xCO2",
-    # Added in v1.6.0:
+    # Added in v1.6.0 ("_out" versions added in v1.8.3):
+    "alpha_out",
     "alpha",
+    "alphaH_out",
     "alphaH",
+    "beta_out",
     "beta",
+    "betaH_out",
     "betaH",
+    "BOH3_out",
     "BOH3",
+    "BOH4_out",
     "BOH4",
+    "CO2_out",
     "CO2",
+    "CO3_out",
     "CO3",
+    "F_out",
     "F",
+    "H2PO4_out",
     "H2PO4",
+    "H2S_out",
     "H2S",
+    "H3PO4_out",
     "H3PO4",
+    "H3SiO4_out",
     "H3SiO4",
+    "H4SiO4_out",
     "H4SiO4",
+    "HCO3_out",
     "HCO3",
+    "HF_out",
     "HF",
+    "Hfree_out",
     "Hfree",
+    "HPO4_out",
     "HPO4",
+    "HS_out",
     "HS",
+    "HSO4_out",
     "HSO4",
     "k_alpha_out",
     "k_alpha",
     "k_beta_out",
     "k_beta",
+    "NH3_out",
     "NH3",
+    "NH4_out",
     "NH4",
+    "OH_out",
     "OH",
+    "PO4_out",
     "PO4",
+    "SO4_out",
     "SO4",
     "total_alpha",
     "total_beta",
@@ -464,6 +500,12 @@ gradables = [
     # Added in v1.8.0:
     "pressure_atmosphere_out",
     "pressure_atmosphere",
+    # Added in v1.8.3:
+    "dlnfCO2_dT_out",
+    "dlnfCO2_dT",
+    "dlnpCO2_dT_out",
+    "dlnpCO2_dT",
+    "bh_upsilon",
 ]
 
 
@@ -487,7 +529,7 @@ def CO2SYS(
     total_sulfate=None,
     opt_gas_constant=3,
     opt_k_bisulfate=1,
-    opt_k_carbonic=16,
+    opt_k_carbonic=10,
     opt_k_fluoride=1,
     opt_pH_scale=1,
     opt_total_borate=1,
@@ -545,6 +587,10 @@ def CO2SYS(
     pressure_atmosphere_out=1.0,  # atm
     # Added in v1.8.2:
     opt_pressured_kCO2=0,
+    # Added in v1.8.3:
+    opt_adjust_temperature=1,
+    opt_which_fCO2_insitu=1,
+    bh_upsilon=28995.0,  # J / mol
 ):
     """Run CO2SYS with n-dimensional args allowed."""
     args = locals()
@@ -610,8 +656,10 @@ def CO2SYS(
             for k, v in args.items()
             if k in k_constants_optional
         }
+        k_constants_in_raw = k_constants_in.copy()
     else:
         k_constants_in = None
+        k_constants_in_raw = None
     k_constants_in = equilibria.assemble(
         args["temperature"],
         args["pressure"],
@@ -651,6 +699,23 @@ def CO2SYS(
             args["opt_k_carbonic"],
             args["opt_buffers_mode"],
         )
+        dln_args_in = (
+            core_in["TA"],
+            core_in["TC"],
+            args["temperature"],
+            args["pressure"],
+            totals,
+            args["opt_pH_scale"],
+            args["opt_k_carbonic"],
+            args["opt_k_bisulfate"],
+            args["opt_k_fluoride"],
+            args["opt_gas_constant"],
+            k_constants_in_raw,
+            args["pressure_atmosphere"],
+            args["opt_pressured_kCO2"],
+        )
+        others_in["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args_in)
+        others_in["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args_in)
     elif par1 is not None and par2 is None:
         core_in = {}
         others_in = {}
@@ -670,7 +735,8 @@ def CO2SYS(
                     "pHN": pH_nbs,
                 }
             )
-        # One of pCO2, fCO2, CO2(aq) or xCO2 only
+        # One of pCO2, fCO2, CO2(aq) or xCO2 only --- at this point, just inter-convert
+        # them all into each other
         if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
             fCO2 = (
                 np.where(
@@ -737,8 +803,10 @@ def CO2SYS(
                 for k, v in args.items()
                 if k in k_constants_optional_out
             }
+            k_constants_out_raw = k_constants_out.copy()
         else:
             k_constants_out = None
+            k_constants_out_raw = None
         k_constants_out = equilibria.assemble(
             args["temperature_out"],
             args["pressure_out"],
@@ -774,17 +842,131 @@ def CO2SYS(
                 args["opt_k_carbonic"],
                 args["opt_buffers_mode"],
             )
+            dln_args_out = (
+                core_out["TA"],
+                core_out["TC"],
+                args["temperature_out"],
+                args["pressure_out"],
+                totals,
+                args["opt_pH_scale"],
+                args["opt_k_carbonic"],
+                args["opt_k_bisulfate"],
+                args["opt_k_fluoride"],
+                args["opt_gas_constant"],
+                k_constants_out_raw,
+                args["pressure_atmosphere_out"],
+                args["opt_pressured_kCO2"],
+            )
+            others_out["dlnfCO2_dT"] = solve.get_dlnfCO2_dT(*dln_args_out)
+            others_out["dlnpCO2_dT"] = solve.get_dlnpCO2_dT(*dln_args_out)
         elif par1 is not None and par2 is None:
             core_out = {}
             others_out = {}
             # One of pCO2, fCO2, CO2(aq) or xCO2 only
             if np.any(np.isin(args["par1_type"], [4, 5, 8, 9])):
-                # Takahashi et al. (2009) DSR2 Eq. 2
-                core_out["PC"] = core_in["PC"] * np.exp(
-                    0.0433 * (temperature_out - temperature)
-                    - 4.35e-5 * (temperature_out**2 - temperature**2)
-                )
-                core_out["FC"] = convert.pCO2_to_fCO2(core_out["PC"], k_constants_out)
+                core_out["FC"] = core_in["FC"] * 1
+                core_out["PC"] = core_in["PC"] * 1
+                # H24 adjustments are applied to fCO2
+                L = args["opt_adjust_temperature"] == 1
+                if np.any(L):
+                    fCO2_insitu = np.where(
+                        args["opt_which_fCO2_insitu"] == 1,
+                        core_in["FC"] * 1e6,
+                        core_in["FC"]
+                        * 1e6
+                        * upsilon.expUps_TOG93_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            k_constants_in["RGas"],
+                        ),
+                    )
+                    core_out["FC"] = np.where(
+                        L,
+                        core_in["FC"]
+                        * upsilon.expUps_parameterised_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            args["salinity"],
+                            fCO2_insitu,
+                            k_constants_in["RGas"],
+                            opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+                        ),
+                        core_out["FC"],
+                    )
+                L = args["opt_adjust_temperature"] == 2
+                if np.any(L):
+                    core_out["FC"] = np.where(
+                        L,
+                        core_in["FC"]
+                        * upsilon.expUps_TOG93_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            k_constants_in["RGas"],
+                        ),
+                        core_out["FC"],
+                    )
+                L = args["opt_adjust_temperature"] == 3
+                if np.any(L):
+                    core_out["FC"] = np.where(
+                        L,
+                        core_in["FC"]
+                        * upsilon.expUps_enthalpy_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            k_constants_in["RGas"],
+                        ),
+                        core_out["FC"],
+                    )
+                L = args["opt_adjust_temperature"] == 4
+                if np.any(L):
+                    core_out["FC"] = np.where(
+                        L,
+                        core_in["FC"]
+                        * upsilon.expUps_Hoff_H24(
+                            args["temperature"],
+                            args["temperature_out"],
+                            k_constants_in["RGas"],
+                            args["bh_upsilon"],
+                        ),
+                        core_out["FC"],
+                    )
+                L = np.isin(args["opt_adjust_temperature"], [1, 2, 3, 4])
+                if np.any(L):
+                    core_out["PC"] = np.where(
+                        L,
+                        convert.fCO2_to_pCO2(core_out["FC"], k_constants_out),
+                        core_out["PC"],
+                    )
+                # TOG93 adustments are applied to pCO2
+                L = args["opt_adjust_temperature"] == 5
+                if np.any(L):
+                    core_out["PC"] = np.where(
+                        L,
+                        core_in["PC"]
+                        * upsilon.expUps_linear_TOG93(
+                            args["temperature"],
+                            args["temperature_out"],
+                        ),
+                        core_out["PC"],
+                    )
+                L = args["opt_adjust_temperature"] == 6
+                if np.any(L):
+                    core_out["PC"] = np.where(
+                        L,
+                        core_in["PC"]
+                        * upsilon.expUps_quadratic_TOG93(
+                            args["temperature"],
+                            args["temperature_out"],
+                        ),
+                        core_out["PC"],
+                    )
+                L = np.isin(args["opt_adjust_temperature"], [5, 6])
+                if np.any(L):
+                    core_out["FC"] = np.where(
+                        L,
+                        convert.pCO2_to_fCO2(core_out["PC"], k_constants_out),
+                        core_out["FC"],
+                    )
                 core_out["CO2"] = convert.fCO2_to_CO2aq(core_out["FC"], k_constants_out)
                 core_out["XC"] = convert.fCO2_to_xCO2(core_out["FC"], k_constants_out)
         else:
@@ -841,7 +1023,7 @@ def assemble(
     total_sulfate=None,
     opt_gas_constant=3,
     opt_k_bisulfate=1,
-    opt_k_carbonic=16,
+    opt_k_carbonic=10,
     opt_k_fluoride=1,
     opt_pH_scale=1,
     opt_total_borate=1,

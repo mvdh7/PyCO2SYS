@@ -2,7 +2,8 @@
 # Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
-version = "1.8.2"
+version = "1.8.3.1"
+version_xyz = "1.8.3"
 authorlist = [
     "Humphreys, Matthew P.",
     "Schiller, Abigail J.",
@@ -42,6 +43,6 @@ def hello():
                                     Dante, Inferno iii, 9
                                     sign on the entrance gates of hell
 """.format(
-            version
+            version_xyz
         )
     )  # (All hope abandon, ye who enter here!)

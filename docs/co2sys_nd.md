@@ -68,7 +68,7 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter must be given as `par1` plus the relevant `par1_type`, and it can be any of:
 
     * **pH** (type `3`) on any scale, as above.  In this case, the pH values are converted to all the other pH scales at the input conditions only.
-    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>f</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
+    * Any one of types `4` (<i>p</i>CO<sub>2</sub>), `5` (<i>ƒ</i>CO<sub>2</sub>), `8` ([CO<sub>2</sub>(aq)]) or `9` (<i>x</i>CO<sub>2</sub>) above.  In this case, the others in this group of parameters are all calculated at the input conditions.  If output temperatures are provided, then they are also all calculated at this condition by converting <i>p</i>CO<sub>2</sub> to the new temperature following [TSW09](../refs/#t).
 
     If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents are returned, under the given conditions.
 
@@ -135,14 +135,15 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
         * `7`: [MCHP73](../refs/#m) without certain species aka "Peng" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
         * `8`: [M79](../refs/#m) (0 < *T* < 50 °C, *S* = 0, freshwater only).
         * `9`: [CW98](../refs/#c) (2 < *T* < 30 °C, 0 < *S* < 40, NBS scale, real estuarine seawater).
-        * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater).
+        * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater) **(default)**.
         * `11`: [MM02](../refs/#m) (0 < *T* < 45 °C, 5 < *S* < 42, Seawater scale, real seawater).
         * `12`: [MPL02](../refs/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, Seawater scale, field measurements).
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `15`: [WMW14](../refs/#w) (0 < *T* < 45 °C, 0 < *S* < 45, Seawater scale, real seawater).
-        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements) **(default)**.
+        * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
         * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale, real seawater).
+        * `18`: [PLR18](../refs/#p) (–6 < *T* < 25 °C, 33 < *S* < 100, Total scale, real seawater).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
@@ -177,6 +178,16 @@ Each argument to `pyco2.sys` described on this page can either be a single scala
     * `opt_pressured_kCO2`: whether to correct the CO<sub>2</sub> solubility constant for hydrostatic pressure following [W74](../refs/#w) (see discussion in section 2.1.3 of [OE15](../refs/#o)):
         * `0`: do not apply the correction (**default** and the only option before v1.8.2).
         * `1`: apply the correction.
+
+    * `opt_adjust_temperature`: how to convert <i>p</i>CO<sub>2</sub>, <i>ƒ</i>CO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> to a different temperature, when only one parameter is provided.
+        * `1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](../refs/#h) (**default**). 
+        * `2`: using the constant <i>υ<sub>h</sub></i> fitted to the [TOG93](../refs/#t) dataset by [H24](../refs/#h).
+        * `3`: using the constant theoretical <i>υ<sub>x</sub></i> of [H24](../refs/#h).
+        * `4`: following the [H24](../refs/#h) approach but using a user-provided $b_h$ value (given with the kwarg `bh_upsilon`).
+        * `5`: using the linear fit of [TOG93](../refs/#t).
+        * `6`: using the quadratic fit of [TOG93](../refs/#t) (default before v1.8.3).
+
+    * `opt_which_fCO2_insitu`: whether the input (`1`, **default**) or output (`2`) condition <i>p</i>CO<sub>2</sub>, <i>ƒ</i>CO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining <i>b<sub>h</sub></i> with the parameterisation of [H24](../refs/#h).  Only applies when `opt_adjust_temperature` is `1`.
 
     #### Override equilibrium constants
 
@@ -250,6 +261,8 @@ The keys ending with `_out` are only available if at least one of the `temperatu
     * `"omega_alk"`/`"omega_alk_out"`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
     * `"isocapnic_quotient"`/`"isocapnic_quotient_out"`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
     * `"isocapnic_quotient_approx"`/`"isocapnic_quotient_approx_out"`: **isocapnic quotient approximation** of [HDW18](../refs/#h) at input/output conditions.
+    * `"dlnpCO2_dT"`/`"dlnpCO2_dT_out"`: **temperature derivative of ln(<i>ƒ</i>CO<sub>2</sub>)** at input/output conditions (see [TOG93](../refs/#t)).
+    * `"dlnpCO2_dT"`/`"dlnpCO2_dT_out"`: **temperature derivative of ln(<i>p</i>CO<sub>2</sub>)** at input/output conditions (see [TOG93](../refs/#t)).
 
     #### Biological properties
 

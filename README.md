@@ -3,7 +3,7 @@
 [![Tests](https://github.com/mvdh7/PyCO2SYS/workflows/Tests/badge.svg?branch=main)](https://github.com/mvdh7/PyCO2SYS/actions)
 [![pypi badge](https://img.shields.io/pypi/v/PyCO2SYS.svg?style=popout)](https://pypi.org/project/PyCO2SYS/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3744275-informational)](https://doi.org/10.5281/zenodo.3744275)
-[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://pyco2sys.readthedocs.io/en/latest/)
+[![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://mvdh.xyz/PyCO2SYS/)
 [![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -35,11 +35,7 @@ A paper describing PyCO2SYS is freely available:
 
 > Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15-43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
 
-The citation for the PyCO2SYS code is:
-
-> Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
-
-The DOI above refers to all versions of PyCO2SYS.  Please also specify the version number that you used.  You can find this in Python with:
+Please also specify the full version number that you used.  You can find this in Python with:
 
 ```python
 import PyCO2SYS as pyco2
@@ -62,7 +58,7 @@ Update an existing installation:
 
 ## Documentation
 
-Documentation for the current release, based on the `main` branch, is available at [PyCo2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  The documentation for the in-development next version, based on the `develop` branch, is rendered at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS/).
+Documentation for the current release, based on the `main` branch, is available at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) and at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS/).
 
 ## Basic use
 

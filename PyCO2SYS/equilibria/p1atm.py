@@ -400,7 +400,6 @@ def kH2CO3_SWS_HM_DM87(TempK, Sal):
     return K1, K2
 
 
-@np.errstate(divide="ignore", invalid="ignore")  # because Sal=0 gives log10(Sal)=-inf
 def kH2CO3_NBS_MCHP73(TempK, Sal):
     """Carbonic acid dissociation constants following MCHP73."""
     # === CO2SYS.m comments: =======
@@ -409,6 +408,8 @@ def kH2CO3_NBS_MCHP73(TempK, Sal):
     # I.e., these are the original Mehrbach dissociation constants.
     # The 2s precision in pK1 is .005, or 1.2% in K1.
     # The 2s precision in pK2 is .008, or 2% in K2.
+    Sal = np.where(Sal < 1e-16, 1e-16, Sal)
+    # ^ added in v1.8.3, because Sal=0 gives log10(Sal)=-inf
     pK1 = (
         -13.7201
         + 0.031334 * TempK
@@ -427,7 +428,9 @@ def kH2CO3_NBS_MCHP73(TempK, Sal):
         - 8.0944e-4 * Sal * TempK
         - 5617.11 * np.log10(Sal) / TempK
         + 2.136 * Sal / TempK
-    )  # pK2 is not defined for Sal=0, since log10(0)=-inf
+    )  # pK2 is not defined for Sal=0, since log10(0)=-inf, but since v1.8.3 we
+    # return the value for Sal=1e-16 instead (this option shouldn't be used in
+    # such low salinities anyway, it's only valid above 19!)
     K2 = 10.0**-pK2  # this is on the NBS scale
     return K1, K2
 
@@ -712,6 +715,32 @@ def kH2CO3_TOT_SB21(TempK, Sal):
         - 0.0002799 * Sal**2
         + 4.969 * Sal / TempK
     )
+    K2 = 10.0**-pK2
+    return K1, K2
+
+
+def kH2CO3_TOT_PLR18(TempK, Sal):
+    """Carbonic acid dissociation constants following PLR18.
+
+    For 33 < salinity < 100, -6 < temperature < 25 °C.
+    """
+    pK1 = (
+        -176.48
+        + 6.14528 * Sal**0.5
+        - 0.127714 * Sal
+        + 7.396e-5 * Sal**2
+        + (9914.37 - 622.886 * Sal**0.5 + 29.714 * Sal) / TempK
+        + (26.05129 - 0.666812 * Sal**0.5) * np.log(TempK)
+    )
+    pK2 = (
+        -323.52692
+        + 27.557655 * Sal**0.5
+        + 0.154922 * Sal
+        - 2.48396e-4 * Sal**2
+        + (14763.287 - 1014.819 * Sal**0.5 - 14.35223 * Sal) / TempK
+        + (50.385807 - 4.4630415 * Sal**0.5) * np.log(TempK)
+    )
+    K1 = 10.0**-pK1
     K2 = 10.0**-pK2
     return K1, K2
 
