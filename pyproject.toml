@@ -1,9 +1,6 @@
 [build-system]
 requires = [
     "setuptools",
-    "PyCO2SYS",
-    "autograd",
-    "numpy",
 ]
 build-backend = "setuptools.build_meta"
 
