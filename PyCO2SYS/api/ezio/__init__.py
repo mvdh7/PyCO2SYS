@@ -3,7 +3,6 @@
 #
 """EZIO: Easy Input/Output of 'CO2SYS.xlsx'-style spreadsheets"""
 
-import pandas as pd
 from .ezio_utils import get_spreadsheet
 from .ezio_utils import EZIO_calculate
 from .ezio_utils import save_output
@@ -60,6 +59,8 @@ def ezio(
         Solved carbonate system parameters.
 
     """
+    import pandas as pd
+
     input_file = get_spreadsheet(
         path
     )  # compatible with both .csv and .xlsx, see input template.

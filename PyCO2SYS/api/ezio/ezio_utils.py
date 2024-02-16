@@ -4,7 +4,6 @@
 """EZIO: Easy Input/Output of CO2SYS.xlsx-style spreadsheets"""
 """Utilities"""
 
-import pandas as pd
 import os
 from ...engine.nd import CO2SYS as CO2SYS_nd
 
@@ -26,6 +25,8 @@ def get_spreadsheet(path):  # Input file MUST be the same format as in CO2SYS Ex
         read_csv() or read_excel() output.
 
     """
+    import pandas as pd
+
     head, tail = os.path.splitext(path)  # Which filetype?
     input_file = pd.DataFrame()
     if tail == ".csv":  # comma-separated, first two rows ignored
@@ -94,6 +95,8 @@ def EZIO_calculate(
         Result of PyCO2SYS solving algorithm, structured as in CO2SYS Excel.
 
     """
+    import pandas as pd
+
     output_df = (
         pd.DataFrame(  # Initiate empty dataframe matching output format of CO2SYS Excel
             {
