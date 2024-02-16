@@ -46,12 +46,12 @@ A paper describing PyCO2SYS is freely available:
 !!! note "PyCO2SYS manuscript"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15-43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
 
-Please cite the PyCO2SYS software itself:
+To cite the PyCO2SYS software itself:
 
 !!! note "PyCO2SYS code citation"
-    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
+    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2024).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
 
-The DOI refers to all versions of PyCO2SYS.  Please specify which version of PyCO2SYS you used.  You can find the version number that you are using in Python with:
+The DOI above refers to all versions of PyCO2SYS.  Please specify which version of PyCO2SYS you used.  You can find the version number that you are using in Python with:
 
 ```python
 import PyCO2SYS as pyco2
