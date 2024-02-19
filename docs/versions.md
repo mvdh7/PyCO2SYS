@@ -52,6 +52,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
     ***Technical***
 
     * Updated from building with setup.py to pyproject.toml.
+    * PyCO2SYS can now be installed with conda/mamba (via conda-forge).
 
 ### 1.8.2 (19 January 2023)
 

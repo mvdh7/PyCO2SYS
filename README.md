@@ -8,16 +8,20 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Contents:**
+<!-- TOC -->
 
 - [PyCO2SYS](#pyco2sys)
-  - [Introduction](#introduction)
-  - [Citation](#citation)
-  - [Installation](#installation)
-  - [Documentation](#documentation)
-  - [Basic use](#basic-use)
-  - [About](#about)
-  - [License](#license)
+    - [Introduction](#introduction)
+    - [Citation](#citation)
+    - [Installation](#installation)
+        - [With pip](#with-pip)
+        - [With conda/mamba](#with-condamamba)
+    - [Documentation](#documentation)
+    - [Basic use](#basic-use)
+    - [About](#about)
+    - [License](#license)
+
+<!-- /TOC -->
 
 ## Introduction
 
@@ -48,13 +52,21 @@ As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/james
 
 If you manage Python with conda, we recommend that you first install NumPy, pandas and xarray into the environment where PyCO2SYS is to be installed with conda.
 
-Then, you can install from the Python Package Index:
+### With pip
+
+Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
     pip install PyCO2SYS
 
 Update an existing installation:
 
     pip install PyCO2SYS --upgrade --no-cache-dir
+
+### With conda/mamba
+
+Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
+
+    conda install PyCO2SYS -c conda-forge
 
 ## Documentation
 

@@ -4,6 +4,8 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 ## Installation
 
+### With pip
+
 Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
     pip install PyCO2SYS
@@ -11,6 +13,12 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 Update an existing installation:
 
     pip install PyCO2SYS --upgrade --no-cache-dir
+
+### With conda/mamba
+
+Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
+
+    conda install PyCO2SYS -c conda-forge
 
 ## Basic use
 
