@@ -26,6 +26,7 @@ classifiers = [
     "Natural Language :: English",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Oceanography",
 ]
 dynamic = ["version"]
 
