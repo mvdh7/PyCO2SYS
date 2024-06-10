@@ -1,3 +1,4 @@
+import PyCO2SYS as pyco2
 from PyCO2SYS import CO2System, system
 import networkx as nx
 
@@ -15,6 +16,8 @@ sys.get(
         # "total_to_sws_1atm",
         # "nbs_to_sws",
         "k_H2S_sws_1atm",
+        # 'gas_constant',
+        "factor_k_H2S",
     )
 )
 sys.plot_graph(

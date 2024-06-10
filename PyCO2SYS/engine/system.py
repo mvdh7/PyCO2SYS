@@ -1,10 +1,11 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
+from operator import mul
 import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from . import convert, equilibria, salts
+from .. import constants, convert, equilibria, salts
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -27,7 +28,11 @@ get_funcs = {
         k_H2S_total_1atm * total_to_sws_1atm
     ),
     # Pressure correction factors for equilibrium constants
+    "factor_k_H2S": equilibria.pcx.factor_k_H2S,
     # Equilibrium constants at pressure and on the seawater pH scale
+    "k_H2S_sws": lambda k_H2S_sws_1atm, factor_k_H2S: (
+        k_H2S_sws_1atm, factor_k_H2S
+    )
     # Equilibrium constants at pressure and on the requested pH scale (YES, HERE!)
 }
 
@@ -48,6 +53,11 @@ get_funcs_core[0] = {}
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)
 get_funcs_opts = {}
+get_funcs_opts["opt_gas_constant"] = {
+    1: dict(gas_constant=lambda: constants.RGasConstant_DOEv2),
+    2: dict(gas_constant=lambda: constants.RGasConstant_DOEv3),
+    3: dict(gas_constant=lambda: constants.RGasConstant_CODATA2018),
+}
 get_funcs_opts["opt_fH"] = {
     1: dict(fH=convert.fH_TWB82),
     2: dict(fH=convert.fH_PTBO87),
@@ -128,6 +138,7 @@ default_values = {
 }
 
 default_opts = {
+    "opt_gas_constant": 3,
     "opt_fH": 1,
     "opt_k_HF": 1,
     "opt_k_HSO4": 1,

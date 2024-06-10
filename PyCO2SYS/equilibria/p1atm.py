@@ -26,6 +26,7 @@ k_HSO4_free_WM13
     with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
 """
 from jax import numpy as np
+from .. import convert
 
 
 def kCO2_W74(temperature, salinity):
@@ -68,7 +69,7 @@ def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
     # TYPO on p. 121: the constant e9 should be e8.
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
-    TempK = temperature + 273.15
+    TempK = convert.celsius_to_kelvin(temperature)
     logTempK = np.log(TempK)
     lnk_HSO4 = (
         -4276.1 / TempK
@@ -137,7 +138,7 @@ def k_HSO4_free_WM13(temperature, salinity):
     float
         HSO4 dissociation constant.
     """
-    TempK = temperature + 273.15
+    TempK = convert.celsius_to_kelvin(temperature)
     logKS0 = (
         562.69486
         - 102.5154 * np.log(TempK)
@@ -866,7 +867,7 @@ def k_H2S_total_YM95(temperature, salinity):
     # they agree with Millero 1988 which are on Total Scale.
     # Also, calculations agree at high H2S with AquaEnv when assuming it is on
     # Total Scale.
-    TempK = temperature + 273.15
+    TempK = convert.celsius_to_kelvin(temperature)
     lnkH2S = (
         225.838
         - 13275.3 / TempK

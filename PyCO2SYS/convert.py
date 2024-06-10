@@ -1,7 +1,24 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-"""Convert units and calculate conversion factors."""
+"""
+PyCO2SYS.convert
+================
+Convert units and calculate conversion factors.
 
+pH scale conversions
+--------------------
+There is a function for every variant of pH_<scale1>_to_<scale2>, where <scale1> and
+<scale2> are any of free, total, sws and nbs.  Each function has a different set of
+arguments, depending on what is needed.  For example, to get the conversion factor to
+go from the total to the NBS scale, use:
+
+  >>> factor = pyco2.convert.pH_total_to_nbs(
+        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
+      )
+
+``factor`` should be multiplied by [H+] or K value(s) on the total scale to convert to
+the NBS scale.
+"""
 import copy
 from jax import numpy as np
 from . import constants

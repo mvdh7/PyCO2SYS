@@ -6,9 +6,30 @@ from autograd import numpy as np
 from .. import convert
 
 
-def Kfac(deltaV, Kappa, Pbar, TempK, RGas):
-    """Calculate pressure correction factor for equilibrium constants."""
-    return np.exp((-deltaV + 0.5 * Kappa * Pbar) * Pbar / (RGas * TempK))
+def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
+    """Calculate pressure-correction factors for equilibrium constants.
+    
+    Parameters
+    ----------
+    deltaV : float
+        The deltaV constant for the pressure correction.
+    kappa : float
+        The kappa constant for the pressure correction.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    temperature : float
+        Temperature in °C.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+    
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
+    Pbar = convert.decibar_to_bar(pressure)
+    TempK = convert.celsius_to_kelvin(temperature)
+    return np.exp((-deltaV + 0.5 * kappa * Pbar) * Pbar / (gas_constant * TempK))
 
 
 def KSO4fac(TempK, Pbar, RGas):
@@ -134,16 +155,15 @@ def KSifac(TempK, Pbar, RGas):
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
 
 
-def KH2Sfac(TempK, Pbar, RGas):
-    """Calculate pressure correction factor for KH2S."""
+def factor_k_H2S(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_H2S."""
     # === CO2SYS.m comments: =======
     # Millero 1995 gives values for deltaV in fresh water instead of SW.
     # Millero 1995 gives -b0 as -2.89 instead of 2.89.
     # Millero 1983 is correct for both.
-    TempC = convert.kelvin_to_celsius(TempK)
-    deltaV = -11.07 - 0.009 * TempC - 0.000942 * TempC**2
-    Kappa = (-2.89 + 0.054 * TempC) / 1000
-    return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
+    deltaV = -11.07 - 0.009 * temperature - 0.000942 * temperature**2
+    kappa = (-2.89 + 0.054 * temperature) / 1000
+    return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
 
 
 def KNH3fac(TempK, Pbar, RGas):
