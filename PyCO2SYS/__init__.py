@@ -16,37 +16,38 @@
 """Solve the marine carbonate system and calculate related seawater properties."""
 
 from . import (
-    api,
-    bio,
-    buffers,
-    constants,
-    convert,
+    # api,
+    # bio,
+    # buffers,
+    # constants,
+    # convert,
     engine,
-    equilibria,
-    gas,
+    # equilibria,
+    # gas,
     meta,
-    minimal,
-    original,
+    # minimal,
+    # original,
     salts,
-    solubility,
-    solve,
-    uncertainty,
-    upsilon,
+    # solubility,
+    # solve,
+    # uncertainty,
+    # upsilon,
 )
 
 __author__ = meta.authors
 __version__ = meta.version
 
 # Aliases for top-level access
-from .engine import CO2SYS
-from .engine.nd import CO2SYS as sys
-from .engine.nd import assemble
-from .api import CO2SYS_wrap, CO2SYS_MATLABv3
+from .engine import CO2SYS, system
+# from .engine.nd import CO2SYS as sys
+# from .engine.nd import assemble
+from .engine.system import CO2System
+# from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import hello  # because history
-from .solve.get import speciation
-from .api.ezio import ezio
-from .uncertainty import all_OEDG18 as uncertainty_OEDG18
+# from .solve.get import speciation
+# from .api.ezio import ezio
+# from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 
-# For backwards-compatibility
-CO2SYS_nd = sys
+# # For backwards-compatibility
+# CO2SYS_nd = sys
 say_hello = hello
