@@ -4,7 +4,7 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from . import constants, convert, equilibria, salts
+from . import convert, equilibria, salts
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
