@@ -20,9 +20,9 @@ from . import (
     # bio,
     # buffers,
     # constants,
-    # convert,
+    convert,
     engine,
-    # equilibria,
+    equilibria,
     # gas,
     meta,
     # minimal,
@@ -39,11 +39,14 @@ __version__ = meta.version
 
 # Aliases for top-level access
 from .engine import CO2SYS, system
+
 # from .engine.nd import CO2SYS as sys
 # from .engine.nd import assemble
 from .engine.system import CO2System
+
 # from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import hello  # because history
+
 # from .solve.get import speciation
 # from .api.ezio import ezio
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18

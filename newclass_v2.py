@@ -1,15 +1,26 @@
-from PyCO2SYS import CO2System
+from PyCO2SYS import CO2System, system
 import networkx as nx
 
 sys = CO2System(
     # dict(salinity=32),
-    # opts=dict(opt_total_borate=2),
+    opts=dict(opt_k_HF=2),
     # use_default_values=False,
 )
-sys.get(("total_borate", "total_sulfate"))
-sys.plot_links(
-    # show_missing=False,
+sys.get(
+    (
+        # "total_sulfate",
+        # "k_HSO4_free_1atm",
+        # "ionic_strength",
+        # "k_HF_free_1atm",
+        # "total_to_sws_1atm",
+        # "nbs_to_sws",
+        "k_H2S_sws_1atm",
+    )
+)
+sys.plot_graph(
+    # show_unknown=False,
     # show_isolated=False,
+    # prog_graphviz='neato',
 )
 
 print(sys.values)

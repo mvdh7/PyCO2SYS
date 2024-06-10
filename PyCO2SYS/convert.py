@@ -3,7 +3,7 @@
 """Convert units and calculate conversion factors."""
 
 import copy
-from autograd import numpy as np
+from jax import numpy as np
 from . import constants
 from .equilibria import pressured
 
@@ -58,44 +58,46 @@ def bar_to_decibar(Pbar):
     return Pbar * 10.0
 
 
-def pH_free_to_total(totals, k_constants):
-    """Free to Total pH scale conversion factor."""
-    return 1.0 + totals["TSO4"] / k_constants["KSO4"]
+def pH_free_to_total(total_sulfate, k_HSO4_free):
+    """Free to total pH scale conversion factor."""
+    return 1.0 + 1e-6 * total_sulfate / k_HSO4_free
 
 
-def pH_free_to_sws(totals, k_constants):
-    """Free to Seawater pH scale conversion factor."""
-    return 1.0 + totals["TSO4"] / k_constants["KSO4"] + totals["TF"] / k_constants["KF"]
+def pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+    """Free to seawater pH scale conversion factor."""
+    return 1.0 + 1e-6 * total_sulfate / k_HSO4_free + 1e-6 * total_fluoride / k_HF_free
 
 
-def pH_sws_to_free(totals, k_constants):
-    """Seawater to Free pH scale conversion factor."""
-    return 1.0 / pH_free_to_sws(totals, k_constants)
+def pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+    """Seawater to free pH scale conversion factor."""
+    return 1.0 / pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
 
 
-def pH_sws_to_total(totals, k_constants):
-    """Seawater to Total pH scale conversion factor."""
-    return pH_sws_to_free(totals, k_constants) * pH_free_to_total(totals, k_constants)
+def pH_sws_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+    """Seawater to total pH scale conversion factor."""
+    return pH_sws_to_free(
+        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
+    ) * pH_free_to_total(total_sulfate, k_HSO4_free)
 
 
-def pH_total_to_free(totals, k_constants):
-    """Total to Free pH scale conversion factor."""
-    return 1.0 / pH_free_to_total(totals, k_constants)
+def pH_total_to_free(total_sulfate, k_HSO4_free):
+    """Total to free pH scale conversion factor."""
+    return 1.0 / pH_free_to_total(total_sulfate, k_HSO4_free)
 
 
-def pH_total_to_sws(totals, k_constants):
-    """Total to Seawater pH scale conversion factor."""
-    return 1.0 / pH_sws_to_total(totals, k_constants)
+def pH_total_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+    """Total to seawater pH scale conversion factor."""
+    return 1.0 / pH_sws_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
 
 
-def pH_sws_to_nbs(totals, k_constants):
+def pH_sws_to_nbs(fH):
     """Seawater to NBS pH scale conversion factor."""
-    return k_constants["fH"]
+    return fH
 
 
-def pH_nbs_to_sws(totals, k_constants):
+def pH_nbs_to_sws(fH):
     """NBS to Seawater pH scale conversion factor."""
-    return 1.0 / pH_sws_to_nbs(totals, k_constants)
+    return 1.0 / pH_sws_to_nbs(fH)
 
 
 def pH_total_to_nbs(totals, k_constants):
@@ -118,22 +120,24 @@ def pH_nbs_to_free(totals, k_constants):
     return 1.0 / pH_free_to_nbs(totals, k_constants)
 
 
-def fH_PTBO87(TempK, Sal):
+def fH_PTBO87(temperature, salinity):
     """fH following PTBO87."""
     # === CO2SYS.m comments: =======
     # Peng et al, Tellus 39B:439-458, 1987:
     # They reference the GEOSECS report, but round the value
     # given there off so that it is about .008 (1#) lower. It
     # doesn't agree with the check value they give on p. 456.
-    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * Sal**2
+    TempK = temperature + 273.15
+    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * salinity**2
 
 
-def fH_TWB82(TempK, Sal):
+def fH_TWB82(temperature, salinity):
     """fH following TWB82."""
     # === CO2SYS.m comments: =======
     # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
     # v. 3, 1982 (p. 80).
-    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * Sal**2
+    TempK = temperature + 273.15
+    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * salinity**2
 
 
 def pH_to_all_scales(pH, pH_scale, totals, k_constants):
@@ -177,7 +181,9 @@ def get_pHfactor_from_SWS(TempK, Sal, totals, k_constants, pHScale, WhichKs):
     )  # Total
     pHfactor = np.where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
     pHfactor = np.where(
-        pHScale == 3, pH_sws_to_free(totals, k_constants), pHfactor
+        pHScale == 3,
+        pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free),
+        pHfactor,
     )  # Free
     pHfactor = np.where(
         pHScale == 4, pH_sws_to_nbs(totals, k_constants), pHfactor
@@ -197,7 +203,9 @@ def get_pHfactor_to_Free(TempK, Sal, totals, k_constants, pHScale, WhichKs):
         pHScale == 1, pH_total_to_free(totals, k_constants), pHfactor
     )  # Total
     pHfactor = np.where(
-        pHScale == 2, pH_sws_to_free(totals, k_constants), pHfactor
+        pHScale == 2,
+        pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free),
+        pHfactor,
     )  # Seawater (SWS)
     pHfactor = np.where(pHScale == 3, 1.0, pHfactor)  # Free
     pHfactor = np.where(
@@ -238,9 +246,11 @@ def _flattenfirst(args, dtype):
     npts = np.max(arglengths)
     return (
         [
-            np.full(npts, arg, dtype=dtype)
-            if np.size(arg) == 1
-            else arg.ravel().astype(dtype)
+            (
+                np.full(npts, arg, dtype=dtype)
+                if np.size(arg) == 1
+                else arg.ravel().astype(dtype)
+            )
             for arg in args
         ],
         npts,
@@ -255,9 +265,11 @@ def _flattenafter(args, npts, dtype):
     ), "Inputs must all be the same length as each other or of length 1."
     # Make vectors of all inputs
     return [
-        np.full(npts, arg, dtype=dtype)
-        if np.size(arg) == 1
-        else arg.ravel().astype(dtype)
+        (
+            np.full(npts, arg, dtype=dtype)
+            if np.size(arg) == 1
+            else arg.ravel().astype(dtype)
+        )
         for arg in args
     ]
 

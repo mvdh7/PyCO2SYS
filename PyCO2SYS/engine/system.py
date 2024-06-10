@@ -4,16 +4,33 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from . import salts
+from . import constants, convert, equilibria, salts
 
-# Define functions for calculations that depend neither on icase nor opts
+# Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
+    # Total salt contents
     "ionic_strength": salts.ionic_strength_DOE94,
     "total_fluoride": salts.total_fluoride_R65,
     "total_sulfate": salts.total_sulfate_MR66,
+    # Equilibrium constants at 1 atm and on reported pH scale
+    "k_H2S_total_1atm": equilibria.p1atm.k_H2S_total_YM95,
+    # pH scale conversion factors at 1 atm
+    "free_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_free_to_sws(
+        total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
+    ),
+    "nbs_to_sws": convert.pH_nbs_to_sws,
+    "total_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_total_to_sws(
+        total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
+    ),
+    # Equilibrium constants at 1 atm and on the seawater pH scale
+    "k_H2S_sws_1atm": lambda k_H2S_total_1atm, total_to_sws_1atm: (
+        k_H2S_total_1atm * total_to_sws_1atm
+    ),
+    # Pressure correction factors for equilibrium constants
+    # Equilibrium constants at pressure and on the seawater pH scale
 }
 
-# Define functions for calculations that depend on icase
+# Define functions for calculations that depend on icase:
 get_funcs_core = {}
 get_funcs_core[0] = {}
 # get_funcs_core[5] = {
@@ -27,8 +44,22 @@ get_funcs_core[0] = {}
 #     "CO3": CO3_from_dic_pH,
 # }
 
-# Define functions for calculations that depend on opts
+# Define functions for calculations that depend on opts:
+# (unlike in previous versions, each opt may only affect one parameter)
 get_funcs_opts = {}
+get_funcs_opts["opt_fH"] = {
+    1: dict(fH=convert.fH_TWB82),
+    2: dict(fH=convert.fH_PTBO87),
+}
+get_funcs_opts["opt_k_HF"] = {
+    1: dict(k_HF_free_1atm=equilibria.p1atm.k_HF_free_DR79),
+    2: dict(k_HF_free_1atm=equilibria.p1atm.k_HF_free_PF87),
+}
+get_funcs_opts["opt_k_HSO4"] = {
+    1: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_D90a),
+    2: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_KRCB77),
+    3: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_WM13),
+}
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
     2: dict(total_borate=salts.total_borate_LKB10),
@@ -42,32 +73,34 @@ get_funcs_opts["opt_Ca"] = {
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
-links = nx.DiGraph()
+graph = nx.DiGraph()
 for k, func in get_funcs.items():
-    func_args = func.__code__.co_varnames
+    fcode = func.__code__
+    func_args = fcode.co_varnames[: fcode.co_argcount]
     for f in func_args:
-        links.add_edge(f, k)
+        graph.add_edge(f, k)
 
 # Automatically set up graph for each icase based on the function names and signatures
 # in get_funcs_core
-links_core = {}
+graph_core = {}
 for icase, funcs in get_funcs_core.items():
-    links_core[icase] = nx.DiGraph()
+    graph_core[icase] = nx.DiGraph()
     for t, func in get_funcs_core[icase].items():
         for f in func.__name__.split("_")[2:]:
-            links_core[icase].add_edge(f, t)
+            graph_core[icase].add_edge(f, t)
 
 # Automatically set up graph for each opt based on the function names and signatures in
 # get_funcs_opts
-links_opts = {}
+graph_opts = {}
 for o, opts in get_funcs_opts.items():
-    links_opts[o] = {}
+    graph_opts[o] = {}
     for opt, funcs in opts.items():
-        links_opts[o][opt] = nx.DiGraph()
+        graph_opts[o][opt] = nx.DiGraph()
         for k, func in funcs.items():
-            func_args = func.__code__.co_varnames
+            fcode = func.__code__
+            func_args = fcode.co_varnames[: fcode.co_argcount]
             for f in func_args:
-                links_opts[o][opt].add_edge(f, k)
+                graph_opts[o][opt].add_edge(f, k)
 
 parameters_core = [
     "alkalinity",
@@ -94,7 +127,9 @@ default_values = {
 }
 
 default_opts = {
-    # "opt_k_carbonic": 10,
+    "opt_fH": 1,
+    "opt_k_HF": 1,
+    "opt_k_HSO4": 1,
     "opt_total_borate": 1,
     "opt_Ca": 1,
 }
@@ -123,11 +158,11 @@ class CO2System:
                 ), "{} is not allowed for {}!".format(v, k)
             self.opts.update(opts)
         # Assemble graph and functions
-        self.links = nx.compose(links, links_core[self.icase])
+        self.graph = nx.compose(graph, graph_core[self.icase])
         self.get_funcs = get_funcs.copy()
         self.get_funcs.update(get_funcs_core[self.icase])
         for opt, v in self.opts.items():
-            self.links = nx.compose(self.links, links_opts[opt][v])
+            self.graph = nx.compose(self.graph, graph_opts[opt][v])
             self.get_funcs.update(get_funcs_opts[opt][v])
         # Assign default values, if requested
         if use_default_values:
@@ -135,14 +170,14 @@ class CO2System:
             for k, v in default_values.items():
                 if k not in values:
                     values[k] = v
-                    self.links.add_node(k)
+                    self.graph.add_node(k)
         # Save arguments
         self.values = {}
         for k, v in values.items():
             if k != "self" and v is not None:
                 self.values[k] = v
                 # state 1 means that the value was provided as an argument
-                nx.set_node_attributes(self.links, {k: 1}, name="state")
+                nx.set_node_attributes(self.graph, {k: 1}, name="state")
 
     def get(self, parameters, save_steps=True):
         """Calculate and return parameter(s) and (optionally) save them internally.
@@ -165,11 +200,11 @@ class CO2System:
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
         # needs: which intermediate parameters we need to get the requested parameters
-        links_unknown = self.links.copy()
-        links_unknown.remove_nodes_from([v for v in self.values if v not in parameters])
+        graph_unknown = self.graph.copy()
+        graph_unknown.remove_nodes_from([v for v in self.values if v not in parameters])
         needs = parameters.copy()
         for p in parameters:
-            needs = needs | nx.ancestors(links_unknown, p)
+            needs = needs | nx.ancestors(graph_unknown, p)
         # The got counter increments each time we successfully get a value, either from
         # the arguments, already-calculated values, or by calculating it.
         # The loop stops once got reaches the number of parameters in `needs`, because
@@ -189,39 +224,63 @@ class CO2System:
                     got += 1
                     print("{} is available!".format(p))
             else:
-                priors = self.links.pred[p]
+                priors = self.graph.pred[p]
                 if len(priors) == 0 or all([r in self_values for r in priors]):
                     print("Calculating {}".format(p))
                     self_values[p] = self.get_funcs[p](
                         *[
                             self_values[r]
-                            for r in self.get_funcs[p].__code__.co_varnames
+                            for r in self.get_funcs[p].__code__.co_varnames[
+                                : self.get_funcs[p].__code__.co_argcount
+                            ]
                         ]
                     )
                     # state 2 means that the value was calculated internally
                     if save_steps:
-                        nx.set_node_attributes(self.links, {p: 2}, name="state")
-                        for f in self.get_funcs[p].__code__.co_varnames:
+                        nx.set_node_attributes(self.graph, {p: 2}, name="state")
+                        for f in self.get_funcs[p].__code__.co_varnames[
+                            : self.get_funcs[p].__code__.co_argcount
+                        ]:
                             nx.set_edge_attributes(
-                                self.links, {(f, p): 2}, name="state"
+                                self.graph, {(f, p): 2}, name="state"
                             )
                     results[p] = self_values[p]
                     got += 1
             print("Got", got, "of", len(set(needs)))
+        # Get rid of jax overhead on results
+        for k, v in results.items():
+            try:
+                results[k] = v.item()
+            except:
+                pass
         if save_steps:
+            for k, v in self_values.items():
+                try:
+                    self_values[k] = v.item()
+                except:
+                    pass
             self.values.update(self_values)
         return results
 
-    def plot_links(self, ax=None, show_tsp=True, show_missing=True, show_isolated=True):
+    def plot_graph(
+        self,
+        ax=None,
+        prog_graphviz="neato",
+        show_tsp=True,
+        show_unknown=True,
+        show_isolated=True,
+    ):
         """Draw a graph showing the relationships between the different parameters.
 
         Parameters
         ----------
         ax : matplotlib axes, optional
             The axes, by default None, in which case new axes are generated.
+        prog_graphviz : str, optional
+            Name of Graphviz layout program, by default "neato".
         show_tsp : bool, optional
             Whether to show temperature, salinity and pressure nodes, by default False.
-        show_missing : bool, optional
+        show_unknown : bool, optional
             Whether to show nodes for parameters that have not (yet) been calculated,
             by default True.
         show_isolated : bool, optional
@@ -235,26 +294,28 @@ class CO2System:
         """
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        self_links = self.links.copy()
-        node_states = nx.get_node_attributes(self_links, "state", default=0)
-        edge_states = nx.get_edge_attributes(self_links, "state", default=0)
+        self_graph = self.graph.copy()
+        node_states = nx.get_node_attributes(self_graph, "state", default=0)
+        edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
         if not show_tsp:
-            self_links.remove_nodes_from(["pressure", "salinity", "temperature"])
-        if not show_missing:
-            self_links.remove_nodes_from([n for n, s in node_states.items() if s == 0])
+            self_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
+        if not show_unknown:
+            self_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
         if not show_isolated:
-            self_links.remove_nodes_from(
-                [n for n, d in dict(self_links.degree).items() if d == 0]
+            self_graph.remove_nodes_from(
+                [n for n, d in dict(self_graph.degree).items() if d == 0]
             )
         state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}
-        node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_links)]
-        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_links)]
-        nx.draw_planar(
-            self_links,
+        node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_graph)]
+        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_graph)]
+        pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
+        nx.draw_networkx(
+            self_graph,
             ax=ax,
             clip_on=False,
             with_labels=True,
             node_color=node_colour,
             edge_color=edge_colour,
+            pos=pos,
         )
         return ax

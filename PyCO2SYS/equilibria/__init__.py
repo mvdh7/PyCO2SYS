@@ -6,8 +6,6 @@ from autograd import numpy as np
 from . import p1atm, pcx, pressured
 from .. import constants, convert, gas, solubility
 
-__all__ = ["p1atm", "pcx", "pressured"]
-
 
 def prepare(temperature, pressure, equilibria):
     """Initialise equilibria dict if needed and convert temperature/pressure units to

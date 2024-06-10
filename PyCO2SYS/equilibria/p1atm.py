@@ -1,17 +1,39 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-"""Estimate stoichiometric equilibrium constants at atmospheric pressure."""
+"""
+PyCO2SYS.equilibria.p1atm
+=========================
+Calculate stoichiometric equilibrium constants under standard atmospheric pressure.
 
-from autograd import numpy as np
-from .. import salts
+Functions
+---------
+k_H2S_total_YM95
+    Hydrogen sulfide dissociation constant on the total scale following YM95.
+k_HF_free_DR79
+    Hydrogen fluoride dissociation constant on the free scale following DR79.
+    Used when opt_k_HF = 1.
+k_HF_free_PF87
+    Hydrogen fluoride dissociation constant on the free scale following PF87.
+    Used when opt_k_HF = 2.
+k_HSO4_free_D90a
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
+    Used when opt_k_HSO4 = 1.
+k_HSO4_free_KRCB77
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
+    Used when opt_k_HSO4 = 2.
+k_HSO4_free_WM13
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
+    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
+"""
+from jax import numpy as np
 
 
-def kCO2_W74(TempK, Sal):
+def kCO2_W74(temperature, salinity):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""
     # === CO2SYS.m comments: =======
     # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # This is in mol/kg-SW/atm.
-    TempK100 = TempK / 100
+    TempK100 = (temperature + 273.15) / 100
     lnK0 = (
         -60.2409
         + 93.4517 / TempK100
@@ -21,8 +43,24 @@ def kCO2_W74(TempK, Sal):
     return np.exp(lnK0)
 
 
-def kHSO4_FREE_D90a(TempK, Sal):
-    """Bisulfate dissociation constant following D90a."""
+def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
+    Used when opt_k_HSO4 = 1.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+    ionic_strength : float
+        Ionic strength in mol/kg-sw.
+
+    Returns
+    -------
+    float
+        HSO4 dissociation constant.
+    """
     # === CO2SYS.m comments: =======
     # Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
     # The goodness of fit is .021.
@@ -30,22 +68,38 @@ def kHSO4_FREE_D90a(TempK, Sal):
     # TYPO on p. 121: the constant e9 should be e8.
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
+    TempK = temperature + 273.15
     logTempK = np.log(TempK)
-    IonS = salts.ionic_strength_DOE94(Sal)
-    lnKSO4 = (
+    lnk_HSO4 = (
         -4276.1 / TempK
         + 141.328
         - 23.093 * logTempK
-        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.sqrt(IonS)
-        + (35474 / TempK - 771.54 + 114.723 * logTempK) * IonS
-        + (-2698 / TempK) * np.sqrt(IonS) * IonS
-        + (1776 / TempK) * IonS**2
+        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.sqrt(ionic_strength)
+        + (35474 / TempK - 771.54 + 114.723 * logTempK) * ionic_strength
+        + (-2698 / TempK) * np.sqrt(ionic_strength) * ionic_strength
+        + (1776 / TempK) * ionic_strength**2
     )
-    return np.exp(lnKSO4) * (1 - 0.001005 * Sal)
+    return np.exp(lnk_HSO4) * (1 - 0.001005 * salinity)
 
 
-def kHSO4_FREE_KRCB77(TempK, Sal):
-    """Bisulfate dissociation constant following KRCB77."""
+def k_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
+    Used when opt_k_HSO4 = 2.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+    ionic_strength : float
+        Ionic strength in mol/kg-sw.
+
+    Returns
+    -------
+    float
+        HSO4 dissociation constant.
+    """
     # === CO2SYS.m comments: =======
     # Khoo, et al, Analytical Chemistry, 49(1):29-34, 1977
     # KS was found by titrations with a hydrogen electrode
@@ -60,13 +114,30 @@ def kHSO4_FREE_KRCB77(TempK, Sal):
     # The rms error is .0021 in pKS, or about .5% in KS.
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
-    IonS = salts.ionic_strength_DOE94(Sal)
-    pKSO4 = 647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(IonS)
-    return 10.0**-pKSO4 * (1 - 0.001005 * Sal)
+    TempK = temperature + 273.15
+    pk_HSO4 = (
+        647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(ionic_strength)
+    )
+    return 10.0**-pk_HSO4 * (1 - 0.001005 * salinity)
 
 
-def kHSO4_FREE_WM13(TempK, Sal):
-    """Bisulfate dissociation constant following WM13/WMW14."""
+def k_HSO4_free_WM13(temperature, salinity):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
+    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        HSO4 dissociation constant.
+    """
+    TempK = temperature + 273.15
     logKS0 = (
         562.69486
         - 102.5154 * np.log(TempK)
@@ -81,27 +152,55 @@ def kHSO4_FREE_WM13(TempK, Sal):
             + 0.0267059 * TempK * np.log(TempK)
             - 0.000042128 * TempK**2
         )
-        * Sal**0.5
-        + (0.2542181 - 0.00509534 * TempK + 0.00071589 * TempK * np.log(TempK)) * Sal
-        + (-0.00291179 + 0.0000209968 * TempK) * Sal**1.5
-        + -0.0000403724 * Sal**2
+        * salinity**0.5
+        + (0.2542181 - 0.00509534 * TempK + 0.00071589 * TempK * np.log(TempK))
+        * salinity
+        + (-0.00291179 + 0.0000209968 * TempK) * salinity**1.5
+        + -0.0000403724 * salinity**2
     )
-    kSO4 = (1 - 0.001005 * Sal) * 10.0 ** (logKSK0 + logKS0)
-    return kSO4
+    k_HSO4 = (1 - 0.001005 * salinity) * 10.0 ** (logKSK0 + logKS0)
+    return k_HSO4
 
 
-def kHF_FREE_DR79(TempK, Sal):
-    """Hydrogen fluoride dissociation constant following DR79."""
+def k_HF_free_DR79(temperature, salinity, ionic_strength):
+    """Hydrogen fluoride dissociation constant on the free scale following DR79.
+    Used when opt_k_HF = 1.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        HF dissociation constant.
+    """
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    IonS = salts.ionic_strength_DOE94(Sal)
-    lnKF = 1590.2 / TempK - 12.641 + 1.525 * IonS**0.5
-    return np.exp(lnKF) * (1 - 0.001005 * Sal)
+    lnKF = 1590.2 / (temperature + 273.15) - 12.641 + 1.525 * ionic_strength**0.5
+    return np.exp(lnKF) * (1 - 0.001005 * salinity)
 
 
-def kHF_FREE_PF87(TempK, Sal):
-    """Hydrogen fluoride dissociation constant following PF87."""
+def k_HF_free_PF87(temperature, salinity):
+    """Hydrogen fluoride dissociation constant on the free scale following PF87.
+    Used when opt_k_HF = 2.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        HF dissociation constant.
+    """
     # Note that this is not currently used or an option in CO2SYS,
     # despite the equations below appearing in CO2SYS.m (commented out).
     # === CO2SYS.m comments: =======
@@ -110,7 +209,7 @@ def kHF_FREE_PF87(TempK, Sal):
     # Nonetheless, P&F87 might actually be better than the fit of D&R79 above,
     # which is based on only three Salinities: [0 26.7 34.6]
     # Output is on the free pH scale in mol/kg-SW.
-    lnKF = 874 / TempK - 9.68 + 0.111 * Sal**0.5
+    lnKF = 874 / (temperature + 273.15) - 9.68 + 0.111 * salinity**0.5
     return np.exp(lnKF)
 
 
@@ -745,8 +844,21 @@ def kH2CO3_TOT_PLR18(TempK, Sal):
     return K1, K2
 
 
-def kH2S_TOT_YM95(TempK, Sal):
-    """Hydrogen sulfide dissociation constant following YM95."""
+def k_H2S_total_YM95(temperature, salinity):
+    """Hydrogen sulfide dissociation constant on the total scale following YM95.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        H2S dissociation constant.
+    """
     # === CO2SYS_v1_21.m comments: =======
     # H2S  Millero et. al.( 1988)  Limnol. Oceanogr. 33,269-274.
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995. Total Scale.
@@ -754,12 +866,13 @@ def kH2S_TOT_YM95(TempK, Sal):
     # they agree with Millero 1988 which are on Total Scale.
     # Also, calculations agree at high H2S with AquaEnv when assuming it is on
     # Total Scale.
+    TempK = temperature + 273.15
     lnkH2S = (
         225.838
         - 13275.3 / TempK
         - 34.6435 * np.log(TempK)
-        + 0.3449 * np.sqrt(Sal)
-        - 0.0274 * Sal
+        + 0.3449 * np.sqrt(salinity)
+        - 0.0274 * salinity
     )
     return np.exp(lnkH2S)
 
@@ -790,14 +903,9 @@ def kNH3_TOT_CW95(TempK, Sal):
         -13.6416 + 1.176949 * TempK**0.5 - 0.02860785 * TempK + 545.4834 / TempK
     ) * Sal**0.5
     PKNH3expCW += (
-        -0.1462507
-        + 0.0090226468 * TempK**0.5
-        - 0.0001471361 * TempK
-        + 10.5425 / TempK
+        -0.1462507 + 0.0090226468 * TempK**0.5 - 0.0001471361 * TempK + 10.5425 / TempK
     ) * Sal**1.5
-    PKNH3expCW += (
-        0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK
-    ) * Sal**2
+    PKNH3expCW += (0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK) * Sal**2
     PKNH3expCW += (-2.354039e-05 + 0.009698623 / TempK) * Sal**2.5
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * Sal)  # convert to mol/kg-SW
