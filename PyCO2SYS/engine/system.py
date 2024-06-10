@@ -28,6 +28,7 @@ get_funcs = {
     ),
     # Pressure correction factors for equilibrium constants
     # Equilibrium constants at pressure and on the seawater pH scale
+    # Equilibrium constants at pressure and on the requested pH scale (YES, HERE!)
 }
 
 # Define functions for calculations that depend on icase:
