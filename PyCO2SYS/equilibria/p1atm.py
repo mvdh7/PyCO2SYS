@@ -7,6 +7,10 @@ Calculate stoichiometric equilibrium constants under standard atmospheric pressu
 
 Functions
 ---------
+k_BOH3_total_D90b
+    Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
+k_BOH3_nbs_LTB69
+    Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
 k_H2S_total_YM95
     Hydrogen sulfide dissociation constant on the total scale following YM95.
 k_HF_free_DR79
@@ -214,40 +218,66 @@ def k_HF_free_PF87(temperature, salinity):
     return np.exp(lnKF)
 
 
-def kBOH3_NBS_LTB69(TempK, Sal):
-    """Boric acid dissociation constant following LTB69."""
-    # === CO2SYS.m comments: =======
-    # This is for GEOSECS and Peng et al.
-    # Lyman, John, UCLA Thesis, 1957
-    # fit by Li et al, JGR 74:5507-5525, 1969.
-    # logKB is on NBS pH scale
-    TempC = TempK - 273.15
-    logKB = -9.26 + 0.00886 * Sal + 0.01 * TempC
-    return 10.0**logKB
+def k_BOH3_total_D90b(temperature, salinity):
+    """Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
 
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
 
-def kBOH3_TOT_D90b(TempK, Sal):
-    """Boric acid dissociation constant following D90b."""
+    Returns
+    -------
+    float
+        B(OH)3 dissociation constant.
+    """
     # === CO2SYS.m comments: =======
     # Dickson, A. G., Deep-Sea Research 37:755-766, 1990.
     # lnKB is on Total pH scale
-    sqrSal = np.sqrt(Sal)
+    sqrSal = np.sqrt(salinity)
+    TempK = convert.celsius_to_kelvin(temperature)
     lnKBtop = (
         -8966.9
         - 2890.53 * sqrSal
-        - 77.942 * Sal
-        + 1.728 * sqrSal * Sal
-        - 0.0996 * Sal**2
+        - 77.942 * salinity
+        + 1.728 * sqrSal * salinity
+        - 0.0996 * salinity**2
     )
     lnKB = (
         lnKBtop / TempK
         + 148.0248
         + 137.1942 * sqrSal
-        + 1.62142 * Sal
-        + (-24.4344 - 25.085 * sqrSal - 0.2474 * Sal) * np.log(TempK)
+        + 1.62142 * salinity
+        + (-24.4344 - 25.085 * sqrSal - 0.2474 * salinity) * np.log(TempK)
         + 0.053105 * sqrSal * TempK
     )
     return np.exp(lnKB)
+
+
+def k_BOH3_nbs_LTB69(temperature, salinity):
+    """Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        B(OH)3 dissociation constant.
+    """
+    # === CO2SYS.m comments: =======
+    # This is for GEOSECS and Peng et al.
+    # Lyman, John, UCLA Thesis, 1957
+    # fit by Li et al, JGR 74:5507-5525, 1969.
+    # logKB is on NBS pH scale
+    logKB = -9.26 + 0.00886 * salinity + 0.01 * temperature
+    return 10.0**logKB
 
 
 def kH2O_SWS_M79(TempK, Sal):

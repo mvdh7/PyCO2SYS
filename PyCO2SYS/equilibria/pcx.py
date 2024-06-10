@@ -1,14 +1,31 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-"""Calculate presure correction factors for equilibrium constants."""
+"""
+PyCO2SYS.equilibria.pcx
+=======================
+Calculate presure-correction factors for equilibrium constants.
+
+Functions
+---------
+pressure_factor
+    Calculate pressure-correction factor for a particular equilibrium constant using
+    the deltaV / kappa formulation.
+factor_k_BOH3_M79
+    Calculate pressure-correction factor for k_BOH3 following M79.
+    Used when opt_factor_k_BOH3 = 1.
+factor_k_BOH3_GEOSECS
+    Calculate pressure-correction factor for k_BOH3 following the GEOSECS approach.
+    Used when opt_factor_k_BOH3 = 2.
+"""
 
 from autograd import numpy as np
 from .. import convert
 
 
 def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
-    """Calculate pressure-correction factors for equilibrium constants.
-    
+    """Calculate pressure-correction factor for a particular equilibrium constant using
+    the deltaV / kappa formulation.
+
     Parameters
     ----------
     deltaV : float
@@ -21,7 +38,7 @@ def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
         Temperature in °C.
     gas_constant : float
         The universal gas constant in ml / (bar * K * mol).
-    
+
     Returns
     -------
     float
@@ -32,48 +49,103 @@ def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
     return np.exp((-deltaV + 0.5 * kappa * Pbar) * Pbar / (gas_constant * TempK))
 
 
-def KSO4fac(TempK, Pbar, RGas):
-    """Calculate pressure correction factor for KSO4."""
+def factor_k_H2S(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_H2S.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
+    # === CO2SYS.m comments: =======
+    # Millero 1995 gives values for deltaV in fresh water instead of SW.
+    # Millero 1995 gives -b0 as -2.89 instead of 2.89.
+    # Millero 1983 is correct for both.
+    deltaV = -11.07 - 0.009 * temperature - 0.000942 * temperature**2
+    kappa = (-2.89 + 0.054 * temperature) / 1000
+    return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
+
+
+def factor_k_HSO4(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_HSO4.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
     # === CO2SYS.m comments: =======
     # This is from Millero, 1995, which is the same as Millero, 1983.
     # It is assumed that KS is on the free pH scale.
-    TempC = convert.kelvin_to_celsius(TempK)
-    deltaV = -18.03 + 0.0466 * TempC + 0.000316 * TempC**2
-    Kappa = (-4.53 + 0.09 * TempC) / 1000
-    return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
+    deltaV = -18.03 + 0.0466 * temperature + 0.000316 * temperature**2
+    kappa = (-4.53 + 0.09 * temperature) / 1000
+    return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
 
 
-def KFfac(TempK, Pbar, RGas):
-    """Calculate pressure correction factor for KF."""
+def factor_k_HF(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_HF.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
     # === CO2SYS.m comments: =======
     # This is from Millero, 1995, which is the same as Millero, 1983.
     # It is assumed that KF is on the free pH scale.
-    TempC = convert.kelvin_to_celsius(TempK)
-    deltaV = -9.78 - 0.009 * TempC - 0.000942 * TempC**2
-    Kappa = (-3.91 + 0.054 * TempC) / 1000
-    return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
+    deltaV = -9.78 - 0.009 * temperature - 0.000942 * temperature**2
+    Kappa = (-3.91 + 0.054 * temperature) / 1000
+    return pressure_factor(deltaV, Kappa, pressure, temperature, gas_constant)
 
 
-def KBfac(TempK, Pbar, RGas, WhichKs):
-    """Calculate pressure correction factor for KB."""
-    TempC = convert.kelvin_to_celsius(TempK)
-    # Freshwater; this doesn't matter since TB = 0 for this case
-    KBfac = np.where(WhichKs == 8, 1.0, np.nan)
-    # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
-    # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
-    # Culberson and Pytkowicz, L and O 13:403-417, 1968:
-    # but the fits are the same as those in Edmond and Gieskes, GCA, 34:1261-1291, 1970
-    # who in turn quote Li, personal communication
-    KBfac = np.where(
-        (WhichKs == 6) | (WhichKs == 7),
-        np.exp((27.5 - 0.095 * TempC) * Pbar / (RGas * TempK)),
-        KBfac,
-    )
-    # Above: this one is handled differently, because the equation doesn't fit the
-    # standard deltaV & Kappa form of _pcxKfac.
+def factor_k_BOH3_M79(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_BOH3 following M79.
+    Used when opt_factor_k_BOH3 = 1.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
     # Below: this is from Millero, 1979.
     # It is from data of Culberson and Pytkowicz, 1968.
-    deltaV = -29.48 + 0.1622 * TempC - 0.002608 * TempC**2
+    deltaV = -29.48 + 0.1622 * temperature - 0.002608 * temperature**2
     # Millero, 1983 has:
     #   deltaV = -28.56 + .1211*TempCi - .000321*TempCi*TempCi
     # Millero, 1992 has:
@@ -81,17 +153,42 @@ def KBfac(TempK, Pbar, RGas, WhichKs):
     # Millero, 1995 has:
     #   deltaV = -29.48 - .1622*TempCi - .002608*TempCi*TempCi
     #   deltaV = deltaV + .295*(Sali - 34.8) # Millero, 1979
-    Kappa = -2.84 / 1000  # Millero, 1979
+    kappa = -2.84 / 1000  # Millero, 1979
     # Millero, 1992 and Millero, 1995 also have this.
     #   Kappa = Kappa + .354*(Sali - 34.8)/1000: # Millero,1979
     # Millero, 1983 has:
     #   Kappa = (-3 + .0427*TempCi)/1000
-    KBfac = np.where(
-        (WhichKs != 6) & (WhichKs != 7) & (WhichKs != 8),
-        Kfac(deltaV, Kappa, Pbar, TempK, RGas),
-        KBfac,
-    )
-    return KBfac
+    return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
+
+
+def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
+    """Calculate pressure correction factor for k_BOH3 following the GEOSECS approach.
+    Used when opt_factor_k_BOH3 = 2.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
+    gas_constant : float
+        The universal gas constant in ml / (bar * K * mol).
+
+    Returns
+    -------
+    float
+        The correction factor, to be multiplied by the K value to correct it.
+    """
+    # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
+    # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
+    # Culberson and Pytkowicz, L and O 13:403-417, 1968:
+    # but the fits are the same as those in Edmond and Gieskes, GCA, 34:1261-1291, 1970
+    # who in turn quote Li, personal communication
+    TempK = convert.celsius_to_kelvin(temperature)
+    Pbar = convert.decibar_to_bar(pressure)
+    # This one is handled differently, because the equation doesn't fit the
+    # standard deltaV & Kappa form of _pcxKfac.
+    return np.exp((27.5 - 0.095 * temperature) * Pbar / (gas_constant * TempK))
 
 
 def KWfac(TempK, Pbar, RGas, WhichKs):
@@ -153,17 +250,6 @@ def KSifac(TempK, Pbar, RGas):
     deltaV = -29.48 + 0.1622 * TempC - 0.002608 * TempC**2
     Kappa = -2.84 / 1000
     return Kfac(deltaV, Kappa, Pbar, TempK, RGas)
-
-
-def factor_k_H2S(temperature, pressure, gas_constant):
-    """Calculate pressure correction factor for k_H2S."""
-    # === CO2SYS.m comments: =======
-    # Millero 1995 gives values for deltaV in fresh water instead of SW.
-    # Millero 1995 gives -b0 as -2.89 instead of 2.89.
-    # Millero 1983 is correct for both.
-    deltaV = -11.07 - 0.009 * temperature - 0.000942 * temperature**2
-    kappa = (-2.89 + 0.054 * temperature) / 1000
-    return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
 
 
 def KNH3fac(TempK, Pbar, RGas):

@@ -1,6 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-from operator import mul
 import itertools
 import networkx as nx
 from jax import numpy as np
@@ -19,7 +18,7 @@ get_funcs = {
     "free_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_free_to_sws(
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
-    "nbs_to_sws": convert.pH_nbs_to_sws,
+    "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
     "total_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_total_to_sws(
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
@@ -28,12 +27,21 @@ get_funcs = {
         k_H2S_total_1atm * total_to_sws_1atm
     ),
     # Pressure correction factors for equilibrium constants
+    "factor_k_HSO4": equilibria.pcx.factor_k_HSO4,
+    "factor_k_HF": equilibria.pcx.factor_k_HF,
     "factor_k_H2S": equilibria.pcx.factor_k_H2S,
     # Equilibrium constants at pressure and on the seawater pH scale
-    "k_H2S_sws": lambda k_H2S_sws_1atm, factor_k_H2S: (
-        k_H2S_sws_1atm, factor_k_H2S
-    )
-    # Equilibrium constants at pressure and on the requested pH scale (YES, HERE!)
+    "k_BOH3_sws": lambda k_BOH3_sws_1atm, factor_k_BOH3: (
+        k_BOH3_sws_1atm * factor_k_BOH3
+    ),
+    "k_H2S_sws": lambda k_H2S_sws_1atm, factor_k_H2S: k_H2S_sws_1atm * factor_k_H2S,
+    # Equilibrium constants at pressure and on the requested pH scale
+    "k_HF_free": lambda k_HF_free_1atm, factor_k_HF: k_HF_free_1atm * factor_k_HF,
+    "k_HSO4_free": lambda k_HSO4_free_1atm, factor_k_HSO4: (
+        k_HSO4_free_1atm * factor_k_HSO4
+    ),
+    "k_BOH3": lambda sws_to_opt, k_BOH3_sws: sws_to_opt * k_BOH3_sws,
+    "k_H2S": lambda sws_to_opt, k_H2S_sws: sws_to_opt * k_H2S_sws,
 }
 
 # Define functions for calculations that depend on icase:
@@ -58,9 +66,27 @@ get_funcs_opts["opt_gas_constant"] = {
     2: dict(gas_constant=lambda: constants.RGasConstant_DOEv3),
     3: dict(gas_constant=lambda: constants.RGasConstant_CODATA2018),
 }
+get_funcs_opts["opt_factor_k_BOH3"] = {
+    1: dict(factor_k_BOH3=equilibria.pcx.factor_k_BOH3_M79),
+    2: dict(factor_k_BOH3=equilibria.pcx.factor_k_BOH3_GEOSECS),
+}
 get_funcs_opts["opt_fH"] = {
     1: dict(fH=convert.fH_TWB82),
     2: dict(fH=convert.fH_PTBO87),
+}
+get_funcs_opts["opt_k_BOH3"] = {
+    1: dict(
+        k_BOH3_total_1atm=equilibria.p1atm.k_BOH3_total_D90b,
+        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, total_to_sws_1atm: (
+            k_BOH3_total_1atm * total_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        k_BOH3_total_1atm=equilibria.p1atm.k_BOH3_nbs_LTB69,
+        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, nbs_to_sws: (
+            k_BOH3_total_1atm * nbs_to_sws
+        ),
+    ),
 }
 get_funcs_opts["opt_k_HF"] = {
     1: dict(k_HF_free_1atm=equilibria.p1atm.k_HF_free_DR79),
@@ -70,6 +96,12 @@ get_funcs_opts["opt_k_HSO4"] = {
     1: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_D90a),
     2: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_KRCB77),
     3: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_WM13),
+}
+get_funcs_opts["opt_pH_scale"] = {
+    1: dict(sws_to_opt=convert.pH_sws_to_total),
+    2: dict(sws_to_opt=lambda: 1.0),
+    3: dict(sws_to_opt=convert.pH_sws_to_free),
+    4: dict(sws_to_opt=convert.pH_sws_to_nbs),
 }
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
@@ -139,9 +171,12 @@ default_values = {
 
 default_opts = {
     "opt_gas_constant": 3,
+    "opt_factor_k_BOH3": 1,
     "opt_fH": 1,
+    "opt_k_BOH3": 1,
     "opt_k_HF": 1,
     "opt_k_HSO4": 1,
+    "opt_pH_scale": 1,
     "opt_total_borate": 1,
     "opt_Ca": 1,
 }
@@ -191,13 +226,14 @@ class CO2System:
                 # state 1 means that the value was provided as an argument
                 nx.set_node_attributes(self.graph, {k: 1}, name="state")
 
-    def get(self, parameters, save_steps=True):
+    def get(self, parameters=None, save_steps=True):
         """Calculate and return parameter(s) and (optionally) save them internally.
 
         Parameters
         ----------
-        parameters : str or list of str
-            Which parameter(s) to calculate and save.
+        parameters : str or list of str, optional
+            Which parameter(s) to calculate and save, by default None, in which case
+            all possible parameters are calculated and returned.
         save_steps : bool, optional
             Whether to save non-requested parameters calculated during intermediate
             calculation steps in CO2System.values, by default True.
@@ -208,7 +244,9 @@ class CO2System:
             The value(s) of the requested parameter(s).
             Also saved in CO2System.values if save_steps is True.
         """
-        if isinstance(parameters, str):
+        if parameters is None:
+            parameters = list(self.graph.nodes)
+        elif isinstance(parameters, str):
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
         # needs: which intermediate parameters we need to get the requested parameters
