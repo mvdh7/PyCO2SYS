@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Alternative APIs for executing the main CO2SYS function."""
 
 from . import ezio

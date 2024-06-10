@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate presure correction factors for equilibrium constants."""
 
 from autograd import numpy as np
