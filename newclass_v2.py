@@ -10,6 +10,13 @@ sys = CO2System(
         opt_gas_constant=3,
         opt_k_BOH3=1,
         opt_factor_k_BOH3=1,
+        opt_k_H2O=1,
+        opt_factor_k_H2O=1,
+        opt_k_phosphate=1,
+        opt_k_Si=1,
+        opt_k_NH3=1,
+        opt_k_carbonic=18,
+        opt_factor_k_HCO3=3,
     ),
     # use_default_values=False,
 )
@@ -26,13 +33,20 @@ sys.get(
         # "factor_k_H2S",
         # "k_H2S_sws",
         # "sws_to_opt",
-        "k_BOH3",
+        # "k_H2O",
+        # "k_H3PO4",
+        # "k_H2PO4",
+        # "k_HPO4",
+        # "k_NH3",
+        # "k_HCO3_sws_1atm",
+        "k_H2CO3",
+        "k_HCO3",
     ]
 )
 sys.plot_graph(
     # show_unknown=False,
     # show_isolated=False,
-    # prog_graphviz='neato',
+    prog_graphviz="neato",
 )
 
 sys.get()
