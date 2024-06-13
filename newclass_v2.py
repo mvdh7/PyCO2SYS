@@ -39,13 +39,14 @@ sys.get(
         # "k_HPO4",
         # "k_NH3",
         # "k_HCO3_sws_1atm",
-        "k_H2CO3",
-        "k_HCO3",
+        # "k_H2CO3",
+        # "k_HCO3",
+        "k_CO2",
     ]
 )
 sys.plot_graph(
-    # show_unknown=False,
-    # show_isolated=False,
+    show_unknown=False,
+    show_isolated=False,
     prog_graphviz="neato",
 )
 

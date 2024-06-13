@@ -53,6 +53,8 @@ factor_k_HCO3_fw
 factor_k_HCO3_GEOSECS
     Calculate pressure-correction factor for k_HCO3 following GEOSECS.
     Used when opt_factor_k_HCO3 = 3.
+factor_k_CO2
+    Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 """
 
 from jax import numpy as np
@@ -573,15 +575,15 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     )
 
 
-def kCO2_factor(temperature_K, pressure_bar, gas_constant, pressure_atmosphere):
-    """Calculate the pressure-correction factor for kCO2 following W74 eq. 5.
+def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
+    """Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 
     Parameters
     ----------
-    temperature_K : float
-        Temperature in K.
-    pressure_bar : float
-        Hydrostatic pressure in bar.
+    temperature : float
+        Temperature in °C.
+    pressure : float
+        Hydrostatic pressure in dbar.
     gas_constant : float
         Universal gas constant in ml / (bar * K * mol).
     pressure_atmosphere : float
@@ -592,11 +594,12 @@ def kCO2_factor(temperature_K, pressure_bar, gas_constant, pressure_atmosphere):
     float
         pressure-correction factor for kCO2.
     """
+    pressure_bar = convert.decibar_to_bar(pressure)
     vCO2 = 32.3  # partial molar volume of CO2 in ml / mol
     # Note that PyCO2SYS's gas_constant R is in bar units, not atm, so the pressures
     # and equation here are all converted into bar, unlike in the original W74.
     return np.exp(
         (1.01325 - (pressure_bar + pressure_atmosphere * 1.01325))
         * vCO2
-        / (gas_constant * temperature_K)
+        / (gas_constant * (temperature + 273.15))
     )

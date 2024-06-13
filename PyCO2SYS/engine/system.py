@@ -13,6 +13,7 @@ get_funcs = {
     "total_fluoride": salts.total_fluoride_R65,
     "total_sulfate": salts.total_sulfate_MR66,
     # Equilibrium constants at 1 atm and on reported pH scale
+    "k_CO2_1atm": equilibria.p1atm.k_CO2_W74,
     "k_H2S_total_1atm": equilibria.p1atm.k_H2S_total_YM95,
     # pH scale conversion factors at 1 atm
     "free_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_free_to_sws(
@@ -35,6 +36,7 @@ get_funcs = {
     "factor_k_HPO4": equilibria.pcx.factor_k_HPO4,
     "factor_k_Si": equilibria.pcx.factor_k_Si,
     "factor_k_NH3": equilibria.pcx.factor_k_NH3,
+    "factor_k_CO2": equilibria.pcx.factor_k_CO2,
     # Equilibrium constants at pressure and on the free pH scale
     "k_HF_free": lambda k_HF_free_1atm, factor_k_HF: k_HF_free_1atm * factor_k_HF,
     "k_HSO4_free": lambda k_HSO4_free_1atm, factor_k_HSO4: (
@@ -57,11 +59,14 @@ get_funcs = {
     ),
     "k_Si_sws": lambda k_Si_sws_1atm, factor_k_Si: k_Si_sws_1atm * factor_k_Si,
     "k_NH3_sws": lambda k_NH3_sws_1atm, factor_k_NH3: k_NH3_sws_1atm * factor_k_NH3,
-    "k_H2CO3_sws": lambda k_H2CO3_sws_1atm, factor_k_H2CO3: k_H2CO3_sws_1atm
-    * factor_k_H2CO3,
-    "k_HCO3_sws": lambda k_HCO3_sws_1atm, factor_k_HCO3: k_HCO3_sws_1atm
-    * factor_k_HCO3,
+    "k_H2CO3_sws": lambda k_H2CO3_sws_1atm, factor_k_H2CO3: (
+        k_H2CO3_sws_1atm * factor_k_H2CO3
+    ),
+    "k_HCO3_sws": lambda k_HCO3_sws_1atm, factor_k_HCO3: (
+        k_HCO3_sws_1atm * factor_k_HCO3
+    ),
     # Equilibrium constants at pressure and on the requested pH scale
+    "k_CO2": lambda k_CO2_1atm, factor_k_CO2: k_CO2_1atm * factor_k_CO2,
     "k_BOH3": lambda sws_to_opt, k_BOH3_sws: sws_to_opt * k_BOH3_sws,
     "k_H2O": lambda sws_to_opt, k_H2O_sws: sws_to_opt * k_H2O_sws,
     "k_H2S": lambda sws_to_opt, k_H2S_sws: sws_to_opt * k_H2S_sws,
@@ -356,13 +361,14 @@ parameters_core = [
 ]
 
 default_values = {
-    "temperature": 25.0,
-    "total_ammonia": 0.0,
-    "total_phosphate": 0.0,
-    "total_silicate": 0.0,
-    "total_sulfide": 0.0,
+    "temperature": 25.0,  # °C
+    "total_ammonia": 0.0,  # µmol/kg-sw
+    "total_phosphate": 0.0,  # µmol/kg-sw
+    "total_silicate": 0.0,  # µmol/kg-sw
+    "total_sulfide": 0.0,  # µmol/kg-sw
     "salinity": 35.0,
-    "pressure": 0.0,
+    "pressure": 0.0,  # dbar
+    "pressure_atmosphere": 1.0,  # atm
 }
 
 default_opts = {

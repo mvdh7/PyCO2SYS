@@ -7,6 +7,8 @@ Calculate stoichiometric equilibrium constants under standard atmospheric pressu
 
 Functions
 ---------
+k_CO2_W74
+    Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
 k_BOH3_total_D90b
     Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
 k_BOH3_nbs_LTB69
@@ -145,8 +147,22 @@ from jax import numpy as np
 from .. import convert
 
 
-def kCO2_W74(temperature, salinity):
-    """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74."""
+def k_CO2_W74(temperature, salinity):
+    """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
+
+    Parameters
+    ----------
+
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        CO2 solubility constant.
+    """
     # === CO2SYS.m comments: =======
     # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # This is in mol/kg-SW/atm.
