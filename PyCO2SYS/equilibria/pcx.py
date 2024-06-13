@@ -56,7 +56,76 @@ factor_k_HCO3_GEOSECS
 factor_k_CO2
     Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 """
-
+# Original notes from CO2SYS-MATLAB regarding pressure corrections:
+# ****************************************************************************
+# Correct dissociation constants for pressure
+# Currently: For WhichKs# = 1 to 7, all Ks (except KF and KS, which are on
+#       the free scale) are on the SWS scale.
+#       For WhichKs# = 6, KW set to 0, KP1, KP2, KP3, KSi don't matter.
+#       For WhichKs# = 8, K1, K2, and KW are on the "pH" pH scale
+#       (the pH scales are the same in this case); the other Ks don't
+#       matter.
+#
+# No salinity dependence is given for the pressure coefficients here.
+# It is assumed that the salinity is at or very near Sali = 35.
+# These are valid for the SWS pH scale, but the difference between this and
+# the total only yields a difference of .004 pH units at 1000 bars, much
+# less than the uncertainties in the values.
+# ****************************************************************************
+# The sources used are:
+# Millero, 1995:
+#       Millero, F. J., Thermodynamics of the carbon dioxide system in the
+#       oceans, Geochemica et Cosmochemica Acta 59:661-677, 1995.
+#       See table 9 and eqs. 90-92, p. 675.
+#       TYPO: a factor of 10^3 was left out of the definition of Kappa
+#       TYPO: the value of R given is incorrect with the wrong units
+#       TYPO: the values of the a's for H2S and H2O are from the 1983
+#                values for fresh water
+#       TYPO: the value of a1 for B(OH)3 should be +.1622
+#        Table 9 on p. 675 has no values for Si.
+#       There are a variety of other typos in Table 9 on p. 675.
+#       There are other typos in the paper, and most of the check values
+#       given don't check.
+# Millero, 1992:
+#       Millero, Frank J., and Sohn, Mary L., Chemical Oceanography,
+#       CRC Press, 1992. See chapter 6.
+#       TYPO: this chapter has numerous typos (eqs. 36, 52, 56, 65, 72,
+#               79, and 96 have typos).
+# Millero, 1983:
+#       Millero, Frank J., Influence of pressure on chemical processes in
+#       the sea. Chapter 43 in Chemical Oceanography, eds. Riley, J. P. and
+#       Chester, R., Academic Press, 1983.
+#       TYPO: p. 51, p1atm. 94: the value -26.69 should be -25.59
+#       TYPO: p. 51, p1atm. 95: the term .1700t should be .0800t
+#       these two are necessary to match the values given in Table 43.24
+# Millero, 1979:
+#       Millero, F. J., The thermodynamics of the carbon dioxide system
+#       in seawater, Geochemica et Cosmochemica Acta 43:1651-1661, 1979.
+#       See table 5 and eqs. 7, 7a, 7b on pp. 1656-1657.
+# Takahashi et al, in GEOSECS Pacific Expedition, v. 3, 1982.
+#       TYPO: the pressure dependence of K2 should have a 16.4, not 26.4
+#       This matches the GEOSECS results and is in Edmond and Gieskes.
+# Culberson, C. H. and Pytkowicz, R. M., Effect of pressure on carbonic acid,
+#       boric acid, and the pH of seawater, Limnology and Oceanography
+#       13:403-417, 1968.
+# Edmond, John M. and Gieskes, J. M. T. M., The calculation of the degree of
+#       seawater with respect to calcium carbonate under in situ conditions,
+#       Geochemica et Cosmochemica Acta, 34:1261-1291, 1970.
+# ****************************************************************************
+# These references often disagree and give different fits for the same thing.
+# They are not always just an update either; that is, Millero, 1995 may agree
+#       with Millero, 1979, but differ from Millero, 1983.
+# For WhichKs# = 7 (Peng choice) I used the same factors for KW, KP1, KP2,
+#       KP3, and KSi as for the other cases. Peng et al didn't consider the
+#       case of P different from 0. GEOSECS did consider pressure, but didn't
+#       include Phos, Si, or OH, so including the factors here won't matter.
+# For WhichKs# = 8 (freshwater) the values are from Millero, 1983 (for K1, K2,
+#       and KW). The other aren't used (TB = TS = TF = TP = TSi = 0.), so
+#       including the factors won't matter.
+# ****************************************************************************
+#       deltaVs are in cm3/mole
+#       Kappas are in cm3/mole/bar
+# ****************************************************************************
 from jax import numpy as np
 from .. import convert
 
