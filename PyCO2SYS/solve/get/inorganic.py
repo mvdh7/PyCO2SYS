@@ -137,20 +137,69 @@ def dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3):
     return HCO3 * (1 + H / K1 + K2 / H)
 
 
-def dic_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants):
-    """Dissolved inorganic carbon from CO2 fugacity and carbonate ion."""
+def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
+    """Dissolved inorganic carbon from CO2 fugacity and carbonate ion.
+    
+    Parameters
+    ----------
+    fCO2 : float
+        Seawater fCO2 in µatm.
+    CO3 : float
+        Carbonate ion content in µmol/kg-sw.
+    k_CO2 : float
+        Solubility constant for CO2.
+    k_H2CO3, kHCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        DIC in µmol/kg-sw.
+    """
     pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
     return dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
 
 
-def dic_from_fCO2_bicarbonate(fCO2, bicarbonate, totals, k_constants):
-    """Dissolved inorganic carbon from CO2 fugacity and bicarbonate ion."""
-    carbonate = CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3)
-    return k_constants["CO2"] * fCO2 + bicarbonate + carbonate
+def dic_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
+    """Dissolved inorganic carbon from CO2 fugacity and bicarbonate ion.
+    
+    Parameters
+    ----------
+    fCO2 : float
+        Seawater fCO2 in µatm.
+    HCO3 : float
+        Bicarbonate ion content in µmol/kg-sw.
+    k_CO2 : float
+        Solubility constant for CO2.
+    k_H2CO3, kHCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        DIC in µmol/kg-sw.
+    """
+    CO3 = CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3)
+    return k_CO2 * fCO2 + HCO3 + CO3
 
 
-def dic_from_carbonate_bicarbonate(carbonate, bicarbonate, totals, k_constants):
-    """Dissolved inorganic carbon from carbonate ion and carbonate ion."""
+def dic_from_CO3_HCO3(CO3, HCO3, k_H2CO3, k_HCO3):
+    """Dissolved inorganic carbon from carbonate ion and carbonate ion.
+    
+    Parameters
+    ----------
+    CO3 : float
+        Carbonate ion content in µmol/kg-sw.
+    HCO3 : float
+        Bicarbonate ion content in µmol/kg-sw.
+    k_H2CO3, kHCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        DIC in µmol/kg-sw.
+    """
     pH = pH_from_CO3_HCO3(CO3, HCO3, k_HCO3)
     return dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
 
@@ -677,7 +726,7 @@ def HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3):
         Bicarbonate ion content in µmol/kg-sw.
     """
     H = 10.0**-pH
-    return _HCO3_from_dic_H(dic, H, k_H2CO3, k_HCO3)
+    return HCO3_from_dic_H(dic, H, k_H2CO3, k_HCO3)
 
 
 def bicarbonate_from_alkalinity_pH(alkalinity, pH, totals, k_constants):

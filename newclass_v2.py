@@ -1,11 +1,17 @@
 import PyCO2SYS as pyco2
 from PyCO2SYS import CO2System, system
 import networkx as nx
+import numpy as np
 
 sys = CO2System(
-    dict(salinity=32, pressure=1000),
+    dict(
+        salinity=np.vstack([30, 35, 40]),
+        pressure=1000,
+        dic=np.linspace(2001, 2100, 10),
+        pH=8.1,
+    ),
     opts=dict(
-        opt_k_HF=2,
+        opt_k_HF=1,
         opt_pH_scale=1,
         opt_gas_constant=3,
         opt_k_BOH3=1,
@@ -15,8 +21,8 @@ sys = CO2System(
         opt_k_phosphate=1,
         opt_k_Si=1,
         opt_k_NH3=1,
-        opt_k_carbonic=18,
-        opt_factor_k_HCO3=3,
+        opt_k_carbonic=10,
+        opt_factor_k_HCO3=1,
     ),
     # use_default_values=False,
 )
@@ -41,14 +47,19 @@ sys.get(
         # "k_HCO3_sws_1atm",
         # "k_H2CO3",
         # "k_HCO3",
-        "k_CO2",
+        # "fCO2",
+        # "HCO3",
+        # "CO3",
+        "CO2",
     ]
 )
 sys.plot_graph(
     show_unknown=False,
     show_isolated=False,
     prog_graphviz="neato",
+    exclude_nodes='gas_constant',
+    skip_nodes=['sws_to_opt', 'total_to_sws_1atm'],
 )
 
-sys.get()
-print(sys.values)
+# sys.get()
+# print(sys.values)

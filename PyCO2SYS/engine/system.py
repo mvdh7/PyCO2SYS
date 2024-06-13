@@ -4,7 +4,7 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from .. import constants, convert, equilibria, salts
+from .. import constants, convert, equilibria, salts, solve
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -92,6 +92,20 @@ get_funcs_core[0] = {}
 #     "HCO3": HCO3_from_dic_pH,
 #     "CO3": CO3_from_dic_pH,
 # }
+get_funcs_core[203] = {
+    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+}
+
+# Add p-f-x-CO2 interconversions
+for k, fc in get_funcs_core.items():
+    if "fCO2" in fc:
+        fc.update(
+            {
+                "CO2": convert.fCO2_to_CO2aq,
+            }
+        )
 
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)
@@ -330,7 +344,9 @@ graph_core = {}
 for icase, funcs in get_funcs_core.items():
     graph_core[icase] = nx.DiGraph()
     for t, func in get_funcs_core[icase].items():
-        for f in func.__name__.split("_")[2:]:
+        fcode = func.__code__
+        func_args = fcode.co_varnames[: fcode.co_argcount]
+        for f in func_args:
             graph_core[icase].add_edge(f, t)
 
 # Automatically set up graph for each opt based on the function names and signatures in
@@ -391,6 +407,52 @@ default_opts = {
     "opt_Ca": 1,
 }
 
+thinspace = " "
+f = "$ƒ$" + thinspace
+
+set_node_labels = {
+    "dic": r"$T_\mathrm{C}$",
+    "k_CO2": "$K_0′$",
+    "k_CO2_1atm": "$K_0′^0$",
+    "k_H2CO3": "$K_1^*$",
+    "k_HCO3": "$K_2^*$",
+    "k_H2CO3_sws": "$K_1^s$",
+    "k_HCO3_sws": "$K_2^s$",
+    "k_H2CO3_sws_1atm": r"$K_1^\mathrm{S0}$",
+    "k_HCO3_sws_1atm": r"$K_2^\mathrm{S0}$",
+    "k_H2CO3_total_1atm": r"$K_1^\mathrm{T0}$",
+    "k_HCO3_total_1atm": r"$K_2^\mathrm{T0}$",
+    "k_HF_free": r"$K_\mathrm{HF}^\mathrm{F}$",
+    "k_HSO4_free": r"$K_\mathrm{HSO_4}^\mathrm{F}$",
+    "k_HF_free_1atm": r"$K_\mathrm{HF}^\mathrm{F0}$",
+    "k_HSO4_free_1atm": r"$K_\mathrm{HSO_4}^\mathrm{F0}$",
+    "pressure_atmosphere": r"$p_\mathrm{atm}$",
+    "ionic_strength": "$I$",
+    "temperature": "$t$",
+    "salinity": "$S$",
+    "pressure": "$p$",
+    "gas_constant": "$R$",
+    "CO3": "[CO$_3^{2–}$]",
+    "HCO3": "[HCO$_3^–$]",
+    "total_sulfate": r"$T_\mathrm{SO_4}$",
+    "total_fluoride": r"$T_\mathrm{F}$",
+    "total_ammonia": r"$T_\mathrm{NH_3}$",
+    "total_phosphate": r"$T_\mathrm{P}$",
+    "total_sulfide": r"$T_\mathrm{H_2S}$",
+    "total_silicate": r"$T_\mathrm{Si}$",
+    "total_borate": r"$T_\mathrm{B}$",
+    "Ca": r"$[\mathrm{Ca}^{2+}]$",
+    "total_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "fCO2": f + "CO$_2$",
+    "factor_k_CO2": "$P_0$",
+    "factor_k_H2CO3": "$P_1$",
+    "factor_k_HCO3": "$P_2$",
+    "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
+    "factor_k_HF": r"$P_\mathrm{HF}$",
+    "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
+}
+
 
 class CO2System:
     def __init__(self, values=None, opts=None, use_default_values=True):
@@ -436,7 +498,7 @@ class CO2System:
                 # state 1 means that the value was provided as an argument
                 nx.set_node_attributes(self.graph, {k: 1}, name="state")
 
-    def get(self, parameters=None, save_steps=True):
+    def get(self, parameters=None, save_steps=True, verbose=False):
         """Calculate and return parameter(s) and (optionally) save them internally.
 
         Parameters
@@ -447,6 +509,8 @@ class CO2System:
         save_steps : bool, optional
             Whether to save non-requested parameters calculated during intermediate
             calculation steps in CO2System.values, by default True.
+        verbose : bool, optional
+            Whether to print calculation status messages, by default False.
 
         Returns
         -------
@@ -454,6 +518,11 @@ class CO2System:
             The value(s) of the requested parameter(s).
             Also saved in CO2System.values if save_steps is True.
         """
+
+        def printv(*args, **kwargs):
+            if verbose:
+                print(*args, **kwargs)
+
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
@@ -476,17 +545,17 @@ class CO2System:
         results = {}  # values for the requested parameters will go in here
         while got < len(needs):
             p = next(needs_cycle)
-            print("")
-            print(p)
+            printv("")
+            printv(p)
             if p in self_values:
                 if p not in results:
                     results[p] = self_values[p]
                     got += 1
-                    print("{} is available!".format(p))
+                    printv("{} is available!".format(p))
             else:
                 priors = self.graph.pred[p]
                 if len(priors) == 0 or all([r in self_values for r in priors]):
-                    print("Calculating {}".format(p))
+                    printv("Calculating {}".format(p))
                     self_values[p] = self.get_funcs[p](
                         *[
                             self_values[r]
@@ -506,7 +575,7 @@ class CO2System:
                             )
                     results[p] = self_values[p]
                     got += 1
-            print("Got", got, "of", len(set(needs)))
+            printv("Got", got, "of", len(set(needs)))
         # Get rid of jax overhead on results
         for k, v in results.items():
             try:
@@ -525,10 +594,12 @@ class CO2System:
     def plot_graph(
         self,
         ax=None,
+        exclude_nodes=None,
         prog_graphviz="neato",
         show_tsp=True,
         show_unknown=True,
         show_isolated=True,
+        skip_nodes=None,
     ):
         """Draw a graph showing the relationships between the different parameters.
 
@@ -536,6 +607,8 @@ class CO2System:
         ----------
         ax : matplotlib axes, optional
             The axes, by default None, in which case new axes are generated.
+        exclude_nodes : list of str, optional
+            List of nodes to exclude from the plot, by default None.
         prog_graphviz : str, optional
             Name of Graphviz layout program, by default "neato".
         show_tsp : bool, optional
@@ -546,6 +619,7 @@ class CO2System:
         show_isolated : bool, optional
             Whether to show nodes for parameters that are not connected to the graph,
             by default True.
+        skip_nodes
 
         Returns
         -------
@@ -565,10 +639,33 @@ class CO2System:
             self_graph.remove_nodes_from(
                 [n for n, d in dict(self_graph.degree).items() if d == 0]
             )
+        if exclude_nodes:
+            if isinstance(exclude_nodes, str):
+                exclude_nodes = [exclude_nodes]
+            self_graph.remove_nodes_from(exclude_nodes)
+        if skip_nodes:
+            if isinstance(skip_nodes, str):
+                skip_nodes = [skip_nodes]
+            for n in skip_nodes:
+                for p, s in itertools.product(
+                    self_graph.predecessors(n), self_graph.successors(n)
+                ):
+                    self_graph.add_edge(p, s)
+                    if edge_states[(p, n)] + edge_states[(n, s)] == 4:
+                        new_state = {(p, s): 2}
+                    else:
+                        new_state = {(p, s): 0}
+                    nx.set_edge_attributes(self_graph, new_state, name='state')
+                    edge_states.update(new_state)
+                self_graph.remove_node(n)
         state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}
         node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_graph)]
         edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_graph)]
         pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
+        node_labels = {k: k for k in self_graph.nodes}
+        for k, v in set_node_labels.items():
+            if k in node_labels:
+                node_labels[k] = v
         nx.draw_networkx(
             self_graph,
             ax=ax,
@@ -577,5 +674,6 @@ class CO2System:
             node_color=node_colour,
             edge_color=edge_colour,
             pos=pos,
+            labels=node_labels,
         )
         return ax

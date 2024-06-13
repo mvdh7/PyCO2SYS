@@ -18,6 +18,13 @@ go from the total to the NBS scale, use:
 
 ``factor`` should be multiplied by [H+] or K value(s) on the total scale to convert to
 the NBS scale.
+
+Other functions
+---------------
+CO2aq_to_fCO2
+    Convert aqueous CO2 content to fugacity.
+fCO2_to_CO2aq
+    Convert CO2 fugacity to aqueous content.
 """
 import copy
 from jax import numpy as np
@@ -44,14 +51,40 @@ def fCO2_to_xCO2(fCO2, k_constants):
     return fCO2 / (k_constants["FugFac"] * k_constants["VPFac"])
 
 
-def CO2aq_to_fCO2(CO2aq, k_constants):
-    """Convert aqueous CO2 content to fugacity."""
-    return CO2aq / k_constants["K0"]
+def CO2aq_to_fCO2(CO2, k_CO2):
+    """Convert aqueous CO2 content to fugacity.
+    
+    Parameters
+    ----------
+    CO2 : float
+        Aqueous CO2 content in µmol/kg-sw.
+    k_CO2 : float
+        CO2 solubility constant.
+
+    Returns
+    -------
+    float
+        Seawater fCO2 in µatm.
+    """
+    return CO2 / k_CO2
 
 
-def fCO2_to_CO2aq(fCO2, k_constants):
-    """Convert CO2 fugacity to aqueous content."""
-    return fCO2 * k_constants["K0"]
+def fCO2_to_CO2aq(fCO2, k_CO2):
+    """Convert CO2 fugacity to aqueous content.
+    
+    Parameters
+    ----------
+    fCO2 : float
+        Seawater fCO2 in µatm.
+    k_CO2 : float
+        CO2 solubility constant.
+
+    Returns
+    -------
+    float
+        Aqueous CO2 content in µmol/kg-sw.
+    """
+    return fCO2 * k_CO2
 
 
 def celsius_to_kelvin(TempC):

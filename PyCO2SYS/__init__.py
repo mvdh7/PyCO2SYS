@@ -29,7 +29,7 @@ from . import (
     # original,
     salts,
     # solubility,
-    # solve,
+    solve,
     # uncertainty,
     # upsilon,
 )
