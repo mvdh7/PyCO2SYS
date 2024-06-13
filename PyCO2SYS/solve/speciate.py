@@ -255,9 +255,7 @@ def inorganic_dom_chi(dic, pH, totals, k_constants, nd_params, log10_chi):
     sw = inorganic(dic, pH, totals, k_constants)
     # Calculate DOM-associated alkalinity
     sw["alk_dom"] = -(
-        dom.nica_charge(
-            sw["Hfree"] * nd_params["density"], 10.0**log10_chi, nd_params
-        )
+        dom.nica_charge(sw["Hfree"] * nd_params["density"], 10.0**log10_chi, nd_params)
         * totals["dom"]
         * 1e-6
     )
