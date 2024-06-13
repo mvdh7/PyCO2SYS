@@ -5,7 +5,7 @@
 import jax
 from jax import numpy as np
 from .. import salts
-from . import dom, get, speciate
+from . import get, speciate
 
 
 def pH_from_alkalinity_dic(pH, alkalinity, dic, totals, k_constants):

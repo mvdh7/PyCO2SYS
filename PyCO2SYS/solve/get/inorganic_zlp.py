@@ -6,7 +6,7 @@ only inorganic solutes (i.e., no DOM) and with a variable ZLP.
 
 from jax import numpy as np, lax
 from ... import salts
-from .. import delta, dom, initialise, residual, speciate
+from .. import delta, initialise, residual, speciate
 from .inorganic import (
     dic_from_pH_fCO2,
     dic_from_pH_carbonate,

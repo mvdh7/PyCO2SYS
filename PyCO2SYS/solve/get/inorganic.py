@@ -6,7 +6,7 @@ only inorganic solutes (i.e., no DOM) and with a fixed ZLP.
 
 from jax import numpy as np, lax
 from ... import salts
-from .. import delta, dom, initialise, residual, speciate
+from .. import delta, initialise, residual, speciate
 
 
 def alkalinity_from_dic_pH(dic, pH, totals, k_constants):

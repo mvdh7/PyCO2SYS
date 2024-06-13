@@ -3,7 +3,7 @@
 """Calculate chemical speciation."""
 
 from jax import numpy as np
-from . import dom, get
+from . import get
 
 
 def phosphoric(h_scale, totals, k_constants):

@@ -22,7 +22,6 @@ the NBS scale.
 import copy
 from jax import numpy as np
 from . import constants
-from .equilibria import pressured
 
 
 def pCO2_to_fCO2(pCO2, k_constants):
