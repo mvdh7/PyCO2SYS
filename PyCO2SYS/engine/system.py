@@ -77,6 +77,26 @@ get_funcs = {
     "k_NH3": lambda sws_to_opt, k_NH3_sws: sws_to_opt * k_NH3_sws,
     "k_H2CO3": lambda sws_to_opt, k_H2CO3_sws: sws_to_opt * k_H2CO3_sws,
     "k_HCO3": lambda sws_to_opt, k_HCO3_sws: sws_to_opt * k_HCO3_sws,
+    # Chemical speciation
+    "H": lambda pH: 10.0**-pH,
+    "H3PO4": solve.speciate.get_H3PO4,
+    "H2PO4": solve.speciate.get_H2PO4,
+    "HPO4": solve.speciate.get_HPO4,
+    "PO4": solve.speciate.get_PO4,
+    "BOH4": solve.speciate.get_BOH4,
+    "BOH3": solve.speciate.get_BOH3,
+    "OH": solve.speciate.get_OH,
+    "H_free": solve.speciate.get_H_free,
+    "H3SiO4": solve.speciate.get_H3SiO4,
+    "H4SiO4": solve.speciate.get_H4SiO4,
+    "HSO4": solve.speciate.get_HSO4,
+    "SO4": solve.speciate.get_SO4,
+    "HF": solve.speciate.get_HF,
+    "F": solve.speciate.get_F,
+    "NH3": solve.speciate.get_NH3,
+    "NH4": solve.speciate.get_NH4,
+    "H2S": solve.speciate.get_H2S,
+    "HS": solve.speciate.get_HS,
 }
 
 # Define functions for calculations that depend on icase:
@@ -96,6 +116,7 @@ get_funcs_core[203] = {
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+    "alkalinity": solve.speciate.get_alkalinity,
 }
 
 # Add p-f-x-CO2 interconversions
@@ -313,10 +334,10 @@ get_funcs_opts["opt_k_Si"] = {
     ),
 }
 get_funcs_opts["opt_pH_scale"] = {
-    1: dict(sws_to_opt=convert.pH_sws_to_total),
-    2: dict(sws_to_opt=lambda: 1.0),
-    3: dict(sws_to_opt=convert.pH_sws_to_free),
-    4: dict(sws_to_opt=convert.pH_sws_to_nbs),
+    1: dict(sws_to_opt=convert.pH_sws_to_total, opt_to_free=convert.pH_total_to_free),
+    2: dict(sws_to_opt=lambda: 1.0, opt_to_free=convert.pH_sws_to_free),
+    3: dict(sws_to_opt=convert.pH_sws_to_free, opt_to_free=lambda: 1.0),
+    4: dict(sws_to_opt=convert.pH_sws_to_nbs, opt_to_free=convert.pH_nbs_to_free),
 }
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
@@ -444,13 +465,68 @@ set_node_labels = {
     "Ca": r"$[\mathrm{Ca}^{2+}]$",
     "total_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "opt_to_free": r"$_*^\mathrm{F}Y$",
     "fCO2": f + "CO$_2$",
     "factor_k_CO2": "$P_0$",
     "factor_k_H2CO3": "$P_1$",
     "factor_k_HCO3": "$P_2$",
     "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
     "factor_k_HF": r"$P_\mathrm{HF}$",
+    "factor_k_BOH3": r"$P_\mathrm{B}$",
+    "factor_k_H2O": r"$P_w$",
+    "factor_k_Si": r"$P_\mathrm{Si}$",
+    "factor_k_NH3": r"$P_\mathrm{NH_3}$",
+    "factor_k_H2S": r"$P_\mathrm{H_2S}$",
     "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
+    "H3PO4": r"$[\mathrm{H}_3\mathrm{PO}_4]$",
+    "H2PO4": r"$[\mathrm{H}_2\mathrm{PO}_4^–]$",
+    "HPO4": r"$[\mathrm{HPO}_4^{2–}]$",
+    "PO4": r"$[\mathrm{PO}_4^{3–}]$",
+    "k_H3PO4": r"$K_\mathrm{P1}^*$",
+    "k_H2PO4": r"$K_\mathrm{P2}^*$",
+    "k_HPO4": r"$K_\mathrm{P3}^*$",
+    "k_BOH3": r"$K_\mathrm{B}^*$",
+    "k_Si": r"$K_\mathrm{Si}^*$",
+    "k_NH3": r"$K_\mathrm{NH_3}^*$",
+    "k_H2S": r"$K_\mathrm{H_2S}^*$",
+    "k_H2O": "$K_w^*$",
+    "k_H3PO4_sws": r"$K_\mathrm{P1}^\mathrm{S}$",
+    "k_H2PO4_sws": r"$K_\mathrm{P2}^\mathrm{S}$",
+    "k_HPO4_sws": r"$K_\mathrm{P3}^\mathrm{S}$",
+    "k_BOH3_sws": r"$K_\mathrm{B}^\mathrm{S}$",
+    "k_Si_sws": r"$K_\mathrm{Si}^\mathrm{S}$",
+    "k_NH3_sws": r"$K_\mathrm{NH_3}^\mathrm{S}$",
+    "k_H2S_sws": r"$K_\mathrm{H_2S}^\mathrm{S}$",
+    "k_H2O_sws": r"$K_w^\mathrm{S}$",
+    "k_H3PO4_sws_1atm": r"$K_\mathrm{P1}^\mathrm{S0}$",
+    "k_H2PO4_sws_1atm": r"$K_\mathrm{P2}^\mathrm{S0}$",
+    "k_HPO4_sws_1atm": r"$K_\mathrm{P3}^\mathrm{S0}$",
+    "k_BOH3_sws_1atm": r"$K_\mathrm{B}^\mathrm{S0}$",
+    "k_BOH3_total_1atm": r"$K_\mathrm{B}^\mathrm{T0}$",
+    "k_Si_sws_1atm": r"$K_\mathrm{Si}^\mathrm{S0}$",
+    "k_NH3_sws_1atm": r"$K_\mathrm{NH_3}^\mathrm{S0}$",
+    "k_H2S_sws_1atm": r"$K_\mathrm{H_2S}^\mathrm{S0}$",
+    "k_H2S_total_1atm": r"$K_\mathrm{H_2S}^\mathrm{T0}$",
+    "k_H2O_sws_1atm": r"$K_w^\mathrm{S0}$",
+    "factor_k_H3PO4": r"$P_\mathrm{P1}$",
+    "factor_k_H2PO4": r"$P_\mathrm{P2}$",
+    "factor_k_HPO4": r"$P_\mathrm{P3}$",
+    "BOH4": r"$[\mathrm{B(OH)}_4^–]$",
+    "BOH3": r"$[\mathrm{B(OH)}_3]$",
+    "OH": r"$[\mathrm{OH}^–]$",
+    "H": r"$[\mathrm{H}^+]^*$",
+    "H_free": r"$[\mathrm{H}^+]^\mathrm{F}$",
+    "H3SiO4": r"$[\mathrm{H}_3\mathrm{SiO}_4^–]$",
+    "H4SiO4": r"$[\mathrm{H}_4\mathrm{SiO}_4]$",
+    "HSO4": r"$[\mathrm{HSO}_4^–]$",
+    "SO4": r"$[\mathrm{SO}_4^{2–}]$",
+    "HF": "[HF]",
+    "F": r"$[\mathrm{F}^-]$",
+    "NH3": r"$[\mathrm{NH}_3]$",
+    "NH4": r"$[\mathrm{NH}_4^+]$",
+    "H2S": r"$[\mathrm{H_2S}]$",
+    "HS": r"$[\mathrm{HS}^–]$",
+    "alkalinity": r"$A_\mathrm{T}$",
 }
 
 
@@ -655,7 +731,7 @@ class CO2System:
                         new_state = {(p, s): 2}
                     else:
                         new_state = {(p, s): 0}
-                    nx.set_edge_attributes(self_graph, new_state, name='state')
+                    nx.set_edge_attributes(self_graph, new_state, name="state")
                     edge_states.update(new_state)
                 self_graph.remove_node(n)
         state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}

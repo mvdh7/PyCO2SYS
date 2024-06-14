@@ -139,7 +139,7 @@ def dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3):
 
 def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
     """Dissolved inorganic carbon from CO2 fugacity and carbonate ion.
-    
+
     Parameters
     ----------
     fCO2 : float
@@ -162,7 +162,7 @@ def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
 
 def dic_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
     """Dissolved inorganic carbon from CO2 fugacity and bicarbonate ion.
-    
+
     Parameters
     ----------
     fCO2 : float
@@ -185,7 +185,7 @@ def dic_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
 
 def dic_from_CO3_HCO3(CO3, HCO3, k_H2CO3, k_HCO3):
     """Dissolved inorganic carbon from carbonate ion and carbonate ion.
-    
+
     Parameters
     ----------
     CO3 : float

@@ -5,4 +5,4 @@
 from jax import numpy as np, lax
 from ... import salts
 from .. import delta, initialise, residual, speciate
-from . import inorganic, inorganic_zlp
+from . import inorganic

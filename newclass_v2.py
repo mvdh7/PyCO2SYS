@@ -9,6 +9,8 @@ sys = CO2System(
         pressure=1000,
         dic=np.linspace(2001, 2100, 10),
         pH=8.1,
+        total_silicate=100,
+        total_phosphate=10,
     ),
     opts=dict(
         opt_k_HF=1,
@@ -50,16 +52,22 @@ sys.get(
         # "fCO2",
         # "HCO3",
         # "CO3",
-        "CO2",
+        # "OH", 'H_free',
+        # "H4SiO4", "H3SiO4",
+        # "HSO4", "SO4",
+        # "HF", "F",
+        # "NH3", "NH4",
+        # "H2S", "HS",
+        "alkalinity",
     ]
 )
 sys.plot_graph(
-    show_unknown=False,
-    show_isolated=False,
+    # show_unknown=False,
+    # show_isolated=False,
     prog_graphviz="neato",
-    exclude_nodes='gas_constant',
-    skip_nodes=['sws_to_opt', 'total_to_sws_1atm'],
+    # exclude_nodes='gas_constant',
+    # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
 )
 
 # sys.get()
-# print(sys.values)
+print(sys.values)
