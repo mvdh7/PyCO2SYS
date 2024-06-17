@@ -4,7 +4,7 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from .. import constants, convert, equilibria, salts, solve
+from .. import constants, convert, equilibria, gas, salts, solve
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -97,6 +97,8 @@ get_funcs = {
     "NH4": solve.speciate.get_NH4,
     "H2S": solve.speciate.get_H2S,
     "HS": solve.speciate.get_HS,
+    # Gasses
+    "vp_factor": gas.vpfactor,
 }
 
 # Define functions for calculations that depend on icase:
@@ -121,10 +123,12 @@ get_funcs_core[203] = {
 
 # Add p-f-x-CO2 interconversions
 for k, fc in get_funcs_core.items():
-    if "fCO2" in fc:
+    if "fCO2" in fc:  # TODO or if fCO2 is one of the input variables
         fc.update(
             {
+                "pCO2": convert.fCO2_to_pCO2,
                 "CO2": convert.fCO2_to_CO2aq,
+                "xCO2": convert.fCO2_to_xCO2,
             }
         )
 
@@ -349,6 +353,10 @@ get_funcs_opts["opt_Ca"] = {
     1: dict(Ca=salts.Ca_RT67),
     2: dict(Ca=salts.Ca_C65),
 }
+get_funcs_opts["opt_fugacity_factor"] = {
+    1: dict(fugacity_factor=gas.fugacity_factor),
+    2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
+}
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
@@ -426,6 +434,7 @@ default_opts = {
     "opt_pH_scale": 1,
     "opt_total_borate": 1,
     "opt_Ca": 1,
+    "opt_fugacity_factor": 1,
 }
 
 thinspace = " "
@@ -527,6 +536,10 @@ set_node_labels = {
     "H2S": r"$[\mathrm{H_2S}]$",
     "HS": r"$[\mathrm{HS}^–]$",
     "alkalinity": r"$A_\mathrm{T}$",
+    "fugacity_factor": "$f$",
+    "vp_factor": "$v$",
+    "pCO2": r"$p\mathrm{CO}_2$",
+    "xCO2": r"$x\mathrm{CO}_2$",
 }
 
 

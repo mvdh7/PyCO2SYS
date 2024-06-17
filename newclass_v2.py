@@ -7,7 +7,7 @@ sys = CO2System(
     dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        dic=np.linspace(2001, 2100, 10),
+        dic=np.linspace(2001, 2100, 1000),
         pH=8.1,
         total_silicate=100,
         total_phosphate=10,
@@ -58,12 +58,16 @@ sys.get(
         # "HF", "F",
         # "NH3", "NH4",
         # "H2S", "HS",
-        "alkalinity",
+        # "alkalinity",
+        "fugacity_factor",
+        "pCO2",
+        "CO2",
+        "xCO2",
     ]
 )
 sys.plot_graph(
-    # show_unknown=False,
-    # show_isolated=False,
+    show_unknown=False,
+    show_isolated=False,
     prog_graphviz="neato",
     # exclude_nodes='gas_constant',
     # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],

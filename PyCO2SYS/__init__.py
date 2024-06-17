@@ -23,7 +23,7 @@ from . import (
     convert,
     engine,
     equilibria,
-    # gas,
+    gas,
     meta,
     # minimal,
     # original,

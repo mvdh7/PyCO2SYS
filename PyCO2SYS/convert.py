@@ -31,29 +31,29 @@ from jax import numpy as np
 from . import constants
 
 
-def pCO2_to_fCO2(pCO2, k_constants):
+def pCO2_to_fCO2(pCO2, fugacity_factor):
     """Convert CO2 partial pressure to fugacity."""
-    return pCO2 * k_constants["FugFac"]
+    return pCO2 * fugacity_factor
 
 
-def fCO2_to_pCO2(fCO2, k_constants):
+def fCO2_to_pCO2(fCO2, fugacity_factor):
     """Convert CO2 fugacity to partial pressure."""
-    return fCO2 / k_constants["FugFac"]
+    return fCO2 / fugacity_factor
 
 
-def xCO2_to_fCO2(xCO2, k_constants):
+def xCO2_to_fCO2(xCO2, fugacity_factor, vp_factor):
     """Convert CO2 dry mole fraction to fugacity."""
-    return xCO2 * k_constants["FugFac"] * k_constants["VPFac"]
+    return xCO2 * fugacity_factor * vp_factor
 
 
-def fCO2_to_xCO2(fCO2, k_constants):
+def fCO2_to_xCO2(fCO2, fugacity_factor, vp_factor):
     """Convert CO2 fugacity to dry mole fraction."""
-    return fCO2 / (k_constants["FugFac"] * k_constants["VPFac"])
+    return fCO2 / (fugacity_factor * vp_factor)
 
 
 def CO2aq_to_fCO2(CO2, k_CO2):
     """Convert aqueous CO2 content to fugacity.
-    
+
     Parameters
     ----------
     CO2 : float
@@ -71,7 +71,7 @@ def CO2aq_to_fCO2(CO2, k_CO2):
 
 def fCO2_to_CO2aq(fCO2, k_CO2):
     """Convert CO2 fugacity to aqueous content.
-    
+
     Parameters
     ----------
     fCO2 : float
