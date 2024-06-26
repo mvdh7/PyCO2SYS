@@ -16,12 +16,6 @@ def egrad(g):
     return wrapped
 
 
-def pH_from_alkalinity_dic_with_grad(pH, alkalinity, dic, totals, k_constants):
-    return jax.value_and_grad(residual.pH_from_alkalinity_dic)(
-        pH, alkalinity, dic, totals, k_constants
-    )
-
-
 @jax.jit
 def pH_from_alkalinity_dic(
     pH,
@@ -48,9 +42,7 @@ def pH_from_alkalinity_dic(
     k_HSO4_free,
     k_HF_free,
 ):
-    """Calculate delta-pH from pH and DIC for solver
-    `inorganic.pH_from_alkalinity_dic`.
-    """
+    """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_dic``."""
     args = (
         pH,
         alkalinity,
@@ -81,19 +73,60 @@ def pH_from_alkalinity_dic(
     return -(alkalinity_residual / alkalinity_residual_grad)
 
 
-def pH_from_alkalinity_dic_zlp_with_grad(
-    pH, alkalinity, dic, totals, k_constants, pzlp
+@jax.jit
+def pH_from_alkalinity_fCO2(
+    pH,
+    alkalinity,
+    fCO2,
+    total_borate,
+    total_phosphate,
+    total_silicate,
+    total_ammonia,
+    total_sulfide,
+    total_sulfate,
+    total_fluoride,
+    opt_to_free,
+    k_H2O,
+    k_CO2,
+    k_H2CO3,
+    k_HCO3,
+    k_BOH3,
+    k_H3PO4,
+    k_H2PO4,
+    k_HPO4,
+    k_Si,
+    k_NH3,
+    k_H2S,
+    k_HSO4_free,
+    k_HF_free,
 ):
-    return jax.value_and_grad(residual.pH_from_alkalinity_dic_zlp)(
-        pH, alkalinity, dic, totals, k_constants, pzlp
+    """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_fCO2``."""
+    args = (
+        pH,
+        alkalinity,
+        fCO2,
+        total_borate,
+        total_phosphate,
+        total_silicate,
+        total_ammonia,
+        total_sulfide,
+        total_sulfate,
+        total_fluoride,
+        opt_to_free,
+        k_H2O,
+        k_CO2,
+        k_H2CO3,
+        k_HCO3,
+        k_BOH3,
+        k_H3PO4,
+        k_H2PO4,
+        k_HPO4,
+        k_Si,
+        k_NH3,
+        k_H2S,
+        k_HSO4_free,
+        k_HF_free,
     )
-
-
-def pH_from_alkalinity_dic_zlp(pH, alkalinity, dic, totals, k_constants, pzlp):
-    """Calculate delta-pH from pH and DIC for solver
-    `inorganic_zlp.pH_from_alkalinity_dic`.
-    """
-    residual, residual_grad = pH_from_alkalinity_dic_zlp_with_grad(
-        pH, alkalinity, dic, totals, k_constants, pzlp
-    )
-    return -(residual / residual_grad)
+    alkalinity_residual = residual.pH_from_alkalinity_fCO2(*args)
+    alkalinity_residual_grad = egrad(residual.pH_from_alkalinity_fCO2)(*args)
+    return -(alkalinity_residual / alkalinity_residual_grad)

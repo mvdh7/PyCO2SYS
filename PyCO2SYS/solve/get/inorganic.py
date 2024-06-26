@@ -316,7 +316,9 @@ def pH_from_alkalinity_dic(
     pH_tolerance = 1e-8
     delta_pH = 1.0 + pH_tolerance
     while np.any(np.abs(delta_pH) >= pH_tolerance):
-        pH_done = np.abs(delta_pH) < pH_tolerance  # check which ones don't need updating
+        pH_done = (
+            np.abs(delta_pH) < pH_tolerance
+        )  # check which ones don't need updating
         delta_pH = delta.pH_from_alkalinity_dic(
             pH,
             alkalinity,
@@ -330,6 +332,78 @@ def pH_from_alkalinity_dic(
             total_fluoride,
             opt_to_free,
             k_H2O,
+            k_H2CO3,
+            k_HCO3,
+            k_BOH3,
+            k_H3PO4,
+            k_H2PO4,
+            k_HPO4,
+            k_Si,
+            k_NH3,
+            k_H2S,
+            k_HSO4_free,
+            k_HF_free,
+        )  # the pH jump
+        # To keep the jump from being too big:
+        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
+        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+    return pH
+
+
+def pH_from_alkalinity_fCO2(
+    alkalinity,
+    fCO2,
+    total_borate,
+    total_phosphate,
+    total_silicate,
+    total_ammonia,
+    total_sulfide,
+    total_sulfate,
+    total_fluoride,
+    opt_to_free,
+    k_H2O,
+    k_CO2,
+    k_H2CO3,
+    k_HCO3,
+    k_BOH3,
+    k_H3PO4,
+    k_H2PO4,
+    k_HPO4,
+    k_Si,
+    k_NH3,
+    k_H2S,
+    k_HSO4_free,
+    k_HF_free,
+):
+    """Calculate pH from total alkalinity and DIC using a Newton-Raphson iterative
+    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
+    Lewis.
+    """
+    # First guess inspired by M13/OE15, added v1.3.0:
+    pH = initialise.from_fCO2(
+        alkalinity, fCO2, total_borate, k_CO2, k_H2CO3, k_HCO3, k_BOH3
+    )
+    pH_tolerance = 1e-8
+    delta_pH = 1.0 + pH_tolerance
+    while np.any(np.abs(delta_pH) >= pH_tolerance):
+        pH_done = (
+            np.abs(delta_pH) < pH_tolerance
+        )  # check which ones don't need updating
+        delta_pH = delta.pH_from_alkalinity_fCO2(
+            pH,
+            alkalinity,
+            fCO2,
+            total_borate,
+            total_phosphate,
+            total_silicate,
+            total_ammonia,
+            total_sulfide,
+            total_sulfate,
+            total_fluoride,
+            opt_to_free,
+            k_H2O,
+            k_CO2,
             k_H2CO3,
             k_HCO3,
             k_BOH3,
@@ -393,7 +467,7 @@ def pH_from_alkalinity_dic(
 #     )
 
 
-def pH_from_dic_fCO2(dic, fCO2, k_CO2, k_H2CO3, k_CO3):
+def pH_from_dic_fCO2(dic, fCO2, k_CO2, k_H2CO3, k_HCO3):
     """Calculate pH from dissolved inorganic carbon and CO2 fugacity.
 
     This calculates pH from TC and fCO2 using K0, K1, and K2 by solving the quadratic in

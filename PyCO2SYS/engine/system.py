@@ -107,7 +107,7 @@ get_funcs_core[0] = {}
 # get_funcs_core[5] = {
 #     "pCO2": pCO2_from_fCO2,
 # }
-get_funcs_core[102] = {
+get_funcs_core[102] = {  # alkalinity and DIC
     "pH": solve.get.inorganic.pH_from_alkalinity_dic,
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
@@ -119,16 +119,38 @@ get_funcs_core[103] = {  # alkalinity and pH
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
 }
+get_funcs_core[105] = {  # alkalinity and fCO2
+    "pH": solve.get.inorganic.pH_from_alkalinity_fCO2,
+    "dic": solve.get.inorganic.dic_from_pH_fCO2,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+}
 get_funcs_core[203] = {  # DIC and pH
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
     "alkalinity": solve.speciate.get_alkalinity,
 }
+get_funcs_core[205] = {  # DIC and fCO2
+    "pH": solve.get.inorganic.pH_from_dic_fCO2,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    "alkalinity": solve.speciate.get_alkalinity,
+}
+get_funcs_core[305] = {  # pH and fCO2
+    "dic": solve.get.inorganic.dic_from_pH_fCO2,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    "alkalinity": solve.speciate.get_alkalinity,
+}
 
 # Add p-f-x-CO2 interconversions
 for k, fc in get_funcs_core.items():
-    if "fCO2" in fc:  # TODO or if fCO2 is one of the input variables
+    if "fCO2" in fc or k in [
+        105,
+        205,
+        305,
+    ]:  # TODO or if fCO2 is one of the input variables
         fc.update(
             {
                 "pCO2": convert.fCO2_to_pCO2,
