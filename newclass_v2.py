@@ -18,9 +18,11 @@ sys = CO2System(
     dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        # dic=np.linspace(2001, 2100, 100),
-        alkalinity=np.linspace(2201, 2300, 100),
-        fCO2=np.linspace(500, 1000, 100),
+        dic=np.linspace(2001, 2100, 10),
+        # alkalinity=np.linspace(2201, 2300, 10),
+        # xCO2=np.linspace(500, 1000, 10),
+        # CO3=np.linspace(100, 200, 10),
+        HCO3=np.linspace(1700, 1800, 10),
         # pH=8.1,
         total_silicate=100,
         total_phosphate=10,
@@ -38,6 +40,7 @@ sys = CO2System(
         opt_k_NH3=1,
         opt_k_carbonic=10,
         opt_factor_k_HCO3=1,
+        opt_HCO3_root=2,
     ),
     # use_default_values=False,
 )
@@ -49,6 +52,8 @@ sys.get(
         "xCO2",
         "dic",
         "pH",
+        "HCO3",
+        "CO3",
     ]
 )
 sys.plot_graph(

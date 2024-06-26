@@ -119,11 +119,24 @@ get_funcs_core[103] = {  # alkalinity and pH
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
 }
-get_funcs_core[105] = {  # alkalinity and fCO2
-    "pH": solve.get.inorganic.pH_from_alkalinity_fCO2,
-    "dic": solve.get.inorganic.dic_from_pH_fCO2,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+for i in [104, 105, 108, 109]:  # alkalinity and pCO2, fCO2, CO2, xCO2
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_alkalinity_fCO2,
+        "dic": solve.get.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    }
+get_funcs_core[106] = {  # alkalinity and CO3
+    "pH": solve.get.inorganic.pH_from_alkalinity_CO3,
+    "dic": solve.get.inorganic.dic_from_pH_CO3,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+}
+get_funcs_core[107] = {  # alkalinity and HCO3
+    "pH": solve.get.inorganic.pH_from_alkalinity_HCO3,
+    "dic": solve.get.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
 }
 get_funcs_core[203] = {  # DIC and pH
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
@@ -131,31 +144,66 @@ get_funcs_core[203] = {  # DIC and pH
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
     "alkalinity": solve.speciate.get_alkalinity,
 }
-get_funcs_core[205] = {  # DIC and fCO2
-    "pH": solve.get.inorganic.pH_from_dic_fCO2,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+for i in [204, 205, 208, 209]:  # DIC and pCO2, fCO2, CO2, xCO2
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_dic_fCO2,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
+get_funcs_core[206] = {  # DIC and CO3
+    "pH": solve.get.inorganic.pH_from_dic_CO3,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
     "alkalinity": solve.speciate.get_alkalinity,
 }
-get_funcs_core[305] = {  # pH and fCO2
-    "dic": solve.get.inorganic.dic_from_pH_fCO2,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+get_funcs_core[207] = {  # DIC and HCO3
+    # pH is taken care of by opt_HCO3_root
+    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
     "alkalinity": solve.speciate.get_alkalinity,
 }
+for i in [304, 305, 308, 309]:  # pH and pCO2, fCO2, CO2, xCO2
+    get_funcs_core[i] = {
+        "dic": solve.get.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
+# TODO continue from here, adding the 306 and 307 combinations, then saturation states
 
 # Add p-f-x-CO2 interconversions
 for k, fc in get_funcs_core.items():
-    if "fCO2" in fc or k in [
-        105,
-        205,
-        305,
-    ]:  # TODO or if fCO2 is one of the input variables
+    if "fCO2" in fc or k in [105, 205, 305]:
         fc.update(
             {
                 "pCO2": convert.fCO2_to_pCO2,
                 "CO2": convert.fCO2_to_CO2aq,
                 "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [104, 204, 304]:
+        fc.update(
+            {
+                "fCO2": convert.pCO2_to_fCO2,
+                "CO2": convert.fCO2_to_CO2aq,
+                "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [108, 208, 308]:
+        fc.update(
+            {
+                "fCO2": convert.CO2aq_to_fCO2,
+                "pCO2": convert.fCO2_to_pCO2,
+                "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [109, 209, 309]:
+        fc.update(
+            {
+                "fCO2": convert.xCO2_to_fCO2,
+                "pCO2": convert.fCO2_to_pCO2,
+                "CO2": convert.fCO2_to_CO2aq,
             }
         )
 
@@ -384,6 +432,10 @@ get_funcs_opts["opt_fugacity_factor"] = {
     1: dict(fugacity_factor=gas.fugacity_factor),
     2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
 }
+get_funcs_opts["opt_HCO3_root"] = {
+    1: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_lo),
+    2: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
+}
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
@@ -462,6 +514,7 @@ default_opts = {
     "opt_total_borate": 1,
     "opt_Ca": 1,
     "opt_fugacity_factor": 1,
+    "opt_HCO3_root": 2,
 }
 
 thinspace = " "

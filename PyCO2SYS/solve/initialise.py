@@ -75,11 +75,12 @@ def _goodH0_fCO2(CBAlk, CO2, TB, K1, K2, KB):
     return H0
 
 
-def from_fCO2(CBAlk, fCO2, TB, K0, K1, K2, KB):
+def from_fCO2(alkalinity, fCO2, total_borate, k_CO2, k_H2CO3, k_CO3, k_BOH3):
     """Find initial value for TA-pH solver with fCO2 as the second variable.
 
     Inspired by M13, section 3.2.2.
     """
+    CBAlk, TB, K0, K1, K2, KB = alkalinity, total_borate, k_CO2, k_H2CO3, k_CO3, k_BOH3
     CO2 = convert.fCO2_to_CO2aq(fCO2, K0)
     H0 = np.where(
         CBAlk > 0,
@@ -92,5 +93,59 @@ def from_fCO2(CBAlk, fCO2, TB, K0, K1, K2, KB):
         CBAlk > 2 * TC + TB,
         1e-7,
         H0,
+    )
+    return -np.log10(H0)
+
+
+def _goodH0_CO3(CBAlk, CARB, TB, K2, KB):
+    """Find initial value for TA-pH solver with carbonate ion as the second variable,
+    assuming that CBAlk is within a suitable range.
+
+    Inspired by M13, section 3.2.2.
+    """
+    a = CARB
+    b = CARB * KB + K2 * (2 * CARB - CBAlk)
+    c = K2 * KB * (2 * CARB + TB - CBAlk)
+    H0 = (-b + np.sqrt(b**2 - 4 * a * c)) / (2 * a)
+    return H0
+
+
+def from_CO3(alkalinity, CO3, total_borate, k_HCO3, k_BOH3):
+    """Find initial value for TA-pH solver with carbonate ion as the second variable.
+
+    Inspired by M13, section 3.2.2.
+    """
+    CBAlk, CARB, TB, K2, KB = alkalinity, CO3, total_borate, k_HCO3, k_BOH3
+    H0 = np.where(
+        CBAlk > 2 * CARB + TB,
+        _goodH0_CO3(CBAlk, CARB, TB, K2, KB),
+        1e-3,  # default pH=3 for low alkalinity
+    )
+    return -np.log10(H0)
+
+
+def _goodH0_HCO3(CBAlk, HCO3, TB, K2, KB):
+    """Find initial value for TA-pH solver with bicarbonate ion as the second variable,
+    assuming that CBAlk is within a suitable range.
+
+    Inspired by M13, section 3.2.2.
+    """
+    a = HCO3 - CBAlk
+    b = KB * (HCO3 + TB - CBAlk) + 2 * K2 * HCO3
+    c = 2 * K2 * KB * HCO3
+    H0 = (-b - np.sqrt(b**2 - 4 * a * c)) / (2 * a)
+    return H0
+
+
+def from_HCO3(alkalinity, HCO3, total_borate, k_HCO3, k_BOH3):
+    """Find initial value for TA-pH solver with bicarbonate ion as the second variable.
+
+    Inspired by M13, section 3.2.2.
+    """
+    CBAlk, TB, K2, KB = alkalinity, total_borate, k_HCO3, k_BOH3
+    H0 = np.where(
+        CBAlk > HCO3,
+        _goodH0_HCO3(CBAlk, HCO3, TB, K2, KB),
+        1e-3,  # default pH=3 for low alkalinity
     )
     return -np.log10(H0)

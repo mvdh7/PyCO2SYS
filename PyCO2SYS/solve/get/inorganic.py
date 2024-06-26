@@ -423,6 +423,138 @@ def pH_from_alkalinity_fCO2(
     return pH
 
 
+def pH_from_alkalinity_CO3(
+    alkalinity,
+    CO3,
+    total_borate,
+    total_phosphate,
+    total_silicate,
+    total_ammonia,
+    total_sulfide,
+    total_sulfate,
+    total_fluoride,
+    opt_to_free,
+    k_H2O,
+    k_HCO3,
+    k_BOH3,
+    k_H3PO4,
+    k_H2PO4,
+    k_HPO4,
+    k_Si,
+    k_NH3,
+    k_H2S,
+    k_HSO4_free,
+    k_HF_free,
+):
+    """Calculate pH from total alkalinity and CO3 using a Newton-Raphson iterative
+    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
+    Lewis.
+    """
+    # First guess inspired by M13/OE15, added v1.3.0:
+    pH = initialise.from_CO3(alkalinity, CO3, total_borate, k_HCO3, k_BOH3)
+    pH_tolerance = 1e-8
+    delta_pH = 1.0 + pH_tolerance
+    while np.any(np.abs(delta_pH) >= pH_tolerance):
+        pH_done = (
+            np.abs(delta_pH) < pH_tolerance
+        )  # check which ones don't need updating
+        delta_pH = delta.pH_from_alkalinity_CO3(
+            pH,
+            alkalinity,
+            CO3,
+            total_borate,
+            total_phosphate,
+            total_silicate,
+            total_ammonia,
+            total_sulfide,
+            total_sulfate,
+            total_fluoride,
+            opt_to_free,
+            k_H2O,
+            k_HCO3,
+            k_BOH3,
+            k_H3PO4,
+            k_H2PO4,
+            k_HPO4,
+            k_Si,
+            k_NH3,
+            k_H2S,
+            k_HSO4_free,
+            k_HF_free,
+        )  # the pH jump
+        # To keep the jump from being too big:
+        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
+        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+    return pH
+
+
+def pH_from_alkalinity_HCO3(
+    alkalinity,
+    HCO3,
+    total_borate,
+    total_phosphate,
+    total_silicate,
+    total_ammonia,
+    total_sulfide,
+    total_sulfate,
+    total_fluoride,
+    opt_to_free,
+    k_H2O,
+    k_HCO3,
+    k_BOH3,
+    k_H3PO4,
+    k_H2PO4,
+    k_HPO4,
+    k_Si,
+    k_NH3,
+    k_H2S,
+    k_HSO4_free,
+    k_HF_free,
+):
+    """Calculate pH from total alkalinity and HCO3 using a Newton-Raphson iterative
+    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
+    Lewis.
+    """
+    # First guess inspired by M13/OE15, added v1.3.0:
+    pH = initialise.from_HCO3(alkalinity, HCO3, total_borate, k_HCO3, k_BOH3)
+    pH_tolerance = 1e-8
+    delta_pH = 1.0 + pH_tolerance
+    while np.any(np.abs(delta_pH) >= pH_tolerance):
+        pH_done = (
+            np.abs(delta_pH) < pH_tolerance
+        )  # check which ones don't need updating
+        delta_pH = delta.pH_from_alkalinity_HCO3(
+            pH,
+            alkalinity,
+            HCO3,
+            total_borate,
+            total_phosphate,
+            total_silicate,
+            total_ammonia,
+            total_sulfide,
+            total_sulfate,
+            total_fluoride,
+            opt_to_free,
+            k_H2O,
+            k_HCO3,
+            k_BOH3,
+            k_H3PO4,
+            k_H2PO4,
+            k_HPO4,
+            k_Si,
+            k_NH3,
+            k_H2S,
+            k_HSO4_free,
+            k_HF_free,
+        )  # the pH jump
+        # To keep the jump from being too big:
+        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
+        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+    return pH
+
+
 # def pH_from_alkalinity_fCO2(alkalinity, fCO2, totals, k_constants):
 #     """Calculate pH from total alkalinity and CO2 fugacity."""
 #     # Slightly more convoluted than the others because initialise.fromCO2 takes CO2 as
@@ -527,15 +659,16 @@ def pH_from_dic_CO3(dic, CO3, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     """
     K1, K2 = k_H2CO3, k_HCO3
-    RR = 1 - dic / carbonate
+    RR = 1 - dic / CO3
     Discr = K1**2 - 4 * K1 * K2 * RR
-    F = (carbonate >= dic) | (Discr <= 0)
+    F = (CO3 >= dic) | (Discr <= 0)
     H = np.where(F, np.nan, (-K1 + np.sqrt(Discr)) / 2)
     return -np.log10(H)
 
 
-def pH_from_dic_HCO3(dic, HCO3, k_H2CO3, k_HCO3):
-    """Calculate pH from dissolved inorganic carbon and bicarbonate ion.
+def pH_from_dic_HCO3_hi(dic, HCO3, k_H2CO3, k_HCO3):
+    """Calculate pH from dissolved inorganic carbon and bicarbonate ion, taking the
+    high-pH root.  Used when opt_HCO3_root = 2.
 
     Follows ZW01 Appendix B (12).
 
@@ -553,7 +686,7 @@ def pH_from_dic_HCO3(dic, HCO3, k_H2CO3, k_HCO3):
     float
         Seawater pH on the scale indicated by opt_pH_scale.
     """
-    K1, K2 = k_H2CO3, k_HCO3
+    K1, K2, bicarbonate = k_H2CO3, k_HCO3, HCO3
     a = 1e-6 * bicarbonate / K1
     b = 1e-6 * (bicarbonate - dic)
     c = 1e-6 * bicarbonate * K2
@@ -562,7 +695,42 @@ def pH_from_dic_HCO3(dic, HCO3, k_H2CO3, k_HCO3):
     if np.any(F):
         print("Some input bicarbonate values are impossibly high given the input DIC;")
         print("returning np.nan.")
-    H = np.where(F, np.nan, (-b + which_bicarbonate_root * np.sqrt(bsq_4ac)) / (2 * a))
+    H = np.where(F, np.nan, (-b - np.sqrt(bsq_4ac)) / (2 * a))
+    return -np.log10(H)
+
+
+def pH_from_dic_HCO3_lo(dic, HCO3, k_H2CO3, k_HCO3):
+    """Calculate pH from dissolved inorganic carbon and bicarbonate ion, taking the
+    low-pH root.  Used when opt_HCO3_root = 1.
+
+    Follows ZW01 Appendix B (12).
+
+    Parameters
+    ----------
+    dic : float
+        DIC in µmol/kg-sw.
+    HCO3 : float
+        Biarbonate ion content in µmol/kg-sw.
+    k_H2CO3, kHCO3 : float
+        Carbonic acid dissociation constants.
+    HCO3_root : int
+        Which root to take: -1 for the high-pH, +1 for the low-pH.
+
+    Returns
+    -------
+    float
+        Seawater pH on the scale indicated by opt_pH_scale.
+    """
+    K1, K2, bicarbonate = k_H2CO3, k_HCO3, HCO3
+    a = 1e-6 * bicarbonate / K1
+    b = 1e-6 * (bicarbonate - dic)
+    c = 1e-6 * bicarbonate * K2
+    bsq_4ac = b**2 - 4 * a * c
+    F = (bicarbonate >= dic) | (bsq_4ac <= 0)
+    if np.any(F):
+        print("Some input bicarbonate values are impossibly high given the input DIC;")
+        print("returning np.nan.")
+    H = np.where(F, np.nan, (-b + np.sqrt(bsq_4ac)) / (2 * a))
     return -np.log10(H)
 
 
@@ -725,7 +893,7 @@ def fCO2_from_pH_CO3(pH, CO3, k_CO2, k_H2CO3, k_HCO3):
     """
     K0, K1, K2 = k_CO2, k_H2CO3, k_HCO3
     H = 10.0**-pH
-    return carbonate * H**2 / (K0 * K1 * K2)
+    return CO3 * H**2 / (K0 * K1 * K2)
 
 
 def fCO2_from_pH_HCO3(pH, HCO3, k_CO2, k_H2CO3):
@@ -849,7 +1017,7 @@ def CO3_from_pH_HCO3(pH, HCO3, k_HCO3):
         Carbonate ion content in µmol/kg-sw.
     """
     H = 10.0**-pH
-    return k_HCO3 * bicarbonate / H
+    return k_HCO3 * HCO3 / H
 
 
 def CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
@@ -965,10 +1133,10 @@ def HCO3_from_pH_CO3(pH, CO3, k_HCO3):
         Bicarbonate ion content in µmol/kg-sw.
     """
     H = 10.0**-pH
-    return carbonate * H / k_HCO3
+    return CO3 * H / k_HCO3
 
 
-def HCO3_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
+def HCO3_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3):
     """Bicarbonate ion from CO2 fugacity and carbonate ion.
 
     Parameters
@@ -987,7 +1155,7 @@ def HCO3_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
     float
         Bicarbonate ion content in µmol/kg-sw.
     """
-    pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
+    pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3)
     return HCO3_from_pH_CO3(pH, CO3, k_HCO3)
 
 
