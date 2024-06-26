@@ -11,7 +11,7 @@ readme = "README.md"
 dependencies = [
     "PyCO2SYS",
     "autograd",
-    "numpy",
+    "numpy<2",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
