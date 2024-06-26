@@ -51,6 +51,8 @@ As per the instructions in the [the CO2SYS-MATLAB repo](https://github.com/james
 
 ## Installation
 
+**The current version of PyCO2SYS is not compatible with Numpy v2.  The problem lies with Autograd, rather than PyCO2SYS itself.  We are currently working on an updated version of PyCO2SYS which will avoid this problem and work with Numpy v2.**
+
 If you manage Python with conda, we recommend that you first install NumPy, pandas and xarray into the environment where PyCO2SYS is to be installed with conda.
 
 ### With pip
