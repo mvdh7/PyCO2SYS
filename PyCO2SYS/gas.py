@@ -1,6 +1,17 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-"""Calculate gas properties."""
+"""
+PyCO2SYS.gas
+============
+Calculate gas properties.
+
+Functions
+---------
+fugacity_factor
+    Calculate the fugacity factor following W74.
+vpfactor
+    Calculate the vapour pressure factor.
+"""
 
 from jax import numpy as np
 from . import convert
