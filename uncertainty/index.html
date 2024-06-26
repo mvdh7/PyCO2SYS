@@ -1,0 +1,801 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Marine carbonate system calculations in Python">
+      
+      
+        <meta name="author" content="Matthew P. Humphreys">
+      
+      
+      
+        <link rel="prev" href="../co2sys_nd/">
+      
+      
+        <link rel="next" href="../validate/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+    
+    
+      
+        <title>Uncertainty propagation - PyCO2SYS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans:300,300i,400,400i,700,700i%7CNoto+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans";--md-code-font:"Noto Sans Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#uncertainty-propagation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyCO2SYS" class="md-header__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyCO2SYS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Uncertainty propagation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyCO2SYS" class="md-nav__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    PyCO2SYS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../co2sys_nd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to use PyCO2SYS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Uncertainty propagation
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Uncertainty propagation
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#independent-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Independent uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Independent uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syntax
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-same-kwargs-as-for-pyco2sys" class="md-nav__link">
+    <span class="md-ellipsis">
+      The same kwargs as for pyco2.sys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainties-with-covariances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties with covariances
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../refs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    References
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Version history
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Alternative interfaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Alternative interfaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../co2sys/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MATLAB-style CO2SYS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#independent-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Independent uncertainties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Independent uncertainties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syntax
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-same-kwargs-as-for-pyco2sys" class="md-nav__link">
+    <span class="md-ellipsis">
+      The same kwargs as for pyco2.sys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainties-with-covariances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties with covariances
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="uncertainty-propagation">Uncertainty propagation<a class="headerlink" href="#uncertainty-propagation" title="Permanent link">&para;</a></h1>
+<p>PyCO2SYS provides tools to propagate uncertainties in all arguments through to all results of its marine carbonate system calculations.</p>
+<div class="admonition question">
+<p class="admonition-title">Evaluating the derivatives</p>
+<p>All derivatives needed for uncertainty propagation are calculated using <em>forward finite-differences</em>.  Explicity, the derivative of result <span class="arithmatex"><span class="MathJax_Preview">r</span><script type="math/tex">r</script></span> with respect to argument <span class="arithmatex"><span class="MathJax_Preview">a</span><script type="math/tex">a</script></span> is estimated with:</p>
+<p><span class="arithmatex"><span class="MathJax_Preview">\frac{\partial r(a)}{\partial a} \approx \frac{r(a + \Delta a) - r(a)}{\Delta a}</span><script type="math/tex">\frac{\partial r(a)}{\partial a} \approx \frac{r(a + \Delta a) - r(a)}{\Delta a}</script></span></p>
+<p>As the different arguments span many orders of magnitude, PyCO2SYS uses a different <span class="arithmatex"><span class="MathJax_Preview">\Delta a</span><script type="math/tex">\Delta a</script></span> value for each argument.</p>
+</div>
+<h2 id="independent-uncertainties">Independent uncertainties<a class="headerlink" href="#independent-uncertainties" title="Permanent link">&para;</a></h2>
+<p>If the uncertainty in each <a href="../co2sys_nd/#arguments">argument</a> is independent – i.e. there is no covariance between uncertainties in different parameters – then you can use <code>PyCO2SYS.uncertainty.propagate</code> to propagate the parameter uncertainties through into any <a href="../co2sys_nd/#results">result</a>.</p>
+<h3 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h3>
+<p>Uncertainty propagation can be performed by adding some extra keyword arguments to <a href="../co2sys_nd"><code>pyco2.sys</code></a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">PyCO2SYS</span> <span class="k">as</span> <span class="nn">pyco2</span>
+
+<span class="c1"># Example arguments: known DIC and pH, at 10 degC</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;par1&quot;</span><span class="p">:</span> <span class="mf">2150.0</span><span class="p">,</span>
+    <span class="s2">&quot;par2&quot;</span><span class="p">:</span> <span class="mf">8.1</span><span class="p">,</span>
+    <span class="s2">&quot;par1_type&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;par2_type&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Normal way to run PyCO2SYS, without uncertainties:</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pyco2</span><span class="o">.</span><span class="n">sys</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># Alternatively, calculate uncertainties at the same time:</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pyco2</span><span class="o">.</span><span class="n">sys</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="n">uncertainty_into</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;alkalinity&quot;</span><span class="p">,</span> <span class="s2">&quot;k_carbonic_1&quot;</span><span class="p">],</span>
+    <span class="n">uncertainty_from</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;par1&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h3>
+<div class="admonition inputs">
+<p class="admonition-title"><code>pyco2.sys</code> uncertainty arguments</p>
+<h4 id="the-same-kwargs-as-for-pyco2sys">The same <code>kwargs</code> as for <code>pyco2.sys</code><a class="headerlink" href="#the-same-kwargs-as-for-pyco2sys" title="Permanent link">&para;</a></h4>
+<p>Provide all the necessary keyword arguments for <a href="../co2sys_nd"><code>pyco2.sys</code></a>.</p>
+<h4 id="uncertainties">Uncertainties<a class="headerlink" href="#uncertainties" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p><code>uncertainty_into</code>: a list of strings of the <a href="../co2sys_nd/#results">results keys</a> to propagate uncertainties into.</p>
+</li>
+<li>
+<p><code>uncertainty_from</code>: a dict of the uncertainties in the arguments to propagate through <code>pyco2.sys</code>.</p>
+</li>
+</ul>
+<p>The keys of <code>uncertainty_from</code> can include any <a href="../co2sys_nd/#arguments">arguments of <code>pyco2.sys</code></a> that can have an uncertainty.  The key for each uncertainty in <code>uncertainty_from</code> should be the same as the corresponding key in the main <a href="../co2sys_nd/#results"><code>pyco2.sys</code> results dict</a>.</p>
+<p>If you want to provide a fractional value for any uncertainty, append <code>"__f"</code> to the end of its key in <code>uncertainty_from</code>.</p>
+<p>For the equilibrium constants, if you wish to propagate an uncertainty in terms of a p<i>K</i> value rather than <em>K</em>, prefix the corresponding key in <code>uncertainty_from</code> with a <code>"p"</code> (e.g. use <code>"pk_carbonic_1"</code> instead of <code>"k_carbonic_1"</code>).  Uncertainties in equilibrium constants under input and output conditions are treated independently.  To use the same (covarying) uncertainty for both, append <code>"_both"</code> to the input condition key (e.g. <code>"k_carbonic_1_both"</code>).  In this case, you must have provided a value for either <code>temperature_out</code> or <code>pressure_out</code>.</p>
+<p>The "standard" uncertainties in the equilbrium constants and total borate used by CO2SYS for MATLAB following <a href="../refs/#o">OEDG18</a> are available as a dict in the correct format for <code>uncertainty_from</code> at <code>pyco2.uncertainty_OEDG18</code>.</p>
+<p>The values of <code>uncertainty_from</code> are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array the same size as the parameter if they are different.  Any parameters not included are assumed to have zero uncertainty.</p>
+</div>
+<h3 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h3>
+<div class="admonition outputs">
+<p class="admonition-title"><code>pyco2.sys</code> uncertainty results</p>
+<p>If <code>uncertainty_into</code> and <code>uncertainty_from</code> are provided, then the uncertainty results are added as additional entries to the standard <code>results</code> dict.  This includes the total uncertainty as well as individual components.</p>
+<ul>
+<li>
+<p>For each result in <code>uncertainty_into</code>, there is a new key <code>"u_&lt;into&gt;"</code> in the <code>results</code> dict, containing the total uncertainty in the result from all arguments combined.</p>
+</li>
+<li>
+<p>For each result in <code>uncertainty_into</code> and argument in <code>uncertainty_from</code>, there is a new key <code>"u_&lt;into&gt;__&lt;from&gt;"</code> in the <code>results</code> dict, containing the uncertainty in the result from only the specified argument.</p>
+</li>
+</ul>
+<p>The combined uncertainties are the Pythagorean sum of all the components.  This calculation assumes that all argument uncertainties are independent from each other and that they are provided in terms of single standard deviations.</p>
+</div>
+<h2 id="uncertainties-with-covariances">Uncertainties with covariances<a class="headerlink" href="#uncertainties-with-covariances" title="Permanent link">&para;</a></h2>
+<p>PyCO2SYS does not currently have a generalised function for the complete process of propagating uncertainties that co-vary.  However, it does allow you calculate the forward finite-difference derivative of any result with respect to any argument.  The syntax is similar as described above for uncertainties:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">PyCO2SYS</span> <span class="k">as</span> <span class="nn">pyco2</span>
+
+<span class="c1"># Example arguments: known DIC and pH, at 10 degC</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;par1&quot;</span><span class="p">:</span> <span class="mf">2150.0</span><span class="p">,</span>
+    <span class="s2">&quot;par2&quot;</span><span class="p">:</span> <span class="mf">8.1</span><span class="p">,</span>
+    <span class="s2">&quot;par1_type&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;par2_type&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Normal way to run PyCO2SYS, without derivatives:</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pyco2</span><span class="o">.</span><span class="n">sys</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># Alternatively, calculate derivatives at the same time:</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pyco2</span><span class="o">.</span><span class="n">sys</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="n">grads_of</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;alkalinity&quot;</span><span class="p">,</span> <span class="s2">&quot;k_carbonic_1&quot;</span><span class="p">],</span>
+    <span class="n">grads_wrt</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;par1&quot;</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>In general, this works the same as the uncertainty propagation approach described in the previous section.  The main differences are:</p>
+<ul>
+<li><code>grads_of</code> is equivalent to <code>uncertainty_into</code>.</li>
+<li><code>grads_wrt</code> (w.r.t. = with respect to) is equivalent to <code>uncertainty_from</code>, but values are not required, so it can be a list.  A dict is also fine; its values are ignored.</li>
+<li>The <code>"__f"</code> key extension cannot be used in <code>grads_wrt</code>.</li>
+<li>For each result in <code>grads_of</code> and argument in <code>grads_wrt</code>, there is a new key <code>"d_&lt;into&gt;__d_&lt;from&gt;"</code> in the <code>results</code> dict, containing the derivative of the result with respect to the argument.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020–2023 Matthew P. Humphreys (GNU GPLv3)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
