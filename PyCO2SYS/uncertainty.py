@@ -535,11 +535,13 @@ def propagate_nd(
     u_froms = engine.nd.condition(u_froms, to_shape=nd_shape)
     components = {
         u_into: {
-            u_from: np.abs(CO2SYS_derivs[u_into][u_from]) * v_from
-            if u_from not in u_fractions
-            else np.abs(CO2SYS_derivs[u_into][u_from])
-            * v_from
-            * CO2SYS_nd_results[u_from]
+            u_from: (
+                np.abs(CO2SYS_derivs[u_into][u_from]) * v_from
+                if u_from not in u_fractions
+                else np.abs(CO2SYS_derivs[u_into][u_from])
+                * v_from
+                * CO2SYS_nd_results[u_from]
+            )
             for u_from, v_from in u_froms.items()
         }
         for u_into in uncertainties_into

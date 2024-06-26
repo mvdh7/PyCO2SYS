@@ -75,7 +75,7 @@ max_diff_jds = (co2ml_u - co2ml_u_jds).abs().max().loc[max_diff_pyco2.index]
 # ^ shows that differences between Python and MATLAB are not due to errors in my MATLAB
 #   because max_diff_pyco2 is everywhere much greater than max_diff_jds.
 
-#%% Do properly with pyco2.sys v1.7
+# %% Do properly with pyco2.sys v1.7
 kwargs = {
     "par1": co2ml["PAR1"],
     "par2": co2ml["PAR2"],
@@ -194,7 +194,7 @@ def test_uncertainty_comparison_input_v3_2_0():
 
 # test_uncertainty_comparison_input_v3_2_0()
 
-#%% Reset to PyCO2SYS conditions
+# %% Reset to PyCO2SYS conditions
 pyco2.solve.get.initial_pH_guess = None
 pyco2.solve.get.pH_tolerance = 1e-8
 pyco2.solve.get.update_all_pH = False

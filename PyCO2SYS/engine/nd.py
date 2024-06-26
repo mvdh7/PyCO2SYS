@@ -111,16 +111,18 @@ def condition(args, to_shape=None):
             args_broadcast_shape = args_broadcast.shape
         # Broadcast the non-scalar args to a consistent shape
         args_conditioned = {
-            k: np.broadcast_to(v, args_broadcast_shape)
-            if k
-            in [
-                "par1",
-                "par2",
-                "par1_type",
-                "par2_type",
-            ]
-            or not np.isscalar(v)
-            else v
+            k: (
+                np.broadcast_to(v, args_broadcast_shape)
+                if k
+                in [
+                    "par1",
+                    "par2",
+                    "par1_type",
+                    "par2_type",
+                ]
+                or not np.isscalar(v)
+                else v
+            )
             for k, v in args.items()
         }
         # Convert to float, where needed
