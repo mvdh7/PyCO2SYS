@@ -6,12 +6,13 @@ from jax import numpy as np
 from . import get
 
 
-def _goodH0_dic(CBAlk, TC, TB, K1, K2, KB):
+def _goodH0_dic(CBAlk, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3):
     """Find initial value for TA-pH solver with TC as the second variable, assuming that
     CBAlk is within a suitable range.
 
     Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
+    TC, TB, K1, K2, KB = dic, total_borate, k_H2CO3, k_HCO3, k_BOH3
     c2 = KB * (1 - TB / CBAlk) + K1 * (1 - TC / CBAlk)
     c1 = K1 * (KB * (1 - TB / CBAlk - TC / CBAlk) + K2 * (1 - 2 * TC / CBAlk))
     c0 = K1 * K2 * KB * (1 - (2 * TC + TB) / CBAlk)
@@ -29,11 +30,12 @@ def _goodH0_dic(CBAlk, TC, TB, K1, K2, KB):
     return H0
 
 
-def from_dic(CBAlk, TC, TB, K1, K2, KB):
+def from_dic(alkalinity, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3):
     """Find initial value for TA-pH solver with TC as the second variable.
 
     Follows M13 section 3.2.2 and its implementation in mocsy (OE15).
     """
+    CBAlk, TC, TB = alkalinity, dic, total_borate
     # Logical conditions and defaults from mocsy phsolvers.f90
     H0 = np.where(
         CBAlk <= 0,
@@ -42,6 +44,8 @@ def from_dic(CBAlk, TC, TB, K1, K2, KB):
     )
     # Use better estimate if alkalinity in suitable range
     H0 = np.where(
-        (CBAlk > 0) & (CBAlk < 2 * TC + TB), _goodH0_dic(CBAlk, TC, TB, K1, K2, KB), H0
+        (CBAlk > 0) & (CBAlk < 2 * TC + TB),
+        _goodH0_dic(CBAlk, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3),
+        H0,
     )
     return -np.log10(H0)

@@ -7,60 +7,113 @@ from ... import salts
 from .. import delta, initialise, residual, speciate
 
 
-def alkalinity_from_dic_pH(dic, pH, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and pH."""
-    sw = speciate.inorganic(dic, pH, totals, k_constants)
-    return sw["alkalinity"] * 1e6
+# def alkalinity_from_dic_pH(dic, pH, totals, k_constants):
+#     """Calculate total alkalinity from dissolved inorganic carbon and pH."""
+#     sw = speciate.inorganic(dic, pH, totals, k_constants)
+#     return sw["alkalinity"] * 1e6
 
 
-def alkalinity_from_pH_fCO2(pH, fCO2, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
-    dic = dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
-    return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
+# def alkalinity_from_pH_fCO2(pH, fCO2, totals, k_constants):
+#     """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
+#     dic = dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
+#     return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
 
 
-def alkalinity_from_pH_carbonate(pH, carbonate, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and carbonate ion."""
-    dic = dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
-    return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
+# def alkalinity_from_pH_carbonate(pH, carbonate, totals, k_constants):
+#     """Calculate total alkalinity from dissolved inorganic carbon and carbonate ion."""
+#     dic = dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
+#     return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
 
 
-def alkalinity_from_pH_bicarbonate(pH, bicarbonate, totals, k_constants):
-    """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion."""
-    dic = dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3)
-    return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
+# def alkalinity_from_pH_bicarbonate(pH, bicarbonate, totals, k_constants):
+#     """Calculate total alkalinity from dissolved inorganic carbon and bicarbonate ion."""
+#     dic = dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3)
+#     return alkalinity_from_dic_pH(dic, pH, totals, k_constants)
 
 
-def alkalinity_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants):
-    """Total alkalinity from CO2 fugacity and carbonate ion."""
-    pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
-    return alkalinity_from_pH_fCO2(pH, fCO2, totals, k_constants)
+# def alkalinity_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants):
+#     """Total alkalinity from CO2 fugacity and carbonate ion."""
+#     pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
+#     return alkalinity_from_pH_fCO2(pH, fCO2, totals, k_constants)
 
 
-def alkalinity_from_fCO2_bicarbonate(fCO2, bicarbonate, totals, k_constants):
-    """Total alkalinity from CO2 fugacity and bicarbonate ion."""
-    carbonate = CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3)
-    return alkalinity_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants)
+# def alkalinity_from_fCO2_bicarbonate(fCO2, bicarbonate, totals, k_constants):
+#     """Total alkalinity from CO2 fugacity and bicarbonate ion."""
+#     carbonate = CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3)
+#     return alkalinity_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants)
 
 
-def alkalinity_from_carbonate_bicarbonate(carbonate, bicarbonate, totals, k_constants):
-    """Total alkalinity from carbonate ion and carbonate ion."""
-    pH = pH_from_CO3_HCO3(CO3, HCO3, k_HCO3)
-    return alkalinity_from_pH_carbonate(pH, carbonate, totals, k_constants)
+# def alkalinity_from_carbonate_bicarbonate(carbonate, bicarbonate, totals, k_constants):
+#     """Total alkalinity from carbonate ion and carbonate ion."""
+#     pH = pH_from_CO3_HCO3(CO3, HCO3, k_HCO3)
+#     return alkalinity_from_pH_carbonate(pH, carbonate, totals, k_constants)
 
 
-def dic_from_alkalinity_pH(alkalinity, pH, totals, k_constants):
+def dic_from_alkalinity_pH(
+    alkalinity,
+    pH,
+    H_free,
+    OH,
+    BOH4,
+    HPO4,
+    PO4,
+    H3PO4,
+    H3SiO4,
+    NH3,
+    HS,
+    HSO4,
+    HF,
+    k_H2CO3,
+    k_HCO3,
+):
     """Calculate dissolved inorganic carbon from total alkalinity and pH.
     Based on CalculateTCfromTApH, version 02.03, 10-10-97, by Ernie Lewis.
+
+    Parameters
+    ----------
+    alkalinity : float
+        Total alkalinity in µmol/kg-sw.
+    pH : float
+        Seawater pH on the scale indicated by opt_pH_scale.
+    H_free : float
+        Hydrogen ion content on the free scale in µmol/kg-sw.
+    OH : float
+        Hydroxide ion content in µmol/kg-sw.
+    BOH4 : float
+        B(OH)4 content in µmol/kg-sw.
+    HPO4 : float
+        Hydrogen phosphate content in µmol/kg-sw.
+    PO4 : float
+        Phosphate content in µmol/kg-sw.
+    H3PO4 : float
+        Trihydrogen phosphate content in µmol/kg-sw.
+    H3SiO4 : float
+        H3SiO4 content in µmol/kg-sw.
+    NH3 : float
+        Ammonia content in µmol/kg-sw.
+    HS : float
+        Bisulfide content in µmol/kg-sw.
+    HSO4 : float
+        Bisulfate content in µmol/kg-sw.
+    HF : float
+        HF content in µmol/kg-sw.
+    k_H2CO3, kHCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        DIC in µmol/kg-sw.
     """
-    alkalinity_with_zero_dic = alkalinity_from_dic_pH(0.0, pH, totals, k_constants)
+    alkalinity_with_zero_dic = speciate.get_alkalinity(
+        H_free, OH, 0, 0, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+    )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
         print("Some input pH values are impossibly high given the input alkalinity;")
         print("returning np.nan rather than negative DIC values.")
     alkalinity_carbonate = np.where(F, np.nan, alkalinity - alkalinity_with_zero_dic)
-    K1 = k_constants["carbonic_1"]
-    K2 = k_constants["carbonic_2"]
+    K1, K2 = k_H2CO3, k_HCO3
     H = 10.0**-pH
     dic = alkalinity_carbonate * (H**2 + K1 * H + K1 * K2) / (K1 * (H + 2 * K2))
     return dic
@@ -204,35 +257,96 @@ def dic_from_CO3_HCO3(CO3, HCO3, k_H2CO3, k_HCO3):
     return dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
 
 
-def pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants):
-    """Calculate pH from total alkalinity and DIC."""
+# def pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants):
+#     """Calculate pH from total alkalinity and DIC."""
 
-    def cond(targets):
-        pH = targets
-        residuals = np.array(
-            [residual.pH_from_alkalinity_dic(pH, alkalinity, dic, totals, k_constants)]
-        )
-        return np.any(np.abs(residuals) > 1e-9)
+#     def cond(targets):
+#         pH = targets
+#         residuals = np.array(
+#             [residual.pH_from_alkalinity_dic(pH, alkalinity, dic, totals, k_constants)]
+#         )
+#         return np.any(np.abs(residuals) > 1e-9)
 
-    def body(targets):
-        pH = targets
-        deltas = delta.pH_from_alkalinity_dic(pH, alkalinity, dic, totals, k_constants)
-        deltas = np.where(deltas > 1, 1.0, deltas)
-        deltas = np.where(deltas < -1, -1.0, deltas)
-        return targets + deltas
+#     def body(targets):
+#         pH = targets
+#         deltas = delta.pH_from_alkalinity_dic(pH, alkalinity, dic, totals, k_constants)
+#         deltas = np.where(deltas > 1, 1.0, deltas)
+#         deltas = np.where(deltas < -1, -1.0, deltas)
+#         return targets + deltas
 
-    # First guess inspired by M13/OE15:
-    pH_initial = initialise.from_dic(
-        alkalinity,
-        dic,
-        totals["borate"],
-        k_constants["carbonic_1"],
-        k_constants["carbonic_2"],
-        k_constants["borate"],
-    )
-    targets = pH_initial
-    targets = lax.while_loop(cond, body, targets)
-    return targets
+#     # First guess inspired by M13/OE15:
+#     pH_initial = initialise.from_dic(
+#         alkalinity, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3
+#     )
+#     targets = pH_initial
+#     targets = lax.while_loop(cond, body, targets)
+#     return targets
+
+
+def pH_from_alkalinity_dic(
+    alkalinity,
+    dic,
+    total_borate,
+    total_phosphate,
+    total_silicate,
+    total_ammonia,
+    total_sulfide,
+    total_sulfate,
+    total_fluoride,
+    opt_to_free,
+    k_H2O,
+    k_H2CO3,
+    k_HCO3,
+    k_BOH3,
+    k_H3PO4,
+    k_H2PO4,
+    k_HPO4,
+    k_Si,
+    k_NH3,
+    k_H2S,
+    k_HSO4_free,
+    k_HF_free,
+):
+    """Calculate pH from total alkalinity and DIC using a Newton-Raphson iterative
+    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
+    Lewis.
+    """
+    # First guess inspired by M13/OE15, added v1.3.0:
+    pH = initialise.from_dic(alkalinity, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3)
+    pH_tolerance = 1e-8
+    delta_pH = 1.0 + pH_tolerance
+    while np.any(np.abs(delta_pH) >= pH_tolerance):
+        pH_done = np.abs(delta_pH) < pH_tolerance  # check which ones don't need updating
+        delta_pH = delta.pH_from_alkalinity_dic(
+            pH,
+            alkalinity,
+            dic,
+            total_borate,
+            total_phosphate,
+            total_silicate,
+            total_ammonia,
+            total_sulfide,
+            total_sulfate,
+            total_fluoride,
+            opt_to_free,
+            k_H2O,
+            k_H2CO3,
+            k_HCO3,
+            k_BOH3,
+            k_H3PO4,
+            k_H2PO4,
+            k_HPO4,
+            k_Si,
+            k_NH3,
+            k_H2S,
+            k_HSO4_free,
+            k_HF_free,
+        )  # the pH jump
+        # To keep the jump from being too big:
+        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
+        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
+        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+    return pH
 
 
 # def pH_from_alkalinity_fCO2(alkalinity, fCO2, totals, k_constants):

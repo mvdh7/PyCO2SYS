@@ -107,14 +107,19 @@ get_funcs_core[0] = {}
 # get_funcs_core[5] = {
 #     "pCO2": pCO2_from_fCO2,
 # }
-# get_funcs_core[102] = {
-#     "pH": pH_from_alkalinity_dic,
-#     "pCO2": pCO2_from_fCO2,
-#     "fCO2": fCO2_from_dic_pH,
-#     "HCO3": HCO3_from_dic_pH,
-#     "CO3": CO3_from_dic_pH,
-# }
-get_funcs_core[203] = {
+get_funcs_core[102] = {
+    "pH": solve.get.inorganic.pH_from_alkalinity_dic,
+    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+}
+get_funcs_core[103] = {  # alkalinity and pH
+    "dic": solve.get.inorganic.dic_from_alkalinity_pH,
+    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.get.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+}
+get_funcs_core[203] = {  # DIC and pH
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
@@ -669,13 +674,21 @@ class CO2System:
         for k, v in results.items():
             try:
                 results[k] = v.item()
-            except:
+            except (AttributeError, ValueError):
+                pass
+            try:
+                results[k] = v.__array__()
+            except AttributeError:
                 pass
         if save_steps:
             for k, v in self_values.items():
                 try:
                     self_values[k] = v.item()
-                except:
+                except (AttributeError, ValueError):
+                    pass
+                try:
+                    self_values[k] = v.__array__()
+                except AttributeError:
                     pass
             self.values.update(self_values)
         return results
