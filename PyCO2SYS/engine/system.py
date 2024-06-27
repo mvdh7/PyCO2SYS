@@ -4,7 +4,7 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from .. import constants, convert, equilibria, gas, salts, solve
+from .. import constants, convert, equilibria, gas, salts, solubility, solve
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -103,10 +103,8 @@ get_funcs = {
 
 # Define functions for calculations that depend on icase:
 get_funcs_core = {}
-get_funcs_core[0] = {}
-# get_funcs_core[5] = {
-#     "pCO2": pCO2_from_fCO2,
-# }
+for i in [0, 4, 5, 8, 9]:
+    get_funcs_core[i] = {}
 get_funcs_core[102] = {  # alkalinity and DIC
     "pH": solve.get.inorganic.pH_from_alkalinity_dic,
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
@@ -170,11 +168,36 @@ for i in [304, 305, 308, 309]:  # pH and pCO2, fCO2, CO2, xCO2
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
         "alkalinity": solve.speciate.get_alkalinity,
     }
-# TODO continue from here, adding the 306 and 307 combinations, then saturation states
+get_funcs_core[306] = {  # pH and CO3
+    "dic": solve.get.inorganic.dic_from_pH_CO3,
+    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+    "alkalinity": solve.speciate.get_alkalinity,
+}
+get_funcs_core[307] = {  # pH and HCO3
+    "dic": solve.get.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
+    "alkalinity": solve.speciate.get_alkalinity,
+}
+for i in [406, 506, 608, 609]:  # CO3 and pCO2, fCO2, CO2, xCO2
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_fCO2_CO3,
+        "dic": solve.get.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
+for i in [407, 507, 708, 709]:  # HCO3 and pCO2, fCO2, CO2, xCO2
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_fCO2_HCO3,
+        "dic": solve.get.inorganic.dic_from_pH_HCO3,
+        "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
 
 # Add p-f-x-CO2 interconversions
 for k, fc in get_funcs_core.items():
-    if "fCO2" in fc or k in [105, 205, 305]:
+    if "fCO2" in fc or k in [5, 105, 205, 305, 506, 507]:
         fc.update(
             {
                 "pCO2": convert.fCO2_to_pCO2,
@@ -182,7 +205,7 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [104, 204, 304]:
+    elif k in [4, 104, 204, 304, 406, 407]:
         fc.update(
             {
                 "fCO2": convert.pCO2_to_fCO2,
@@ -190,7 +213,7 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [108, 208, 308]:
+    elif k in [8, 108, 208, 308, 608, 708]:
         fc.update(
             {
                 "fCO2": convert.CO2aq_to_fCO2,
@@ -198,12 +221,22 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [109, 209, 309]:
+    elif k in [9, 109, 209, 309, 609, 709]:
         fc.update(
             {
                 "fCO2": convert.xCO2_to_fCO2,
                 "pCO2": convert.fCO2_to_pCO2,
                 "CO2": convert.fCO2_to_CO2aq,
+            }
+        )
+
+# Add CO3-saturation state interconversions
+for k, fc in get_funcs_core.items():
+    if "CO3" in fc or k in [106, 206, 306, 406, 506, 607, 608, 609]:
+        fc.update(
+            {
+                "saturation_aragonite": solubility.OA_from_CO3,
+                "saturation_calcite": solubility.OC_from_CO3,
             }
         )
 
@@ -432,9 +465,17 @@ get_funcs_opts["opt_fugacity_factor"] = {
     1: dict(fugacity_factor=gas.fugacity_factor),
     2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
 }
-get_funcs_opts["opt_HCO3_root"] = {
+get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
     1: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_lo),
     2: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
+}
+get_funcs_opts["opt_k_calcite"] = {
+    1: dict(k_calcite=solubility.k_calcite_M83),
+    2: dict(k_calcite=solubility.k_calcite_I75),  # for GEOSECS
+}
+get_funcs_opts["opt_k_aragonite"] = {
+    1: dict(k_aragonite=solubility.k_aragonite_M83),
+    2: dict(k_aragonite=solubility.k_aragonite_GEOSECS),  # for GEOSECS
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
@@ -457,18 +498,24 @@ for icase, funcs in get_funcs_core.items():
         for f in func_args:
             graph_core[icase].add_edge(f, t)
 
-# Automatically set up graph for each opt based on the function names and signatures in
-# get_funcs_opts
-graph_opts = {}
-for o, opts in get_funcs_opts.items():
-    graph_opts[o] = {}
-    for opt, funcs in opts.items():
-        graph_opts[o][opt] = nx.DiGraph()
-        for k, func in funcs.items():
-            fcode = func.__code__
-            func_args = fcode.co_varnames[: fcode.co_argcount]
-            for f in func_args:
-                graph_opts[o][opt].add_edge(f, k)
+
+def get_graph_opts(exclude=[]):
+    """Automatically set up graph for each opt based on the function names and
+    signatures in ``get_funcs_opts``.
+    """
+    graph_opts = {}
+    for o, opts in get_funcs_opts.items():
+        if o not in exclude:
+            graph_opts[o] = {}
+            for opt, funcs in opts.items():
+                graph_opts[o][opt] = nx.DiGraph()
+                for k, func in funcs.items():
+                    fcode = func.__code__
+                    func_args = fcode.co_varnames[: fcode.co_argcount]
+                    for f in func_args:
+                        graph_opts[o][opt].add_edge(f, k)
+    return graph_opts
+
 
 parameters_core = [
     "alkalinity",
@@ -515,6 +562,8 @@ default_opts = {
     "opt_Ca": 1,
     "opt_fugacity_factor": 1,
     "opt_HCO3_root": 2,
+    "opt_k_calcite": 1,
+    "opt_k_aragonite": 1,
 }
 
 thinspace = " "
@@ -620,6 +669,10 @@ set_node_labels = {
     "vp_factor": "$v$",
     "pCO2": r"$p\mathrm{CO}_2$",
     "xCO2": r"$x\mathrm{CO}_2$",
+    "k_aragonite": r"$K_\mathrm{a}^*$",
+    "k_calcite": r"$K_\mathrm{c}^*$",
+    "saturation_aragonite": r"$Ω_\mathrm{a}$",
+    "saturation_calcite": r"$Ω_\mathrm{c}$",
 }
 
 
@@ -637,14 +690,20 @@ class CO2System:
         elif len(icase) == 2:
             icase = icase[0] * 100 + icase[1]
         self.icase = icase.item()
-        # Assign opts
         self.opts = default_opts.copy()
+        # Assign opts
         if opts is not None:
             for k, v in opts.items():
                 assert (
                     v in get_funcs_opts[k].keys()
                 ), "{} is not allowed for {}!".format(v, k)
             self.opts.update(opts)
+        # Deal with tricky special cases
+        if self.icase == 207:
+            graph_opts = get_graph_opts()
+        else:
+            graph_opts = get_graph_opts(exclude="opt_HCO3_root")
+            self.opts.pop("opt_HCO3_root")
         # Assemble graph and functions
         self.graph = nx.compose(graph, graph_core[self.icase])
         self.get_funcs = get_funcs.copy()

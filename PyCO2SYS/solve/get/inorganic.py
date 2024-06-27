@@ -33,7 +33,7 @@ from .. import delta, initialise, residual, speciate
 
 # def alkalinity_from_fCO2_carbonate(fCO2, carbonate, totals, k_constants):
 #     """Total alkalinity from CO2 fugacity and carbonate ion."""
-#     pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
+#     pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3)
 #     return alkalinity_from_pH_fCO2(pH, fCO2, totals, k_constants)
 
 
@@ -97,7 +97,7 @@ def dic_from_alkalinity_pH(
         Bisulfate content in µmol/kg-sw.
     HF : float
         HF content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -131,7 +131,7 @@ def dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3):
         Seawater fCO2 in µatm.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -154,7 +154,7 @@ def dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     CO3 : float
         Carbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -177,7 +177,7 @@ def dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     HCO3 : float
         Bicarbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -190,7 +190,7 @@ def dic_from_pH_HCO3(pH, HCO3, k_H2CO3, k_HCO3):
     return HCO3 * (1 + H / K1 + K2 / H)
 
 
-def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
+def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3):
     """Dissolved inorganic carbon from CO2 fugacity and carbonate ion.
 
     Parameters
@@ -201,7 +201,7 @@ def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
         Carbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -209,7 +209,7 @@ def dic_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
     float
         DIC in µmol/kg-sw.
     """
-    pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3)
+    pH = pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3)
     return dic_from_pH_CO3(pH, CO3, k_H2CO3, k_HCO3)
 
 
@@ -224,7 +224,7 @@ def dic_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
         Bicarbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -245,7 +245,7 @@ def dic_from_CO3_HCO3(CO3, HCO3, k_H2CO3, k_HCO3):
         Carbonate ion content in µmol/kg-sw.
     HCO3 : float
         Bicarbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -616,7 +616,7 @@ def pH_from_dic_fCO2(dic, fCO2, k_CO2, k_H2CO3, k_HCO3):
         Seawater fCO2 in µatm.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -650,7 +650,7 @@ def pH_from_dic_CO3(dic, CO3, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     CO3 : float
         Carbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -678,7 +678,7 @@ def pH_from_dic_HCO3_hi(dic, HCO3, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     HCO3 : float
         Biarbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -711,7 +711,7 @@ def pH_from_dic_HCO3_lo(dic, HCO3, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     HCO3 : float
         Biarbonate ion content in µmol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
     HCO3_root : int
         Which root to take: -1 for the high-pH, +1 for the low-pH.
@@ -734,7 +734,7 @@ def pH_from_dic_HCO3_lo(dic, HCO3, k_H2CO3, k_HCO3):
     return -np.log10(H)
 
 
-def pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
+def pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, k_HCO3):
     """Calculate pH from CO2 fugacity and carbonate ion.
 
     This calculates pH from Carbonate and fCO2 using K0, K1, and K2 by solving
@@ -750,7 +750,7 @@ def pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
         Carbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -759,7 +759,7 @@ def pH_from_fCO2_CO3(fCO2, CO3, k_CO2, k_H2CO3, kHCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     """
     K0, K1, K2 = k_CO2, k_H2CO3, k_HCO3
-    H = np.sqrt(K0 * K1 * K2 * fCO2 / carbonate)
+    H = np.sqrt(K0 * K1 * K2 * fCO2 / CO3)
     return -np.log10(H)
 
 
@@ -783,7 +783,7 @@ def pH_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     """
     K0, K1 = k_CO2, k_H2CO3
-    H = K0 * K1 * fCO2 / bicarbonate
+    H = K0 * K1 * fCO2 / HCO3
     return -np.log10(H)
 
 
@@ -819,7 +819,7 @@ def fCO2_from_CO3_HCO3(CO3, HCO3, k_CO2, k_H2CO3, k_HCO3):
         Bicarbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -857,7 +857,7 @@ def fCO2_from_dic_pH(dic, pH, k_CO2, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -883,7 +883,7 @@ def fCO2_from_pH_CO3(pH, CO3, k_CO2, k_H2CO3, k_HCO3):
         Carbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -943,7 +943,7 @@ def CO3_from_dic_H(dic, H, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     H : float
         [H+] in mol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -964,7 +964,7 @@ def CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     pH : float
         Seawater pH on the scale indicated by opt_pH_scale.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -987,7 +987,7 @@ def CO3_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3):
         Seawater fCO2 in µatm.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -1031,7 +1031,7 @@ def CO3_from_fCO2_HCO3(fCO2, HCO3, k_CO2, k_H2CO3, k_HCO3):
         Bicarbonate ion content in µmol/kg-sw.
     k_CO2 : float
         Solubility constant for CO2.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -1052,7 +1052,7 @@ def HCO3_from_dic_H(dic, H, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     H : float
         [H+] content in mol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -1073,7 +1073,7 @@ def HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     pH : float
         Seawater pH on the scale indicated by opt_pH_scale.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -1168,7 +1168,7 @@ def CO2_from_dic_H(dic, H, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     H : float
         [H+] in mol/kg-sw.
-    k_H2CO3, kHCO3 : float
+    k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
