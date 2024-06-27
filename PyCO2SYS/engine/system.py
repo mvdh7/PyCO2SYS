@@ -103,101 +103,126 @@ get_funcs = {
 
 # Define functions for calculations that depend on icase:
 get_funcs_core = {}
-for i in [0, 4, 5, 8, 9]:
+for i in [0, 4, 5, 6, 8, 9, 10, 11]:
     get_funcs_core[i] = {}
-get_funcs_core[102] = {  # alkalinity and DIC
+# alkalinity and DIC
+get_funcs_core[102] = {
     "pH": solve.get.inorganic.pH_from_alkalinity_dic,
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
 }
-get_funcs_core[103] = {  # alkalinity and pH
+# alkalinity and pH
+get_funcs_core[103] = {
     "dic": solve.get.inorganic.dic_from_alkalinity_pH,
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
 }
-for i in [104, 105, 108, 109]:  # alkalinity and pCO2, fCO2, CO2, xCO2
+# alkalinity and pCO2, fCO2, CO2, xCO2
+for i in [104, 105, 108, 109]:
     get_funcs_core[i] = {
         "pH": solve.get.inorganic.pH_from_alkalinity_fCO2,
         "dic": solve.get.inorganic.dic_from_pH_fCO2,
         "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
     }
-get_funcs_core[106] = {  # alkalinity and CO3
-    "pH": solve.get.inorganic.pH_from_alkalinity_CO3,
-    "dic": solve.get.inorganic.dic_from_pH_CO3,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
-}
-get_funcs_core[107] = {  # alkalinity and HCO3
+# alkalinity and CO3, omega
+for i in [106, 110, 111]:
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_alkalinity_CO3,
+        "dic": solve.get.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+    }
+# alkalinity and HCO3
+get_funcs_core[107] = {
     "pH": solve.get.inorganic.pH_from_alkalinity_HCO3,
     "dic": solve.get.inorganic.dic_from_pH_HCO3,
     "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
     "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
 }
-get_funcs_core[203] = {  # DIC and pH
+# DIC and pH
+get_funcs_core[203] = {
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
     "alkalinity": solve.speciate.get_alkalinity,
 }
-for i in [204, 205, 208, 209]:  # DIC and pCO2, fCO2, CO2, xCO2
+# DIC and pCO2, fCO2, CO2, xCO2
+for i in [204, 205, 208, 209]:
     get_funcs_core[i] = {
         "pH": solve.get.inorganic.pH_from_dic_fCO2,
         "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
         "alkalinity": solve.speciate.get_alkalinity,
     }
-get_funcs_core[206] = {  # DIC and CO3
-    "pH": solve.get.inorganic.pH_from_dic_CO3,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
-    "alkalinity": solve.speciate.get_alkalinity,
-}
-get_funcs_core[207] = {  # DIC and HCO3
+# DIC and CO3, omega
+for i in [206, 210, 211]:
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_dic_CO3,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
+# DIC and HCO3
+get_funcs_core[207] = {
     # pH is taken care of by opt_HCO3_root
     "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
     "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
     "alkalinity": solve.speciate.get_alkalinity,
 }
-for i in [304, 305, 308, 309]:  # pH and pCO2, fCO2, CO2, xCO2
+# pH and pCO2, fCO2, CO2, xCO2
+for i in [304, 305, 308, 309]:
     get_funcs_core[i] = {
         "dic": solve.get.inorganic.dic_from_pH_fCO2,
         "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
         "alkalinity": solve.speciate.get_alkalinity,
     }
-get_funcs_core[306] = {  # pH and CO3
-    "dic": solve.get.inorganic.dic_from_pH_CO3,
-    "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
-    "alkalinity": solve.speciate.get_alkalinity,
-}
-get_funcs_core[307] = {  # pH and HCO3
+# pH and CO3, omega
+for i in [306, 310, 311]:
+    get_funcs_core[i] = {
+        "dic": solve.get.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
+# pH and HCO3
+get_funcs_core[307] = {
     "dic": solve.get.inorganic.dic_from_pH_HCO3,
     "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
     "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
     "alkalinity": solve.speciate.get_alkalinity,
 }
-for i in [406, 506, 608, 609]:  # CO3 and pCO2, fCO2, CO2, xCO2
+# CO3, omega and pCO2, fCO2, CO2, xCO2
+for i in [406, 506, 608, 609, 410, 510, 810, 910, 411, 511, 811, 911]:
     get_funcs_core[i] = {
         "pH": solve.get.inorganic.pH_from_fCO2_CO3,
         "dic": solve.get.inorganic.dic_from_pH_CO3,
         "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
         "alkalinity": solve.speciate.get_alkalinity,
     }
-for i in [407, 507, 708, 709]:  # HCO3 and pCO2, fCO2, CO2, xCO2
+# HCO3 and pCO2, fCO2, CO2, xCO2
+for i in [407, 507, 708, 709]:
     get_funcs_core[i] = {
         "pH": solve.get.inorganic.pH_from_fCO2_HCO3,
         "dic": solve.get.inorganic.dic_from_pH_HCO3,
         "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
         "alkalinity": solve.speciate.get_alkalinity,
     }
+# CO3, omega and HCO3
+for i in [607, 710, 711]:
+    get_funcs_core[i] = {
+        "pH": solve.get.inorganic.pH_from_CO3_HCO3,
+        "fCO2": solve.get.inorganic.fCO2_from_CO3_HCO3,
+        "dic": solve.get.inorganic.dic_from_pH_CO3,
+        "alkalinity": solve.speciate.get_alkalinity,
+    }
 
 # Add p-f-x-CO2 interconversions
 for k, fc in get_funcs_core.items():
-    if "fCO2" in fc or k in [5, 105, 205, 305, 506, 507]:
+    if "fCO2" in fc or k in [5, 105, 205, 305, 506, 507, 510, 511]:
         fc.update(
             {
                 "pCO2": convert.fCO2_to_pCO2,
@@ -205,7 +230,7 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [4, 104, 204, 304, 406, 407]:
+    elif k in [4, 104, 204, 304, 406, 407, 410, 411]:
         fc.update(
             {
                 "fCO2": convert.pCO2_to_fCO2,
@@ -213,7 +238,7 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [8, 108, 208, 308, 608, 708]:
+    elif k in [8, 108, 208, 308, 608, 708, 810, 811]:
         fc.update(
             {
                 "fCO2": convert.CO2aq_to_fCO2,
@@ -221,7 +246,7 @@ for k, fc in get_funcs_core.items():
                 "xCO2": convert.fCO2_to_xCO2,
             }
         )
-    elif k in [9, 109, 209, 309, 609, 709]:
+    elif k in [9, 109, 209, 309, 609, 709, 910, 911]:
         fc.update(
             {
                 "fCO2": convert.xCO2_to_fCO2,
@@ -232,13 +257,28 @@ for k, fc in get_funcs_core.items():
 
 # Add CO3-saturation state interconversions
 for k, fc in get_funcs_core.items():
-    if "CO3" in fc or k in [106, 206, 306, 406, 506, 607, 608, 609]:
+    if "CO3" in fc or k in [6, 106, 206, 306, 406, 506, 607, 608, 609]:
         fc.update(
             {
                 "saturation_aragonite": solubility.OA_from_CO3,
                 "saturation_calcite": solubility.OC_from_CO3,
             }
         )
+    elif k in [10, 110, 210, 310, 410, 510, 710, 810, 910]:
+        fc.update(
+            {
+                "CO3": solubility.CO3_from_OC,
+                "saturation_aragonite": solubility.OA_from_CO3,
+            }
+        )
+    elif k in [11, 111, 211, 311, 411, 511, 711, 811, 911]:
+        fc.update(
+            {
+                "CO3": solubility.CO3_from_OA,
+                "saturation_calcite": solubility.OC_from_CO3,
+            }
+        )
+
 
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)

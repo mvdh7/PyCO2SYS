@@ -804,7 +804,7 @@ def pH_from_CO3_HCO3(CO3, HCO3, k_HCO3):
     float
         Seawater pH on the scale indicated by opt_pH_scale.
     """
-    H = k_HCO3 * bicarbonate / carbonate
+    H = k_HCO3 * HCO3 / CO3
     return -np.log10(H)
 
 
@@ -828,7 +828,7 @@ def fCO2_from_CO3_HCO3(CO3, HCO3, k_CO2, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     """
     K0, K1, K2 = k_CO2, k_H2CO3, k_HCO3
-    H = 1e-6 * bicarbonate**2 * K2 / (carbonate * K1 * K0)
+    H = 1e-6 * HCO3**2 * K2 / (CO3 * K1 * K0)
     return -np.log10(H)
 
 
