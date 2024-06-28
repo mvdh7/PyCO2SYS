@@ -18,19 +18,19 @@ sys = CO2System(
     values=dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        # dic=np.linspace(2001, 2100, 10),
-        alkalinity=np.linspace(2201, 2300, 10),
+        dic=np.linspace(2001, 2100, 10),
+        # alkalinity=np.linspace(2201, 2300, 10),
         # xCO2=np.linspace(500, 1000, 10),
         # CO3=np.linspace(100, 200, 10),
-        # HCO3=np.linspace(1700, 1800, 10),
-        pH=8.1,
+        HCO3=np.linspace(1700, 1800, 10),
+        # pH=8.1,
         # saturation_calcite=1.5,
         # saturation_aragonite=1.5,
         total_silicate=100,
         total_phosphate=10,
     ),
     # values_out=dict(
-    #     # temperature=10,
+    #     temperature=10,
     # ),
     opts=dict(
         opt_k_HF=1,
@@ -47,10 +47,9 @@ sys = CO2System(
         opt_factor_k_HCO3=1,
         opt_HCO3_root=2,
     ),
-    # use_default_values=False,
 )
 # %%
-sys.get(
+sys.solve(
     parameters=[
         # "d_dic__d_pH__alkalinity",
         # "d_alkalinity__d_pH__dic",
@@ -65,7 +64,8 @@ sys.get(
         # "omega_dic",
         # "omega_alkalinity",
         # "psi",
-        "revelle_factor",
+        # "revelle_factor",
+        "Q_isocap_approx",
         # "alkalinity",
         # "fCO2",
         # "pCO2",
@@ -81,27 +81,25 @@ sys.get(
         # "pH_free",
         # "substrate_inhibitor_ratio",
     ],
-    # parameters_out=["substrate_inhibitor_ratio"],
+    # parameters_out=[
+    #     # "substrate_inhibitor_ratio"
+    #     ],
     # save_steps=False,
 )
 # %%
 sys.plot_graph(
-    show_unknown=False,
-    show_isolated=False,
+    # show_unknown=False,
+    # show_isolated=False,
     prog_graphviz="neato",
     # exclude_nodes='gas_constant',
     # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
-    conditions="input",
+    # conditions="input",
 )
-if hasattr(sys, "graph_out"):
-    sys.plot_graph(
-        show_unknown=False,
-        show_isolated=False,
-        prog_graphviz="neato",
-        # exclude_nodes='gas_constant',
-        # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
-        conditions="output",
-    )
 
-# sys.get()
+
+# sys.solve()
 # print(sys.values)
+
+
+adj = sys.adjust(10, 5000)
+adj.solve()

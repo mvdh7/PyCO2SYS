@@ -793,6 +793,7 @@ set_node_labels = {
     "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
     "omega_dic": r"$\omega_{C_\mathrm{T}}$",
     "Q_isocap": "$Q$",
+    "Q_isocap_approx": "$Q_x$",
     "psi": r"$\psi$",
     "revelle_factor": r"$R_\mathrm{F}$",
 }
@@ -815,9 +816,7 @@ condition_independent = [
 
 
 class CO2System:
-    def __init__(
-        self, values=None, values_out=None, opts=None, use_default_values=True
-    ):
+    def __init__(self, values=None, opts=None):
         if values is None:
             values = {}
         values = values.copy()
@@ -832,10 +831,6 @@ class CO2System:
             icase = icase[0] * 100 + icase[1]
         self.icase = icase.item()
         self.opts = default_opts.copy()
-        if values_out is not None:
-            assert all(
-                [v not in values_out for v in parameters_core]
-            ), "You may not provide core parameters under output conditions!"
         # Assign opts
         if opts is not None:
             for k, v in opts.items():
@@ -847,19 +842,9 @@ class CO2System:
         if self.icase != 207:
             self.opts.pop("opt_HCO3_root")
         # Assemble graphs and computation functions
-        self.graph, self.funcs, self.values = self._assemble(
-            self.icase, values, use_default_values
-        )
-        if values_out is not None:
-            values_out = values_out.copy()
-            for k, v in values.items():
-                if k in condition_independent:
-                    values_out[k] = v
-            self.graph_out, self.funcs_out, self.values_out = self._assemble(
-                102, values_out, use_default_values
-            )
+        self.graph, self.funcs, self.values = self._assemble(self.icase, values)
 
-    def _assemble(self, icase, values, use_default_values):
+    def _assemble(self, icase, values):
         # Deal with tricky special cases
         if icase == 207:
             graph_opts = get_graph_opts()
@@ -872,13 +857,12 @@ class CO2System:
         for opt, v in self.opts.items():
             graph = nx.compose(graph, graph_opts[opt][v])
             funcs.update(get_funcs_opts[opt][v])
-        # Assign default values, if requested
-        if use_default_values:
-            values = values.copy()
-            for k, v in default_values.items():
-                if k not in values:
-                    values[k] = v
-                    graph.add_node(k)
+        # Assign default values
+        values = values.copy()
+        for k, v in default_values.items():
+            if k not in values:
+                values[k] = v
+                graph.add_node(k)
         # Save arguments
         for k, v in values.items():
             if v is not None:
@@ -961,17 +945,14 @@ class CO2System:
             values.update(self_values)
         return results, graph, values
 
-    def get(self, parameters=None, parameters_out=None, save_steps=True, verbose=False):
+    def solve(self, parameters=None, save_steps=True, verbose=False):
         """Calculate and return parameter(s) and (optionally) save them internally.
 
         Parameters
         ----------
         parameters : str or list of str, optional
-            Which parameter(s) under input conditions to calculate and save, by default
-            None, in which case all possible parameters are calculated and returned.
-        parameters_out : str or list of str, optional
-            Which parameter(s) under output conditions to calculate and save, by default
-            None, in which case all possible parameters are calculated and returned.
+            Which parameter(s) to calculate and save, by default None, in which case all
+            possible parameters are calculated and returned.
         save_steps : bool, optional
             Whether to save non-requested parameters calculated during intermediate
             calculation steps in CO2System.values, by default True.
@@ -980,54 +961,45 @@ class CO2System:
 
         Returns
         -------
-        results : dict or None
-            If save_steps, returns None --- the value(s) of the requested parameter(s)
-            are saved in CO2System.values and CO2System.values_out.
-            If not save_steps, the value(s) of the requested parameter(s) are returned
-            as a dict, with output-condition results having "_out" appended to the key.
+        results : dict
+            The value(s) of the requested parameter(s).
         """
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
-        if hasattr(self, "graph_out"):
-            if parameters_out is None:
-                parameters_out = list(self.graph_out.nodes)
-            elif isinstance(parameters_out, str):
-                parameters_out = [parameters_out]
-            parameters_out = set(parameters_out)  # get rid of duplicates
-            parameters.update(set(("alkalinity", "dic")))
-        else:
-            assert (
-                parameters_out is None
-            ), "parameters_out cannot be requested because no values_out were set!"
         # Solve the system
         results, self.graph, self.values = self._get(
             parameters, self.graph, self.funcs, self.values, save_steps, verbose
         )
-        if parameters_out is not None:
-            for k in ["alkalinity", "dic"]:
-                self.values_out[k] = results[k]
-            results_out, self.graph_out, self.values_out = self._get(
-                parameters_out,
-                self.graph_out,
-                self.funcs_out,
-                self.values_out,
-                save_steps,
-                verbose,
-            )
-            if not save_steps:
-                for k, v in results_out.items():
-                    if k not in condition_independent:
-                        results[k + "_out"] = v
-        if not save_steps:
-            return results
+        return results
+
+    def adjust(self, temperature=None, pressure=None, values=None, save_steps=False):
+        core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
+        if values is None:
+            values = {}
+        else:
+            values = values.copy()
+        for k in condition_independent:
+            if k in self.values:
+                values[k] = self.values[k]
+            elif k in core:
+                values[k] = core[k]
+        if temperature is not None:
+            values["temperature"] = temperature
+        else:
+            values["temperature"] = self.values["temperature"]
+        if pressure is not None:
+            values["pressure"] = pressure
+        else:
+            values["pressure"] = self.values["pressure"]
+        return CO2System(values=values, opts=self.opts)
 
     def plot_graph(
         self,
         ax=None,
-        conditions="input",
+        # conditions="input",
         exclude_nodes=None,
         prog_graphviz="neato",
         show_tsp=True,
@@ -1066,11 +1038,12 @@ class CO2System:
         """
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        assert conditions in ["input", "output"]
-        if conditions == "input":
-            self_graph = self.graph.copy()
-        elif conditions == "output":
-            self_graph = self.graph_out.copy()
+        self_graph = self.graph.copy()
+        # assert conditions in ["input", "output"]
+        # if conditions == "input":
+        #     self_graph = self.graph.copy()
+        # elif conditions == "output":
+        #     self_graph = self.graph_out.copy()
         node_states = nx.get_node_attributes(self_graph, "state", default=0)
         edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
         if not show_tsp:

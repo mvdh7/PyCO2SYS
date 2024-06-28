@@ -39,8 +39,8 @@ def pH_from_alkalinity_dic(
     H = 10.0**-pH
     H_free = speciate.get_H_free(H, opt_to_free)
     OH = speciate.get_OH(H, k_H2O)
-    HCO3 = get.inorganic.HCO3_from_dic_H(dic, H, k_H2CO3, k_HCO3)
-    CO3 = get.inorganic.CO3_from_dic_H(dic, H, k_H2CO3, k_HCO3)
+    HCO3 = speciate.get_HCO3(dic, H, k_H2CO3, k_HCO3)
+    CO3 = speciate.get_CO3(dic, H, k_H2CO3, k_HCO3)
     BOH4 = speciate.get_BOH4(total_borate, H, k_BOH3)
     HPO4 = speciate.get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
     PO4 = speciate.get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
