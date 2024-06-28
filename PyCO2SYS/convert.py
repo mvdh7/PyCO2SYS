@@ -12,7 +12,7 @@ There is a function for every variant of pH_<scale1>_to_<scale2>, where <scale1>
 arguments, depending on what is needed.  For example, to get the conversion factor to
 go from the total to the NBS scale, use:
 
-  >>> factor = pyco2.convert.pH_total_to_nbs(
+  >>> factor = pyco2.convert.pH_tot_to_nbs(
         total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
       )
 
@@ -107,7 +107,7 @@ def bar_to_decibar(Pbar):
     return Pbar * 10.0
 
 
-def pH_free_to_total(total_sulfate, k_HSO4_free):
+def pH_free_to_tot(total_sulfate, k_HSO4_free):
     """Free to total pH scale conversion factor.
 
     Parameters
@@ -169,7 +169,7 @@ def pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
     return 1.0 / pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
 
 
-def pH_sws_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+def pH_sws_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
     """Seawater to total pH scale conversion factor.
 
     Parameters
@@ -190,10 +190,10 @@ def pH_sws_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
     """
     return pH_sws_to_free(
         total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
-    ) * pH_free_to_total(total_sulfate, k_HSO4_free)
+    ) * pH_free_to_tot(total_sulfate, k_HSO4_free)
 
 
-def pH_total_to_free(total_sulfate, k_HSO4_free):
+def pH_tot_to_free(total_sulfate, k_HSO4_free):
     """Total to free pH scale conversion factor.
 
     Parameters
@@ -208,10 +208,10 @@ def pH_total_to_free(total_sulfate, k_HSO4_free):
     float
         The conversion factor; multiply by [H+] to convert scale.
     """
-    return 1.0 / pH_free_to_total(total_sulfate, k_HSO4_free)
+    return 1.0 / pH_free_to_tot(total_sulfate, k_HSO4_free)
 
 
-def pH_total_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
+def pH_tot_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
     """Total to seawater pH scale conversion factor.
 
     Parameters
@@ -230,7 +230,7 @@ def pH_total_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
     float
         The conversion factor; multiply by [H+] to convert scale.
     """
-    return 1.0 / pH_sws_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
+    return 1.0 / pH_sws_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
 
 
 def pH_sws_to_nbs(fH):
@@ -265,7 +265,7 @@ def pH_nbs_to_sws(fH):
     return 1.0 / pH_sws_to_nbs(fH)
 
 
-def pH_total_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
+def pH_tot_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     """Total to NBS pH scale conversion factor.
 
     Parameters
@@ -286,12 +286,12 @@ def pH_total_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     float
         The conversion factor; multiply by [H+] to convert scale.
     """
-    return pH_total_to_sws(
+    return pH_tot_to_sws(
         total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
     ) * pH_sws_to_nbs(fH)
 
 
-def pH_nbs_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
+def pH_nbs_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     """NBS to Total pH scale conversion factor.
 
     Parameters
@@ -312,7 +312,7 @@ def pH_nbs_to_total(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     float
         The conversion factor; multiply by [H+] to convert scale.
     """
-    return 1.0 / pH_total_to_nbs(
+    return 1.0 / pH_tot_to_nbs(
         total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
     )
 
@@ -396,8 +396,8 @@ def pH_to_all_scales(pH, pH_scale, totals, k_constants):
 
     Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
     """
-    f2t = pH_free_to_total(totals, k_constants)
-    s2t = pH_sws_to_total(totals, k_constants)
+    f2t = pH_free_to_tot(totals, k_constants)
+    s2t = pH_sws_to_tot(totals, k_constants)
     factor = np.full(np.shape(pH), np.nan)
     factor = np.where(pH_scale == 1, 0.0, factor)  # Total
     factor = np.where(pH_scale == 2, np.log10(s2t), factor)  # Seawater
@@ -410,12 +410,12 @@ def pH_to_all_scales(pH, pH_scale, totals, k_constants):
     return pH_total, pH_sws, pH_free, pH_nbs
 
 
-def pH_sws_to_total_P0(TempK, totals, k_constants, WhoseKSO4, WhoseKF):
+def pH_sws_to_tot_P0(TempK, totals, k_constants, WhoseKSO4, WhoseKF):
     """Determine SWS to Total pH scale correction factor at zero pressure."""
     k_constants_P0 = copy.deepcopy(k_constants)
     k_constants_P0["KSO4"] = k_constants["KSO4_P0"]
     k_constants_P0["KF"] = k_constants["KF_P0"]
-    return pH_sws_to_total(totals, k_constants_P0)
+    return pH_sws_to_tot(totals, k_constants_P0)
 
 
 def get_pHfactor_from_SWS(TempK, Sal, totals, k_constants, pHScale, WhichKs):
@@ -426,7 +426,7 @@ def get_pHfactor_from_SWS(TempK, Sal, totals, k_constants, pHScale, WhichKs):
         k_constants["fH"] = pressured.fH(TempK, Sal, WhichKs)
     pHfactor = np.full(np.shape(pHScale), np.nan)
     pHfactor = np.where(
-        pHScale == 1, pH_sws_to_total(totals, k_constants), pHfactor
+        pHScale == 1, pH_sws_to_tot(totals, k_constants), pHfactor
     )  # Total
     pHfactor = np.where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
     pHfactor = np.where(
@@ -449,7 +449,7 @@ def get_pHfactor_to_Free(TempK, Sal, totals, k_constants, pHScale, WhichKs):
         k_constants["fH"] = pressured.fH(TempK, Sal, WhichKs)
     pHfactor = np.full(np.shape(pHScale), np.nan)
     pHfactor = np.where(
-        pHScale == 1, pH_total_to_free(totals, k_constants), pHfactor
+        pHScale == 1, pH_tot_to_free(totals, k_constants), pHfactor
     )  # Total
     pHfactor = np.where(
         pHScale == 2,

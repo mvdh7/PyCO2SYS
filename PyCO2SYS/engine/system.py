@@ -20,12 +20,12 @@ get_funcs = {
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
     "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
-    "total_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_total_to_sws(
+    "tot_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_tot_to_sws(
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
     # Equilibrium constants at 1 atm and on the seawater pH scale
-    "k_H2S_sws_1atm": lambda k_H2S_total_1atm, total_to_sws_1atm: (
-        k_H2S_total_1atm * total_to_sws_1atm
+    "k_H2S_sws_1atm": lambda k_H2S_total_1atm, tot_to_sws_1atm: (
+        k_H2S_total_1atm * tot_to_sws_1atm
     ),
     # Pressure correction factors for equilibrium constants
     "factor_k_HSO4": equilibria.pcx.factor_k_HSO4,
@@ -322,11 +322,11 @@ get_funcs_opts["opt_k_carbonic"] = {
     1: dict(
         k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_RRV93,
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_RRV93,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, total_to_sws_1atm: (
-            k_H2CO3_total_1atm * total_to_sws_1atm
+        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
+            k_H2CO3_total_1atm * tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, total_to_sws_1atm: (
-            k_HCO3_total_1atm * total_to_sws_1atm
+        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
+            k_HCO3_total_1atm * tot_to_sws_1atm
         ),
     ),
     2: dict(
@@ -373,11 +373,11 @@ get_funcs_opts["opt_k_carbonic"] = {
     10: dict(
         k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_LDK00,
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_LDK00,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, total_to_sws_1atm: (
-            k_H2CO3_total_1atm * total_to_sws_1atm
+        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
+            k_H2CO3_total_1atm * tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, total_to_sws_1atm: (
-            k_HCO3_total_1atm * total_to_sws_1atm
+        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
+            k_HCO3_total_1atm * tot_to_sws_1atm
         ),
     ),
     11: dict(
@@ -403,28 +403,28 @@ get_funcs_opts["opt_k_carbonic"] = {
     16: dict(
         k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_SLH20,
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_SLH20,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, total_to_sws_1atm: (
-            k_H2CO3_total_1atm * total_to_sws_1atm
+        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
+            k_H2CO3_total_1atm * tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, total_to_sws_1atm: (
-            k_HCO3_total_1atm * total_to_sws_1atm
+        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
+            k_HCO3_total_1atm * tot_to_sws_1atm
         ),
     ),
     17: dict(
         k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_SB21,
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, total_to_sws_1atm: (
-            k_HCO3_total_1atm * total_to_sws_1atm
+        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
+            k_HCO3_total_1atm * tot_to_sws_1atm
         ),
     ),
     18: dict(
         k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_PLR18,
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_PLR18,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, total_to_sws_1atm: (
-            k_H2CO3_total_1atm * total_to_sws_1atm
+        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
+            k_H2CO3_total_1atm * tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, total_to_sws_1atm: (
-            k_HCO3_total_1atm * total_to_sws_1atm
+        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
+            k_HCO3_total_1atm * tot_to_sws_1atm
         ),
     ),
 }
@@ -452,8 +452,8 @@ get_funcs_opts["opt_k_phosphate"] = {
 get_funcs_opts["opt_k_BOH3"] = {
     1: dict(
         k_BOH3_total_1atm=equilibria.p1atm.k_BOH3_total_D90b,
-        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, total_to_sws_1atm: (
-            k_BOH3_total_1atm * total_to_sws_1atm
+        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, tot_to_sws_1atm: (
+            k_BOH3_total_1atm * tot_to_sws_1atm
         ),
     ),
     2: dict(
@@ -481,8 +481,8 @@ get_funcs_opts["opt_k_NH3"] = {
     1: dict(k_NH3_sws_1atm=equilibria.p1atm.k_NH3_sws_YM95),
     2: dict(
         k_NH3_total_1atm=equilibria.p1atm.k_NH3_total_CW95,
-        k_NH3_sws_1atm=lambda k_NH3_total_1atm, total_to_sws_1atm: (
-            k_NH3_total_1atm * total_to_sws_1atm
+        k_NH3_sws_1atm=lambda k_NH3_total_1atm, tot_to_sws_1atm: (
+            k_NH3_total_1atm * tot_to_sws_1atm
         ),
     ),
 }
@@ -496,36 +496,34 @@ get_funcs_opts["opt_k_Si"] = {
 # TODO add other pH scale conversions
 get_funcs_opts["opt_pH_scale"] = {
     1: dict(  # total
-        sws_to_opt=convert.pH_sws_to_total,
-        opt_to_free=convert.pH_total_to_free,
-        opt_to_sws=convert.pH_total_to_sws,
-        opt_to_nbs=convert.pH_total_to_nbs,
+        sws_to_opt=convert.pH_sws_to_tot,
+        opt_to_free=convert.pH_tot_to_free,
+        opt_to_sws=convert.pH_tot_to_sws,
+        opt_to_nbs=convert.pH_tot_to_nbs,
     ),
     2: dict(  # sws
         sws_to_opt=lambda: 1.0,
         opt_to_free=convert.pH_sws_to_free,
-        opt_to_total=convert.pH_sws_to_total,
+        opt_to_tot=convert.pH_sws_to_tot,
         opt_to_nbs=convert.pH_sws_to_nbs,
     ),
     3: dict(  # free
         sws_to_opt=convert.pH_sws_to_free,
         opt_to_free=lambda: 1.0,
-        opt_to_total=convert.pH_free_to_total,
+        opt_to_tot=convert.pH_free_to_tot,
         opt_to_sws=convert.pH_free_to_sws,
         opt_to_nbs=convert.pH_free_to_nbs,
     ),
     4: dict(  # nbs
         sws_to_opt=convert.pH_sws_to_nbs,
         opt_to_free=convert.pH_nbs_to_free,
-        opt_to_total=convert.pH_nbs_to_total,
+        opt_to_tot=convert.pH_nbs_to_tot,
         opt_to_sws=convert.pH_nbs_to_sws,
     ),
 }
 for o, funcs in get_funcs_opts["opt_pH_scale"].items():
     if o in [2, 3, 4]:
-        funcs.update(
-            dict(pH_total=lambda pH, opt_to_total: pH - np.log10(opt_to_total))
-        )
+        funcs.update(dict(pH_total=lambda pH, opt_to_tot: pH - np.log10(opt_to_tot)))
     if o in [1, 3, 4]:
         funcs.update(dict(pH_sws=lambda pH, opt_to_sws: pH - np.log10(opt_to_sws)))
     if o in [1, 2, 4]:
@@ -561,12 +559,12 @@ get_funcs_opts["opt_k_aragonite"] = {
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
-graph = nx.DiGraph()
+graph_fixed = nx.DiGraph()
 for k, func in get_funcs.items():
     fcode = func.__code__
     func_args = fcode.co_varnames[: fcode.co_argcount]
     for f in func_args:
-        graph.add_edge(f, k)
+        graph_fixed.add_edge(f, k)
 
 # Automatically set up graph for each icase based on the function names and signatures
 # in get_funcs_core
@@ -682,7 +680,7 @@ set_node_labels = {
     "total_silicate": r"$T_\mathrm{Si}$",
     "total_borate": r"$T_\mathrm{B}$",
     "Ca": r"$[\mathrm{Ca}^{2+}]$",
-    "total_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "sws_to_opt": r"$_\mathrm{S}^*Y$",
     "opt_to_free": r"$_*^\mathrm{F}Y$",
     "fCO2": f + "CO$_2$",
@@ -746,7 +744,7 @@ set_node_labels = {
     "H2S": r"$[\mathrm{H_2S}]$",
     "HS": r"$[\mathrm{HS}^–]$",
     "alkalinity": r"$A_\mathrm{T}$",
-    "fugacity_factor": "$f$",
+    "fugacity_factor": "$ƒ$",
     "vp_factor": "$v$",
     "pCO2": r"$p\mathrm{CO}_2$",
     "xCO2": r"$x\mathrm{CO}_2$",
@@ -762,10 +760,29 @@ set_node_labels = {
 }
 
 
+condition_independent = [
+    "alkalinity",
+    "dic",
+    "salinity",
+    "ionic_strength",
+    "Ca",
+    "total_sulfate",
+    "total_fluoride",
+    "total_ammonia",
+    "total_phosphate",
+    "total_sulfide",
+    "total_silicate",
+    "total_borate",
+]
+
+
 class CO2System:
-    def __init__(self, values=None, opts=None, use_default_values=True):
+    def __init__(
+        self, values=None, values_out=None, opts=None, use_default_values=True
+    ):
         if values is None:
             values = {}
+        values = values.copy()
         # Get icase
         core_known = np.array([v in values for v in parameters_core])
         icase_all = np.arange(1, len(parameters_core) + 1)
@@ -777,6 +794,10 @@ class CO2System:
             icase = icase[0] * 100 + icase[1]
         self.icase = icase.item()
         self.opts = default_opts.copy()
+        if values_out is not None:
+            assert all(
+                [v not in values_out for v in parameters_core]
+            ), "You may not provide core parameters under output conditions!"
         # Assign opts
         if opts is not None:
             for k, v in opts.items():
@@ -785,66 +806,57 @@ class CO2System:
                 ), "{} is not allowed for {}!".format(v, k)
             self.opts.update(opts)
         # Deal with tricky special cases
-        if self.icase == 207:
+        if self.icase != 207:
+            self.opts.pop("opt_HCO3_root")
+        # Assemble graphs and computation functions
+        self.graph, self.funcs, self.values = self._assemble(
+            self.icase, values, use_default_values
+        )
+        if values_out is not None:
+            values_out = values_out.copy()
+            for k, v in values.items():
+                if k in condition_independent:
+                    values_out[k] = v
+            self.graph_out, self.funcs_out, self.values_out = self._assemble(
+                102, values_out, use_default_values
+            )
+
+    def _assemble(self, icase, values, use_default_values):
+        # Deal with tricky special cases
+        if icase == 207:
             graph_opts = get_graph_opts()
         else:
             graph_opts = get_graph_opts(exclude="opt_HCO3_root")
-            self.opts.pop("opt_HCO3_root")
         # Assemble graph and functions
-        self.graph = nx.compose(graph, graph_core[self.icase])
-        self.get_funcs = get_funcs.copy()
-        self.get_funcs.update(get_funcs_core[self.icase])
+        graph = nx.compose(graph_fixed, graph_core[icase])
+        funcs = get_funcs.copy()
+        funcs.update(get_funcs_core[icase])
         for opt, v in self.opts.items():
-            self.graph = nx.compose(self.graph, graph_opts[opt][v])
-            self.get_funcs.update(get_funcs_opts[opt][v])
+            graph = nx.compose(graph, graph_opts[opt][v])
+            funcs.update(get_funcs_opts[opt][v])
         # Assign default values, if requested
         if use_default_values:
             values = values.copy()
             for k, v in default_values.items():
                 if k not in values:
                     values[k] = v
-                    self.graph.add_node(k)
+                    graph.add_node(k)
         # Save arguments
-        self.values = {}
         for k, v in values.items():
-            if k != "self" and v is not None:
-                self.values[k] = v
+            if v is not None:
                 # state 1 means that the value was provided as an argument
-                nx.set_node_attributes(self.graph, {k: 1}, name="state")
+                nx.set_node_attributes(graph, {k: 1}, name="state")
+        return graph, funcs, values
 
-    def get(self, parameters=None, save_steps=True, verbose=False):
-        """Calculate and return parameter(s) and (optionally) save them internally.
-
-        Parameters
-        ----------
-        parameters : str or list of str, optional
-            Which parameter(s) to calculate and save, by default None, in which case
-            all possible parameters are calculated and returned.
-        save_steps : bool, optional
-            Whether to save non-requested parameters calculated during intermediate
-            calculation steps in CO2System.values, by default True.
-        verbose : bool, optional
-            Whether to print calculation status messages, by default False.
-
-        Returns
-        -------
-        results : dict
-            The value(s) of the requested parameter(s).
-            Also saved in CO2System.values if save_steps is True.
-        """
+    def _get(self, parameters, graph, funcs, values, save_steps, verbose):
 
         def printv(*args, **kwargs):
             if verbose:
                 print(*args, **kwargs)
 
-        if parameters is None:
-            parameters = list(self.graph.nodes)
-        elif isinstance(parameters, str):
-            parameters = [parameters]
-        parameters = set(parameters)  # get rid of duplicates
         # needs: which intermediate parameters we need to get the requested parameters
-        graph_unknown = self.graph.copy()
-        graph_unknown.remove_nodes_from([v for v in self.values if v not in parameters])
+        graph_unknown = graph.copy()
+        graph_unknown.remove_nodes_from([v for v in values if v not in parameters])
         needs = parameters.copy()
         for p in parameters:
             needs = needs | nx.ancestors(graph_unknown, p)
@@ -855,7 +867,7 @@ class CO2System:
         got = 0
         # We will cycle through the set of needed parameters
         needs_cycle = itertools.cycle(needs)
-        self_values = self.values.copy()  # what is already known
+        self_values = values.copy()  # what is already known
         results = {}  # values for the requested parameters will go in here
         while got < len(needs):
             p = next(needs_cycle)
@@ -867,26 +879,24 @@ class CO2System:
                     got += 1
                     printv("{} is available!".format(p))
             else:
-                priors = self.graph.pred[p]
+                priors = graph.pred[p]
                 if len(priors) == 0 or all([r in self_values for r in priors]):
                     printv("Calculating {}".format(p))
-                    self_values[p] = self.get_funcs[p](
+                    self_values[p] = funcs[p](
                         *[
                             self_values[r]
-                            for r in self.get_funcs[p].__code__.co_varnames[
-                                : self.get_funcs[p].__code__.co_argcount
+                            for r in funcs[p].__code__.co_varnames[
+                                : funcs[p].__code__.co_argcount
                             ]
                         ]
                     )
                     # state 2 means that the value was calculated internally
                     if save_steps:
-                        nx.set_node_attributes(self.graph, {p: 2}, name="state")
-                        for f in self.get_funcs[p].__code__.co_varnames[
-                            : self.get_funcs[p].__code__.co_argcount
+                        nx.set_node_attributes(graph, {p: 2}, name="state")
+                        for f in funcs[p].__code__.co_varnames[
+                            : funcs[p].__code__.co_argcount
                         ]:
-                            nx.set_edge_attributes(
-                                self.graph, {(f, p): 2}, name="state"
-                            )
+                            nx.set_edge_attributes(graph, {(f, p): 2}, name="state")
                     results[p] = self_values[p]
                     got += 1
             printv("Got", got, "of", len(set(needs)))
@@ -910,12 +920,76 @@ class CO2System:
                     self_values[k] = v.__array__()
                 except AttributeError:
                     pass
-            self.values.update(self_values)
-        return results
+            values.update(self_values)
+        return results, graph, values
+
+    def get(self, parameters=None, parameters_out=None, save_steps=True, verbose=False):
+        """Calculate and return parameter(s) and (optionally) save them internally.
+
+        Parameters
+        ----------
+        parameters : str or list of str, optional
+            Which parameter(s) under input conditions to calculate and save, by default
+            None, in which case all possible parameters are calculated and returned.
+        parameters_out : str or list of str, optional
+            Which parameter(s) under output conditions to calculate and save, by default
+            None, in which case all possible parameters are calculated and returned.
+        save_steps : bool, optional
+            Whether to save non-requested parameters calculated during intermediate
+            calculation steps in CO2System.values, by default True.
+        verbose : bool, optional
+            Whether to print calculation status messages, by default False.
+
+        Returns
+        -------
+        results : dict or None
+            If save_steps, returns None --- the value(s) of the requested parameter(s)
+            are saved in CO2System.values and CO2System.values_out.
+            If not save_steps, the value(s) of the requested parameter(s) are returned
+            as a dict, with output-condition results having "_out" appended to the key.
+        """
+        if parameters is None:
+            parameters = list(self.graph.nodes)
+        elif isinstance(parameters, str):
+            parameters = [parameters]
+        parameters = set(parameters)  # get rid of duplicates
+        if hasattr(self, "graph_out"):
+            if parameters_out is None:
+                parameters_out = list(self.graph_out.nodes)
+            elif isinstance(parameters_out, str):
+                parameters_out = [parameters_out]
+            parameters_out = set(parameters_out)  # get rid of duplicates
+            parameters.update(set(("alkalinity", "dic")))
+        else:
+            assert (
+                parameters_out is None
+            ), "parameters_out cannot be requested because no values_out were set!"
+        # Solve the system
+        results, self.graph, self.values = self._get(
+            parameters, self.graph, self.funcs, self.values, save_steps, verbose
+        )
+        if parameters_out is not None:
+            for k in ["alkalinity", "dic"]:
+                self.values_out[k] = results[k]
+            results_out, self.graph_out, self.values_out = self._get(
+                parameters_out,
+                self.graph_out,
+                self.funcs_out,
+                self.values_out,
+                save_steps,
+                verbose,
+            )
+            if not save_steps:
+                for k, v in results_out.items():
+                    if k not in condition_independent:
+                        results[k + "_out"] = v
+        if not save_steps:
+            return results
 
     def plot_graph(
         self,
         ax=None,
+        conditions="input",
         exclude_nodes=None,
         prog_graphviz="neato",
         show_tsp=True,
@@ -929,6 +1003,9 @@ class CO2System:
         ----------
         ax : matplotlib axes, optional
             The axes, by default None, in which case new axes are generated.
+        conditions : str, optional
+            Whether to show the graph for the "input" or "output" condition
+            calculations, by default "input".
         exclude_nodes : list of str, optional
             List of nodes to exclude from the plot, by default None.
         prog_graphviz : str, optional
@@ -943,6 +1020,7 @@ class CO2System:
             by default True.
         skip_nodes
 
+
         Returns
         -------
         matplotlib axes
@@ -950,7 +1028,11 @@ class CO2System:
         """
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        self_graph = self.graph.copy()
+        assert conditions in ["input", "output"]
+        if conditions == "input":
+            self_graph = self.graph.copy()
+        elif conditions == "output":
+            self_graph = self.graph_out.copy()
         node_states = nx.get_node_attributes(self_graph, "state", default=0)
         edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
         if not show_tsp:

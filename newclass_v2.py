@@ -15,7 +15,7 @@ import numpy as np
 # )['pH']
 
 sys = CO2System(
-    dict(
+    values=dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
         dic=np.linspace(2001, 2100, 10),
@@ -28,6 +28,9 @@ sys = CO2System(
         # saturation_aragonite=1.5,
         total_silicate=100,
         total_phosphate=10,
+    ),
+    values_out=dict(
+        # temperature=10,
     ),
     opts=dict(
         opt_k_HF=1,
@@ -46,8 +49,9 @@ sys = CO2System(
     ),
     # use_default_values=False,
 )
+
 sys.get(
-    [
+    parameters=[
         # "alkalinity",
         # "fCO2",
         # "pCO2",
@@ -61,8 +65,10 @@ sys.get(
         # "saturation_calcite",
         # "saturation_aragonite",
         # "pH_free",
-        "substrate_inhibitor_ratio",
-    ]
+        # "substrate_inhibitor_ratio",
+    ],
+    parameters_out=["substrate_inhibitor_ratio"],
+    # save_steps=False,
 )
 sys.plot_graph(
     show_unknown=False,
@@ -70,7 +76,17 @@ sys.plot_graph(
     prog_graphviz="neato",
     # exclude_nodes='gas_constant',
     # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
+    conditions="input",
 )
+if hasattr(sys, "graph_out"):
+    sys.plot_graph(
+        show_unknown=False,
+        show_isolated=False,
+        prog_graphviz="neato",
+        # exclude_nodes='gas_constant',
+        # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
+        conditions="output",
+    )
 
 # sys.get()
 # print(sys.values)
