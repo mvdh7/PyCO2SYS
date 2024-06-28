@@ -4,7 +4,7 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from .. import constants, convert, equilibria, gas, salts, solubility, solve
+from .. import bio, constants, convert, equilibria, gas, salts, solubility, solve
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -103,7 +103,7 @@ get_funcs = {
 
 # Define functions for calculations that depend on icase:
 get_funcs_core = {}
-for i in [0, 4, 5, 6, 8, 9, 10, 11]:
+for i in [0, 3, 4, 5, 6, 8, 9, 10, 11]:
     get_funcs_core[i] = {}
 # alkalinity and DIC
 get_funcs_core[102] = {
@@ -279,6 +279,14 @@ for k, fc in get_funcs_core.items():
             }
         )
 
+# TODO Add parameters that require a solved carbonate system
+for k, fc in get_funcs_core.items():
+    if k > 100:
+        fc.update(
+            {
+                "substrate_inhibitor_ratio": bio.substrate_inhibitor_ratio,
+            }
+        )
 
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)
@@ -485,12 +493,45 @@ get_funcs_opts["opt_k_Si"] = {
         k_Si_sws_1atm=lambda k_Si_nbs_1atm, nbs_to_sws: (k_Si_nbs_1atm * nbs_to_sws),
     ),
 }
+# TODO add other pH scale conversions
 get_funcs_opts["opt_pH_scale"] = {
-    1: dict(sws_to_opt=convert.pH_sws_to_total, opt_to_free=convert.pH_total_to_free),
-    2: dict(sws_to_opt=lambda: 1.0, opt_to_free=convert.pH_sws_to_free),
-    3: dict(sws_to_opt=convert.pH_sws_to_free, opt_to_free=lambda: 1.0),
-    4: dict(sws_to_opt=convert.pH_sws_to_nbs, opt_to_free=convert.pH_nbs_to_free),
+    1: dict(  # total
+        sws_to_opt=convert.pH_sws_to_total,
+        opt_to_free=convert.pH_total_to_free,
+        opt_to_sws=convert.pH_total_to_sws,
+        opt_to_nbs=convert.pH_total_to_nbs,
+    ),
+    2: dict(  # sws
+        sws_to_opt=lambda: 1.0,
+        opt_to_free=convert.pH_sws_to_free,
+        opt_to_total=convert.pH_sws_to_total,
+        opt_to_nbs=convert.pH_sws_to_nbs,
+    ),
+    3: dict(  # free
+        sws_to_opt=convert.pH_sws_to_free,
+        opt_to_free=lambda: 1.0,
+        opt_to_total=convert.pH_free_to_total,
+        opt_to_sws=convert.pH_free_to_sws,
+        opt_to_nbs=convert.pH_free_to_nbs,
+    ),
+    4: dict(  # nbs
+        sws_to_opt=convert.pH_sws_to_nbs,
+        opt_to_free=convert.pH_nbs_to_free,
+        opt_to_total=convert.pH_nbs_to_total,
+        opt_to_sws=convert.pH_nbs_to_sws,
+    ),
 }
+for o, funcs in get_funcs_opts["opt_pH_scale"].items():
+    if o in [2, 3, 4]:
+        funcs.update(
+            dict(pH_total=lambda pH, opt_to_total: pH - np.log10(opt_to_total))
+        )
+    if o in [1, 3, 4]:
+        funcs.update(dict(pH_sws=lambda pH, opt_to_sws: pH - np.log10(opt_to_sws)))
+    if o in [1, 2, 4]:
+        funcs.update(dict(pH_free=lambda pH, opt_to_free: pH - np.log10(opt_to_free)))
+    if o in [1, 2, 3]:
+        funcs.update(dict(pH_nbs=lambda pH, opt_to_nbs: pH - np.log10(opt_to_nbs)))
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
     2: dict(total_borate=salts.total_borate_LKB10),
@@ -713,6 +754,11 @@ set_node_labels = {
     "k_calcite": r"$K_\mathrm{c}^*$",
     "saturation_aragonite": r"$Ω_\mathrm{a}$",
     "saturation_calcite": r"$Ω_\mathrm{c}$",
+    "pH_total": r"pH$_\mathrm{T}$",
+    "pH_sws": r"pH$_\mathrm{S}$",
+    "pH_free": r"pH$_\mathrm{F}$",
+    "pH_nbs": r"pH$_\mathrm{N}$",
+    "substrate_inhibitor_ratio": "SIR",
 }
 
 

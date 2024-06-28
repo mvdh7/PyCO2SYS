@@ -17,7 +17,7 @@
 
 from . import (
     # api,
-    # bio,
+    bio,
     # buffers,
     constants,
     convert,
@@ -28,7 +28,7 @@ from . import (
     # minimal,
     # original,
     salts,
-    # solubility,
+    solubility,
     solve,
     # uncertainty,
     # upsilon,

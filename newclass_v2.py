@@ -18,12 +18,12 @@ sys = CO2System(
     dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        # dic=np.linspace(2001, 2100, 10),
+        dic=np.linspace(2001, 2100, 10),
         # alkalinity=np.linspace(2201, 2300, 10),
         # xCO2=np.linspace(500, 1000, 10),
-        CO3=np.linspace(100, 200, 10),
+        # CO3=np.linspace(100, 200, 10),
         # HCO3=np.linspace(1700, 1800, 10),
-        # pH=8.1,
+        pH=8.1,
         # saturation_calcite=1.5,
         # saturation_aragonite=1.5,
         total_silicate=100,
@@ -55,11 +55,13 @@ sys.get(
         # "dic",
         # "pH",
         # "HCO3",
-        "CO3",
+        # "CO3",
         # "k_aragonite",
         # "k_calcite",
-        "saturation_calcite",
-        "saturation_aragonite",
+        # "saturation_calcite",
+        # "saturation_aragonite",
+        # "pH_free",
+        "substrate_inhibitor_ratio",
     ]
 )
 sys.plot_graph(

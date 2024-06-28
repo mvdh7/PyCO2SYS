@@ -3,7 +3,6 @@
 """Seawater properties with primarily biological consequences."""
 
 
-def SIratio(HCO3, pHfree):
+def substrate_inhibitor_ratio(HCO3, H_free):
     """Substrate:inhibitor ratio (SIR) of B15 in mol-HCO3−/μmol-H+."""
-    Hfree = 10.0**-pHfree
-    return HCO3 / (Hfree * 1e6)
+    return 1e-6 * HCO3 / H_free
