@@ -4,9 +4,8 @@
 
 import jax
 from jax import numpy as np
-from .. import solubility, solve
-from ..meta import egrad
-from . import explicit
+from . import solubility, solve
+from .meta import egrad
 
 ilog10e = -1 / np.log10(np.exp(1))  # multiplier to convert pH to ln(H)
 
