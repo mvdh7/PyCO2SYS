@@ -5,15 +5,7 @@
 import jax
 from jax import numpy as np
 from . import get, residual
-
-
-def egrad(g):
-    def wrapped(x, *rest):
-        y, g_vjp = jax.vjp(lambda x: g(x, *rest), x)
-        (x_bar,) = g_vjp(np.ones_like(y))
-        return x_bar
-
-    return wrapped
+from .. import egrad
 
 
 @jax.jit

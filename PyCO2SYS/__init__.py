@@ -16,7 +16,6 @@
 """Solve the marine carbonate system and calculate related seawater properties."""
 
 from . import (
-    # api,
     bio,
     # buffers,
     constants,
@@ -25,8 +24,6 @@ from . import (
     equilibria,
     gas,
     meta,
-    # minimal,
-    # original,
     salts,
     solubility,
     solve,
@@ -41,16 +38,18 @@ __version__ = meta.version
 from .engine import CO2SYS, system
 
 # from .engine.nd import CO2SYS as sys
-# from .engine.nd import assemble
 from .engine.system import CO2System
-
-# from .api import CO2SYS_wrap, CO2SYS_MATLABv3
 from .meta import hello  # because history
 
 # from .solve.get import speciation
-# from .api.ezio import ezio
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 
-# # For backwards-compatibility
-# CO2SYS_nd = sys
-say_hello = hello
+
+def egrad(g):
+    # https://github.com/google/jax/issues/3556#issuecomment-649779759
+    def wrapped(x, *rest):
+        y, g_vjp = jax.vjp(lambda x: g(x, *rest), x)
+        (x_bar,) = g_vjp(np.ones_like(y))
+        return x_bar
+
+    return wrapped
