@@ -6,6 +6,48 @@ from jax import numpy as np
 from . import get
 
 
+def get_HCO3(dic, H, k_H2CO3, k_HCO3):
+    """Calculate bicarbonate ion from dissolved inorganic carbon and [H+].
+
+    Parameters
+    ----------
+    dic : float
+        DIC in µmol/kg-sw.
+    H : float
+        [H+] content in mol/kg-sw.
+    k_H2CO3, k_HCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        Bicarbonate ion content in µmol/kg-sw.
+    """
+    return dic * k_H2CO3 * H / (H**2 + k_H2CO3 * H + k_H2CO3 * k_HCO3)
+
+
+def get_CO3(dic, H, k_H2CO3, k_HCO3):
+    """Calculate carbonate ion from dissolved inorganic carbon and [H+].
+
+    Based on CalculateCarbfromdicpH, version 01.0, 06-12-2019, by Denis Pierrot.
+
+    Parameters
+    ----------
+    dic : float
+        DIC in µmol/kg-sw.
+    H : float
+        [H+] in mol/kg-sw.
+    k_H2CO3, k_HCO3 : float
+        Carbonic acid dissociation constants.
+
+    Returns
+    -------
+    float
+        Carbonate ion content in µmol/kg-sw.
+    """
+    return dic * k_H2CO3 * k_HCO3 / (H**2 + k_H2CO3 * H + k_H2CO3 * k_HCO3)
+
+
 def get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     """Phosphate content in µmol/kg-sw.
 
@@ -385,7 +427,7 @@ def get_H2S(total_sulfide, H, k_H2S):
     return total_sulfide * H / (H + k_H2S)
 
 
-def get_alkalinity(
+def sum_alkalinity(
     H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
 ):
     """Total alkalinity in µmol/kg-sw.

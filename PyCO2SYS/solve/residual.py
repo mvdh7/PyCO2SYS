@@ -51,7 +51,7 @@ def pH_from_alkalinity_dic(
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
     return (
-        speciate.get_alkalinity(
+        speciate.sum_alkalinity(
             H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
         )
         - alkalinity
@@ -103,7 +103,7 @@ def pH_from_alkalinity_fCO2(
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
     return (
-        speciate.get_alkalinity(
+        speciate.sum_alkalinity(
             H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
         )
         - alkalinity
@@ -151,7 +151,7 @@ def pH_from_alkalinity_CO3(
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
     return (
-        speciate.get_alkalinity(
+        speciate.sum_alkalinity(
             H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
         )
         - alkalinity
@@ -199,7 +199,7 @@ def pH_from_alkalinity_HCO3(
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
     return (
-        speciate.get_alkalinity(
+        speciate.sum_alkalinity(
             H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
         )
         - alkalinity

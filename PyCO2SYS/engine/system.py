@@ -4,7 +4,17 @@ import itertools
 import networkx as nx
 from jax import numpy as np
 from matplotlib import pyplot as plt
-from .. import bio, constants, convert, equilibria, gas, salts, solubility, solve
+from .. import (
+    bio,
+    buffers,
+    constants,
+    convert,
+    equilibria,
+    gas,
+    salts,
+    solubility,
+    solve,
+)
 
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
@@ -114,7 +124,7 @@ get_funcs_core[102] = {
 }
 # alkalinity and pH
 get_funcs_core[103] = {
-    "dic": solve.get.inorganic.dic_from_alkalinity_pH,
+    "dic": solve.get.inorganic.dic_from_alkalinity_pH_speciated,
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
@@ -147,7 +157,7 @@ get_funcs_core[203] = {
     "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
     "CO3": solve.get.inorganic.CO3_from_dic_pH,
     "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
-    "alkalinity": solve.speciate.get_alkalinity,
+    "alkalinity": solve.speciate.sum_alkalinity,
 }
 # DIC and pCO2, fCO2, CO2, xCO2
 for i in [204, 205, 208, 209]:
@@ -155,7 +165,7 @@ for i in [204, 205, 208, 209]:
         "pH": solve.get.inorganic.pH_from_dic_fCO2,
         "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # DIC and CO3, omega
 for i in [206, 210, 211]:
@@ -163,14 +173,14 @@ for i in [206, 210, 211]:
         "pH": solve.get.inorganic.pH_from_dic_CO3,
         "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
         "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # DIC and HCO3
 get_funcs_core[207] = {
     # pH is taken care of by opt_HCO3_root
     "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
     "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
-    "alkalinity": solve.speciate.get_alkalinity,
+    "alkalinity": solve.speciate.sum_alkalinity,
 }
 # pH and pCO2, fCO2, CO2, xCO2
 for i in [304, 305, 308, 309]:
@@ -178,7 +188,7 @@ for i in [304, 305, 308, 309]:
         "dic": solve.get.inorganic.dic_from_pH_fCO2,
         "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
         "CO3": solve.get.inorganic.CO3_from_dic_pH,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # pH and CO3, omega
 for i in [306, 310, 311]:
@@ -186,14 +196,14 @@ for i in [306, 310, 311]:
         "dic": solve.get.inorganic.dic_from_pH_CO3,
         "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
         "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # pH and HCO3
 get_funcs_core[307] = {
     "dic": solve.get.inorganic.dic_from_pH_HCO3,
     "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
     "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
-    "alkalinity": solve.speciate.get_alkalinity,
+    "alkalinity": solve.speciate.sum_alkalinity,
 }
 # CO3, omega and pCO2, fCO2, CO2, xCO2
 for i in [406, 506, 608, 609, 410, 510, 810, 910, 411, 511, 811, 911]:
@@ -201,7 +211,7 @@ for i in [406, 506, 608, 609, 410, 510, 810, 910, 411, 511, 811, 911]:
         "pH": solve.get.inorganic.pH_from_fCO2_CO3,
         "dic": solve.get.inorganic.dic_from_pH_CO3,
         "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # HCO3 and pCO2, fCO2, CO2, xCO2
 for i in [407, 507, 708, 709]:
@@ -209,7 +219,7 @@ for i in [407, 507, 708, 709]:
         "pH": solve.get.inorganic.pH_from_fCO2_HCO3,
         "dic": solve.get.inorganic.dic_from_pH_HCO3,
         "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 # CO3, omega and HCO3
 for i in [607, 710, 711]:
@@ -217,7 +227,7 @@ for i in [607, 710, 711]:
         "pH": solve.get.inorganic.pH_from_CO3_HCO3,
         "fCO2": solve.get.inorganic.fCO2_from_CO3_HCO3,
         "dic": solve.get.inorganic.dic_from_pH_CO3,
-        "alkalinity": solve.speciate.get_alkalinity,
+        "alkalinity": solve.speciate.sum_alkalinity,
     }
 
 # Add p-f-x-CO2 interconversions
@@ -285,6 +295,26 @@ for k, fc in get_funcs_core.items():
         fc.update(
             {
                 "substrate_inhibitor_ratio": bio.substrate_inhibitor_ratio,
+                "d_lnOmega__d_CO3": buffers.d_lnOmega__d_CO3,
+                "d_CO3__d_pH__alkalinity": buffers.d_CO3__d_pH__alkalinity,
+                "d_CO3__d_pH__dic": buffers.d_CO3__d_pH__dic,
+                "d_dic__d_pH__alkalinity": buffers.d_dic__d_pH__alkalinity,
+                "d_alkalinity__d_pH__dic": buffers.d_alkalinity__d_pH__dic,
+                "d_lnCO2__d_pH__alkalinity": buffers.d_lnCO2__d_pH__alkalinity,
+                "d_lnCO2__d_pH__dic": buffers.d_lnCO2__d_pH__dic,
+                "gamma_dic": buffers.gamma_dic,
+                "gamma_alkalinity": buffers.gamma_alkalinity,
+                "beta_dic": buffers.beta_dic,
+                "beta_alkalinity": buffers.beta_alkalinity,
+                "omega_dic": buffers.omega_dic,
+                "omega_alkalinity": buffers.omega_alkalinity,
+                "d_alkalinity__d_pH__fCO2": buffers.d_alkalinity__d_pH__fCO2,
+                "d_dic__d_pH__fCO2": buffers.d_dic__d_pH__fCO2,
+                "Q_isocap": buffers.Q_isocap,
+                "Q_isocap_approx": buffers.Q_isocap_approx,
+                "psi": buffers.psi,
+                "d_fCO2__d_pH__alkalinity": buffers.d_fCO2__d_pH__alkalinity,
+                "revelle_factor": buffers.revelle_factor,
             }
         )
 
@@ -493,7 +523,6 @@ get_funcs_opts["opt_k_Si"] = {
         k_Si_sws_1atm=lambda k_Si_nbs_1atm, nbs_to_sws: (k_Si_nbs_1atm * nbs_to_sws),
     ),
 }
-# TODO add other pH scale conversions
 get_funcs_opts["opt_pH_scale"] = {
     1: dict(  # total
         sws_to_opt=convert.pH_sws_to_tot,
@@ -645,9 +674,9 @@ default_opts = {
     "opt_k_aragonite": 1,
 }
 
+# Define labels for parameter plotting
 thinspace = " "
 f = "$ƒ$" + thinspace
-
 set_node_labels = {
     "dic": r"$T_\mathrm{C}$",
     "k_CO2": "$K_0′$",
@@ -757,9 +786,18 @@ set_node_labels = {
     "pH_free": r"pH$_\mathrm{F}$",
     "pH_nbs": r"pH$_\mathrm{N}$",
     "substrate_inhibitor_ratio": "SIR",
+    "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
+    "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
+    "beta_alkalinity": r"$\beta_{A_\mathrm{T}}$",
+    "beta_dic": r"$\beta_{C_\mathrm{T}}$",
+    "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
+    "omega_dic": r"$\omega_{C_\mathrm{T}}$",
+    "Q_isocap": "$Q$",
+    "psi": r"$\psi$",
+    "revelle_factor": r"$R_\mathrm{F}$",
 }
 
-
+# Parameters that do not change between input and output conditions
 condition_independent = [
     "alkalinity",
     "dic",

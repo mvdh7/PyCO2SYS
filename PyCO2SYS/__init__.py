@@ -17,7 +17,7 @@
 
 from . import (
     bio,
-    # buffers,
+    buffers,
     constants,
     convert,
     engine,
@@ -43,13 +43,3 @@ from .meta import hello  # because history
 
 # from .solve.get import speciation
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18
-
-
-def egrad(g):
-    # https://github.com/google/jax/issues/3556#issuecomment-649779759
-    def wrapped(x, *rest):
-        y, g_vjp = jax.vjp(lambda x: g(x, *rest), x)
-        (x_bar,) = g_vjp(np.ones_like(y))
-        return x_bar
-
-    return wrapped

@@ -18,8 +18,8 @@ sys = CO2System(
     values=dict(
         salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        dic=np.linspace(2001, 2100, 10),
-        # alkalinity=np.linspace(2201, 2300, 10),
+        # dic=np.linspace(2001, 2100, 10),
+        alkalinity=np.linspace(2201, 2300, 10),
         # xCO2=np.linspace(500, 1000, 10),
         # CO3=np.linspace(100, 200, 10),
         # HCO3=np.linspace(1700, 1800, 10),
@@ -29,9 +29,9 @@ sys = CO2System(
         total_silicate=100,
         total_phosphate=10,
     ),
-    values_out=dict(
-        # temperature=10,
-    ),
+    # values_out=dict(
+    #     # temperature=10,
+    # ),
     opts=dict(
         opt_k_HF=1,
         opt_pH_scale=1,
@@ -49,9 +49,23 @@ sys = CO2System(
     ),
     # use_default_values=False,
 )
-
+# %%
 sys.get(
     parameters=[
+        # "d_dic__d_pH__alkalinity",
+        # "d_alkalinity__d_pH__dic",
+        # "d_lnCO2__d_pH__alkalinity",
+        # "gamma_dic",
+        # "gamma_alkalinity",
+        # "beta_dic",
+        # "beta_alkalinity",
+        # "d_lnOmega__d_CO3",
+        # "d_CO3__d_pH__alkalinity",
+        # "d_CO3__d_pH__dic",
+        # "omega_dic",
+        # "omega_alkalinity",
+        # "psi",
+        "revelle_factor",
         # "alkalinity",
         # "fCO2",
         # "pCO2",
@@ -67,9 +81,10 @@ sys.get(
         # "pH_free",
         # "substrate_inhibitor_ratio",
     ],
-    parameters_out=["substrate_inhibitor_ratio"],
+    # parameters_out=["substrate_inhibitor_ratio"],
     # save_steps=False,
 )
+# %%
 sys.plot_graph(
     show_unknown=False,
     show_isolated=False,

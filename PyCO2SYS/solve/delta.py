@@ -5,7 +5,7 @@
 import jax
 from jax import numpy as np
 from . import get, residual
-from .. import egrad
+from ..meta import egrad
 
 
 @jax.jit

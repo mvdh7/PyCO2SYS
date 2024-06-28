@@ -1,6 +1,8 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
+import jax
+from jax import numpy as np
 
 version = "1.8.3.1"
 version_xyz = "1.8.3"
@@ -46,3 +48,13 @@ def hello():
             version_xyz
         )
     )  # (All hope abandon, ye who enter here!)
+
+
+def egrad(g):
+    # https://github.com/google/jax/issues/3556#issuecomment-649779759
+    def wrapped(x, *rest):
+        y, g_vjp = jax.vjp(lambda x: g(x, *rest), x)
+        (x_bar,) = g_vjp(np.ones_like(y))
+        return x_bar
+
+    return wrapped
