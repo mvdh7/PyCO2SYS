@@ -16,22 +16,19 @@ import numpy as np
 
 sys = CO2System(
     values=dict(
-        salinity=np.vstack([30, 35, 40]),
+        # salinity=np.vstack([30, 35, 40]),
         pressure=1000,
-        dic=np.linspace(2001, 2100, 10),
+        # dic=2000,  # np.linspace(2001, 2100, 10),
         # alkalinity=np.linspace(2201, 2300, 10),
-        # xCO2=np.linspace(500, 1000, 10),
+        xCO2=np.linspace(500, 1000, 10),
         # CO3=np.linspace(100, 200, 10),
-        HCO3=np.linspace(1700, 1800, 10),
+        # HCO3=np.linspace(1700, 1800, 10),
         # pH=8.1,
-        # saturation_calcite=1.5,
+        # saturation_calcite=4.5,
         # saturation_aragonite=1.5,
         total_silicate=100,
         total_phosphate=10,
     ),
-    # values_out=dict(
-    #     temperature=10,
-    # ),
     opts=dict(
         opt_k_HF=1,
         opt_pH_scale=1,
@@ -50,7 +47,7 @@ sys = CO2System(
 )
 # %%
 sys.solve(
-    parameters=[
+    [
         # "d_dic__d_pH__alkalinity",
         # "d_alkalinity__d_pH__dic",
         # "d_lnCO2__d_pH__alkalinity",
@@ -65,7 +62,7 @@ sys.solve(
         # "omega_alkalinity",
         # "psi",
         # "revelle_factor",
-        "Q_isocap_approx",
+        # "Q_isocap_approx",
         # "alkalinity",
         # "fCO2",
         # "pCO2",
@@ -81,9 +78,6 @@ sys.solve(
         # "pH_free",
         # "substrate_inhibitor_ratio",
     ],
-    # parameters_out=[
-    #     # "substrate_inhibitor_ratio"
-    #     ],
     # save_steps=False,
 )
 # %%
@@ -96,10 +90,10 @@ sys.plot_graph(
     # conditions="input",
 )
 
-
 # sys.solve()
 # print(sys.values)
 
-
-adj = sys.adjust(10, 5000)
-adj.solve()
+#%%
+adj = sys.adjust(np.vstack([10, 12, 14, 16, 18]), save_steps=True)
+# adj.solve('xCO2', verbose=False)
+# adj.plot_graph()

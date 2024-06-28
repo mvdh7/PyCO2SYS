@@ -973,10 +973,15 @@ class CO2System:
         results, self.graph, self.values = self._get(
             parameters, self.graph, self.funcs, self.values, save_steps, verbose
         )
+        results = {k: v for k, v in results.items() if k in parameters}
         return results
 
     def adjust(self, temperature=None, pressure=None, values=None, save_steps=False):
-        core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
+        if self.icase > 100:
+            core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
+        elif self.icase in [4, 5, 8, 9]:
+            core = self.solve(parameters="fCO2", save_steps=save_steps)
+            # TODO convert core["fCO2"] to new temperature here!
         if values is None:
             values = {}
         else:
@@ -986,6 +991,9 @@ class CO2System:
                 values[k] = self.values[k]
             elif k in core:
                 values[k] = core[k]
+        for k, v in core.items():
+            if k not in condition_independent:
+                values[k] = core[k]
         if temperature is not None:
             values["temperature"] = temperature
         else:
@@ -994,12 +1002,12 @@ class CO2System:
             values["pressure"] = pressure
         else:
             values["pressure"] = self.values["pressure"]
+        print(values)
         return CO2System(values=values, opts=self.opts)
 
     def plot_graph(
         self,
         ax=None,
-        # conditions="input",
         exclude_nodes=None,
         prog_graphviz="neato",
         show_tsp=True,
@@ -1039,11 +1047,6 @@ class CO2System:
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
         self_graph = self.graph.copy()
-        # assert conditions in ["input", "output"]
-        # if conditions == "input":
-        #     self_graph = self.graph.copy()
-        # elif conditions == "output":
-        #     self_graph = self.graph_out.copy()
         node_states = nx.get_node_attributes(self_graph, "state", default=0)
         edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
         if not show_tsp:
