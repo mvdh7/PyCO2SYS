@@ -3,6 +3,7 @@
 import itertools
 import networkx as nx
 from jax import numpy as np
+import numpy as onp
 from matplotlib import pyplot as plt
 from .. import (
     bio,
@@ -11,6 +12,7 @@ from .. import (
     convert,
     equilibria,
     gas,
+    meta,
     salts,
     solubility,
     solve,
@@ -843,6 +845,10 @@ class CO2System:
             self.opts.pop("opt_HCO3_root")
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.values = self._assemble(self.icase, values)
+        self.grads = {}
+
+    # get_grad = get_grad
+    # get_grads = get_grads
 
     def _assemble(self, icase, values):
         # Deal with tricky special cases
@@ -868,6 +874,7 @@ class CO2System:
             if v is not None:
                 # state 1 means that the value was provided as an argument
                 nx.set_node_attributes(graph, {k: 1}, name="state")
+        self.nodes_original = list(k for k, v in values.items() if v is not None)
         return graph, funcs, values
 
     def _get(self, parameters, graph, funcs, values, save_steps, verbose):
@@ -1095,3 +1102,128 @@ class CO2System:
             labels=node_labels,
         )
         return ax
+
+    def get_func_of(self, var_of):
+        """Create a function to compute ``var_of`` directly from an input set of values.
+
+        The created function has the signature
+
+            value_of = get_value_of(**values_original)
+
+        where the ``values_original`` are the originally known values:
+
+            values_original = {k: sys.values[k] for k in sys.nodes_original}
+            values_original = sys.get_values_original()
+        """
+        # We get a sub-graph of the node of interest and all its ancestors, excluding
+        # originally fixed / user-defined values
+        nodes_vo = nx.ancestors(self.graph, var_of)
+        nodes_vo.add(var_of)
+        nodes_vo = onp.array([n for n in nodes_vo if n not in self.nodes_original])
+        graph_vo = self.graph.subgraph(nodes_vo)
+        # We need to know what order to run the functions in.  The approach below is a bit
+        # of a bodge --- as far as I can see, it does what I want, but not sure why and
+        # can't be certain it will always do that; haven't found another way yet
+        pos = nx.nx_agraph.graphviz_layout(graph_vo, prog="dot")
+        rank = onp.argsort([pos[n][1] for n in nodes_vo])
+        nodes_vo = nodes_vo[rank][::-1]
+
+        def get_value_of(**values_original):
+            values_original = values_original.copy()
+            # This loops through the functions in the correct order determined above so we
+            # end up calculating the value of interest, which is returned
+            for n in nodes_vo:
+                values_original.update(
+                    {
+                        n: self.funcs[n](
+                            *[
+                                values_original[v]
+                                for v in self.funcs[n].__code__.co_varnames[
+                                    : self.funcs[n].__code__.co_argcount
+                                ]
+                            ]
+                        )
+                    }
+                )
+            return values_original[var_of]
+
+        return get_value_of
+
+    def get_func_of_from_wrt(self, get_value_of, var_wrt):
+        """Reorganise a function created with ``get_func_of`` so that one of its kwargs is
+        instead a positional arg (and which can thus be gradded).
+
+        Parameters
+        ----------
+        get_value_of : func
+            Function created with ``get_func_of``.
+        var_wrt : str
+            Name of the value to use as a positional arg instead.
+
+        Returns
+        -------
+        A function with the signature
+            value_of = get_of_from_wrt(value_wrt, **other_values_original)
+        """
+
+        def get_value_of_from_wrt(value_wrt, **other_values_original):
+            other_values_original = other_values_original.copy()
+            other_values_original.update({var_wrt: value_wrt})
+            return get_value_of(**other_values_original)
+
+        return get_value_of_from_wrt
+
+    def get_grad_func(self, var_of, var_wrt):
+        get_value_of = self.get_func_of(var_of)
+        get_value_of_from_wrt = self.get_func_of_from_wrt(get_value_of, var_wrt)
+        return meta.egrad(get_value_of_from_wrt)
+
+    def get_grad(self, var_of, var_wrt):
+        """Compute the derivative of ``var_of`` with respect to ``var_wrt`` and store this
+        in ``sys.grads[var_of][var_wrt]``.  If there is already a value there then that
+        value is returned instead of recalculating.
+
+        Parameters
+        ----------
+        var_of : str
+            The name of the variable to get the derivative of.
+        var_wrt : str
+            The name of the variable to get the derivative with respect to.  This must be
+            one of the fixed values provided when creating the ``CO2System``, i.e., listed
+            in ``sys.nodes_original``.
+        """
+        assert (
+            var_wrt in self.nodes_original
+        ), "``var_wrt`` must be one of ``sys.nodes_original!``"
+        try:  # see if we've already calculated this value
+            d_of__d_wrt = self.grads[var_of][var_wrt]
+        except KeyError:  # only do the calculations if there isn't already a value
+            # We need to know the shape of the variable that we want the grad of, the easy
+            # way to get this is just to solve for it (if that hasn't already been done)
+            if var_of not in self.values:
+                self.solve(var_of)
+            # Next, we extract the originally set values, which are fixed during the
+            # differentiation
+            values_original = self.get_values_original()
+            other_values_original = values_original.copy()
+            # We have to make sure the value we are differentiating with respect to has the
+            # same shape as the value we want the differential of
+            value_wrt = other_values_original.pop(var_wrt) * np.ones_like(
+                self.values[var_of]
+            )
+            # Here we compute the gradient
+            grad_func = self.get_grad_func(var_of, var_wrt)
+            d_of__d_wrt = grad_func(value_wrt, **other_values_original)
+            # Put the final value into self.grads, first creating a new sub-dict if necessary
+            if var_of not in self.grads:
+                self.grads[var_of] = {}
+            self.grads[var_of][var_wrt] = d_of__d_wrt
+        return d_of__d_wrt
+
+    def get_grads(self, vars_of, vars_wrt):
+        for var_of in vars_of:
+            for var_wrt in vars_wrt:
+                get_grad(var_of, var_wrt)
+
+    def get_values_original(self):
+        return {k: self.values[k] for k in self.nodes_original}

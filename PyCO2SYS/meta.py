@@ -51,9 +51,10 @@ def hello():
 
 
 def egrad(g):
-    # https://github.com/google/jax/issues/3556#issuecomment-649779759
-    def wrapped(x, *rest):
-        y, g_vjp = jax.vjp(lambda x: g(x, *rest), x)
+    # From https://github.com/google/jax/issues/3556#issuecomment-649779759
+    # modified to allow kwargs for g
+    def wrapped(x, *args, **kwargs):
+        y, g_vjp = jax.vjp(lambda x: g(x, *args, **kwargs), x)
         (x_bar,) = g_vjp(np.ones_like(y))
         return x_bar
 

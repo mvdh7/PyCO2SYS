@@ -16,11 +16,11 @@ import numpy as np
 
 sys = CO2System(
     values=dict(
-        # salinity=np.vstack([30, 35, 40]),
+        salinity=np.vstack([30.0, 35, 40]),
         pressure=1000,
-        # dic=2000,  # np.linspace(2001, 2100, 10),
-        # alkalinity=np.linspace(2201, 2300, 10),
-        xCO2=np.linspace(500, 1000, 10),
+        dic=np.linspace(2001, 2100, 10),
+        alkalinity=np.linspace(2201, 2300, 10),
+        # xCO2=np.linspace(500, 1000, 10),
         # CO3=np.linspace(100, 200, 10),
         # HCO3=np.linspace(1700, 1800, 10),
         # pH=8.1,
@@ -63,7 +63,7 @@ sys.solve(
         # "psi",
         # "revelle_factor",
         # "Q_isocap_approx",
-        # "alkalinity",
+        "alkalinity",
         # "fCO2",
         # "pCO2",
         # "xCO2",
@@ -80,6 +80,7 @@ sys.solve(
     ],
     # save_steps=False,
 )
+
 # %%
 sys.plot_graph(
     # show_unknown=False,
@@ -93,7 +94,20 @@ sys.plot_graph(
 # sys.solve()
 # print(sys.values)
 
-#%%
-adj = sys.adjust(np.vstack([10, 12, 14, 16, 18]), save_steps=True)
-# adj.solve('xCO2', verbose=False)
-# adj.plot_graph()
+# %%
+var_of = "fCO2"
+var_wrt = "temperature"
+
+
+d_of__d_wrt = sys.get_grad(var_of, var_wrt)
+print(d_of__d_wrt)
+
+# get_var_wrt = get_func_wrt(get_var_of, var_wrt)
+# of_v2 = get_var_wrt(wrt, **values_in)
+# print(of_v2)
+# nx.draw_networkx(graph_vo, pos=pos)  # THIS GIVES EXACTLY WHAT I WANT
+
+# %%
+# adj = sys.adjust(np.vstack([10, 12, 14, 16, 18]), save_steps=True)
+# adj.solve("xCO2", verbose=False)
+# # adj.plot_graph()
