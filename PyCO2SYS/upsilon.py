@@ -1,6 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
-from autograd import numpy as np
+from jax import numpy as np
 from . import constants
 
 bh_TOG93_H24 = 28995  # J / mol
@@ -10,9 +10,9 @@ aq_TOG93 = -43.5e-6  # 1 / °C ** 2
 bq_TOG93 = 43.3e-3  # 1 / °C
 
 
-def ups_Hoff_H24(temperature, gas_constant, bh):
-    """Calculate υ using the van 't Hoff form of Humphreys (2024) with a variable bh
-    coefficient provided by the user.
+def inverse(temperature, gas_constant, bh):
+    """Calculate υ using the van 't Hoff form of Humphreys (2024) with a variable
+    bh coefficient.
 
     Parameters
     ----------
@@ -25,12 +25,12 @@ def ups_Hoff_H24(temperature, gas_constant, bh):
     -------
         υ in 1 / °C.
     """
-    return bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
+    return 100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
 
 
 def expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh):
-    """Calculate υ using the van 't Hoff form of Humphreys (2024) with a variable bh
-    coefficient provided by the user.
+    """Calculate exp(Υ) using the van 't Hoff form of Humphreys (2024) with a variable
+    bh coefficient.
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
         υ in 1 / °C.
     """
     bh = get_bh_H24(temperature, salinity, fCO2)
-    return ups_Hoff_H24(temperature, gas_constant, bh)
+    return inverse(temperature, gas_constant, bh)
 
 
 def expUps_parameterised_H24(
@@ -159,7 +159,7 @@ def ups_enthalpy_H24(temperature, gas_constant):
     -------
         υ in 1 / °C.
     """
-    return ups_Hoff_H24(temperature, gas_constant, bh_enthalpy_H24)
+    return inverse(temperature, gas_constant, bh_enthalpy_H24)
 
 
 def expUps_enthalpy_H24(temperature, temperature_out, gas_constant):
@@ -197,7 +197,7 @@ def ups_TOG93_H24(temperature, gas_constant):
     -------
         υ in 1 / °C.
     """
-    return ups_Hoff_H24(temperature, gas_constant, bh_TOG93_H24)
+    return inverse(temperature, gas_constant, bh_TOG93_H24)
 
 
 def expUps_TOG93_H24(temperature, temperature_out, gas_constant):
@@ -228,6 +228,14 @@ def ups_linear_TOG93():
         υ in 1/ °C.
     """
     return bl_TOG93
+
+
+def linear(bl):
+    return bl * 100
+
+
+def quadratic(temperature, aq, bq):
+    return 100 * (2 * aq * temperature + bq)
 
 
 def expUps_linear_TOG93(temperature, temperature_out):

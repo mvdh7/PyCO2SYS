@@ -28,7 +28,7 @@ from . import (
     solubility,
     solve,
     # uncertainty,
-    # upsilon,
+    upsilon,
 )
 
 __author__ = meta.authors

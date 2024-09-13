@@ -16,6 +16,7 @@ from .. import (
     salts,
     solubility,
     solve,
+    upsilon,
 )
 
 # Define functions for calculations that depend neither on icase nor opts:
@@ -587,6 +588,21 @@ get_funcs_opts["opt_k_aragonite"] = {
     1: dict(k_aragonite=solubility.k_aragonite_M83),
     2: dict(k_aragonite=solubility.k_aragonite_GEOSECS),  # for GEOSECS
 }
+get_funcs_opts["opt_adjust_temperature"] = {
+    1: dict(
+        bh=upsilon.get_bh_H24,
+        upsilon=upsilon.inverse,
+    ),
+    2: dict(
+        bl=lambda: upsilon.bl_TOG93,
+        upsilon=upsilon.linear,
+    ),
+    3: dict(
+        aq=lambda: upsilon.aq_TOG93,
+        bq=lambda: upsilon.bq_TOG93,
+        upsilon=upsilon.quadratic,
+    ),
+}
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
@@ -674,6 +690,7 @@ default_opts = {
     "opt_HCO3_root": 2,
     "opt_k_calcite": 1,
     "opt_k_aragonite": 1,
+    "opt_adjust_temperature": 1,
 }
 
 # Define labels for parameter plotting
@@ -798,6 +815,11 @@ set_node_labels = {
     "Q_isocap_approx": "$Q_x$",
     "psi": r"$\psi$",
     "revelle_factor": r"$R_\mathrm{F}$",
+    "bl": "$b_l$",
+    "aq": "$a_q$",
+    "bq": "$b_q$",
+    "bh": "$b_h$",
+    "upsilon": r"$\upsilon$",
 }
 
 # Parameters that do not change between input and output conditions
@@ -843,6 +865,8 @@ class CO2System:
         # Deal with tricky special cases
         if self.icase != 207:
             self.opts.pop("opt_HCO3_root")
+        if self.icase not in [0, 4, 5, 8, 9]:
+            self.opts.pop("opt_adjust_temperature")
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.values = self._assemble(self.icase, values)
         self.grads = {}
@@ -983,24 +1007,28 @@ class CO2System:
         results = {k: v for k, v in results.items() if k in parameters}
         return results
 
-    def adjust(self, temperature=None, pressure=None, values=None, save_steps=False):
+    def adjust(self, temperature=None, pressure=None, save_steps=False):
         if self.icase > 100:
+            # If we know (any) two MCS parameters, solve for alkalinity and DIC under
+            # the "input" conditions
             core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
-        elif self.icase in [4, 5, 8, 9]:
-            core = self.solve(parameters="fCO2", save_steps=save_steps)
-            # TODO convert core["fCO2"] to new temperature here!
-        if values is None:
             values = {}
+        elif self.icase in [4, 5, 8, 9]:
+            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
+            # the "input" conditions
+            core = self.solve(parameters="fCO2", save_steps=save_steps)
+            values = {"fCO2": core["fCO2"] * 2}
+            # TODO convert core["fCO2"] to new temperature above!
         else:
-            values = values.copy()
+            print("Cannot adjust temperature!")
+            # TODO return a warning/error properly here
+        # Copy all parameters that are T/P independent into new values dict
         for k in condition_independent:
-            if k in self.values:
+            if k in self.nodes_original:
                 values[k] = self.values[k]
             elif k in core:
                 values[k] = core[k]
-        for k, v in core.items():
-            if k not in condition_independent:
-                values[k] = core[k]
+        # Set temperature and/or pressure to adjusted value(s)
         if temperature is not None:
             values["temperature"] = temperature
         else:
@@ -1009,7 +1037,6 @@ class CO2System:
             values["pressure"] = pressure
         else:
             values["pressure"] = self.values["pressure"]
-        print(values)
         return CO2System(values=values, opts=self.opts)
 
     def plot_graph(
@@ -1121,17 +1148,17 @@ class CO2System:
         nodes_vo.add(var_of)
         nodes_vo = onp.array([n for n in nodes_vo if n not in self.nodes_original])
         graph_vo = self.graph.subgraph(nodes_vo)
-        # We need to know what order to run the functions in.  The approach below is a bit
-        # of a bodge --- as far as I can see, it does what I want, but not sure why and
-        # can't be certain it will always do that; haven't found another way yet
+        # We need to know what order to run the functions in.  The approach below is a
+        # bit of a bodge --- as far as I can see, it does what I want, but not sure why
+        # and can't be certain it will always do that; haven't found another way yet
         pos = nx.nx_agraph.graphviz_layout(graph_vo, prog="dot")
         rank = onp.argsort([pos[n][1] for n in nodes_vo])
         nodes_vo = nodes_vo[rank][::-1]
 
         def get_value_of(**values_original):
             values_original = values_original.copy()
-            # This loops through the functions in the correct order determined above so we
-            # end up calculating the value of interest, which is returned
+            # This loops through the functions in the correct order determined above so
+            # we end up calculating the value of interest, which is returned
             for n in nodes_vo:
                 values_original.update(
                     {
@@ -1150,8 +1177,8 @@ class CO2System:
         return get_value_of
 
     def get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with ``get_func_of`` so that one of its kwargs is
-        instead a positional arg (and which can thus be gradded).
+        """Reorganise a function created with ``get_func_of`` so that one of its kwargs
+        is instead a positional arg (and which can thus be gradded).
 
         Parameters
         ----------
@@ -1179,18 +1206,18 @@ class CO2System:
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of ``var_of`` with respect to ``var_wrt`` and store this
-        in ``sys.grads[var_of][var_wrt]``.  If there is already a value there then that
-        value is returned instead of recalculating.
+        """Compute the derivative of ``var_of`` with respect to ``var_wrt`` and store
+        this in ``sys.grads[var_of][var_wrt]``.  If there is already a value there then
+        that value is returned instead of recalculating.
 
         Parameters
         ----------
         var_of : str
             The name of the variable to get the derivative of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.  This must be
-            one of the fixed values provided when creating the ``CO2System``, i.e., listed
-            in ``sys.nodes_original``.
+            The name of the variable to get the derivative with respect to.  This must
+            be one of the fixed values provided when creating the ``CO2System``, i.e.,
+            listed in ``sys.nodes_original``.
         """
         assert (
             var_wrt in self.nodes_original
@@ -1198,23 +1225,25 @@ class CO2System:
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
         except KeyError:  # only do the calculations if there isn't already a value
-            # We need to know the shape of the variable that we want the grad of, the easy
-            # way to get this is just to solve for it (if that hasn't already been done)
+            # We need to know the shape of the variable that we want the grad of, the
+            # easy way to get this is just to solve for it (if that hasn't already been
+            # done)
             if var_of not in self.values:
                 self.solve(var_of)
             # Next, we extract the originally set values, which are fixed during the
             # differentiation
             values_original = self.get_values_original()
             other_values_original = values_original.copy()
-            # We have to make sure the value we are differentiating with respect to has the
-            # same shape as the value we want the differential of
+            # We have to make sure the value we are differentiating with respect to has
+            # the same shape as the value we want the differential of
             value_wrt = other_values_original.pop(var_wrt) * np.ones_like(
                 self.values[var_of]
             )
             # Here we compute the gradient
             grad_func = self.get_grad_func(var_of, var_wrt)
             d_of__d_wrt = grad_func(value_wrt, **other_values_original)
-            # Put the final value into self.grads, first creating a new sub-dict if necessary
+            # Put the final value into self.grads, first creating a new sub-dict if
+            # necessary
             if var_of not in self.grads:
                 self.grads[var_of] = {}
             self.grads[var_of][var_wrt] = d_of__d_wrt

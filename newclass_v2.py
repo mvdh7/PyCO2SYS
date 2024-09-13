@@ -20,7 +20,7 @@ sys = CO2System(
         pressure=1000,
         dic=np.linspace(2001, 2100, 10),
         alkalinity=np.linspace(2201, 2300, 10),
-        # xCO2=np.linspace(500, 1000, 10),
+        # fCO2=np.linspace(500, 1000, 10),
         # CO3=np.linspace(100, 200, 10),
         # HCO3=np.linspace(1700, 1800, 10),
         # pH=8.1,
@@ -43,8 +43,13 @@ sys = CO2System(
         opt_k_carbonic=10,
         opt_factor_k_HCO3=1,
         opt_HCO3_root=2,
+        opt_adjust_temperature=1,
     ),
 )
+# sys.solve("upsilon")
+
+# test = sys.adjust()
+
 # %%
 sys.solve(
     [
@@ -83,8 +88,8 @@ sys.solve(
 
 # %%
 sys.plot_graph(
-    # show_unknown=False,
-    # show_isolated=False,
+    show_unknown=False,
+    show_isolated=False,
     prog_graphviz="neato",
     # exclude_nodes='gas_constant',
     # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
