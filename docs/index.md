@@ -4,9 +4,6 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 ## Installation
 
-!!! warning "Numpy v2"
-    The current version of PyCO2SYS is not compatible with Numpy v2.  The problem lies with Autograd, rather than PyCO2SYS itself.  We are currently working on an updated version of PyCO2SYS which will avoid this problem and work with Numpy v2.
-
 ### With pip
 
 Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
