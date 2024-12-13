@@ -1,8 +1,10 @@
+# %%
+import jax
+import networkx as nx
+import numpy as np
+
 import PyCO2SYS as pyco2
 from PyCO2SYS import CO2System, system
-import networkx as nx
-import jax
-import numpy as np
 
 # # With old Autograd approach, below code (solve pH from TA and DIC, 3 x 100000)
 # # takes ~2.5 s --- new jax approach takes ~25 ms --- 100 x speedup!
@@ -88,8 +90,8 @@ sys.solve(
 
 # %%
 sys.plot_graph(
-    show_unknown=False,
-    show_isolated=False,
+    show_unknown=True,
+    show_isolated=True,
     prog_graphviz="neato",
     # exclude_nodes='gas_constant',
     # skip_nodes=['pressure_atmosphere'], #, 'total_to_sws_1atm'],
