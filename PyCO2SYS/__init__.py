@@ -31,9 +31,6 @@ from . import (
     upsilon,
 )
 
-__author__ = meta.authors
-__version__ = meta.version
-
 # Aliases for top-level access
 from .engine import CO2SYS, system
 
@@ -41,5 +38,7 @@ from .engine import CO2SYS, system
 from .engine.system import CO2System
 from .meta import hello  # because history
 
+__author__ = meta.authors
+__version__ = meta.version
 # from .solve.get import speciation
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18
