@@ -136,7 +136,7 @@ def test_equilibrium_constants():
                     rtol=1e-12,
                     atol=1e-16,
                 )
-            ), p
+            )
             assert np.all(
                 np.isclose(
                     pk_matlab_out,
@@ -154,14 +154,12 @@ def test_total_salts():
         ("TB", "total_borate"),
     )
     svars = [p for m, p in m_to_p]
-    for g, group in matlab.groupby(
-        ["K1K2CONSTANTS", "pHSCALEIN", "opt_k_bisulfate", "opt_total_borate"]
-    ):
+    for g, group in matlab.groupby(["K1K2CONSTANTS", "opt_total_borate"]):
         # Set up arguments dicts
         values = dict(salinity=group.SAL.values)
         opts = dict(
             opt_k_carbonic=g[0],
-            opt_total_borate=g[3],
+            opt_total_borate=g[1],
         )
         # Deal with GEOSECS and freshwater weirdness
         if g[0] == 6:
