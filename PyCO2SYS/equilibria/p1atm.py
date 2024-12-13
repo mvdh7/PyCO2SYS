@@ -1543,21 +1543,57 @@ def k_HCO3_sws_WMW14(temperature, salinity):
     return 10.0**-pK2
 
 
-def k_H2CO3_TOT_WMW14(TempK, salinity):
-    """Carbonic acid dissociation constants, Total scale, following WM13/WMW14."""
+def k_H2CO3_total_WMW14(temperature, salinity):
+    """First carbonic acid dissociation constant following WM13/WMW14.
+    Used when opt_k_carbonic = 17.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        HCO3 dissociation constant.
+    """
+    TempK = convert.celsius_to_kelvin(temperature)
     # Coefficients from the corrigendum document [WMW14]
-    pK10, pK20 = _kH2CO3_WMW14(TempK)
+    pK10 = _kH2CO3_WMW14(TempK)[0]
     A1 = 13.568513 * salinity**0.5 + 0.031645 * salinity - 5.3834e-5 * salinity**2
     B1 = -539.2304 * salinity**0.5 - 5.635 * salinity
     C1 = -2.0901396 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
     K1 = 10.0**-pK1
+    return K1
+
+
+def k_HCO3_total_WMW14(temperature, salinity):
+    """Second carbonic acid dissociation constant following WM13/WMW14.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        HCO3 dissociation constant.
+    """
+    TempK = convert.celsius_to_kelvin(temperature)
+    # Coefficients from the corrigendum document [WMW14]
+    pK20 = _kH2CO3_WMW14(TempK)[1]
     A2 = 21.389248 * salinity**0.5 + 0.12452358 * salinity - 3.7447e-4 * salinity**2
     B2 = -787.3736 * salinity**0.5 - 19.84233 * salinity
     C2 = -3.3773006 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
     K2 = 10.0**-pK2
-    return K1, K2
+    return K2
 
 
 def k_H2CO3_FREE_WMW14(TempK, salinity):

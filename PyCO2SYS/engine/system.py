@@ -453,7 +453,13 @@ get_funcs_opts["opt_k_carbonic"] = {
         ),
     ),
     17: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
+        # k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
+        # ^ although the above should work, it gives slightly different answers than
+        #   the conversion below, and below is consistent with the MATLAB implementation
+        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_WMW14,
+        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
+            k_H2CO3_total_1atm * tot_to_sws_1atm
+        ),
         k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_SB21,
         k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
             k_HCO3_total_1atm * tot_to_sws_1atm
@@ -520,13 +526,13 @@ get_funcs_opts["opt_k_HSO4"] = {
     3: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_WM13),
 }
 get_funcs_opts["opt_k_NH3"] = {
-    1: dict(k_NH3_sws_1atm=equilibria.p1atm.k_NH3_sws_YM95),
-    2: dict(
+    1: dict(
         k_NH3_total_1atm=equilibria.p1atm.k_NH3_total_CW95,
         k_NH3_sws_1atm=lambda k_NH3_total_1atm, tot_to_sws_1atm: (
             k_NH3_total_1atm * tot_to_sws_1atm
         ),
     ),
+    2: dict(k_NH3_sws_1atm=equilibria.p1atm.k_NH3_sws_YM95),
 }
 get_funcs_opts["opt_k_Si"] = {
     1: dict(k_Si_sws_1atm=equilibria.p1atm.k_Si_sws_YM95),
