@@ -1,6 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
+
 import jax
 from jax import numpy as np
 
@@ -44,9 +45,7 @@ def hello():
    Lasciate ogni speranza, voi ch' entrate!
                                     Dante, Inferno iii, 9
                                     sign on the entrance gates of hell
-""".format(
-            version_xyz
-        )
+""".format(version_xyz)
     )  # (All hope abandon, ye who enter here!)
 
 

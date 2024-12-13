@@ -1,10 +1,12 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 import itertools
+
 import networkx as nx
-from jax import numpy as np
 import numpy as onp
+from jax import numpy as np
 from matplotlib import pyplot as plt
+
 from .. import (
     bio,
     buffers,
@@ -29,11 +31,17 @@ get_funcs = {
     "k_CO2_1atm": equilibria.p1atm.k_CO2_W74,
     "k_H2S_total_1atm": equilibria.p1atm.k_H2S_total_YM95,
     # pH scale conversion factors at 1 atm
-    "free_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_free_to_sws(
+    "free_to_sws_1atm": lambda total_fluoride,
+    total_sulfate,
+    k_HF_free_1atm,
+    k_HSO4_free_1atm: convert.pH_free_to_sws(
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
     "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
-    "tot_to_sws_1atm": lambda total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm: convert.pH_tot_to_sws(
+    "tot_to_sws_1atm": lambda total_fluoride,
+    total_sulfate,
+    k_HF_free_1atm,
+    k_HSO4_free_1atm: convert.pH_tot_to_sws(
         total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
     ),
     # Equilibrium constants at 1 atm and on the seawater pH scale
@@ -491,7 +499,7 @@ get_funcs_opts["opt_k_BOH3"] = {
     ),
     2: dict(
         k_BOH3_nbs_1atm=equilibria.p1atm.k_BOH3_nbs_LTB69,
-        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, nbs_to_sws: (
+        k_BOH3_sws_1atm=lambda k_BOH3_nbs_1atm, nbs_to_sws: (
             k_BOH3_nbs_1atm * nbs_to_sws
         ),
     ),
@@ -902,7 +910,6 @@ class CO2System:
         return graph, funcs, values
 
     def _get(self, parameters, graph, funcs, values, save_steps, verbose):
-
         def printv(*args, **kwargs):
             if verbose:
                 print(*args, **kwargs)
@@ -1252,7 +1259,7 @@ class CO2System:
     def get_grads(self, vars_of, vars_wrt):
         for var_of in vars_of:
             for var_wrt in vars_wrt:
-                get_grad(var_of, var_wrt)
+                self.get_grad(var_of, var_wrt)
 
     def get_values_original(self):
         return {k: self.values[k] for k in self.nodes_original}

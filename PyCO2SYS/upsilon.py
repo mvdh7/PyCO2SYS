@@ -1,6 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 from jax import numpy as np
+
 from . import constants
 
 bh_TOG93_H24 = 28995  # J / mol

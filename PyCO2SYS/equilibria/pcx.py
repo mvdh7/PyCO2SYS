@@ -56,6 +56,7 @@ factor_k_HCO3_GEOSECS
 factor_k_CO2
     Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 """
+
 # Original notes from CO2SYS-MATLAB regarding pressure corrections:
 # ****************************************************************************
 # Correct dissociation constants for pressure
@@ -127,6 +128,7 @@ factor_k_CO2
 #       Kappas are in cm3/mole/bar
 # ****************************************************************************
 from jax import numpy as np
+
 from .. import convert
 
 

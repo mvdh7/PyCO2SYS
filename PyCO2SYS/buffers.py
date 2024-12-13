@@ -2,8 +2,8 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate various buffer factors of the marine carbonate system."""
 
-import jax
 from jax import numpy as np
+
 from . import solubility, solve
 from .meta import egrad
 

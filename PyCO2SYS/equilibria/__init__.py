@@ -3,8 +3,9 @@
 """Calculate equilibrium constants from temperature, salinity and pressure."""
 
 from autograd import numpy as np
-from . import p1atm, pcx
+
 from .. import constants, convert, gas, solubility
+from . import p1atm, pcx, pressured
 
 
 def prepare(temperature, pressure, equilibria):

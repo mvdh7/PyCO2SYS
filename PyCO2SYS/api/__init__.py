@@ -2,8 +2,8 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Alternative APIs for executing the main CO2SYS function."""
 
+from ..engine import _CO2SYS, CO2SYS
 from . import ezio
-from ..engine import CO2SYS, _CO2SYS
 
 
 def CO2SYS_wrap(
@@ -114,9 +114,10 @@ def CO2SYS_wrap(
     system parameters. Note that output variables are labelled as the original
     CO2SYS output names, and not the wrapper inputs.
     """
-    from autograd import numpy as np
     import inspect
+
     import pandas as pd
+    from autograd import numpy as np
 
     try:
         import xarray as xr
@@ -177,8 +178,9 @@ def CO2SYS_wrap(
         df = pd.DataFrame(params, index=np.arange(max(sizes)))
     except ValueError:
         raise UserWarning(
-            "Your inputs must be length of 1 or n (sizes shown below)"
-            ":\n {}".format(str(sizes))
+            "Your inputs must be length of 1 or n (sizes shown below)" ":\n {}".format(
+                str(sizes)
+            )
         )
 
     # DEFINE PARAMETER TYPES

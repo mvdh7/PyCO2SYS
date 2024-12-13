@@ -143,7 +143,9 @@ k_H2CO3_total_PLR18, k_HCO3_total_PLR18
     Carbonic acid dissociation constants following PLR18.
     Used when opt_k_carbonic = 18.
 """
+
 from jax import numpy as np
+
 from .. import convert
 
 
@@ -1388,7 +1390,7 @@ def k_H2CO3_sws_MGH06(temperature, salinity):
     B_1 = -530.123 * salinity**0.5 - 6.103 * salinity
     C_1 = -2.06950 * salinity**0.5
     pK1 = A_1 + B_1 / TempK + C_1 * np.log(TempK) + pK1_0  # pK1 sigma = 0.0054
-    return 10.0 ** -(pK1)
+    return 10.0**-(pK1)
 
 
 def k_HCO3_sws_MGH06(temperature, salinity):
@@ -1413,7 +1415,7 @@ def k_HCO3_sws_MGH06(temperature, salinity):
     B_2 = -772.483 * salinity**0.5 - 20.051 * salinity
     C_2 = -3.3336 * salinity**0.5
     pK2 = A_2 + B_2 / TempK + C_2 * np.log(TempK) + pK2_0  # pK2 sigma = 0.011
-    return 10.0 ** -(pK2)
+    return 10.0**-(pK2)
 
 
 def k_H2CO3_sws_M10(temperature, salinity):

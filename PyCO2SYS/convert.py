@@ -26,8 +26,11 @@ CO2aq_to_fCO2
 fCO2_to_CO2aq
     Convert CO2 fugacity to aqueous content.
 """
+
 import copy
+
 from jax import numpy as np
+
 from . import constants
 
 
