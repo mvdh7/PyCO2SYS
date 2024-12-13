@@ -9,18 +9,16 @@ name = "PyCO2SYS"
 description = "PyCO2SYS: marine carbonate system calculations in Python"
 readme = "README.md"
 dependencies = [
-    "PyCO2SYS",
-    "autograd",
-    "numpy",
+    "jax",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Natural Language :: English",
