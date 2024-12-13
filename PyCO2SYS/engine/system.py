@@ -358,6 +358,7 @@ get_funcs_opts["opt_factor_k_H2O"] = {
 get_funcs_opts["opt_fH"] = {
     1: dict(fH=convert.fH_TWB82),
     2: dict(fH=convert.fH_PTBO87),
+    3: dict(fH=lambda: 1.0),
 }
 get_funcs_opts["opt_k_carbonic"] = {
     1: dict(
@@ -651,7 +652,7 @@ def get_graph_opts(exclude=[]):
     return graph_opts
 
 
-parameters_core = [
+parameters_core = (
     "alkalinity",
     "dic",
     "pH",
@@ -663,9 +664,9 @@ parameters_core = [
     "xCO2",
     "saturation_calcite",
     "saturation_aragonite",
-]
+)
 
-default_values = {
+values_default = {
     "temperature": 25.0,  # °C
     "total_ammonia": 0.0,  # µmol/kg-sw
     "total_phosphate": 0.0,  # µmol/kg-sw
@@ -676,7 +677,7 @@ default_values = {
     "pressure_atmosphere": 1.0,  # atm
 }
 
-default_opts = {
+opts_default = {
     "opt_gas_constant": 3,
     "opt_factor_k_BOH3": 1,
     "opt_factor_k_H2CO3": 1,
@@ -831,7 +832,7 @@ set_node_labels = {
 }
 
 # Parameters that do not change between input and output conditions
-condition_independent = [
+condition_independent = (
     "alkalinity",
     "dic",
     "salinity",
@@ -844,7 +845,7 @@ condition_independent = [
     "total_sulfide",
     "total_silicate",
     "total_borate",
-]
+)
 
 
 class CO2System:
@@ -862,7 +863,7 @@ class CO2System:
         elif len(icase) == 2:
             icase = icase[0] * 100 + icase[1]
         self.icase = icase.item()
-        self.opts = default_opts.copy()
+        self.opts = opts_default.copy()
         # Assign opts
         if opts is not None:
             for k, v in opts.items():
@@ -897,7 +898,7 @@ class CO2System:
             funcs.update(get_funcs_opts[opt][v])
         # Assign default values
         values = values.copy()
-        for k, v in default_values.items():
+        for k, v in values_default.items():
             if k not in values:
                 values[k] = v
                 graph.add_node(k)
