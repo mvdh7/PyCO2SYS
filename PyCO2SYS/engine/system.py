@@ -1,6 +1,7 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 import itertools
+import warnings
 
 import networkx as nx
 import numpy as onp
@@ -884,6 +885,12 @@ class CO2System:
             self.opts.pop("opt_adjust_temperature")
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.values = self._assemble(self.icase, values)
+        for k in self.values:
+            if k not in self.graph.nodes:
+                warnings.warn(
+                    "'{}' is not recognised".format(k)
+                    + " - it will not be used in any calculations."
+                )
         self.grads = {}
 
     # get_grad = get_grad
