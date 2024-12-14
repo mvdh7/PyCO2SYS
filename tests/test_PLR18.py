@@ -1,9 +1,11 @@
-import PyCO2SYS as pyco2
 import numpy as np
 
-results = pyco2.sys(temperature=0, salinity=35, opt_k_carbonic=18)
-pK1 = -np.log10(results["k_carbonic_1"])
-pK2 = -np.log10(results["k_carbonic_2"])
+from PyCO2SYS import CO2System
+
+sys = CO2System(values=dict(temperature=0, salinity=35), opts=dict(opt_k_carbonic=18))
+sys.solve(["k_H2CO3", "k_HCO3"])
+pK1 = -np.log10(sys.values["k_H2CO3"])
+pK2 = -np.log10(sys.values["k_HCO3"])
 
 
 def test_PLR18():
