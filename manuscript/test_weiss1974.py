@@ -1,14 +1,17 @@
-import PyCO2SYS as pyco2, numpy as np
+import numpy as np
+
+import PyCO2SYS as pyco2
 
 # Import data from W74 Table III
 data = np.genfromtxt("manuscript/data/weiss1974_tableIII.csv", delimiter=",")
 salinity = data[0, 1:]
 temperature = np.vstack(data[1:, 0])
-temperature_K = temperature + 273.15
 kCO2_W74 = data[1:, 1:]
 
 # Calculate kCO2 with PyCO2SYS
-kCO2_pyco2 = np.round(pyco2.equilibria.p1atm.kCO2_W74(temperature_K, salinity) * 1e2, 3)
+kCO2_pyco2 = np.array(
+    np.round(pyco2.equilibria.p1atm.k_CO2_W74(temperature, salinity) * 1e2, 3)
+)
 kCO2_pyco2[0, :2] = np.nan
 
 
