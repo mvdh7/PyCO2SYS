@@ -125,19 +125,19 @@ def k_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
 
 def OC_from_CO3(CO3, Ca, k_calcite):
     """Calculate [CO3] given saturation state w.r.t. calcite."""
-    return CO3 * Ca / k_calcite
+    return 1e-12 * CO3 * Ca / k_calcite
 
 
 def OA_from_CO3(CO3, Ca, k_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
-    return CO3 * Ca / k_aragonite
+    return 1e-12 * CO3 * Ca / k_aragonite
 
 
 def CO3_from_OC(saturation_calcite, Ca, k_calcite):
     """Calculate [CO3] given saturation state w.r.t. calcite."""
-    return saturation_calcite * k_calcite / Ca
+    return 1e12 * saturation_calcite * k_calcite / Ca
 
 
 def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
-    return saturation_aragonite * k_aragonite / Ca
+    return 1e12 * saturation_aragonite * k_aragonite / Ca
