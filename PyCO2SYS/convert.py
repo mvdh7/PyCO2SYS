@@ -90,24 +90,24 @@ def fCO2_to_CO2aq(fCO2, k_CO2):
     return fCO2 * k_CO2
 
 
-def celsius_to_kelvin(TempC):
+def celsius_to_kelvin(temperature):
     """Convert temperature from degC to K."""
-    return TempC + constants.Tzero
+    return temperature + constants.Tzero
 
 
-def kelvin_to_celsius(TempK):
+def kelvin_to_celsius(temperature_K):
     """Convert temperature from K to degC."""
-    return TempK - constants.Tzero
+    return temperature_K - constants.Tzero
 
 
-def decibar_to_bar(Pdbar):
+def decibar_to_bar(pressure):
     """Convert pressure from dbar to bar."""
-    return Pdbar / 10.0
+    return pressure / 10.0
 
 
-def bar_to_decibar(Pbar):
+def bar_to_decibar(pressure_bar):
     """Convert pressure from bar to dbar."""
-    return Pbar * 10.0
+    return pressure_bar * 10.0
 
 
 def pH_free_to_tot(total_sulfate, k_HSO4_free):
@@ -421,52 +421,6 @@ def pH_sws_to_tot_P0(TempK, totals, k_constants, WhoseKSO4, WhoseKF):
     return pH_sws_to_tot(totals, k_constants_P0)
 
 
-def get_pHfactor_from_SWS(TempK, Sal, totals, k_constants, pHScale, WhichKs):
-    """Determine pH scale conversion factors to go from SWS to input pHScale(s).
-    The raw K values (not pK) should be multiplied by these to make the conversion.
-    """
-    if "fH" not in k_constants:
-        k_constants["fH"] = pressured.fH(TempK, Sal, WhichKs)
-    pHfactor = np.full(np.shape(pHScale), np.nan)
-    pHfactor = np.where(
-        pHScale == 1, pH_sws_to_tot(totals, k_constants), pHfactor
-    )  # Total
-    pHfactor = np.where(pHScale == 2, 1.0, pHfactor)  # Seawater (SWS)
-    pHfactor = np.where(
-        pHScale == 3,
-        pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free),
-        pHfactor,
-    )  # Free
-    pHfactor = np.where(
-        pHScale == 4, pH_sws_to_nbs(totals, k_constants), pHfactor
-    )  # NBS
-    k_constants["pHfactor_from_SWS"] = pHfactor
-    return k_constants
-
-
-def get_pHfactor_to_Free(TempK, Sal, totals, k_constants, pHScale, WhichKs):
-    """Determine pH scale conversion factors to go from input pHScale(s) to Free.
-    The raw K values (not pK) should be multiplied by these to make the conversion.
-    """
-    if "fH" not in k_constants:
-        k_constants["fH"] = pressured.fH(TempK, Sal, WhichKs)
-    pHfactor = np.full(np.shape(pHScale), np.nan)
-    pHfactor = np.where(
-        pHScale == 1, pH_tot_to_free(totals, k_constants), pHfactor
-    )  # Total
-    pHfactor = np.where(
-        pHScale == 2,
-        pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free),
-        pHfactor,
-    )  # Seawater (SWS)
-    pHfactor = np.where(pHScale == 3, 1.0, pHfactor)  # Free
-    pHfactor = np.where(
-        pHScale == 4, pH_nbs_to_free(totals, k_constants), pHfactor
-    )  # NBS
-    k_constants["pHfactor_to_Free"] = pHfactor
-    return k_constants
-
-
 def options_old2new(KSO4CONSTANTS):
     """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
     if np.shape(KSO4CONSTANTS) == ():
@@ -507,33 +461,6 @@ def _flattenfirst(args, dtype):
         ],
         npts,
     )
-
-
-def _flattenafter(args, npts, dtype):
-    # Determine and check lengths of input vectors
-    arglengths = np.array([np.size(arg) for arg in args])
-    assert np.all(
-        np.isin(arglengths, [1, npts])
-    ), "Inputs must all be the same length as each other or of length 1."
-    # Make vectors of all inputs
-    return [
-        (
-            np.full(npts, arg, dtype=dtype)
-            if np.size(arg) == 1
-            else arg.ravel().astype(dtype)
-        )
-        for arg in args
-    ]
-
-
-def _flattentext(args, npts):
-    # Determine and check lengths of input vectors
-    arglengths = np.array([np.size(arg) for arg in args])
-    assert np.all(
-        np.isin(arglengths, [1, npts])
-    ), "Inputs must all be the same length as each other or of length 1."
-    # Make vectors of all inputs
-    return [np.full(npts, arg) if np.size(arg) == 1 else arg.ravel() for arg in args]
 
 
 def options_new2old(KSO4CONSTANT, BORON):
