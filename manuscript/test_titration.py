@@ -1,26 +1,25 @@
 import numpy as np
-import PyCO2SYS as pyco2
 
-
-# Tighten solver tolerance just to be on the safe side
-pyco2.solve.get.pH_tolerance = 1e-12
-
+from PyCO2SYS import CO2System
 
 # Initial sample conditions
-alkalinity = 2450
-dic = 2200
-kwargs = {
+values = {
+    "alkalinity": 2450,
+    "dic": 2200,
     "salinity": 35,
     "temperature": 25,
     "total_borate": 420,
     "total_fluoride": 70,
     "total_sulfate": 28240,
-    "k_borate": 1.78e-9,
-    "k_carbonic_1": 1e-6,
-    "k_carbonic_2": 8.2e-16 / 1e-6,
-    "k_fluoride": 1 / 4.08e2,
-    "k_bisulfate": 1 / 1.23e1,
-    "k_water": 4.32e-14,
+    "k_BOH3": 1.78e-9,
+    "k_H2CO3": 1e-6,
+    "k_HCO3": 8.2e-16 / 1e-6,
+    "k_HF_free": 1 / 4.08e2,
+    "k_HSO4_free": 1 / 1.23e1,
+    "k_H2O": 4.32e-14,
+    "rogue": 3,
+}
+opts = {
     "opt_pH_scale": 3,
 }
 sample_mass = 0.2  # kg
@@ -31,29 +30,33 @@ titrant_mass = np.arange(0, 2.51, 0.05) * 1e-3  # kg
 dilution_factor = sample_mass / (sample_mass + titrant_mass)
 
 # Dilute alkalinity etc. through the titration
-alkalinity = (
+values["alkalinity"] = (
     1e6
-    * (sample_mass * alkalinity * 1e-6 - titrant_molinity * titrant_mass)
+    * (sample_mass * values["alkalinity"] * 1e-6 - titrant_molinity * titrant_mass)
     / (sample_mass + titrant_mass)
 )
-dic *= dilution_factor
+values["dic"] *= dilution_factor
 for k in ["total_borate", "total_fluoride", "total_sulfate"]:
-    kwargs[k] *= dilution_factor
+    values[k] *= dilution_factor
 
 # Solve for pH, no phosphate
-results_pH = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)
-pH = results_pH["pH_free"]
+sys = CO2System(values=values, opts=opts)
+sys.solve("pH")
+pH = sys.values["pH"]
 
 # And again, with phosphate
-kwargs.update(
+values_phosphate = values.copy()
+values_phosphate.update(
     {
         "total_phosphate": 10 * dilution_factor,
-        "k_phosphoric_1": 1 / 5.68e1,
-        "k_phosphoric_2": 8e-7,
-        "k_phosphoric_3": 1.32e-15 / 8e-7,
+        "k_H3PO4": 1 / 5.68e1,
+        "k_H2PO4": 8e-7,
+        "k_HPO4": 1.32e-15 / 8e-7,
     }
 )
-pH_phosphate = pyco2.CO2SYS_nd(alkalinity, dic, 1, 2, **kwargs)["pH_free"]
+sys_phosphate = CO2System(values=values_phosphate, opts=opts)
+sys_phosphate.solve("pH")
+pH_phosphate = sys_phosphate.values["pH"]
 
 # Compare with D81's tables
 d81_pH = np.genfromtxt(
@@ -80,13 +83,10 @@ def test_D81_phosphate():
         | np.isclose(titrant_mass * 1e3, 1.25)
     )
     assert np.all(np.isclose(pH_diff_phosphate[~typos], 0, atol=1e-12))
-    print(titrant_mass[typos] * 1e3)
-    print(d81_pH_phosphate[typos])
-    print(pH_phosphate[typos])
+    # print(titrant_mass[typos] * 1e3)
+    # print(d81_pH_phosphate[typos])
+    # print(pH_phosphate[typos])
 
 
 # test_D81()
 # test_D81_phosphate()
-
-# Return to original tolerance
-pyco2.solve.get.pH_tolerance = 1e-8
