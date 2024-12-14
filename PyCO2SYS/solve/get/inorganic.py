@@ -2,9 +2,9 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-from jax import numpy as np, lax
-from ... import salts
-from .. import delta, initialise, residual, speciate
+from jax import numpy as np
+
+from .. import delta, initialise, speciate
 
 
 def alkalinity_from_dic_pH(
@@ -454,12 +454,12 @@ def pH_from_alkalinity_dic(
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialise.from_dic(alkalinity, dic, total_borate, k_H2CO3, k_HCO3, k_BOH3)
     pH_tolerance = 1e-8
-    delta_pH = 1.0 + pH_tolerance
-    while np.any(np.abs(delta_pH) >= pH_tolerance):
+    pH_delta = 1.0 + pH_tolerance
+    while np.any(np.abs(pH_delta) >= pH_tolerance):
         pH_done = (
-            np.abs(delta_pH) < pH_tolerance
+            np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
-        delta_pH = delta.pH_from_alkalinity_dic(
+        pH_delta = delta.pH_from_alkalinity_dic(
             pH,
             alkalinity,
             dic,
@@ -485,9 +485,9 @@ def pH_from_alkalinity_dic(
             k_HF_free,
         )  # the pH jump
         # To keep the jump from being too big:
-        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
-        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
-        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+        # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
+        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
+        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
     return pH
 
 
@@ -525,12 +525,12 @@ def pH_from_alkalinity_fCO2(
         alkalinity, fCO2, total_borate, k_CO2, k_H2CO3, k_HCO3, k_BOH3
     )
     pH_tolerance = 1e-8
-    delta_pH = 1.0 + pH_tolerance
-    while np.any(np.abs(delta_pH) >= pH_tolerance):
+    pH_delta = 1.0 + pH_tolerance
+    while np.any(np.abs(pH_delta) >= pH_tolerance):
         pH_done = (
-            np.abs(delta_pH) < pH_tolerance
+            np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
-        delta_pH = delta.pH_from_alkalinity_fCO2(
+        pH_delta = delta.pH_from_alkalinity_fCO2(
             pH,
             alkalinity,
             fCO2,
@@ -557,9 +557,9 @@ def pH_from_alkalinity_fCO2(
             k_HF_free,
         )  # the pH jump
         # To keep the jump from being too big:
-        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
-        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
-        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+        # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
+        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
+        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
     return pH
 
 
@@ -593,12 +593,12 @@ def pH_from_alkalinity_CO3(
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialise.from_CO3(alkalinity, CO3, total_borate, k_HCO3, k_BOH3)
     pH_tolerance = 1e-8
-    delta_pH = 1.0 + pH_tolerance
-    while np.any(np.abs(delta_pH) >= pH_tolerance):
+    pH_delta = 1.0 + pH_tolerance
+    while np.any(np.abs(pH_delta) >= pH_tolerance):
         pH_done = (
-            np.abs(delta_pH) < pH_tolerance
+            np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
-        delta_pH = delta.pH_from_alkalinity_CO3(
+        pH_delta = delta.pH_from_alkalinity_CO3(
             pH,
             alkalinity,
             CO3,
@@ -623,9 +623,9 @@ def pH_from_alkalinity_CO3(
             k_HF_free,
         )  # the pH jump
         # To keep the jump from being too big:
-        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
-        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
-        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+        # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
+        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
+        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
     return pH
 
 
@@ -659,12 +659,12 @@ def pH_from_alkalinity_HCO3(
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialise.from_HCO3(alkalinity, HCO3, total_borate, k_HCO3, k_BOH3)
     pH_tolerance = 1e-8
-    delta_pH = 1.0 + pH_tolerance
-    while np.any(np.abs(delta_pH) >= pH_tolerance):
+    pH_delta = 1.0 + pH_tolerance
+    while np.any(np.abs(pH_delta) >= pH_tolerance):
         pH_done = (
-            np.abs(delta_pH) < pH_tolerance
+            np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
-        delta_pH = delta.pH_from_alkalinity_HCO3(
+        pH_delta = delta.pH_from_alkalinity_HCO3(
             pH,
             alkalinity,
             HCO3,
@@ -689,9 +689,9 @@ def pH_from_alkalinity_HCO3(
             k_HF_free,
         )  # the pH jump
         # To keep the jump from being too big:
-        # This is the default PyCO2SYS way - jump by 1 instead if `deltapH` > 1
-        deltapH = np.where(np.abs(delta_pH) > 1.0, np.sign(delta_pH), delta_pH)
-        pH = np.where(pH_done, pH, pH + delta_pH)  # only update rows that need it
+        # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
+        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
+        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
     return pH
 
 
@@ -968,14 +968,14 @@ def fCO2_from_CO3_HCO3(CO3, HCO3, k_CO2, k_H2CO3, k_HCO3):
         Seawater pH on the scale indicated by opt_pH_scale.
     """
     K0, K1, K2 = k_CO2, k_H2CO3, k_HCO3
-    H = 1e-6 * HCO3**2 * K2 / (CO3 * K1 * K0)
-    return -np.log10(H)
+    fCO2 = HCO3**2 * K2 / (CO3 * K1 * K0)
+    return fCO2
 
 
-def fCO2_from_alkalinity_dic(alkalinity, dic, totals, k_constants):
-    """Calculate CO2 fugacity from total alkalinity and dissolved inorganic carbon."""
-    pH = pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants)
-    return fCO2_from_dic_pH(dic, pH, k_CO2, k_H2CO3, k_HCO3)
+# def fCO2_from_alkalinity_dic(alkalinity, dic, k_CO2, k_H2CO3, k_HCO3):
+#     """Calculate CO2 fugacity from total alkalinity and dissolved inorganic carbon."""
+#     pH = pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants)
+#     return fCO2_from_dic_pH(dic, pH, k_CO2, k_H2CO3, k_HCO3)
 
 
 def fCO2_from_alkalinity_pH(
@@ -1112,10 +1112,10 @@ def fCO2_from_pH_HCO3(pH, HCO3, k_CO2, k_H2CO3):
     return HCO3 * H / (K0 * K1)
 
 
-def carbonate_from_alkalinity_dic(alkalinity, dic, totals, k_constants):
-    """Calculate carbonate ion from total alkalinity and dissolved inorganic carbon."""
-    pH = pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants)
-    return CO3_from_dic_pH(dic, H, k_H2CO3, k_HCO3)
+# def carbonate_from_alkalinity_dic(alkalinity, dic, totals, k_constants):
+#     """Calculate carbonate ion from total alkalinity and dissolved inorganic carbon."""
+#     pH = pH_from_alkalinity_dic(alkalinity, dic, totals, k_constants)
+#     return CO3_from_dic_pH(dic, H, k_H2CO3, k_HCO3)
 
 
 def CO3_from_alkalinity_pH(
@@ -1211,7 +1211,7 @@ def CO3_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3):
         Carbonate ion content in µmol/kg-sw.
     """
     dic = dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
-    return CO3_from_dic_pH(dic, H, k_H2CO3, k_HCO3)
+    return CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
 
 
 def CO3_from_pH_HCO3(pH, HCO3, k_HCO3):
@@ -1279,26 +1279,26 @@ def HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3):
     return speciate.get_HCO3(dic, H, k_H2CO3, k_HCO3)
 
 
-def bicarbonate_from_alkalinity_pH(alkalinity, pH, totals, k_constants):
-    """Calculate carbonate ion from total alkalinity and pH."""
-    dic = dic_from_alkalinity_pH_speciated(
-        alkalinity,
-        pH,
-        H_free,
-        OH,
-        BOH4,
-        HPO4,
-        PO4,
-        H3PO4,
-        H3SiO4,
-        NH3,
-        HS,
-        HSO4,
-        HF,
-        k_H2CO3,
-        k_HCO3,
-    )
-    return HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
+# def bicarbonate_from_alkalinity_pH(alkalinity, pH, totals, k_constants):
+#     """Calculate carbonate ion from total alkalinity and pH."""
+#     dic = dic_from_alkalinity_pH_speciated(
+#         alkalinity,
+#         pH,
+#         H_free,
+#         OH,
+#         BOH4,
+#         HPO4,
+#         PO4,
+#         H3PO4,
+#         H3SiO4,
+#         NH3,
+#         HS,
+#         HSO4,
+#         HF,
+#         k_H2CO3,
+#         k_HCO3,
+#     )
+#     return HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
 
 
 def HCO3_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3):
