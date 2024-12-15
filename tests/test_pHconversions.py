@@ -87,5 +87,5 @@ def test_pH_conversions_sys():
         assert np.isclose(sys3.values[scale], sys4.values[scale], rtol=0, atol=1e-12)
 
 
-test_pH_conversions()
-test_pH_conversions_sys()
+# test_pH_conversions()
+# test_pH_conversions_sys()
