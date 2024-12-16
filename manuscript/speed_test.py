@@ -1,5 +1,8 @@
 from time import time
-import pandas as pd, numpy as np
+
+import numpy as np
+import pandas as pd
+
 import PyCO2SYS as pyco2
 
 gfile = "C:/Users/mphum/Downloads/GLODAPv2.2021_Merged_Master_File.csv"
