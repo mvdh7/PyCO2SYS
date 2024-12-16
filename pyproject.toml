@@ -10,6 +10,7 @@ description = "PyCO2SYS: marine carbonate system calculations in Python"
 readme = "README.md"
 dependencies = [
     "jax",
+    "jaxlib",
     "networkx",
     "matplotlib",
 ]
