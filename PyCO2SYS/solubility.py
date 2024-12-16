@@ -58,7 +58,6 @@ def k_aragonite_M83(temperature, salinity, pressure, gas_constant):
     return KAr
 
 
-@np.errstate(divide="ignore")
 def k_calcite_P0_I75(temperature, salinity):
     """Calcite solubility constant following ICHP73/I75 with no pressure correction.
     For use with GEOSECS constants.
