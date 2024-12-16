@@ -11,6 +11,7 @@ readme = "README.md"
 dependencies = [
     "jax",
     "networkx",
+    "matplotlib-base",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
