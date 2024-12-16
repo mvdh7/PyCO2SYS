@@ -24,7 +24,7 @@ def inverse(temperature, gas_constant, bh):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     return 100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
 
@@ -42,7 +42,7 @@ def expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     return np.exp(
         (1 / (temperature + constants.Tzero) - 1 / (temperature_out + constants.Tzero))
@@ -112,7 +112,7 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     bh = get_bh_H24(temperature, salinity, fCO2)
     return inverse(temperature, gas_constant, bh)
@@ -158,7 +158,7 @@ def ups_enthalpy_H24(temperature, gas_constant):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     return inverse(temperature, gas_constant, bh_enthalpy_H24)
 
@@ -196,7 +196,7 @@ def ups_TOG93_H24(temperature, gas_constant):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     return inverse(temperature, gas_constant, bh_TOG93_H24)
 
@@ -226,7 +226,7 @@ def ups_linear_TOG93():
     Returns
     -------
     float
-        υ in 1/ °C.
+        υ in %/ °C.
     """
     return bl_TOG93
 
@@ -268,7 +268,7 @@ def ups_quadratic_TOG93(temperature):
 
     Returns
     -------
-        υ in 1 / °C.
+        υ in % / °C.
     """
     return 2 * aq_TOG93 * temperature + bq_TOG93
 

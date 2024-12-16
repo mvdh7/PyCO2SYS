@@ -301,12 +301,22 @@ for k, fc in get_funcs_core.items():
             }
         )
 
-# TODO Add parameters that require a solved carbonate system
+# Add buffers and similar
 for k, fc in get_funcs_core.items():
     if k > 100:
         fc.update(
             {
                 "substrate_inhibitor_ratio": bio.substrate_inhibitor_ratio,
+                "gamma_dic": buffers.gamma_dic,
+                "gamma_alkalinity": buffers.gamma_alkalinity,
+                "beta_dic": buffers.beta_dic,
+                "beta_alkalinity": buffers.beta_alkalinity,
+                "omega_dic": buffers.omega_dic,
+                "omega_alkalinity": buffers.omega_alkalinity,
+                "Q_isocap": buffers.Q_isocap,
+                "Q_isocap_approx": buffers.Q_isocap_approx,
+                "psi": buffers.psi,
+                "revelle_factor": buffers.revelle_factor,
                 "d_lnOmega__d_CO3": buffers.d_lnOmega__d_CO3,
                 "d_CO3__d_pH__alkalinity": buffers.d_CO3__d_pH__alkalinity,
                 "d_CO3__d_pH__dic": buffers.d_CO3__d_pH__dic,
@@ -314,19 +324,9 @@ for k, fc in get_funcs_core.items():
                 "d_alkalinity__d_pH__dic": buffers.d_alkalinity__d_pH__dic,
                 "d_lnCO2__d_pH__alkalinity": buffers.d_lnCO2__d_pH__alkalinity,
                 "d_lnCO2__d_pH__dic": buffers.d_lnCO2__d_pH__dic,
-                "gamma_dic": buffers.gamma_dic,
-                "gamma_alkalinity": buffers.gamma_alkalinity,
-                "beta_dic": buffers.beta_dic,
-                "beta_alkalinity": buffers.beta_alkalinity,
-                "omega_dic": buffers.omega_dic,
-                "omega_alkalinity": buffers.omega_alkalinity,
                 "d_alkalinity__d_pH__fCO2": buffers.d_alkalinity__d_pH__fCO2,
                 "d_dic__d_pH__fCO2": buffers.d_dic__d_pH__fCO2,
-                "Q_isocap": buffers.Q_isocap,
-                "Q_isocap_approx": buffers.Q_isocap_approx,
-                "psi": buffers.psi,
                 "d_fCO2__d_pH__alkalinity": buffers.d_fCO2__d_pH__alkalinity,
-                "revelle_factor": buffers.revelle_factor,
             }
         )
 
