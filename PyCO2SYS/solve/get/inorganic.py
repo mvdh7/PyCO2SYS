@@ -2,6 +2,8 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
+import warnings
+
 from jax import numpy as np
 
 from .. import delta, initialise, speciate
@@ -165,8 +167,10 @@ def dic_from_alkalinity_pH_speciated(
     )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
-        print("Some input pH values are impossibly high given the input alkalinity;")
-        print("returning np.nan rather than negative DIC values.")
+        warnings.warn(
+            "Some input pH values are impossibly high given the input alkalinity;"
+            + " returning np.nan rather than negative DIC values."
+        )
     alkalinity_carbonate = np.where(F, np.nan, alkalinity - alkalinity_with_zero_dic)
     K1, K2 = k_H2CO3, k_HCO3
     H = 10.0**-pH
@@ -669,8 +673,10 @@ def pH_from_dic_fCO2(dic, fCO2, k_CO2, k_H2CO3, k_HCO3):
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     F = (RR >= 1) | (Discr <= 0)
     if np.any(F):
-        print("Some input fCO2 values are impossibly high given the input DIC;")
-        print("returning np.nan.")
+        warnings.warn(
+            "Some input fCO2 values are impossibly high given the input DIC;"
+            + " returning np.nan."
+        )
     H = np.where(F, np.nan, 0.5 * (K1 * RR + np.sqrt(Discr)) / (1 - RR))
     pH = -np.log10(H)
     return pH
@@ -733,8 +739,10 @@ def pH_from_dic_HCO3_hi(dic, HCO3, k_H2CO3, k_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (bicarbonate >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        print("Some input bicarbonate values are impossibly high given the input DIC;")
-        print("returning np.nan.")
+        warnings.warn(
+            "Some input bicarbonate values are impossibly high given the input DIC;"
+            + " returning np.nan."
+        )
     H = np.where(F, np.nan, (-b - np.sqrt(bsq_4ac)) / (2 * a))
     return -np.log10(H)
 
@@ -768,8 +776,10 @@ def pH_from_dic_HCO3_lo(dic, HCO3, k_H2CO3, k_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (bicarbonate >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        print("Some input bicarbonate values are impossibly high given the input DIC;")
-        print("returning np.nan.")
+        warnings.warn(
+            "Some input bicarbonate values are impossibly high given the input DIC;"
+            + " returning np.nan."
+        )
     H = np.where(F, np.nan, (-b + np.sqrt(bsq_4ac)) / (2 * a))
     return -np.log10(H)
 
