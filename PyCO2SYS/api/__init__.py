@@ -117,7 +117,7 @@ def CO2SYS_wrap(
     import inspect
 
     import pandas as pd
-    from autograd import numpy as np
+    from jax import numpy as np
 
     try:
         import xarray as xr

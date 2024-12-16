@@ -2,7 +2,7 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate saturation states of soluble solids."""
 
-from autograd import numpy as np
+from jax import numpy as np
 
 from . import convert
 

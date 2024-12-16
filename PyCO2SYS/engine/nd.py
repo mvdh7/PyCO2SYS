@@ -4,7 +4,7 @@
 
 import itertools
 
-from autograd import numpy as np
+from jax import numpy as np
 
 from .. import convert, equilibria, salts, solve, uncertainty, upsilon
 

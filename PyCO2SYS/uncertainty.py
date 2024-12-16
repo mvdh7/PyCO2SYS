@@ -4,7 +4,7 @@
 
 import copy
 
-from autograd import numpy as np
+from jax import numpy as np
 
 from . import engine
 

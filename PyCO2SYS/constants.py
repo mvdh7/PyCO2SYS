@@ -2,7 +2,7 @@
 # Copyright (C) 2020--2024  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define universal constants."""
 
-from autograd import numpy as np
+from jax import numpy as np
 
 RGasConstant_DOEv2 = 83.1451  # ml bar-1 K-1 mol-1, DOEv2 (always used by default)
 RGasConstant_DOEv3 = 83.14472  # ml bar-1 K-1 mol-1, DOEv3 (never used in PyCO2SYS)
