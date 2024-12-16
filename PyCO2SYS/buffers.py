@@ -343,69 +343,27 @@ def d_CO3__d_pH__dic(dic, pH, k_H2CO3, k_HCO3):
 
 
 def gamma_dic(d_dic__d_pH__alkalinity, d_lnCO2__d_pH__alkalinity):
-    return d_dic__d_pH__alkalinity / d_lnCO2__d_pH__alkalinity
+    return 1e-6 * d_dic__d_pH__alkalinity / d_lnCO2__d_pH__alkalinity
 
 
 def gamma_alkalinity(d_alkalinity__d_pH__dic, d_lnCO2__d_pH__dic):
-    return d_alkalinity__d_pH__dic / d_lnCO2__d_pH__dic
+    return 1e-6 * d_alkalinity__d_pH__dic / d_lnCO2__d_pH__dic
 
 
 def beta_dic(d_dic__d_pH__alkalinity):
-    return d_dic__d_pH__alkalinity / ilog10e
+    return 1e-6 * d_dic__d_pH__alkalinity / ilog10e
 
 
 def beta_alkalinity(d_alkalinity__d_pH__dic):
-    return d_alkalinity__d_pH__dic / ilog10e
+    return 1e-6 * d_alkalinity__d_pH__dic / ilog10e
 
 
 def omega_dic(d_dic__d_pH__alkalinity, d_CO3__d_pH__alkalinity, d_lnOmega__d_CO3):
-    return d_dic__d_pH__alkalinity / (d_lnOmega__d_CO3 * d_CO3__d_pH__alkalinity)
+    return 1e-6 * d_dic__d_pH__alkalinity / (d_lnOmega__d_CO3 * d_CO3__d_pH__alkalinity)
 
 
 def omega_alkalinity(d_alkalinity__d_pH__dic, d_CO3__d_pH__dic, d_lnOmega__d_CO3):
-    return d_alkalinity__d_pH__dic / (d_lnOmega__d_CO3 * d_CO3__d_pH__dic)
-
-
-def all_ESM10(TA, TC, PH, CARB, Sal, TempK, Pbar, totals, Ks, WhichKs):
-    """Get all ESM10 buffer factors with automatic differentiation.
-
-    This is more efficient than calculating each one separately because the number of
-    automatic differentiation steps is minimised.
-    """
-    # Get the pH differentials
-    dTC_dPH__TA = egrad(lambda PH: solve.get.TCfromTApH(TA, PH, totals, Ks))(PH)
-    dTA_dPH__TC = egrad(lambda PH: solve.get.TAfromTCpH(TC, PH, totals, Ks))(PH)
-    # gammaTC is (d[ln(CO2)]/d[TC])^-1 with constant TA, i.e. γ_DIC of ESM10
-    dlnCO2_dPH__TA = egrad(
-        lambda PH: np.log(Ks["K0"] * solve.get.fCO2fromTApH(TA, PH, totals, Ks))
-    )(PH)
-    gammaTC = dTC_dPH__TA / dlnCO2_dPH__TA
-    # gammaTA is (d[ln(CO2)]/d[TA])^-1 with constant TC, i.e. γ_Alk of ESM10
-    dlnCO2_dPH__TC = egrad(
-        lambda PH: np.log(Ks["K0"] * solve.get.fCO2fromTCpH(TC, PH, totals, Ks))
-    )(PH)
-    gammaTA = dTA_dPH__TC / dlnCO2_dPH__TC
-    # betaTC is (d[ln(H)]/d[TC])^-1 with constant TA, i.e. β_DIC of ESM10
-    betaTC = dTC_dPH__TA / ilog10e
-    # betaTA is (d[ln(H)]/d[TA])^-1 with constant TC, i.e. β_Alk of ESM10
-    betaTA = dTA_dPH__TC / ilog10e
-    # Saturation state differential w.r.t. carbonate ion is used for both TC and TA
-    # buffers.  Doesn't matter whether we use aragonite or calcite because of the log.
-    dlnOmegaAr_dCARB = d_lnOmega__d_CO3(CARB, totals, Ks)
-    # omegaTC is (d[ln(OmegaAr)]/d[TC] with constant TA, i.e. ω_DIC of ESM10
-    dCARB_dPH__TA = egrad(lambda PH: solve.get.CarbfromTApH(TA, PH, totals, Ks))(PH)
-    omegaTC = dTC_dPH__TA / (dlnOmegaAr_dCARB * dCARB_dPH__TA)
-    # omegaTA is (d[ln(OmegaAr)]/d[TA] with constant TC, i.e. ω_Alk of ESM10
-    dCARB_dPH__TC = egrad(lambda PH: solve.get.CarbfromTCpH(TC, PH, totals, Ks))(PH)
-    omegaTA = dTA_dPH__TC / (dlnOmegaAr_dCARB * dCARB_dPH__TC)
-    return {
-        "gammaTC": gammaTC,
-        "betaTC": betaTC,
-        "omegaTC": omegaTC,
-        "gammaTA": gammaTA,
-        "betaTA": betaTA,
-        "omegaTA": omegaTA,
-    }
+    return 1e-6 * d_alkalinity__d_pH__dic / (d_lnOmega__d_CO3 * d_CO3__d_pH__dic)
 
 
 def d_alkalinity__d_pH__fCO2(
