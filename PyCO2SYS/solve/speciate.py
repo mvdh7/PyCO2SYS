@@ -3,6 +3,7 @@
 """Calculate chemical speciation."""
 
 from jax import numpy as np
+
 from . import get
 
 
@@ -284,7 +285,8 @@ def get_HSO4(total_sulfate, H_free, k_HSO4_free):
     float
         [HSO₄⁻] in µmol/kg-sw.
     """
-    return 1e-6 * total_sulfate * H_free / ((1e-6 * H_free) + k_HSO4_free)
+    H_free_molkg = H_free * 1e-6
+    return total_sulfate * H_free_molkg / (H_free_molkg + k_HSO4_free)
 
 
 def get_SO4(total_sulfate, H_free, k_HSO4_free):
@@ -304,7 +306,8 @@ def get_SO4(total_sulfate, H_free, k_HSO4_free):
     float
         [SO₄²⁻] in µmol/kg-sw.
     """
-    return 1e-6 * total_sulfate * k_HSO4_free / ((1e-6 * H_free) + k_HSO4_free)
+    H_free_molkg = H_free * 1e-6
+    return total_sulfate * k_HSO4_free / (H_free_molkg + k_HSO4_free)
 
 
 def get_HF(total_fluoride, H_free, k_HF_free):
@@ -324,7 +327,8 @@ def get_HF(total_fluoride, H_free, k_HF_free):
     float
         [HF] in µmol/kg-sw.
     """
-    return 1e-6 * total_fluoride * H_free / ((1e-6 * H_free) + k_HF_free)
+    H_free_molkg = H_free * 1e-6
+    return total_fluoride * H_free_molkg / (H_free_molkg + k_HF_free)
 
 
 def get_F(total_fluoride, H_free, k_HF_free):
@@ -344,7 +348,8 @@ def get_F(total_fluoride, H_free, k_HF_free):
     float
         [F⁻] in µmol/kg-sw.
     """
-    return 1e-6 * total_fluoride * k_HF_free / ((1e-6 * H_free) + k_HF_free)
+    H_free_molkg = H_free * 1e-6
+    return total_fluoride * k_HF_free / (H_free_molkg + k_HF_free)
 
 
 def get_NH3(total_ammonia, H, k_NH3):
@@ -481,98 +486,3 @@ def sum_alkalinity(
         - HSO4
         - HF
     )
-
-
-def inorganic(dic, pH, totals, k_constants):
-    """Calculate the full inorganic chemical speciation of seawater given DIC and pH.
-    Based on CalculateAlkParts by Ernie Lewis.
-    """
-    h_scale = 10.0**-pH  # on the pH scale declared by the user
-    sw = {}
-    # Carbonate
-    sw["HCO3"] = (
-        get.inorganic._bicarbonate_from_dic_H(dic, h_scale, totals, k_constants) * 1e-6
-    )
-    sw["CO3"] = (
-        get.inorganic._carbonate_from_dic_H(dic, h_scale, totals, k_constants) * 1e-6
-    )
-    sw["CO2"] = get.inorganic._CO2_from_dic_H(dic, h_scale, totals, k_constants) * 1e-6
-    # Borate
-    sw["BOH4"] = sw["alk_borate"] = (
-        totals["borate"] * k_constants["borate"] / (k_constants["borate"] + h_scale)
-    )
-    sw["BOH3"] = totals["borate"] * h_scale / (k_constants["borate"] + h_scale)
-    # Water
-    sw["OH"] = k_constants["water"] / h_scale
-    sw["Hfree"] = h_scale * k_constants["pH_factor_to_Free"]
-    # Phosphate
-    sw.update(phosphoric(h_scale, totals, k_constants))
-    sw["alk_phosphate"] = sw["HPO4"] + 2 * sw["PO4"] - sw["H3PO4"]  # Dickson
-    # sw["alk_phosphate"] = sw["H2PO4"] + 2 * sw["HPO4"] + 3 * sw["PO4"]  # charge-balance
-    # Silicate
-    sw["H3SiO4"] = sw["alk_silicate"] = (
-        totals["silicate"]
-        * k_constants["silicate"]
-        / (k_constants["silicate"] + h_scale)
-    )
-    sw["H4SiO4"] = totals["silicate"] * h_scale / (k_constants["silicate"] + h_scale)
-    # Ammonium
-    sw["NH3"] = sw["alk_ammonia"] = (
-        totals["ammonia"] * k_constants["ammonia"] / (k_constants["ammonia"] + h_scale)
-    )
-    sw["NH4"] = totals["ammonia"] * h_scale / (k_constants["ammonia"] + h_scale)
-    # Sulfide
-    sw["HS"] = sw["alk_sulfide"] = (
-        totals["sulfide"] * k_constants["sulfide"] / (k_constants["sulfide"] + h_scale)
-    )
-    sw["H2S"] = totals["sulfide"] * h_scale / (k_constants["sulfide"] + h_scale)
-    # KSO4 and KF are always on the Free scale, so:
-    # Sulfate
-    sw["HSO4"] = (
-        totals["sulfate"] * sw["Hfree"] / (sw["Hfree"] + k_constants["bisulfate"])
-    )
-    sw["SO4"] = (
-        totals["sulfate"]
-        * k_constants["bisulfate"]
-        / (sw["Hfree"] + k_constants["bisulfate"])
-    )
-    # Fluoride
-    sw["HF"] = (
-        totals["fluoride"] * sw["Hfree"] / (sw["Hfree"] + k_constants["fluoride"])
-    )
-    sw["F"] = (
-        totals["fluoride"]
-        * k_constants["fluoride"]
-        / (sw["Hfree"] + k_constants["fluoride"])
-    )
-    # Extra alkalinity components (added in v1.6.0)
-    sw["alpha"] = (
-        totals["alpha"] * k_constants["alpha"] / (k_constants["alpha"] + h_scale)
-    )
-    sw["alphaH"] = totals["alpha"] * h_scale / (k_constants["alpha"] + h_scale)
-    sw["beta"] = totals["beta"] * k_constants["beta"] / (k_constants["beta"] + h_scale)
-    sw["betaH"] = totals["beta"] * h_scale / (k_constants["beta"] + h_scale)
-    zlp = 4.5  # pK of 'zero level of protons' [WZK07]
-    sw["alk_alpha"] = np.where(
-        -np.log10(k_constants["alpha"]) <= zlp, -sw["alphaH"], sw["alpha"]
-    )
-    sw["alk_beta"] = np.where(
-        -np.log10(k_constants["beta"]) <= zlp, -sw["betaH"], sw["beta"]
-    )
-    # Total alkalinity
-    sw["alkalinity"] = (
-        sw["HCO3"]
-        + 2 * sw["CO3"]
-        + sw["alk_borate"]
-        + sw["OH"]
-        + sw["alk_phosphate"]
-        + sw["alk_silicate"]
-        + sw["alk_ammonia"]
-        + sw["alk_sulfide"]
-        - sw["Hfree"]
-        - sw["HSO4"]
-        - sw["HF"]
-        + sw["alk_alpha"]
-        + sw["alk_beta"]
-    )
-    return sw
