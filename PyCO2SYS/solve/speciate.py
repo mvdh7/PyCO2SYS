@@ -2,10 +2,6 @@
 # Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate chemical speciation."""
 
-from jax import numpy as np
-
-from . import get
-
 
 def get_HCO3(dic, H, k_H2CO3, k_HCO3):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+].
