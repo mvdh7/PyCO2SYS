@@ -12,8 +12,6 @@ dependencies = [
     "jax",
     "networkx",
     "matplotlib",
-    "graphviz",
-    "pygraphviz",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
