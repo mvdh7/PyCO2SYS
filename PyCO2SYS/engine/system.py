@@ -4,7 +4,6 @@ import itertools
 import warnings
 
 import networkx as nx
-import numpy as onp
 from jax import numpy as np
 from matplotlib import pyplot as plt
 
