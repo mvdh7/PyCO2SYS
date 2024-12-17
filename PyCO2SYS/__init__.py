@@ -13,32 +13,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""Solve the marine carbonate system and calculate related seawater properties."""
+"""
+PyCO2SYS
+========
+Marine carbonate system calculations in Python.
+"""
 
-from . import (
-    bio,
-    buffers,
-    constants,
-    convert,
-    engine,
-    equilibria,
-    gas,
-    meta,
-    salts,
-    solubility,
-    solve,
-    # uncertainty,
-    upsilon,
-)
-
-# Aliases for top-level access
-from .engine import CO2SYS, system
-
-# from .engine.nd import CO2SYS as sys
-from .engine.system import CO2System
+from . import meta
+from .engine import CO2System
 from .meta import hello  # because history
 
+# from .uncertainty import all_OEDG18 as uncertainty_OEDG18
+# from .engine.nd import CO2SYS as sys
+__all__ = ["CO2System", "hello"]
 __author__ = meta.authors
 __version__ = meta.version
-# from .solve.get import speciation
-# from .uncertainty import all_OEDG18 as uncertainty_OEDG18

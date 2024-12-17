@@ -6,7 +6,7 @@ import warnings
 import networkx as nx
 from jax import numpy as np
 
-from .. import (
+from . import (
     bio,
     buffers,
     constants,
@@ -127,116 +127,116 @@ for i in [0, 3, 4, 5, 6, 8, 9, 10, 11]:
     get_funcs_core[i] = {}
 # alkalinity and DIC
 get_funcs_core[102] = {
-    "pH": solve.get.inorganic.pH_from_alkalinity_dic,
-    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
-    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+    "pH": solve.inorganic.pH_from_alkalinity_dic,
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
 }
 # alkalinity and pH
 get_funcs_core[103] = {
-    "dic": solve.get.inorganic.dic_from_alkalinity_pH_speciated,
-    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
-    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+    "dic": solve.inorganic.dic_from_alkalinity_pH_speciated,
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
 }
 # alkalinity and pCO2, fCO2, CO2, xCO2
 for i in [104, 105, 108, 109]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_alkalinity_fCO2,
-        "dic": solve.get.inorganic.dic_from_pH_fCO2,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+        "pH": solve.inorganic.pH_from_alkalinity_fCO2,
+        "dic": solve.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
     }
 # alkalinity and CO3, omega
 for i in [106, 110, 111]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_alkalinity_CO3,
-        "dic": solve.get.inorganic.dic_from_pH_CO3,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+        "pH": solve.inorganic.pH_from_alkalinity_CO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
     }
 # alkalinity and HCO3
 get_funcs_core[107] = {
-    "pH": solve.get.inorganic.pH_from_alkalinity_HCO3,
-    "dic": solve.get.inorganic.dic_from_pH_HCO3,
-    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
+    "pH": solve.inorganic.pH_from_alkalinity_HCO3,
+    "dic": solve.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
 }
 # DIC and pH
 get_funcs_core[203] = {
-    "fCO2": solve.get.inorganic.fCO2_from_dic_pH,
-    "CO3": solve.get.inorganic.CO3_from_dic_pH,
-    "HCO3": solve.get.inorganic.HCO3_from_dic_pH,
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
     "alkalinity": solve.speciate.sum_alkalinity,
 }
 # DIC and pCO2, fCO2, CO2, xCO2
 for i in [204, 205, 208, 209]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_dic_fCO2,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+        "pH": solve.inorganic.pH_from_dic_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # DIC and CO3, omega
 for i in [206, 210, 211]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_dic_CO3,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+        "pH": solve.inorganic.pH_from_dic_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # DIC and HCO3
 get_funcs_core[207] = {
     # pH is taken care of by opt_HCO3_root
-    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
     "alkalinity": solve.speciate.sum_alkalinity,
 }
 # pH and pCO2, fCO2, CO2, xCO2
 for i in [304, 305, 308, 309]:
     get_funcs_core[i] = {
-        "dic": solve.get.inorganic.dic_from_pH_fCO2,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_fCO2,
-        "CO3": solve.get.inorganic.CO3_from_dic_pH,
+        "dic": solve.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # pH and CO3, omega
 for i in [306, 310, 311]:
     get_funcs_core[i] = {
-        "dic": solve.get.inorganic.dic_from_pH_CO3,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
-        "fCO2": solve.get.inorganic.fCO2_from_pH_CO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # pH and HCO3
 get_funcs_core[307] = {
-    "dic": solve.get.inorganic.dic_from_pH_HCO3,
-    "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
-    "fCO2": solve.get.inorganic.fCO2_from_pH_HCO3,
+    "dic": solve.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
     "alkalinity": solve.speciate.sum_alkalinity,
 }
 # CO3, omega and pCO2, fCO2, CO2, xCO2
 for i in [406, 506, 608, 609, 410, 510, 810, 910, 411, 511, 811, 911]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_fCO2_CO3,
-        "dic": solve.get.inorganic.dic_from_pH_CO3,
-        "HCO3": solve.get.inorganic.HCO3_from_pH_CO3,
+        "pH": solve.inorganic.pH_from_fCO2_CO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # HCO3 and pCO2, fCO2, CO2, xCO2
 for i in [407, 507, 708, 709]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_fCO2_HCO3,
-        "dic": solve.get.inorganic.dic_from_pH_HCO3,
-        "CO3": solve.get.inorganic.CO3_from_pH_HCO3,
+        "pH": solve.inorganic.pH_from_fCO2_HCO3,
+        "dic": solve.inorganic.dic_from_pH_HCO3,
+        "CO3": solve.inorganic.CO3_from_pH_HCO3,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 # CO3, omega and HCO3
 for i in [607, 710, 711]:
     get_funcs_core[i] = {
-        "pH": solve.get.inorganic.pH_from_CO3_HCO3,
-        "fCO2": solve.get.inorganic.fCO2_from_CO3_HCO3,
-        "dic": solve.get.inorganic.dic_from_pH_CO3,
+        "pH": solve.inorganic.pH_from_CO3_HCO3,
+        "fCO2": solve.inorganic.fCO2_from_CO3_HCO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
         "alkalinity": solve.speciate.sum_alkalinity,
     }
 
@@ -591,8 +591,8 @@ get_funcs_opts["opt_fugacity_factor"] = {
     2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
 }
 get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
-    1: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_lo),
-    2: dict(pH=solve.get.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
+    1: dict(pH=solve.inorganic.pH_from_dic_HCO3_lo),
+    2: dict(pH=solve.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
 }
 get_funcs_opts["opt_k_calcite"] = {
     1: dict(k_calcite=solubility.k_calcite_M83),

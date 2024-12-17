@@ -6,7 +6,7 @@ import warnings
 
 from jax import numpy as np
 
-from .. import delta, initialise, speciate
+from . import delta, initialise, speciate
 
 
 def alkalinity_from_dic_pH(

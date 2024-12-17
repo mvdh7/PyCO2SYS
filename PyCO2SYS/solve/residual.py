@@ -2,11 +2,7 @@
 # Copyright (C) 2020--2023  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Evaluate residuals for alkalinity-pH solvers."""
 
-import jax
-from jax import numpy as np
-
-from .. import salts
-from . import get, speciate
+from . import inorganic, speciate
 
 
 def pH_from_alkalinity_dic(
@@ -88,12 +84,12 @@ def pH_from_alkalinity_fCO2(
     """Calculate residual alkalinity from pH and DIC for solver
     `inorganic.pH_from_alkalinity_fCO2()`.
     """
-    dic = get.inorganic.dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
+    dic = inorganic.dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
     H = 10.0**-pH
     H_free = speciate.get_H_free(H, opt_to_free)
     OH = speciate.get_OH(H, k_H2O)
-    HCO3 = get.inorganic.HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
-    CO3 = get.inorganic.CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
+    HCO3 = inorganic.HCO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
+    CO3 = inorganic.CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
     BOH4 = speciate.get_BOH4(total_borate, H, k_BOH3)
     HPO4 = speciate.get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
     PO4 = speciate.get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
@@ -141,7 +137,7 @@ def pH_from_alkalinity_CO3(
     H = 10.0**-pH
     H_free = speciate.get_H_free(H, opt_to_free)
     OH = speciate.get_OH(H, k_H2O)
-    HCO3 = get.inorganic.HCO3_from_pH_CO3(pH, CO3, k_HCO3)
+    HCO3 = inorganic.HCO3_from_pH_CO3(pH, CO3, k_HCO3)
     BOH4 = speciate.get_BOH4(total_borate, H, k_BOH3)
     HPO4 = speciate.get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
     PO4 = speciate.get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
@@ -189,7 +185,7 @@ def pH_from_alkalinity_HCO3(
     H = 10.0**-pH
     H_free = speciate.get_H_free(H, opt_to_free)
     OH = speciate.get_OH(H, k_H2O)
-    CO3 = get.inorganic.CO3_from_pH_HCO3(pH, HCO3, k_HCO3)
+    CO3 = inorganic.CO3_from_pH_HCO3(pH, HCO3, k_HCO3)
     BOH4 = speciate.get_BOH4(total_borate, H, k_BOH3)
     HPO4 = speciate.get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)
     PO4 = speciate.get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4)

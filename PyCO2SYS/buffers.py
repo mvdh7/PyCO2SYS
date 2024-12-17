@@ -64,7 +64,7 @@ def d_dic__d_pH__alkalinity(
         k_HF_free,
     )[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.dic_from_alkalinity_pH(
+        lambda pH: solve.inorganic.dic_from_alkalinity_pH(
             alkalinity,
             pH,
             opt_to_free,
@@ -140,7 +140,7 @@ def d_alkalinity__d_pH__dic(
         k_HF_free,
     )[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.alkalinity_from_dic_pH(
+        lambda pH: solve.inorganic.alkalinity_from_dic_pH(
             dic,
             pH,
             opt_to_free,
@@ -220,7 +220,7 @@ def d_lnCO2__d_pH__alkalinity(
     return egrad(
         lambda pH: np.log(
             k_CO2
-            * solve.get.inorganic.fCO2_from_alkalinity_pH(
+            * solve.inorganic.fCO2_from_alkalinity_pH(
                 alkalinity,
                 pH,
                 opt_to_free,
@@ -253,8 +253,7 @@ def d_lnCO2__d_pH__dic(dic, pH, k_CO2, k_H2CO3, k_HCO3):
     dic, pH = np.broadcast_arrays(dic, pH, k_CO2, k_H2CO3, k_HCO3)[:2]
     return egrad(
         lambda pH: np.log(
-            k_CO2
-            * solve.get.inorganic.fCO2_from_dic_pH(dic, pH, k_CO2, k_H2CO3, k_HCO3)
+            k_CO2 * solve.inorganic.fCO2_from_dic_pH(dic, pH, k_CO2, k_H2CO3, k_HCO3)
         )
     )(pH)
 
@@ -308,7 +307,7 @@ def d_CO3__d_pH__alkalinity(
         k_HF_free,
     )[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.CO3_from_alkalinity_pH(
+        lambda pH: solve.inorganic.CO3_from_alkalinity_pH(
             alkalinity,
             pH,
             opt_to_free,
@@ -337,9 +336,9 @@ def d_CO3__d_pH__alkalinity(
 
 def d_CO3__d_pH__dic(dic, pH, k_H2CO3, k_HCO3):
     dic, pH = np.broadcast_arrays(dic, pH, k_H2CO3, k_HCO3)[:2]
-    return egrad(
-        lambda pH: solve.get.inorganic.CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
-    )(pH)
+    return egrad(lambda pH: solve.inorganic.CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3))(
+        pH
+    )
 
 
 def gamma_dic(d_dic__d_pH__alkalinity, d_lnCO2__d_pH__alkalinity):
@@ -417,7 +416,7 @@ def d_alkalinity__d_pH__fCO2(
         k_HF_free,
     )[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.alkalinity_from_pH_fCO2(
+        lambda pH: solve.inorganic.alkalinity_from_pH_fCO2(
             pH,
             fCO2,
             opt_to_free,
@@ -448,9 +447,7 @@ def d_alkalinity__d_pH__fCO2(
 def d_dic__d_pH__fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3):
     pH, fCO2 = np.broadcast_arrays(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.dic_from_pH_fCO2(
-            pH, fCO2, k_CO2, k_H2CO3, k_HCO3
-        )
+        lambda pH: solve.inorganic.dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
     )(pH)
 
 
@@ -520,7 +517,7 @@ def d_fCO2__d_pH__alkalinity(
         k_HF_free,
     )[:2]
     return egrad(
-        lambda pH: solve.get.inorganic.fCO2_from_alkalinity_pH(
+        lambda pH: solve.inorganic.fCO2_from_alkalinity_pH(
             alkalinity,
             pH,
             opt_to_free,

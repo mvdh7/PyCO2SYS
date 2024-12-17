@@ -3,9 +3,9 @@
 """Evaluate residuals for alkalinity-pH solvers."""
 
 import jax
-from jax import numpy as np
-from . import get, residual
+
 from ..meta import egrad
+from . import residual
 
 
 @jax.jit
