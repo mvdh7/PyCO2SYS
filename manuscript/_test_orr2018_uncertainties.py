@@ -1,129 +1,140 @@
-import pandas as pd, numpy as np
-import PyCO2SYS as pyco2
+# %%
+import numpy as np
+import pandas as pd
 
-# Comparison with Orr et al. (2018) Table 2
-orr2 = pd.read_csv("manuscript/data/orr2018-table2.csv")
-orr = dict(
-    par1=2300,
-    par2=2000,
-    par1_type=1,
-    par2_type=2,
+import PyCO2SYS as pyco2
+from PyCO2SYS import CO2System
+
+renamer = {
+    "Hfree": "H_free",
+    "aqueous_CO2": "CO2",
+    "bicarbonate": "HCO3",
+    "carbonate": "CO3",
+}
+
+# Prepare for comparison with Orr et al. (2018) Table 2
+orr2 = pd.read_csv("manuscript/data/orr2018-table2.csv").rename(columns=renamer)
+grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
+grads_of.append("pH")
+grads_wrt = ["alkalinity", "dic", "temperature", "salinity"]
+values_orr2 = dict(
+    alkalinity=2300,
+    dic=2000,
     temperature=18,
     salinity=35,
     total_phosphate=0,
     total_silicate=0,
+)
+opts_orr2 = dict(
     opt_k_carbonic=10,
     opt_total_borate=2,
 )
-grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
-grads_of.append("pH_total")
-grads_wrt = ["par1", "par2", "temperature", "salinity"]
-results = pyco2.sys(**orr, grads_of=grads_of, grads_wrt=grads_wrt)
+sys2 = CO2System(values=values_orr2, opts=opts_orr2)
+sys2.get_grads(grads_of, grads_wrt)
+# Get grads w.r.t. H_free manually from pH grad, because that's how Orr did it and the
+# results are not consistent otherwise
+grads_Hfree_manual_orr2 = {}
 for wrt in grads_wrt:
-    results["d_Hfree__d_{}".format(wrt)] = (
-        -np.log(10)
-        * 10 ** -results["pH_total"]
-        * results["d_pH_total__d_{}".format(wrt)]
-        * 1e6
+    grads_Hfree_manual_orr2[wrt] = (
+        -np.log(10) * 10 ** -sys2.values["pH"] * sys2.grads["pH"][wrt] * 1e6
     )
+# Merge PyCO2SYS calculations with the Orr table
 for wrt in grads_wrt:
-    if wrt == "par1":
-        wrt_label = "alkalinity"
-    elif wrt == "par2":
-        wrt_label = "dic"
-    else:
-        wrt_label = wrt
-    nrow = pd.DataFrame({"wrt": [wrt_label], "program": "PyCO2SYS"})
+    nrow = pd.DataFrame({"wrt": [wrt], "program": "PyCO2SYS"})
     for of in grads_of:
-        nrow[of] = results["d_{}__d_{}".format(of, wrt)]
-        if of == "Hfree":
-            nrow[of] *= 1e3
+        nrow[of] = sys2.grads[of][wrt]
+        if of == "H_free":
+            nrow[of] = grads_Hfree_manual_orr2[wrt] * 1e3
     orr2 = pd.concat((orr2, nrow), ignore_index=True)
 orr2_groups = orr2.drop(columns="program")
 orr2_groups = orr2_groups.groupby("wrt").mean()
 orr2.set_index(["wrt", "program"], inplace=True)
 
-# Comparison with Orr et al. (2018) Table 3
-orr3 = pd.read_csv("manuscript/data/orr2018-table3.csv")
-orr = dict(
-    par1=2300,
-    par2=2000,
-    par1_type=1,
-    par2_type=2,
+# %% Prepare for comparison with Orr et al. (2018) Table 3
+orr3 = pd.read_csv("manuscript/data/orr2018-table3.csv").rename(columns=renamer)
+values_orr3 = dict(
+    alkalinity=2300,
+    dic=2000,
     temperature=18,
     salinity=35,
     total_phosphate=2,
     total_silicate=60,
+)
+opts_orr3 = dict(
     opt_k_carbonic=10,
     opt_total_borate=2,
 )
 grads_wrt = ["total_phosphate", "total_silicate"]
-results = pyco2.sys(**orr, grads_of=grads_of, grads_wrt=grads_wrt)
+sys3 = CO2System(values=values_orr3, opts=opts_orr3)
+sys3.get_grads(grads_of, grads_wrt)
+grads_Hfree_manual_orr3 = {}
 for wrt in grads_wrt:
-    results["d_Hfree__d_{}".format(wrt)] = (
-        -np.log(10)
-        * 10 ** -results["pH_total"]
-        * results["d_pH_total__d_{}".format(wrt)]
-        * 1e6
+    grads_Hfree_manual_orr3[wrt] = (
+        -np.log(10) * 10 ** -sys3.values["pH"] * sys3.grads["pH"][wrt] * 1e6
     )
 for wrt in grads_wrt:
     nrow = pd.DataFrame({"wrt": [wrt], "program": "PyCO2SYS"})
     for of in grads_of:
-        nrow[of] = results["d_{}__d_{}".format(of, wrt)]
-        if of == "Hfree":
-            nrow[of] *= 1e3
+        nrow[of] = sys3.grads[of][wrt]
+        if of == "H_free":
+            nrow[of] = grads_Hfree_manual_orr3[wrt] * 1e3
     orr3 = pd.concat((orr3, nrow), ignore_index=True)
 orr3_groups = orr3.drop(columns="program")
 orr3_groups = orr3_groups.groupby("wrt").mean()
 orr3.set_index(["wrt", "program"], inplace=True)
 
-# Comparison with Orr et al. (2018) Table 4
-orr4 = pd.read_csv("manuscript/data/orr2018-table4.csv")
-orr = dict(
-    par1=2300,
-    par2=2000,
-    par1_type=1,
-    par2_type=2,
+# %% Prepare for comparison with Orr et al. (2018) Table 4
+orr4 = pd.read_csv("manuscript/data/orr2018-table4.csv").rename(columns=renamer)
+values_orr4 = dict(
+    alkalinity=2300,
+    dic=2000,
     temperature=18,
     salinity=35,
     total_phosphate=2,
     total_silicate=60,
+)
+opts_orr4 = dict(
     opt_k_carbonic=10,
     opt_total_borate=1,  # note this is different from Tables 2 and 3!
 )
 uncertainty_into = [
     c for c in orr4.columns if c not in ["wrt", "program", "with_k_uncertainties"]
 ]
-uncertainty_into.append("pH_total")
-uncertainty_from = {"par1": 2, "par2": 2, "total_phosphate": 0.1, "total_silicate": 4}
-results = pyco2.sys(
-    **orr, uncertainty_into=uncertainty_into, uncertainty_from=uncertainty_from
-)
-results["u_Hfree"] = (
-    np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
+uncertainty_into.append("pH")
+uncertainty_from = {
+    "alkalinity": 2,
+    "dic": 2,
+    "total_phosphate": 0.1,
+    "total_silicate": 4,
+}
+sys4 = CO2System(values=values_orr4, opts=opts_orr4)
+sys4.propagate(uncertainty_into, uncertainty_from)
+
+u_Hfree_manual = (
+    np.log(10) * 10 ** -sys4.values["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
 )
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "no"}
 )
 for into in uncertainty_into:
-    nrow[into] = results["u_{}".format(into)]
-    if into == "Hfree":
-        nrow[into] *= 1e3
+    nrow[into] = sys4.uncertainty[into]["total"]
+    if into == "H_free":
+        nrow[into] = u_Hfree_manual * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
+# Now also include the pKs etc.
 uncertainty_from.update(pyco2.uncertainty_OEDG18)
-results = pyco2.sys(
-    **orr, uncertainty_into=uncertainty_into, uncertainty_from=uncertainty_from
-)
-results["u_Hfree"] = (
-    np.log(10) * 10 ** -results["pH_total"] * results["u_pH_total"] * 1e6
+sys4.propagate(uncertainty_into, uncertainty_from)
+
+u_Hfree_manual_pks = (
+    np.log(10) * 10 ** -sys4.values["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
 )
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
 )
 for into in uncertainty_into:
-    nrow[into] = results["u_{}".format(into)]
-    if into == "Hfree":
-        nrow[into] *= 1e3
+    nrow[into] = sys4.uncertainty[into]["total"]
+    if into == "H_free":
+        nrow[into] = u_Hfree_manual_pks * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
 orr4_groups = orr4.drop(columns=["wrt", "program"])
 orr4_groups = orr4_groups.groupby("with_k_uncertainties").mean()
@@ -168,4 +179,4 @@ def test_table4_OEDG18():
 
 # test_table2_OEDG18()
 # test_table3_OEDG18()
-# test_table4_OEDG18()
+# test_table4_OEDG18()  # TODO all working except for this one when pKs included

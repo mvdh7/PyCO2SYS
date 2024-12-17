@@ -890,9 +890,7 @@ class CO2System:
                     + " - it will not be used in any calculations."
                 )
         self.grads = {}
-
-    # get_grad = get_grad
-    # get_grads = get_grads
+        self.uncertainty = {}
 
     def _assemble(self, icase, values):
         # Deal with tricky special cases
@@ -1268,9 +1266,54 @@ class CO2System:
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
-        for var_of in vars_of:
-            for var_wrt in vars_wrt:
-                self.get_grad(var_of, var_wrt)
+        if isinstance(vars_of, str):
+            vars_of = [vars_of]
+        if isinstance(vars_wrt, str):
+            vars_wrt = [vars_wrt]
+        for var_of, var_wrt in itertools.product(vars_of, vars_wrt):
+            self.get_grad(var_of, var_wrt)
 
     def get_values_original(self):
         return {k: self.values[k] for k in self.nodes_original}
+
+    def propagate(self, uncertainty_in, uncertainty_from):
+        self.solve(uncertainty_in)
+        if isinstance(uncertainty_in, str):
+            uncertainty_in = [uncertainty_in]
+        for var_in in uncertainty_in:
+            if var_in not in self.uncertainty:
+                self.uncertainty[var_in] = {"total": np.zeros_like(self.values[var_in])}
+            u_total = self.uncertainty[var_in]["total"]
+            for var_from, u_from in uncertainty_from.items():
+                is_pk = var_from.startswith("pk_")
+                if is_pk:
+                    # If the uncertainty is given in terms of a pK value, we do the
+                    # calculations as if it were a K value, and convert at the end
+                    var_from = var_from[1:]
+                is_fractional = var_from.endswith("__f")
+                if is_fractional:
+                    # If the uncertainty is fractional, multiply through by this
+                    var_from = var_from[:-3]
+                    u_from = self.values[var_from] * u_from
+                if var_from in self.nodes_original:
+                    self.get_grad(var_in, var_from)
+                    u_part = np.abs(self.grads[var_in][var_from] * u_from)
+                else:
+                    # If the uncertainty is from some internally calculated value, then
+                    # we need to make a second CO2System where that value is one of the
+                    # known inputs, and get the grad from that
+                    self.solve(var_from)
+                    values = self.get_values_original()
+                    values.update({var_from: self.values[var_from]})
+                    sys = CO2System(values=values, opts=self.opts)
+                    sys.get_grad(var_in, var_from)
+                    u_part = np.abs(sys.grads[var_in][var_from] * u_from)
+                # Add the p back and convert value, if necessary
+                if is_pk:
+                    u_part = u_part * np.log(10) * np.abs(sys.values[var_from])
+                    var_from = "p" + var_from
+                if is_fractional:
+                    var_from += "__f"
+                self.uncertainty[var_in][var_from] = u_part
+                u_total = u_total + u_part**2
+            self.uncertainty[var_in]["total"] = np.sqrt(u_total)
