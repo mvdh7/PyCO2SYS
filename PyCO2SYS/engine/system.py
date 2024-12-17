@@ -5,7 +5,6 @@ import warnings
 
 import networkx as nx
 from jax import numpy as np
-from matplotlib import pyplot as plt
 
 from .. import (
     bio,
@@ -1087,6 +1086,8 @@ class CO2System:
         matplotlib axes
             The axes on which the graph is plotted.
         """
+        from matplotlib import pyplot as plt
+
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
         self_graph = self.graph.copy()
