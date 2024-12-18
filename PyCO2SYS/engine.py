@@ -891,6 +891,7 @@ class CO2System:
                 )
         self.grads = {}
         self.uncertainty = {}
+        self.requested = set()  # keep track of all parameters that have been requested
 
     def _assemble(self, icase, values):
         # Deal with tricky special cases
@@ -1008,33 +1009,157 @@ class CO2System:
         elif isinstance(parameters, str):
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
+        self.requested |= parameters
         # Solve the system
         results, self.values = self._get(parameters, self.values, save_steps, verbose)
         results = {k: v for k, v in results.items() if k in parameters}
         return results
 
-    def adjust(self, temperature=None, pressure=None, save_steps=False):
+    def _get_expUps(
+        self,
+        method_fCO2,
+        temperature,
+        bh_upsilon=None,
+        opt_which_fCO2_insitu=1,
+    ):
+        if method_fCO2 in [1, 2, 3, 4]:
+            self.solve("gas_constant")
+        match method_fCO2:
+            case 1:
+                fCO2 = self.solve("fCO2", save_steps=False)["fCO2"]
+                assert opt_which_fCO2_insitu in [1, 2]
+                if opt_which_fCO2_insitu == 2:
+                    # If the output conditions are the environmental ones, then we need
+                    # to provide an estimate of output fCO2 in order to use the bh
+                    # parameterisation; we get this using the method_fCO2=2 approach:
+                    fCO2 = fCO2 * upsilon.expUps_TOG93_H24(
+                        self.values["temperature"],
+                        temperature,
+                        self.values["gas_constant"],
+                    )
+                return upsilon.expUps_parameterised_H24(
+                    self.values["temperature"],
+                    temperature,
+                    self.values["salinity"],
+                    fCO2,
+                    self.values["gas_constant"],
+                    opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+                )
+            case 2:
+                return upsilon.expUps_TOG93_H24(
+                    self.values["temperature"],
+                    temperature,
+                    self.values["gas_constant"],
+                )
+            case 3:
+                return upsilon.expUps_enthalpy_H24(
+                    self.values["temperature"],
+                    temperature,
+                    self.values["gas_constant"],
+                )
+            case 4:
+                assert (
+                    bh_upsilon is not None
+                ), "A bh_upsilon value must be provided for method_fCO2=4."
+                return upsilon.expUps_Hoff_H24(
+                    self.values["temperature"],
+                    temperature,
+                    self.values["gas_constant"],
+                    bh_upsilon,
+                )
+            case 5:
+                return upsilon.expUps_linear_TOG93(
+                    self.values["temperature"],
+                    temperature,
+                )
+            case 6:
+                return upsilon.expUps_quadratic_TOG93(
+                    self.values["temperature"],
+                    temperature,
+                )
+
+    def adjust(
+        self,
+        temperature=None,
+        pressure=None,
+        save_steps=False,
+        method_fCO2=1,
+        bh_upsilon=None,
+        opt_which_fCO2_insitu=1,
+    ):
+        """Adjust the system to a different temperature and/or pressure.
+
+        Parameters
+        ----------
+        temperature : float, optional
+            Temperature to adjust to in °C, by default None, in which case temperature
+            is not adjusted.
+        pressure : float, optional
+            Hydrostatic pressure to adjust to in dbar, by default None, in which case
+            pressure is not adjusted
+        save_steps : bool, optional
+            Whether to save the intermediate calculation steps in the original
+            CO2System, by default False.
+        method_fCO2 : int, optional
+            If this is a single-parameter system, which method to use for the
+            adjustment, by default 1.  The options are
+                1 - parameterisation of H24
+                2 - constant bh fitted to TOG93 dataset by H24
+                3 - constant theoretical bh of H24
+                4 - user-specified bh with the equations of H24
+                5 - linear fit of TOG93
+                6 - quadratic fit of TOG93
+        bh_upsilon : float, optional
+            If this is a single-parameter system and method_fCO2=4, then the value of
+            bh_upsilon must be specified here.
+        opt_which_fCO2_insitu : int, optional
+            If this is a single-parameter system and method_fCO2=1, whether (1) the
+            input condition (starting) or (2) output condition (adjusted) temperature
+            should be used to calculate bh, by default 1 (i.e., input).
+
+        Returns
+        -------
+        CO2System
+            A new CO2System with all values adjusted to the requested temperature and/or
+            pressure.
+        """
         if self.icase > 100:
             # If we know (any) two MCS parameters, solve for alkalinity and DIC under
             # the "input" conditions
             core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
             values = {}
         elif self.icase in [4, 5, 8, 9]:
+            assert (
+                pressure is None
+            ), "Cannot adjust pressure for a single-parameter system!"
             # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
             # the "input" conditions
             core = self.solve(parameters="fCO2", save_steps=save_steps)
-            values = {"fCO2": core["fCO2"] * 2}
-            # TODO convert core["fCO2"] to new temperature above!
+            # Then, convert this to the value at the new temperature using the requested
+            # method
+            assert method_fCO2 in range(
+                1, 7
+            ), "`method_fCO2` must be an integer from 1-6."
+            expUps = self._get_expUps(
+                method_fCO2,
+                temperature,
+                bh_upsilon=bh_upsilon,
+                opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+            )
+            values = {"fCO2": core["fCO2"] * expUps}
         else:
-            print("Cannot adjust temperature!")
-            # TODO return a warning/error properly here
+            warnings.warn(
+                "Single-parameter temperature adjustments are possible only "
+                + "if the known parameter is one of pCO2, fCO2, xCO2 and CO2."
+            )
         # Copy all parameters that are T/P independent into new values dict
         for k in condition_independent:
             if k in self.nodes_original:
                 values[k] = self.values[k]
             elif k in core:
                 values[k] = core[k]
-        # Set temperature and/or pressure to adjusted value(s)
+        # Set temperature and/or pressure to adjusted value(s), unless they are None, in
+        # which case, don't adjust
         if temperature is not None:
             values["temperature"] = temperature
         else:
@@ -1043,100 +1168,9 @@ class CO2System:
             values["pressure"] = pressure
         else:
             values["pressure"] = self.values["pressure"]
-        return CO2System(values=values, opts=self.opts)
-
-    def plot_graph(
-        self,
-        ax=None,
-        exclude_nodes=None,
-        prog_graphviz="neato",
-        show_tsp=True,
-        show_unknown=True,
-        show_isolated=True,
-        skip_nodes=None,
-    ):
-        """Draw a graph showing the relationships between the different parameters.
-
-        Parameters
-        ----------
-        ax : matplotlib axes, optional
-            The axes, by default None, in which case new axes are generated.
-        conditions : str, optional
-            Whether to show the graph for the "input" or "output" condition
-            calculations, by default "input".
-        exclude_nodes : list of str, optional
-            List of nodes to exclude from the plot, by default None.
-        prog_graphviz : str, optional
-            Name of Graphviz layout program, by default "neato".
-        show_tsp : bool, optional
-            Whether to show temperature, salinity and pressure nodes, by default False.
-        show_unknown : bool, optional
-            Whether to show nodes for parameters that have not (yet) been calculated,
-            by default True.
-        show_isolated : bool, optional
-            Whether to show nodes for parameters that are not connected to the graph,
-            by default True.
-        skip_nodes
-
-
-        Returns
-        -------
-        matplotlib axes
-            The axes on which the graph is plotted.
-        """
-        from matplotlib import pyplot as plt
-
-        if ax is None:
-            ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        self_graph = self.graph.copy()
-        node_states = nx.get_node_attributes(self_graph, "state", default=0)
-        edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
-        if not show_tsp:
-            self_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
-        if not show_unknown:
-            self_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
-        if not show_isolated:
-            self_graph.remove_nodes_from(
-                [n for n, d in dict(self_graph.degree).items() if d == 0]
-            )
-        if exclude_nodes:
-            if isinstance(exclude_nodes, str):
-                exclude_nodes = [exclude_nodes]
-            self_graph.remove_nodes_from(exclude_nodes)
-        if skip_nodes:
-            if isinstance(skip_nodes, str):
-                skip_nodes = [skip_nodes]
-            for n in skip_nodes:
-                for p, s in itertools.product(
-                    self_graph.predecessors(n), self_graph.successors(n)
-                ):
-                    self_graph.add_edge(p, s)
-                    if edge_states[(p, n)] + edge_states[(n, s)] == 4:
-                        new_state = {(p, s): 2}
-                    else:
-                        new_state = {(p, s): 0}
-                    nx.set_edge_attributes(self_graph, new_state, name="state")
-                    edge_states.update(new_state)
-                self_graph.remove_node(n)
-        state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}
-        node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_graph)]
-        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_graph)]
-        pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
-        node_labels = {k: k for k in self_graph.nodes}
-        for k, v in set_node_labels.items():
-            if k in node_labels:
-                node_labels[k] = v
-        nx.draw_networkx(
-            self_graph,
-            ax=ax,
-            clip_on=False,
-            with_labels=True,
-            node_color=node_colour,
-            edge_color=edge_colour,
-            pos=pos,
-            labels=node_labels,
-        )
-        return ax
+        sys = CO2System(values=values, opts=self.opts)
+        sys.solve(parameters=self.values)
+        return sys
 
     def get_func_of(self, var_of):
         """Create a function to compute ``var_of`` directly from an input set of values.
@@ -1319,3 +1353,96 @@ class CO2System:
                 self.uncertainty[var_in][var_from] = u_part
                 u_total = u_total + u_part**2
             self.uncertainty[var_in]["total"] = np.sqrt(u_total)
+
+    def plot_graph(
+        self,
+        ax=None,
+        exclude_nodes=None,
+        prog_graphviz="neato",
+        show_tsp=True,
+        show_unknown=True,
+        show_isolated=True,
+        skip_nodes=None,
+    ):
+        """Draw a graph showing the relationships between the different parameters.
+
+        Parameters
+        ----------
+        ax : matplotlib axes, optional
+            The axes, by default None, in which case new axes are generated.
+        conditions : str, optional
+            Whether to show the graph for the "input" or "output" condition
+            calculations, by default "input".
+        exclude_nodes : list of str, optional
+            List of nodes to exclude from the plot, by default None.
+        prog_graphviz : str, optional
+            Name of Graphviz layout program, by default "neato".
+        show_tsp : bool, optional
+            Whether to show temperature, salinity and pressure nodes, by default False.
+        show_unknown : bool, optional
+            Whether to show nodes for parameters that have not (yet) been calculated,
+            by default True.
+        show_isolated : bool, optional
+            Whether to show nodes for parameters that are not connected to the graph,
+            by default True.
+        skip_nodes
+
+
+        Returns
+        -------
+        matplotlib axes
+            The axes on which the graph is plotted.
+        """
+        from matplotlib import pyplot as plt
+
+        if ax is None:
+            ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
+        self_graph = self.graph.copy()
+        node_states = nx.get_node_attributes(self_graph, "state", default=0)
+        edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
+        if not show_tsp:
+            self_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
+        if not show_unknown:
+            self_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
+        if not show_isolated:
+            self_graph.remove_nodes_from(
+                [n for n, d in dict(self_graph.degree).items() if d == 0]
+            )
+        if exclude_nodes:
+            if isinstance(exclude_nodes, str):
+                exclude_nodes = [exclude_nodes]
+            self_graph.remove_nodes_from(exclude_nodes)
+        if skip_nodes:
+            if isinstance(skip_nodes, str):
+                skip_nodes = [skip_nodes]
+            for n in skip_nodes:
+                for p, s in itertools.product(
+                    self_graph.predecessors(n), self_graph.successors(n)
+                ):
+                    self_graph.add_edge(p, s)
+                    if edge_states[(p, n)] + edge_states[(n, s)] == 4:
+                        new_state = {(p, s): 2}
+                    else:
+                        new_state = {(p, s): 0}
+                    nx.set_edge_attributes(self_graph, new_state, name="state")
+                    edge_states.update(new_state)
+                self_graph.remove_node(n)
+        state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}
+        node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_graph)]
+        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_graph)]
+        pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
+        node_labels = {k: k for k in self_graph.nodes}
+        for k, v in set_node_labels.items():
+            if k in node_labels:
+                node_labels[k] = v
+        nx.draw_networkx(
+            self_graph,
+            ax=ax,
+            clip_on=False,
+            with_labels=True,
+            node_color=node_colour,
+            edge_color=edge_colour,
+            pos=pos,
+            labels=node_labels,
+        )
+        return ax
