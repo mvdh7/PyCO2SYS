@@ -7,7 +7,7 @@
 [![Docs](https://readthedocs.org/projects/pyco2sys/badge/?version=latest&style=flat)](https://mvdh.xyz/PyCO2SYS/)
 [![Coverage](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.svg)](https://github.com/mvdh7/PyCO2SYS/blob/main/.misc/coverage.txt)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 <!-- TOC -->
 
