@@ -17,7 +17,6 @@ values = {
     "k_HF_free": 1 / 4.08e2,
     "k_HSO4_free": 1 / 1.23e1,
     "k_H2O": 4.32e-14,
-    "rogue": 3,
 }
 opts = {
     "opt_pH_scale": 3,
@@ -60,10 +59,14 @@ pH_phosphate = sys_phosphate.values["pH"]
 
 # Compare with D81's tables
 d81_pH = np.genfromtxt(
-    "manuscript/data/Dickson-1981-pH-no_phosphate.dat", delimiter="\t", skip_header=2
+    "tests/manuscript/data/Dickson-1981-pH-no_phosphate.dat",
+    delimiter="\t",
+    skip_header=2,
 )[:, 1]
 d81_pH_phosphate = np.genfromtxt(
-    "manuscript/data/Dickson-1981-pH-with_phosphate.dat", delimiter="\t", skip_header=2
+    "tests/manuscript/data/Dickson-1981-pH-with_phosphate.dat",
+    delimiter="\t",
+    skip_header=2,
 )[:, 1]
 
 pH_diff = np.round(pH, decimals=6) - d81_pH

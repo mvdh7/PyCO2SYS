@@ -1,4 +1,3 @@
-# %%
 import numpy as np
 import pandas as pd
 
@@ -13,7 +12,7 @@ renamer = {
 }
 
 # Prepare for comparison with Orr et al. (2018) Table 2
-orr2 = pd.read_csv("manuscript/data/orr2018-table2.csv").rename(columns=renamer)
+orr2 = pd.read_csv("tests/manuscript/data/orr2018-table2.csv").rename(columns=renamer)
 grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
 grads_of.append("pH")
 grads_wrt = ["alkalinity", "dic", "temperature", "salinity"]
@@ -50,8 +49,8 @@ orr2_groups = orr2.drop(columns="program")
 orr2_groups = orr2_groups.groupby("wrt").mean()
 orr2.set_index(["wrt", "program"], inplace=True)
 
-# %% Prepare for comparison with Orr et al. (2018) Table 3
-orr3 = pd.read_csv("manuscript/data/orr2018-table3.csv").rename(columns=renamer)
+# Prepare for comparison with Orr et al. (2018) Table 3
+orr3 = pd.read_csv("tests/manuscript/data/orr2018-table3.csv").rename(columns=renamer)
 values_orr3 = dict(
     alkalinity=2300,
     dic=2000,
@@ -83,8 +82,8 @@ orr3_groups = orr3.drop(columns="program")
 orr3_groups = orr3_groups.groupby("wrt").mean()
 orr3.set_index(["wrt", "program"], inplace=True)
 
-# %% Prepare for comparison with Orr et al. (2018) Table 4
-orr4 = pd.read_csv("manuscript/data/orr2018-table4.csv").rename(columns=renamer)
+# Prepare for comparison with Orr et al. (2018) Table 4
+orr4 = pd.read_csv("tests/manuscript/data/orr2018-table4.csv").rename(columns=renamer)
 values_orr4 = dict(
     alkalinity=2300,
     dic=2000,
@@ -179,4 +178,4 @@ def test_table4_OEDG18():
 
 # test_table2_OEDG18()
 # test_table3_OEDG18()
-# test_table4_OEDG18()  # TODO all working except for this one when pKs included
+# test_table4_OEDG18()

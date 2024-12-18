@@ -3,7 +3,7 @@ import numpy as np
 import PyCO2SYS as pyco2
 
 # Import data from W74 Table III
-data = np.genfromtxt("manuscript/data/weiss1974_tableIII.csv", delimiter=",")
+data = np.genfromtxt("tests/manuscript/data/weiss1974_tableIII.csv", delimiter=",")
 salinity = data[0, 1:]
 temperature = np.vstack(data[1:, 0])
 kCO2_W74 = data[1:, 1:]

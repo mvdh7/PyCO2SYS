@@ -3,13 +3,11 @@ import warnings
 import numpy as np
 import pandas as pd
 
-import PyCO2SYS as pyco2
 from PyCO2SYS import CO2System
 
 # Import MATLAB results and recalculate with PyCO2SYS
-matlab = pd.read_csv("manuscript/results/compare_equilibrium_constants_v2_0_5.csv")
-matlab["opt_k_bisulfate"], matlab["opt_total_borate"] = pyco2.convert.options_old2new(
-    matlab.KSO4CONSTANTS.values
+matlab = pd.read_csv(
+    "tests/manuscript/results/compare_equilibrium_constants_v3_2_0.csv"
 )
 
 
@@ -26,10 +24,12 @@ def test_equilibrium_constants():
         ("KS", "k_HSO4_free"),
         ("KSi", "k_Si"),
         ("KB", "k_BOH3"),
+        ("KNH4", "k_NH3"),
+        ("KH2S", "k_H2S"),
     )
     svars = [p for m, p in m_to_p]
     for g, group in matlab.groupby(
-        ["K1K2CONSTANTS", "pHSCALEIN", "opt_k_bisulfate", "opt_total_borate"]
+        ["K1K2CONSTANTS", "pHSCALEIN", "KSO4CONSTANT", "BORON", "KFCONSTANT"]
     ):
         # Set up arguments dicts
         values_in = dict(
@@ -47,7 +47,8 @@ def test_equilibrium_constants():
             opt_pH_scale=g[1],
             opt_k_HSO4=g[2],
             opt_total_borate=g[3],
-            opt_gas_constant=1,
+            opt_k_HF=g[4],
+            opt_gas_constant=3,
         )
         # Deal with GEOSECS and freshwater weirdness
         if g[0] == 6:
@@ -116,6 +117,15 @@ def test_equilibrium_constants():
                     "k_H2PO4",
                     "k_HPO4",
                     "k_Si",
+                    "k_NH3",
+                    "k_H2S",
+                ]:
+                    pk_python_in[:] = -999.9
+                    pk_python_out[:] = -999.9
+                # These terms are not included when opt_k_carbonic == 7
+                if g[0] == 7 and p in [
+                    "k_NH3",
+                    "k_H2S",
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9
@@ -126,6 +136,8 @@ def test_equilibrium_constants():
                     "k_HPO4",
                     "k_Si",
                     "k_BOH3",
+                    "k_NH3",
+                    "k_H2S",
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9
@@ -154,7 +166,7 @@ def test_total_salts():
         ("TB", "total_borate"),
     )
     svars = [p for m, p in m_to_p]
-    for g, group in matlab.groupby(["K1K2CONSTANTS", "opt_total_borate"]):
+    for g, group in matlab.groupby(["K1K2CONSTANTS", "BORON"]):
         # Set up arguments dicts
         values = dict(salinity=group.SAL.values)
         opts = dict(

@@ -6,7 +6,9 @@ import pandas as pd
 from PyCO2SYS import CO2System
 
 # Import MATLAB results and recalculate with PyCO2SYS
-matlab = pd.read_csv("manuscript/results/compare_equilibrium_constants_v3_1_1.csv")
+matlab = pd.read_csv(
+    "tests/manuscript/results/compare_equilibrium_constants_v3_1_1.csv"
+)
 
 
 def test_equilibrium_constants():

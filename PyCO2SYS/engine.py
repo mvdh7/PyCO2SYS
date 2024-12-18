@@ -1281,8 +1281,10 @@ class CO2System:
         if isinstance(uncertainty_in, str):
             uncertainty_in = [uncertainty_in]
         for var_in in uncertainty_in:
-            if var_in not in self.uncertainty:
-                self.uncertainty[var_in] = {"total": np.zeros_like(self.values[var_in])}
+            # This should always be reset to zero and all values wiped, even if it
+            # already exists (so you don't end up with old uncertainty_from components
+            # from a previous calculation which are no longer part of the total)
+            self.uncertainty[var_in] = {"total": np.zeros_like(self.values[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
                 is_pk = var_from.startswith("pk_")
