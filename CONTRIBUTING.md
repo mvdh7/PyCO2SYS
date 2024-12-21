@@ -23,7 +23,9 @@ Version 1 followed a similar approach to CO2SYS-MATLAB, which allowed all parame
 
 Version 2 completely overhauls the internal mechanism for calculations.  Some flexibility has been lost, primarily, all of the optional settings (any argument beginning with `opt_`) all need to be scalars instead of arrays.  However, this has been done to allow results to be computed only when requested, instead of every possible parameter at once, resulting in considerable speed-ups in computations.
 
-Calculations are based around the `CO2System` class.  A `CO2System` is constructed by providing a set of `values`, containing potentially multidimensional parameters such as the known marine carbonate system parameters, temperature, salinity, pressure and nutrients, and a set of `opts`, which determine (e.g.) which parameterisations are used for the various equilibrium constants.  
+Calculations are based around the `CO2System` class.  A `CO2System` is constructed by providing a set of `values`, containing potentially multidimensional parameters such as the known marine carbonate system parameters, temperature, salinity, pressure and nutrients, and a set of `opts`, which determine (e.g.) which parameterisations are used for the various equilibrium constants.
+
+When a `CO2System` is initalised, a directed graph (specifically, `networkx.DiGraph`) is constructed in which each node is a function to calculate a particular parameter, and the edges connect to other parameters that are required as the function inputs.  The graph is then used when a parameter is requested to be computed to determine which calculations need to be carried out to reach the required result.
 
 ## Ideas and bug reporting
 
@@ -39,7 +41,7 @@ Please add a comment on the corresponding [issue](https://github.com/mvdh7/PyCO2
 
 The *main* branch contains the most recent release, and nothing more.  Please do not submit pull requests directly to *main*.
 
-The *develop* branch is where the next version is being prepared.  When you have something ready to add, please submit your pull request to *develop*.  You may also wish to make your new fork from *develop* to be sure you are using the latest version.
+Usually, the *develop* branch is where the next version is being prepared.  When you have something ready to add, please submit your pull request to *develop*.  You may also wish to make your new fork from *develop* to be sure you are using the latest version.  However, v2 is currently being prepared in the *jax* branch, with *develop* being used for patches for v1.
 
 ### Code style
 
