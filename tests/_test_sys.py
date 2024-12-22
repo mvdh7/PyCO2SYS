@@ -34,14 +34,18 @@ from PyCO2SYS.engine import CO2System_ud
 
 
 sys = CO2System_ud(
-    data=dict(dic=2100, alkalinity=2300),
-    opts=dict(opt_k_carbonic=10),
+    dic=2100,
+    alkalinity=2300,
+    opt_k_carbonic=10,
 )
+# sys.solve(["pH", "fCO2"])
 pH = CO2System_ud(
-    data=dict(dic=2100, alkalinity=2300),
-    opts=dict(opt_k_carbonic=10),
+    dic=2100,
+    alkalinity=2300,
+    opt_k_carbonic=10,
 )["pH"]
 results = CO2System_ud(
-    data=dict(dic=2100, alkalinity=2300),
-    opts=dict(opt_k_carbonic=10),
+    dic=2100,
+    alkalinity=2300,
+    opt_k_carbonic=10,
 )[["pH", "fCO2"]]

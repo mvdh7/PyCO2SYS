@@ -1449,17 +1449,28 @@ class CO2System:
         return ax
 
 
+def _remove_jax_overhead(d):
+    for k, v in d.items():
+        try:
+            d[k] = v.item()
+        except (AttributeError, ValueError):
+            pass
+        try:
+            d[k] = v.__array__()
+        except AttributeError:
+            pass
+
+
 class CO2System_ud(UserDict):
-    def __init__(self, data=None, opts=None):
+    def __init__(self, **kwargs):
         super().__init__()
-        if data is None:
-            data = {}
-        data = data.copy()
+        opts = {k: v for k, v in kwargs.items() if k.startswith("opt_")}
+        data = {k: v for k, v in kwargs.items() if k not in opts}
         # Get icase
         core_known = np.array([v in data for v in parameters_core])
         icase_all = np.arange(1, len(parameters_core) + 1)
         icase = icase_all[core_known]
-        assert len(icase) < 3, "You cannot provide more than 2 known core parameters."
+        assert len(icase) < 3, "A maximum of 2 known core parameters can be provided."
         if len(icase) == 0:
             icase = np.array(0)
         elif len(icase) == 2:
@@ -1467,12 +1478,18 @@ class CO2System_ud(UserDict):
         self.icase = icase.item()
         self.opts = opts_default.copy()
         # Assign opts
-        if opts is not None:
-            for k, v in opts.items():
+        for k, v in opts.items():
+            if k in get_funcs_opts:
+                assert np.isscalar(v)
                 assert (
                     v in get_funcs_opts[k].keys()
                 ), "{} is not allowed for {}!".format(v, k)
-            self.opts.update(opts)
+            else:
+                warnings.warn(
+                    "'{}' is not recognised".format(k)
+                    + " - it will not be used in any calculations."
+                )
+        self.opts.update(opts)
         # Deal with tricky special cases
         if self.icase != 207:
             self.opts.pop("opt_HCO3_root")
@@ -1491,11 +1508,38 @@ class CO2System_ud(UserDict):
         self.requested = set()  # keep track of all parameters that have been requested
 
     def __getitem__(self, key):
-        self.solve(key)
-        if isinstance(key, str):
-            return self.data[key]
-        elif isinstance(key, list):
+        # When the user requests a dict key that hasn't been solved for yet, then solve
+        # and provide the requested parameter
+        self.solve(parameters=key)
+        if isinstance(key, list):
+            # If the user provides a list of keys to solve for, return all of them as
+            # a dict
             return {k: self.data[k] for k in key}
+        else:
+            # If a single key is requested, return the corresponding value(s) directly
+            return self.data[key]
+
+    def __getattr__(self, attr):
+        # This allows solved parameter values to be accessed with dot notation, purely
+        # for convenience.
+        # So, when the user tries to access something with dot notation...
+        try:
+            # ... then if it's an attribute, return it (this is the standard behaviour).
+            return object.__getattribute__(self, attr)
+        except AttributeError:
+            # But if it's not an attribute...
+            try:
+                # ... return the corresponding parameter value, if it's already been
+                # solved for...
+                return self.data[attr]
+            except KeyError:
+                # ... but it if hasn't been solved for, throw an error.  The user needs
+                # to use the normal dict notation (or solve method) to solve for it.
+                raise AttributeError(attr)
+
+    def __setitem__(self, key, value):
+        # Don't allow the user to assign new key-value pairs to the dict
+        raise RuntimeError("Item assignment is not supported.")
 
     def _assemble(self, icase, data):
         # Deal with tricky special cases
@@ -1524,100 +1568,87 @@ class CO2System_ud(UserDict):
         self.nodes_original = list(k for k, v in data.items() if v is not None)
         return graph, funcs, data
 
-    def _get(self, parameters, data, save_steps, verbose):
-        def printv(*args, **kwargs):
-            if verbose:
-                print(*args, **kwargs)
-
-        # needs: which intermediate parameters we need to get the requested parameters
-        graph_unknown = self.graph.copy()
-        graph_unknown.remove_nodes_from([v for v in data if v not in parameters])
-        self_values = data.copy()  # what is already known
-        results = {}  # values for the requested parameters will go in here
-        needs = parameters.copy()
-        for p in parameters:
-            needs = needs | nx.ancestors(graph_unknown, p)
-        needs = [p for p in nx.topological_sort(self.graph) if p in needs]
-        for p in needs:
-            printv("")
-            printv(p)
-            if p in self_values:
-                results[p] = self_values[p]
-                printv("{} is already available!".format(p))
-            else:
-                priors = self.graph.pred[p]
-                if len(priors) == 0 or all([r in self_values for r in priors]):
-                    printv("Calculating {}...".format(p))
-                    self_values[p] = self.funcs[p](
-                        *[
-                            self_values[r]
-                            for r in self.funcs[p].__code__.co_varnames[
-                                : self.funcs[p].__code__.co_argcount
-                            ]
-                        ]
-                    )
-                    # state 2 means that the value was calculated internally
-                    if save_steps:
-                        nx.set_node_attributes(self.graph, {p: 2}, name="state")
-                        for f in self.funcs[p].__code__.co_varnames[
-                            : self.funcs[p].__code__.co_argcount
-                        ]:
-                            nx.set_edge_attributes(
-                                self.graph, {(f, p): 2}, name="state"
-                            )
-                    results[p] = self_values[p]
-        # Get rid of jax overhead on results
-        for k, v in results.items():
-            try:
-                results[k] = v.item()
-            except (AttributeError, ValueError):
-                pass
-            try:
-                results[k] = v.__array__()
-            except AttributeError:
-                pass
-        if save_steps:
-            for k, v in self_values.items():
-                try:
-                    self_values[k] = v.item()
-                except (AttributeError, ValueError):
-                    pass
-                try:
-                    self_values[k] = v.__array__()
-                except AttributeError:
-                    pass
-            data.update(self_values)
-        return results, data
-
-    def solve(self, parameters=None, save_steps=True, verbose=False):
-        """Calculate and return parameter(s) and (optionally) save them internally.
+    def solve(self, parameters=None, store_steps=1):
+        """Calculate parameter(s) and store them internally.
 
         Parameters
         ----------
         parameters : str or list of str, optional
-            Which parameter(s) to calculate and save, by default None, in which case all
-            possible parameters are calculated and returned.
-        save_steps : bool, optional
-            Whether to save non-requested parameters calculated during intermediate
-            calculation steps in CO2System.data, by default True.
-        verbose : bool, optional
-            Whether to print calculation status messages, by default False.
-
-        Returns
-        -------
-        results : dict
-            The value(s) of the requested parameter(s).
+            Which parameter(s) to calculate and store, by default None, in which case
+            all possible parameters are calculated and stored internally.
+        store_steps : int, optional
+            Whether/which non-requested parameters calculated during intermediate
+            calculation steps should be stored, by default 1.  The options are
+                0 - store only the specifically requested parameters,
+                1 - store the most used set of intermediate parameters, or
+                2 - store the complete set of parameters.
         """
+        # Parse user-provided parameters (if there are any)
         if parameters is None:
+            # If no parameters are provided, then we solve for everything possible
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
+            # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
-        # Solve the system
-        results, self.data = self._get(parameters, self.data, save_steps, verbose)
-        results = {k: v for k, v in results.items() if k in parameters}
-        return results
+        self_data = self.data.copy()  # what was already known before this solve
+        # Remove known nodes from a copy of self.graph, so that ancestors of known nodes
+        # are not unnecessarily recomputed
+        graph_unknown = self.graph.copy()
+        graph_unknown.remove_nodes_from([k for k in self_data if k not in parameters])
+        # Add intermediate parameters that we need to know in order to calculate the
+        # requested parameters
+        parameters_all = parameters.copy()
+        for p in parameters:
+            parameters_all = parameters_all | nx.ancestors(graph_unknown, p)
+        # Convert the set of parameters into a list, exclude already-known ones, and
+        # organise the list into the order required for calculations
+        parameters_all = [
+            p
+            for p in nx.topological_sort(self.graph)
+            if p in parameters_all and p not in self_data
+        ]
+        store_parameters = []
+        for p in parameters_all:
+            priors = self.graph.pred[p]
+            if len(priors) == 0 or all([r in self_data for r in priors]):
+                self_data[p] = self.funcs[p](
+                    *[
+                        self_data[r]
+                        for r in self.funcs[p].__code__.co_varnames[
+                            : self.funcs[p].__code__.co_argcount
+                        ]
+                    ]
+                )
+                store_here = (
+                    #  If store_steps is 0, store only requested parameters
+                    (store_steps == 0 and p in parameters)
+                    | (
+                        # If store_steps is 1, store all but the equilibrium constants
+                        # on the seawater scale, at 1 atm and their pressure-correction
+                        # factors, and a few selected others
+                        store_steps == 1
+                        and not p.startswith("factor_k_")
+                        and not p.endswith("_sws")
+                        and not p.endswith("_1atm")
+                        and p not in ["sws_to_opt", "opt_to_free", "ionic_strength"]
+                    )
+                    |  # If store_steps is 2, store everything
+                    (store_steps == 2)
+                )
+                if store_here:
+                    store_parameters.append(p)
+                    # state = 2 means that the value was calculated internally
+                    nx.set_node_attributes(self.graph, {p: 2}, name="state")
+                    for f in self.funcs[p].__code__.co_varnames[
+                        : self.funcs[p].__code__.co_argcount
+                    ]:
+                        nx.set_edge_attributes(self.graph, {(f, p): 2}, name="state")
+        # Get rid of jax overhead on results
+        self_data = {k: v for k, v in self_data.items() if k in store_parameters}
+        _remove_jax_overhead(self_data)
+        self.data.update(self_data)
 
     def _get_expUps(
         self,
@@ -1686,7 +1717,7 @@ class CO2System_ud(UserDict):
         self,
         temperature=None,
         pressure=None,
-        save_steps=False,
+        store_steps=1,
         method_fCO2=1,
         bh_upsilon=None,
         opt_which_fCO2_insitu=1,
@@ -1701,9 +1732,12 @@ class CO2System_ud(UserDict):
         pressure : float, optional
             Hydrostatic pressure to adjust to in dbar, by default None, in which case
             pressure is not adjusted
-        save_steps : bool, optional
-            Whether to save the intermediate calculation steps in the original
-            CO2System, by default False.
+        store_steps : int, optional
+            Whether/which non-requested parameters calculated during intermediate
+            calculation steps should be stored, by default 1.  The options are
+                0 - store only the specifically requested parameters,
+                1 - store the most used set of intermediate parameters, or
+                2 - store the complete set of parameters.
         method_fCO2 : int, optional
             If this is a single-parameter system, which method to use for the
             adjustment, by default 1.  The options are
@@ -1730,7 +1764,7 @@ class CO2System_ud(UserDict):
         if self.icase > 100:
             # If we know (any) two MCS parameters, solve for alkalinity and DIC under
             # the "input" conditions
-            core = self.solve(parameters=["alkalinity", "dic"], save_steps=save_steps)
+            core = self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
             data = {}
         elif self.icase in [4, 5, 8, 9]:
             assert (
@@ -1738,7 +1772,7 @@ class CO2System_ud(UserDict):
             ), "Cannot adjust pressure for a single-parameter system!"
             # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
             # the "input" conditions
-            core = self.solve(parameters="fCO2", save_steps=save_steps)
+            core = self.solve(parameters="fCO2", store_steps=store_steps)
             # Then, convert this to the value at the new temperature using the requested
             # method
             assert method_fCO2 in range(
@@ -1772,7 +1806,7 @@ class CO2System_ud(UserDict):
             data["pressure"] = pressure
         else:
             data["pressure"] = self.data["pressure"]
-        sys = CO2System_ud(data=data, opts=self.opts)
+        sys = CO2System_ud(**data, **self.opts)
         sys.solve(parameters=self.data)
         return sys
 
@@ -1915,6 +1949,24 @@ class CO2System_ud(UserDict):
         return {k: self.data[k] for k in self.nodes_original}
 
     def propagate(self, uncertainty_in, uncertainty_from):
+        """Propagate independent uncertainties through the calculations.  Covariances
+        are not accounted for.
+
+        New entries are added in the ``uncertainty`` attribute, for example:
+
+            sys = CO2System(dic=2100, alkalinity=2300)
+            sys.propagate("pH", {"dic": 2, "alkalinity": 2})
+            sys.uncertainty["pH"]["total"]  # total uncertainty in pH
+            sys.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
+
+        Parameters
+        ----------
+        uncertainty_in : list
+            The parameters to calculate the uncertainty in.
+        uncertainty_from : dict
+            The parameters to propagate the uncertainty from (keys) and their
+            uncertainties (values).
+        """
         self.solve(uncertainty_in)
         if isinstance(uncertainty_in, str):
             uncertainty_in = [uncertainty_in]
@@ -1973,12 +2025,10 @@ class CO2System_ud(UserDict):
         Parameters
         ----------
         ax : matplotlib axes, optional
-            The axes, by default None, in which case new axes are generated.
-        conditions : str, optional
-            Whether to show the graph for the "input" or "output" condition
-            calculations, by default "input".
+            The axes, by default None, in which case a new figure and axes are created.
         exclude_nodes : list of str, optional
-            List of nodes to exclude from the plot, by default None.
+            List of nodes to exclude from the plot, by default None.  Nodes in this list
+            are not shown, nor are connections to them or through them.
         prog_graphviz : str, optional
             Name of Graphviz layout program, by default "neato".
         show_tsp : bool, optional
@@ -1989,8 +2039,10 @@ class CO2System_ud(UserDict):
         show_isolated : bool, optional
             Whether to show nodes for parameters that are not connected to the graph,
             by default True.
-        skip_nodes
-
+        skip_nodes : bool, optional
+            List of nodes to skip from the plot, by default None.  Nodes in this list
+            are not shown, but the connections between their predecessors and children
+            are still drawn in.
 
         Returns
         -------
@@ -2013,10 +2065,14 @@ class CO2System_ud(UserDict):
                 [n for n, d in dict(self_graph.degree).items() if d == 0]
             )
         if exclude_nodes:
+            # Excluding nodes just makes them disappear from the graph without caring
+            # about what they were connected to
             if isinstance(exclude_nodes, str):
                 exclude_nodes = [exclude_nodes]
             self_graph.remove_nodes_from(exclude_nodes)
         if skip_nodes:
+            # Skipping nodes removes them but then shows their predecessors as being
+            # directly connected to their children
             if isinstance(skip_nodes, str):
                 skip_nodes = [skip_nodes]
             for n in skip_nodes:
