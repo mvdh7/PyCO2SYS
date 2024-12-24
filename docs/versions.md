@@ -27,6 +27,14 @@
 
     The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
 
+## 2.0 (forthcoming)
+
+Switches from Autograd to JAX for automatic differentiation.  Internal mechanism rebuilt for more efficient calculations.
+
+!!! new-version "Changes in v2.0"
+
+
+
 ## 1.8
 
 Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorously validated and fully documented in peer-reviewed journal article ([Humphreys et al., 2022](https://doi.org/10.5194/gmd-15-15-2022)).

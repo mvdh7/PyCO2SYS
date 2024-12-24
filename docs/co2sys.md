@@ -1,335 +1,350 @@
-# Do it like in MATLAB
+# How to use PyCO2SYS
 
 ## Syntax
 
-Up until v1.5.0, the simplest and safest way to use PyCO2SYS was to follow the approach of previous versions of CO2SYS and calculate every possible variable of interest at once using a MATLAB-style syntax.  A new, more powerful and more Pythonic interface has now been introduced, which you can [read about here](../co2sys_nd).  New developments to PyCO2SYS will focus on the other interface; this one is no longer being actively developed.
-
-Read further on this page if you want to stick with the MATLAB-style syntax.  This is accessed using the top-level `CO2SYS` function:
+### Define the `CO2System`
 
 ```python
-# Import the function
-from PyCO2SYS import CO2SYS
+import PyCO2SYS as pyco2
 
-# Run CO2SYS
-CO2dict = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE, SAL, TEMPIN, TEMPOUT,
-    PRESIN, PRESOUT, SI, PO4, pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS,
-    NH3=0.0, H2S=0.0, KFCONSTANT=1, opt_buffers_mode=1,
-    totals=None, equilibria_in=None, equilibria_out=None, WhichR=1)
-
-# Get (e.g.) aragonite saturation state, output conditions
-OmegaARout = CO2dict["OmegaARout"]
+co2s = pyco2.sys(**kwargs)
 ```
 
-Each input can either be a single scalar value or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values, with the excepton of the optional `totals`, `equilibria_in` and `equilibria_out` inputs, which should be dicts of scalars or arrays (if provided, see [Internal overrides](#internal-overrides)).  The output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) containing a series of NumPy arrays with all the calculated variables.  These are described in detail in the following sections.
-
-### Using the Pythonic API
-
-Alternatively, a more Pythonic API can be used to interface with `CO2SYS`.  This returns a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) in place of the dict, with the same names for the various outputs.  The function uses keyword arguments, meaning that only the specified marine carbonate system parameters have to be entered.
+The result `co2s` is a `CO2System` object.  At this point, it contains only the input parameters given as the `kwargs`.  The following set of default values is assumed:
 
 ```python
-from PyCO2SYS.api import CO2SYS_wrap as co2sys
-
-# Call with defaults
-df1 = co2sys(dic=2103, alk=2360)
-
-# The above is equivalent to:
-df1 = co2sys(
-    dic=2103, alk=2360, pco2=None, fco2=None, pH=None,
-    carb=None, bicarb=None, co2aq=None,
-    temp_in=25, temp_out=25, pres_in=0, pres_out=0,
-    sal=35, si=0, po4=0, nh3=0, h2s=0,
-    K1K2_constants=4, KSO4_constants=1, KF_constant=1, pHscale_in=1,
-    opt_buffers_mode=1, verbose=True)
+# Default kwargs for pyco2.sys
+kwargs = {
+    # Parameter values
+    "temperature": 25.0,  # °C
+    "total_ammonia": 0.0,  # µmol/kg-sw
+    "total_phosphate": 0.0,  # µmol/kg-sw
+    "total_silicate": 0.0,  # µmol/kg-sw
+    "total_sulfide": 0.0,  # µmol/kg-sw
+    "salinity": 35.0,
+    "pressure": 0.0,  # dbar
+    "pressure_atmosphere": 1.0,  # atm
+    # Settings
+    "opt_gas_constant": 3,
+    "opt_factor_k_BOH3": 1,
+    "opt_factor_k_H2CO3": 1,
+    "opt_factor_k_HCO3": 1,
+    "opt_factor_k_H2O": 1,
+    "opt_fH": 1,
+    "opt_k_carbonic": 1,
+    "opt_k_phosphate": 1,
+    "opt_k_BOH3": 1,
+    "opt_k_H2O": 1,
+    "opt_k_HF": 1,
+    "opt_k_HSO4": 1,
+    "opt_k_NH3": 1,
+    "opt_k_Si": 1,
+    "opt_pH_scale": 1,
+    "opt_total_borate": 1,
+    "opt_Ca": 1,
+    "opt_fugacity_factor": 1,
+    "opt_HCO3_root": 2,
+    "opt_k_calcite": 1,
+    "opt_k_aragonite": 1,
+    "opt_adjust_temperature": 1,
+}
 ```
 
-!!! warning "`CO2SYS_wrap`: incomplete functionality"
-    
-    In the main `PyCO2SYS.CO2SYS` function, each input row of `PAR1` and `PAR2` can contain a different combination of parameter types.  This is not currently possible with `PyCO2SYS.api.CO2SYS_wrap`: each call to the function may only have a single input pair combination, with the others all set to `None`.
+### Calculate new parameters
 
-    `CO2SYS_wrap` also does not support the `totals`, `equilibria_in` and `equilibria_out` optional inputs to `CO2SYS`.
+Attempting to access parameters with square brackets will cause them to be calculated and returned.  For example:
 
-This wrapper function will also accept NumPy arrays, pandas.Series or xarray.DataArrays as inputs.  Scalar or default values will be broadcast to match any vector inputs.
+```python
+import PyCO2SYS as pyco2
 
-## Inputs
+# Set up the CO2System
+co2s = pyco2.sys(
+    alkalinity=2250,
+    pH=8.1,
+    temperature=12.5,
+    salinity=32.4,
+    opt_k_carbonic=10,
+)
+# (If necessary) solve for and retrieve a calculated parameter
+dic = co2s["dic"]
+# Solve for and retrieve multiple parameters
+params = co2s[["fCO2", "k_H2CO3"]]
+```
 
-Most of the inputs should be familiar to previous users of CO2SYS for MATLAB, and they work exactly the same here.  Each input can either be a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  If arrays are used then they must all be the same size as each other, but a combination of same-size arrays and single scalar values is allowed.
+All intermediate parameters used in calculating the requested parameter will also be stored in the `co2s`, so they can be accessed more quickly for future calculations.
 
-!!! inputs "`PyCO2SYS.CO2SYS` inputs"
+### Propagate uncertainties
+
+To propagate independent uncertainties through the calculations, use `propagate`:
+
+```python
+# Propagate uncertainties
+co2s.propagate("dic", {"alkalinity": 2, "pH": 0.02})
+
+# Access propagated uncertainties
+dic_uncertainty = co2s.uncertainty["dic"]["total"]
+dic_uncertainty_from_pH = co2s.uncertainty["dic"]["pH"]
+```
+
+In the example above, independent uncertainties in alkalinity of 2 µmol&nbsp;kg<sup>–1</sup> and pH of 0.02 were propagated through to DIC (`dic_uncertainty` in the standard units of DIC, i.e., µmol&nbsp;kg<sup>–1</sup>).  The individual components of uncertainty deriving from each source can also be accessed.
+
+### Adjust conditions
+
+To adjust the system to a different set of temperature and/or pressure conditions, use `adjust`:
+
+```python
+co2s_adj = co2s.adjust(temperature=25, pressure=1000)
+```
+
+The result `co2s_adj` is a new `CO2System` with all values at the new conditions (temperature of 25 °C and hydrostatic pressure of 1000 dbar).
+
+The `adjust` method can be used if any two carbonate system parameters are known, but also if only one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub> is known.  In this case, `adjust` can take additional kwargs:
+
+  * `method_fCO2`: how to do the temperature conversion.
+    * `1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](../refs/#h) (**default**). 
+    * `2`: using the constant <i>υ<sub>h</sub></i> fitted to the [TOG93](../refs/#t) dataset by [H24](../refs/#h).
+    * `3`: using the constant theoretical <i>υ<sub>x</sub></i> of [H24](../refs/#h).
+    * `4`: following the [H24](../refs/#h) approach but using a user-provided $b_h$ value (given with the additional kwarg `bh_upsilon`).
+    * `5`: using the linear fit of [TOG93](../refs/#t).
+    * `6`: using the quadratic fit of [TOG93](../refs/#t) (default before v1.8.3).
+  * `opt_which_fCO2_insitu`: whether the input (`1`, **default**) or output (`2`) condition pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining <i>b<sub>h</sub></i> with the parameterisation of [H24](../refs/#h).  Only applies when `method_fCO2` is `1`.
+
+## Keyword arguments
+
+Each argument to `pyco2.sys` can be either a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+
+!!! inputs "`pyco2.sys` arguments (`kwargs`)"
+
+    For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
+
     #### Carbonate system parameters
 
-    * `PAR1` and `PAR2`: values of two different carbonate system parameters.
-    * `PAR1TYPE` and `PAR2TYPE`: which types of parameter `PAR1` and `PAR2` are.
+    Up to two carbonate system parameters can be provided.
 
-    These can be any pair of:
+    If two parameters are provided, these can be any pair of:
 
-    * **Total alkalinity** (type `1`) in μmol·kg<sup>−1</sup>.
-    * **Dissolved inorganic carbon** (type `2`) in μmol·kg<sup>−1</sup>.
-    * **pH** (type `3`) on the Total, Seawater, Free or NBS scale[^1].  Which scale is given by the input `pHSCALEIN`.
-    * **Partial pressure** (type `4`) or **fugacity** (type `5`) **of CO<sub>2</sub>** in μatm or **aqueous CO<sub>2</sub>** (type `8`) in μmol·kg<sup>−1</sup>.
-    * **Carbonate ion** (type `6`) in μmol·kg<sup>−1</sup>.
-    * **Bicarbonate ion** (type `7`) in μmol·kg<sup>−1</sup>.
+    * `alkalinity`: **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
+    * `dic`: **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
+    * `pH`: **pH** on the total, seawater, free or NBS scale[^1].  Which scale is given by `opt_pH_scale`.
+    * Any one of:
+        * `pCO2`: **partial pressure of CO<sub>2</sub>** in μatm,
+        * `fCO2`: **fugacity of CO<sub>2</sub>** in μatm,
+        * `CO2`: **aqueous CO<sub>2</sub>** in μmol&nbsp;kg<sup>–1</sup>, or
+        * `xCO2`: **dry mole fraction of CO<sub>2</sub>** in ppm.
+    * Any one of:
+        * `CO3`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>,
+        * `saturation_calcite`: **saturation state with respect to calcite**, or
+        * `saturation_aragonite`: **saturation state with respect to aragonite**.
+    * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
 
-    For all inputs in μmol·kg<sup>−1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+    If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter can be any of:
+
+    * `pH`.  In this case, the pH values can be converted to all the other pH scales.
+    * Any one of `pCO2`, `fCO2`, `CO2` or `xCO2`.  In this case, the others in this group of parameters can all be calculated.
+
+    If no carbonate system parameters are provided, then all the equilibrium constants and total salt contents can be calculated.
 
     #### Hydrographic conditions
 
-    * `SAL`: **practical salinity** (dimensionless).
-    * `TEMPIN`: **temperature** at which `PAR1` and `PAR2` inputs are provided in °C.
-    * `TEMPOUT`: **temperature** at which output results will be calculated in °C.
-    * `PRESIN`: **pressure** at which `PAR1` and `PAR2` inputs are provided in dbar.
-    * `PRESOUT`: **pressure** at which output results will be calculated in dbar.
-
-    For example, if a sample was collected at 1000 dbar pressure (~1 km depth) at an in situ water temperature of 2.5 °C and subsequently measured in a lab at 25 °C, then the correct values would be `TEMPIN = 25`, `TEMPOUT = 2.5`, `PRESIN = 0`, and `PRESIN = 1000`.
+    * `salinity`: **practical salinity** (default 35).
+    * `temperature`: **temperature** at which the carbonate system parameters are provided in °C (default 25 °C).
+    * `pressure`: **hydrostatic pressure** at which the carbonate system parameters are provided in dbar (default 0 dbar).
 
     #### Nutrients and other solutes
 
-    *Required:*
+    Some default to zero if not provided:
 
-    * `SI`: **total silicate** in μmol·kg<sup>−1</sup>.
-    * `PO4`: **total phosphate** in μmol·kg<sup>−1</sup>.
+    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup>.
+    * `total_phosphate`: **total phosphate** in μmol&nbsp;kg<sup>–1</sup>.
+    * `total_ammonia`: **total ammonia** in μmol&nbsp;kg<sup>–1</sup>.
+    * `total_sulfide`: **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup>.
+    <!--* `total_alpha`: **total Hα** (a user-defined extra contributor to alkalinity) in μmol&nbsp;kg<sup>–1</sup>.-->
+    <!--* `total_beta`: **total Hβ** (a user-defined extra contributor to alkalinity) in μmol&nbsp;kg<sup>–1</sup>.-->
 
-    *Optional (these default to zero if not specified):*
+    <!--If using non-zero `total_alpha` and/or `total_beta`, then you should also provide the corresponding equilibrium constant values `k_alpha` and/or `k_beta`.-->
 
-    * `NH3`: **total ammonia** in μmol·kg<sup>−1</sup>.
-    * `H2S`: **total hydrogen sulfide** in μmol·kg<sup>−1</sup>.
+    Others, PyCO2SYS estimates from salinity if not provided:
 
-    Again, the "kg" in μmol·kg<sup>−1</sup> refers to the total solution, not H<sub>2</sub>O. These are therefore most accurately termed *molinity* values (as opposed to *concentration* or *molality*).
+    * `total_borate`: **total borate** in μmol&nbsp;kg<sup>–1</sup>.
+    * `Ca`: **total calcium** in μmol&nbsp;kg<sup>–1</sup>.
+    * `total_fluoride`: **total fluoride** in μmol&nbsp;kg<sup>–1</sup>.
+    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup>.
+
+    If `total_borate` is provided, then the `opt_total_borate` argument is ignored.
+
+    #### Atmospheric pressure
+
+    * `pressure_atmosphere`: atmospheric pressure in atm (default 1 atm).
+
+    This is used for conversions between *p*CO<sub>2</sub>, *f*CO<sub>2</sub> and *x*CO<sub>2</sub>.
 
     #### Settings
 
-    *Required:*
-
-    * `pHSCALEIN`: which **pH scale** was used for any pH entries in `PAR1` or `PAR2`, as defined by [ZW01](../refs/#z):
-        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$.
+    * `opt_pH_scale`: which **pH scale** was used for `pH`, as defined by [ZW01](../refs/#z):
+        * `1`: Total, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$ **(default)**.
         * `2`: Seawater, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])$.
         * `3`: Free, i.e. $\mathrm{pH} = -\log_{10} [\mathrm{H}^+]$.
         * `4`: NBS, i.e. relative to [NBS/NIST](https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist) reference standards.
 
-    * `K1K2CONSTANTS`: which set of equilibrium constants to use to model **carbonic acid dissociation:**
+    * `opt_k_carbonic`: which set of equilibrium constant parameterisations to use to model **carbonic acid dissociation:**
         * `1`: [RRV93](../refs/#r) (0 < *T* < 45 °C, 5 < *S* < 45, Total scale, artificial seawater).
         * `2`: [GP89](../refs/#g) (−1 < *T* < 40 °C, 10 < *S* < 50, Seawater scale, artificial seawater).
         * `3`: [H73a](../refs/#h) and [H73b](../refs/#h) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
-        * `4`: [MCHP73](../refs/#m) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
+        * `4`: [MCHP73](../refs/#m) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, real seawater).
         * `5`: [H73a](../refs/#h), [H73b](../refs/#h) and [MCHP73](../refs/#m) refit by [DM87](../refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, Seawater scale, artificial seawater).
         * `6`: [MCHP73](../refs/#m) aka "GEOSECS" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
         * `7`: [MCHP73](../refs/#m) without certain species aka "Peng" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
         * `8`: [M79](../refs/#m) (0 < *T* < 50 °C, *S* = 0, freshwater only).
-        * `9`: [CW98](../refs/#c) (2 < *T* < 35 °C, 0 < *S* < 49, NBS scale, real and artificial seawater).
-        * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater).
+        * `9`: [CW98](../refs/#c) (2 < *T* < 30 °C, 0 < *S* < 40, NBS scale, real estuarine seawater).
+        * `10`: [LDK00](../refs/#l) (2 < *T* < 35 °C, 19 < *S* < 43, Total scale, real seawater) **(default)**.
         * `11`: [MM02](../refs/#m) (0 < *T* < 45 °C, 5 < *S* < 42, Seawater scale, real seawater).
         * `12`: [MPL02](../refs/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, Seawater scale, field measurements).
         * `13`: [MGH06](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
         * `14`: [M10](../refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
-        * `15`: [WMW14](../refs/#w) (0 < *T* < 50 °C, 1 < *S* < 50, Seawater scale, real seawater).
+        * `15`: [WMW14](../refs/#w) (0 < *T* < 45 °C, 0 < *S* < 45, Seawater scale, real seawater).
         * `16`: [SLH20](../refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, Total scale, field measurements).
-        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale).
+        * `17`: [SB21](../refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, Total scale, real seawater).
+        * `18`: [PLR18](../refs/#p) (–6 < *T* < 25 °C, 33 < *S* < 100, Total scale, real seawater).
 
     The brackets above show the valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants.
 
-    * `KSO4CONSTANTS`: (1) which equilibrium constant to use to model **bisulfate ion dissociation** and (2) which **boron:salinity** relationship to use to estimate total borate:
+    * `opt_k_bisulfate`: which equilibrium constant parameterisation to use to model **bisulfate ion dissociation**:
 
-        * `1`: [D90a](../refs/#d) for bisulfate dissociation and [U74](../refs/#u) for borate:salinity.
-        * `2`: [KRCB77](../refs/#k) for bisulfate dissociation and [U74](../refs/#u) for borate:salinity.
-        * `3`: [D90a](../refs/#d) for bisulfate dissociation and [LKB10](../refs/#l) for borate:salinity.
-        * `4`: [KRCB77](../refs/#k) for bisulfate dissociation and [LKB10](../refs/#l) for borate:salinity.
+        * `1`: [D90a](../refs/#d) **(default)**.
+        * `2`: [KRCB77](../refs/#k).
+        * `3`: [WM13](../refs/#w)/[WMW14](../refs/#w).
 
-    The somewhat inelegant approach for combining these into a single option is inherited from CO2SYS for MATLAB and retained here for consistency.
+    * `opt_total_borate`: which **boron:salinity** relationship to use to estimate total borate (ignored if the `total_borate` argument is provided):
 
-    *Optional:*
+        * `1`: [U74](../refs/#u) **(default)**.
+        * `2`: [LKB10](../refs/#l).
+        * `3`: [KSK18](../refs/#k).
 
-    * `KFCONSTANT`: which equilibrium constant to use for **hydrogen fluoride dissociation:**
-        * `1`: [DR79](../refs/#d) (default, consistent with CO2SYS for MATLAB).
+    * `opt_k_fluoride`: which equilibrium constant parameterisation to use for **hydrogen fluoride dissociation:**
+        * `1`: [DR79](../refs/#d) **(default)**.
         * `2`: [PF87](../refs/#p).
 
-    * `opt_buffers_mode`: how to calculate the various buffer factors (or not).
-        * `1`: using automatic differentiation, which accounts for the effects of all equilibrating solutes (default).
-        * `2`: using explicit equations reported in the literature, which only account for carbonate, borate and water alkalinity.
-        * `0`: not at all.
-
-    For `opt_buffers_mode`, `1` is the recommended and most accurate calculation, and it is a little faster to compute than `2`.  If `0` is selected, then the corresponding outputs have the value `nan`.
-
-    * `WhichR`: what value to use for the ideal gas constant *R*:
-        * `1`: DOEv2 (default, consistent with all previous CO2SYS software).
+    * `opt_gas_constant`: what value to use for the **gas constant** (*R*):
+        * `1`: DOEv2 (consistent with other CO2SYS software before July 2020).
         * `2`: DOEv3.
-        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r).
+        * `3`: [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) **(default)**.
 
-    #### Internal overrides
+    #### Override equilibrium constants
 
-    You can optionally use the `totals`, `equilibria_in` and `equilibria_out` inputs to override some or all parameter values that PyCO2SYS normally estimates internally from salinity, temperature and pressure.  If used, these inputs should each be a dict containing one or more of the following items.
+    All the equilibrium constants needed by PyCO2SYS are estimated internally from temperature, salinity and pressure, and returned in the results.  However, you can also directly provide your own values for any of these constants instead.
 
-      * `totals`: any of the output variables listed below in [Totals estimated from salinity](#totals-estimated-from-salinity) in μmol·kg<sup>−1</sup>.
-      * `equilibria_in`: any of the output variables listed below in [Equilibrium constants](#equilibrium-constants), the [fugacity factor](#dissolved-inorganic-carbon) and/or the [activitiy coefficient of H<sup>+</sup>](#ph-and-water), all at input conditions and with the word `input` removed from the end of each dict key.
-      * `equilibria_out`: like `equilibria_in`, but for the output conditions.
+    To do this, the arguments have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide your own water dissociation constant value at input conditions of $10^{-14}$, use `k_H2O=1e-14`.
 
-    Like all other `PyCO2SYS.CO2SYS` input parameters, each field in these dicts can be either a single value or a NumPy array the same size as all other input arrays.
+    <!--If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.-->
 
-## Outputs
+## Results
 
-The results of `CO2SYS` calculations are stored in a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). The keys to the dict are the same as the entries in the output `HEADERS` in CO2SYS for MATLAB and are listed in the section below.
-
-!!! outputs "`PyCO2SYS.CO2SYS` outputs"
-    The only output is a [dict](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) of [NumPy arrays](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html). Its keys are as follows:
+!!! outputs "`pyco2.sys` results"
 
     #### Dissolved inorganic carbon
 
-    * `"TCO2"`: **dissolved inorganic carbon** in μmol·kg<sup>−1</sup>.
-    * `"CO3in"`/`"CO3out"`: **carbonate ion** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"HCO3in"`/`"HCO3out"`: **bicarbonate ion** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"CO2in"`/`"CO2out"`: **aqueous CO<sub>2</sub>** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"pCO2in"`/`"pCO2out"`: **seawater partial pressure of CO<sub>2</sub>** at input/output conditions in μatm.
-    * `"fCO2in"`/`"fCO2out"`: **seawater fugacity of CO<sub>2</sub>** at input/output conditions in μatm.
-    * `"xCO2in"`/`"xCO2out"`: **seawater mole fraction of CO<sub>2</sub>** at input/output conditions in ppm.
-    * `"FugFacinput"`/`"FugFacoutput"`: **fugacity factor** at input/output conditions for converting between CO<sub>2</sub> partial pressure and fugacity.
+    * `"dic"`: **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"pCO2"`: **seawater partial pressure of CO<sub>2</sub>** in μatm.
+    * `"fCO2"`: **seawater fugacity of CO<sub>2</sub>** in μatm.
+    * `"xCO2"`: **seawater dry mole fraction of CO<sub>2</sub>** in ppm.
+    * `"fugacity_factor"`: **fugacity factor** for converting between CO<sub>2</sub> partial pressure and fugacity.
+    * `"vp_factor"`: **vapour pressure factor** for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
 
-    #### Alkalinity and its components
+    #### Alkalinity and chemical speciation
 
-    * `"TAlk"`: **total alkalinity** in μmol·kg<sup>−1</sup>.
-    * `"BAlkin"`/`"BAlkout"`: **borate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"PAlkin"`/`"PAlkout"`: **phosphate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"SiAlkin"`/`"SiAlkout"`: **silicate alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"NH3Alkin"`/`"NH3Alkout"`: **ammonia alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"H2SAlkin"`/`"H2SAlkout"`: **hydrogen sulfide alkalinity** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"PengCorrection"`: the **"Peng correction"** for alkalinity (applies only for `K1K2CONSTANTS = 7`) in μmol·kg<sup>−1</sup>.
+    * `"alkalinity"`: **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H_free"`: **"free" proton** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"OH"`: **hydroxide ion** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"CO3"`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"HCO3"`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"CO2"`: **aqueous CO<sub>2</sub>** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"BOH4"`: **tetrahydroxyborate** $[\text{B(OH)}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"BOH3"`: **boric acid** $[\text{B(OH)}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H3PO4"`: **phosphoric acid** $[\text{H}_3\text{PO}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H2PO4"`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"HPO4"`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"PO4"`: **phosphate** $[\text{PO}_4^{3-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H4SiO4"`: **orthosilicic acid** $[\text{Si(OH)}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H3SiO4"`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"NH3"`: **ammonia** $[\text{NH}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"NH4"`: **ammonium** $[\text{NH}_4^+]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"HS"`: **bisulfide** $[\text{HS}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"H2S"`: **hydrogen sulfide** $[\text{H}_2\text{S}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"HSO4"`: **bisulfate** $[\text{HSO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"SO4"`: **sulfate** $[\text{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"HF"`: **hydrofluoric acid** $[\text{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `"F"`: **fluoride** $[\text{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
 
-    #### pH and water
+    #### pH
 
-    * `"pHin"`/`"pHout"`: **pH** at input/output conditions on the scale specified by input `pHSCALEIN`.
-    * `"pHinTOTAL"`/`"pHoutTOTAL"`: **pH** at input/output conditions on the **Total scale**.
-    * `"pHinSWS"`/`"pHoutSWS"`: **pH** at input/output conditions on the **Seawater scale**.
-    * `"pHinFREE"`/`"pHoutFREE"`: **pH** at input/output conditions on the **Free scale**.
-    * `"pHinNBS"`/`"pHoutNBS"`: **pH** at input/output conditions on the **NBS scale**.
-    * `"HFreein"`/`"HFreeout"`: **"free" proton** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"OHin"`/`"OHout"`: **hydroxide ion** at input/output conditions in μmol·kg<sup>−1</sup>.
-    * `"fHinput"`/`"fHoutput"`: **activity coefficient of H<sup>+</sup>** at input/output conditions for pH-scale conversions to and from the NBS scale.
+    * `"pH"`: **pH** on the scale specified by `opt_pH_scale`.
+    * `"pH_total"`: **pH** on the **total scale**.
+    * `"pH_sws"`: **pH** on the **seawater scale**.
+    * `"pH_free"`: **pH** on the **free scale**.
+    * `"pH_nbs"`: **pH** on the **NBS scale**.
+    * `"fH"`: **activity coefficient of H<sup>+</sup>** for conversions to and from the NBS scale.
 
     #### Carbonate mineral saturation
 
-    * `"OmegaCAin"`/`"OmegaCAout"`: **saturation state of calcite** at input/output conditions.
-    * `"OmegaARin"`/`"OmegaARout"`: **saturation state of aragonite** at input/output conditions.
+    * `"saturation_calcite"`: **saturation state** with respect to **calcite**.
+    * `"saturation_aragonite"`: **saturation state** with respect to **aragonite**.
 
     #### Buffer factors
 
-    Whether these are evaluated using automatic differentiation, with explicit equations, or not at all is controlled by the input `opt_buffers_mode`.
+    These are all evaluated using automatic differentiation of the complete alkalinity equation.
 
-    * `"RFin"`/`"RFout"`: **Revelle factor** at input/output conditions[^2].
-    * `"psi_in"`/`"psi_out"`: *ψ* of [FCG94](../refs/#f) at input/output conditions.
-    * `"gammaTCin"`/`"gammaTCout"`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions[^3].
-    * `"betaTCin"`/`"betaTCout"`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions.
-    * `"omegaTCin"`/`"omegaTCout"`: **buffer factor *ω*<sub>DIC</sub>** of [ESM10](../refs/#e) at input/output conditions.
-    * `"gammaTAin"`/`"gammaTAout"`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
-    * `"betaTAin"`/`"betaTAout"`: **buffer factor *β*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
-    * `"omegaTAin"`/`"omegaTAout"`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](../refs/#e) at input/output conditions.
-    * `"isoQin"`/`"isoQout"`: **isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
-    * `"isoQapprox_in"`/`"isoQapprox_out"`: **approximate isocapnic quotient** of [HDW18](../refs/#h) at input/output conditions.
+    * `"revelle_factor"`: **Revelle factor**.
+    * `"psi"`: *ψ* of [FCG94](../refs/#f).
+    * `"gamma_dic"`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](../refs/#e).
+    * `"beta_dic"`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](../refs/#e).
+    * `"omega_dic"`: **buffer factor *ω*<sub>DIC</sub>** of [ESM10](../refs/#e).
+    * `"gamma_alkalinity"`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](../refs/#e).
+    * `"beta_alkalinity"`: **buffer factor *β*<sub>TA</sub>** of [ESM10](../refs/#e).
+    * `"omega_alkalinity"`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](../refs/#e).
+    * `"Q_isocap"`: **isocapnic quotient** of [HDW18](../refs/#h).
+    * `"Q_isocap_approx"`: **isocapnic quotient approximation** of [HDW18](../refs/#h).
+    * `"dlnfCO2_dT"`: **temperature derivative of ln(<i>ƒ</i>CO<sub>2</sub>)** (see [TOG93](../refs/#t)).
+    * `"dlnpCO2_dT"`: **temperature derivative of ln(<i>p</i>CO<sub>2</sub>)** (see [TOG93](../refs/#t)).
 
     #### Biological properties
 
     Seawater properties related to the marine carbonate system that have a primarily biological application.
 
-    * `"SIRin"`/`"SIRout"`: **substrate:inhibitor ratio** of [B15](../refs/#b) at input/output conditions in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+    * `"substrate_inhibitor_ratio"`: **substrate:inhibitor ratio** of [B15](../refs/#b) in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
 
-    #### Totals estimated from salinity
+    #### Total salts
 
-    * `"TB"`: **total borate** in μmol·kg<sup>−1</sup>.
-    * `"TF"`: **total fluoride** μmol·kg<sup>−1</sup>.
-    * `"TSO4"`: **total sulfate** in μmol·kg<sup>−1</sup> (or `"TS"`, deprecated).
-    * `"TCa"`: **total calcium** in μmol·kg<sup>−1</sup>.
+    * `"total_borate"`: **total borate** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"total_fluoride"`: **total fluoride** μmol&nbsp;kg<sup>–1</sup>.
+    * `"total_sulfate"`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup>.
+    * `"Ca"`: **total calcium** in μmol&nbsp;kg<sup>–1</sup>.
 
     #### Equilibrium constants
 
-    All equilibrium constants are returned on the pH scale of input `pHSCALEIN` except for `"KFinput"`/`"KFoutput"` and `"KSO4input"`/`"KSO4output"`, which are always on the Free scale.
+    All equilibrium constants are returned on the pH scale of `opt_pH_scale` except for `"k_HF_free"` and `"k_HSO4_free"`, which are always on the free scale.
 
-    * `"K0input"`/`"K0output"`: **Henry's constant for CO<sub>2</sub>** at input/output conditions.
-    * `"K1input"`/`"K1output"`: **first carbonic acid** dissociation constant at input/output conditions.
-    * `"K2input"`/`"K2output"`: **second carbonic acid** dissociation constant at input/output conditions.
-    * `"pK1input"`/`"pK1output"`: **-log<sub>10</sub>(`K1input`)**/**-log<sub>10</sub>(`K1output`)**.
-    * `"pK2input"`/`"pK2output"`: **-log<sub>10</sub>(`K2input`)**/**-log<sub>10</sub>(`K2output`)**.
-    * `"KWinput"`/`"KWoutput"`: **water** dissociation constant at input/output conditions.
-    * `"KBinput"`/`"KBoutput"`: **boric acid** dissociation constant at input/output conditions.
-    * `"KFinput"`/`"KFoutput"`: **hydrogen fluoride** dissociation constant at input/output conditions.
-    * `"KSO4input"`/`"KSO4output"`: **bisulfate** dissociation constant at input/output conditions (or `"KSinput"`/`"KSoutput"`, deprecated).
-    * `"KP1input"`/`"KP1output"`: **first phosphoric acid** dissociation constant at input/output conditions.
-    * `"KP2input"`/`"KP2output"`: **second phosphoric acid** dissociation constant at input/output conditions.
-    * `"KP3input"`/`"KP3output"`: **third phosphoric acid** dissociation constant at input/output conditions.
-    * `"KSiinput"`/`"KSioutput"`: **silicic acid** dissociation constant at input/output conditions.
-    * `"KNH3input"`/`"KNH3output"`: **ammonium** equilibrium constant at input/output conditions.
-    * `"KH2Sinput"`/`"KH2Soutput"`: **hydrogen sulfide** equilibrium constant at input/output conditions.
-    * `"KCainput"`/`"KCaoutput"`: **calcite solubility product** at input/output conditions.
-    * `"KArinput"`/`"KARoutput"`: **aragonite solubility product** at input/output conditions.
+    * `"k_CO2"`: **Henry's constant for CO<sub>2</sub>**.
+    * `"k_H2CO3"`: **first carbonic acid** dissociation constant.
+    * `"k_HCO3"`: **second carbonic acid** dissociation constant.
+    * `"k_H2O"`: **water** dissociation constant.
+    * `"k_BOH3"`: **boric acid** dissociation constant.
+    * `"k_HF_free"`: **hydrogen fluoride** dissociation constant.
+    * `"k_HSO4_free"`: **bisulfate** dissociation constant.
+    * `"k_H3PO4"`: **first phosphoric acid** dissociation constant.
+    * `"k_H2PO4"`: **second phosphoric acid** dissociation constant.
+    * `"k_HPO4"`: **third phosphoric acid** dissociation constant.
+    * `"k_Si"`: **silicic acid** dissociation constant.
+    * `"k_NH3"`: **ammonia** equilibrium constant.
+    * `"k_H2S"`: **hydrogen sulfide** equilibrium constant.
+    <!--* `"k_alpha"`: **HA** equilibrium constant.-->
+    <!--* `"k_beta"`: **HB** equilibrium constant.-->
 
     The ideal gas constant used in the calculations is also returned.  Note the unusual unit:
 
-    * `"RGas"`: **ideal gas constant** in ml·bar<sup>−1</sup>·mol<sup>−1</sup>·K<sup>−1</sup>.
+    * `"gas_constant"`: **ideal gas constant** in ml·bar<sup>−1</sup>·mol<sup>−1</sup>·K<sup>−1</sup>.
 
-    #### Function inputs
+    #### Function arguments
 
-    * `"PAR1"`/`"PAR2"`: inputs `PAR1`/`PAR2`.
-    * `"TEMPIN"`/`"TEMPOUT"`: inputs `TEMPIN`/`TEMPOUT`.
-    * `"PRESIN"`/`"PRESOUT"`: inputs `PRESIN`/`PRESOUT`.
-    * `"PAR1TYPE"`/`"PAR2TYPE"`: inputs `PAR1TYPE`/`PAR2TYPE`.
-    * `"K1K2CONSTANTS"`: input `K1K2CONSTANTS`.
-    * `"KSO4CONSTANTS"`: input `KSO4CONSTANTS`.
-    * `"KFCONSTANT"`: input `KFCONSTANT`.
-    * `"pHSCALEIN"`: input `pHSCALEIN`.
-    * `"SAL"`: input `SAL`.
-    * `"PO4"`: input `PO4`.
-    * `"SI"`: input `SI`.
-    * `"NH3"`: input `NH3`.
-    * `"H2S"`: input `H2S`.
-    * `"WhichR"`: input `WhichR`.
-
-    Finally, `CO2SYS` splits up the input `KSO4CONSTANTS` into two separate settings variables internally, which are also returned in the `CO2dict` output:
-
-    * `"KSO4CONSTANT"`:
-        * `1` for `KSO4CONSTANTS in [1, 3]` (i.e. bisulfate dissociation from [D90a](../refs/#d)).
-        * `2` for `KSO4CONSTANTS in [2, 4]` (i.e. bisulfate dissociation from [KRCB77](../refs/#k)).
-    * `"BORON"`:
-        * `1` for `KSO4CONSTANTS in [1, 2]` (i.e. borate:salinity from [U74](../refs/#u)).
-        * `2` for `KSO4CONSTANTS in [3, 4]` (i.e. borate:salinity from [LKB10](../refs/#l)).
-
+    All the function arguments not already mentioned here are also returned as results with the same keys.
 
 [^1]: See [ZW01](../refs/#z) for definitions of the different pH scales.
-
-[^2]: In `opt_buffers_mode=2`, the Revelle factor is calculated using a simple finite difference scheme, just like the MATLAB version of CO2SYS.
-
-[^3]: Equations for the buffer factors of [ESM10](../refs/#e) in `opt_buffers_mode=2` have all been corrected for typos following [RAH18](../refs/#r) and [OEDG18](../refs/#o).
-
-## The original CO2SYS clone
-
-Originally, the main `CO2SYS` function in PyCO2SYS was an as-close-as-possible clone of CO2SYS v2.0.5 for MATLAB ([from here](https://github.com/jamesorr/CO2SYS-MATLAB)). Since then the code has been substantially reorganised and made more Pythonic behind the scenes and it is this Pythonised version that is now called up by `from PyCO2SYS import CO2SYS`.
-
-!!! warning
-    We strongly recommend that you use a Pythonised version [e.g. described above](#syntax)!
-
-If you do need to use the as-close-as-possible clone instead, this is still available via:
-
-    :::python
-    # Import the original CO2SYS clone
-    from PyCO2SYS.original import CO2SYS
-
-    # Run CO2SYS
-    DATA, HEADERS, NICEHEADERS = CO2SYS(PAR1, PAR2, PAR1TYPE, PAR2TYPE,
-        SAL, TEMPIN, TEMPOUT, PRESIN, PRESOUT, SI, PO4,
-        pHSCALEIN, K1K2CONSTANTS, KSO4CONSTANTS)
-
-The inputs are the same [as described above](#inputs) except:
-
-  * `PAR1TYPE` and `PAR2TYPE` can only take values from `1` to `5` inclusive.
-  * The optional extra inputs (`NH3`, `H2S` and `KFCONSTANT`) are not allowed. This is equivalent to using `NH3 = 0`, `H2S = 0` and `KFCONSTANT = 1` in the Pythonic version.
-
-The outputs are also the same [as described above](#outputs), except:
-
-  * There are no buffer factors other than the Revelle factor.
-  * The Revelle factor at output conditions does not include the "Peng correction" (applicable only for `K1K2CONSTANTS = 7`).
-  * The `KSO4CONSTANTS` input is not split into `KSO4CONSTANT` and `BORON`.
-  * There are none of the outputs associated with the `NH3` and `H2S` equilibria.
-  * `TCa` is not provided.
-  * They are reported in the original MATLAB style:
-    *  `DATA` contains a matrix of all calculated values.
-    *  `HEADERS` indicate the variable in each column of `DATA`.
-    *  `NICEHEADERS` is an alternative to `HEADERS` containing a little more information about each variable.
-
-To convert these MATLAB-style outputs into a dict comparable to `CO2dict`:
-
-    :::python
-    CO2dict = {header: DATA[:, h] for h, header in enumerate(HEADERS)}

@@ -70,6 +70,9 @@ Click on each reference to see more details.
 
 ### H
 
+??? note "H24: Humphreys (2024) *Ocean Sci.*"
+    Humphreys, M. P. (2024).  Temperature effect on seawater *ƒ*CO<sub>2</sub> revisited: theoretical basis, uncertainty analysis and implications for parameterising carbonic acid equilibrium constants.  *Ocean Science* 20, 1325-1350.  [doi:10.5194/os-20-1325-2024](https://doi.org/10.5194/os-20-1325-2024).
+
 ??? note "H73a: Hansson (1973) *Deep-Sea Res.*"
     Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. *Deep-Sea Research* 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.
 

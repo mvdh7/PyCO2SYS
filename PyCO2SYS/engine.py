@@ -1719,8 +1719,8 @@ class CO2System_ud(UserDict):
         pressure=None,
         store_steps=1,
         method_fCO2=1,
-        bh_upsilon=None,
         opt_which_fCO2_insitu=1,
+        bh_upsilon=None,
     ):
         """Adjust the system to a different temperature and/or pressure.
 
@@ -1747,13 +1747,13 @@ class CO2System_ud(UserDict):
                 4 - user-specified bh with the equations of H24
                 5 - linear fit of TOG93
                 6 - quadratic fit of TOG93
-        bh_upsilon : float, optional
-            If this is a single-parameter system and method_fCO2=4, then the value of
-            bh_upsilon must be specified here.
         opt_which_fCO2_insitu : int, optional
             If this is a single-parameter system and method_fCO2=1, whether (1) the
             input condition (starting) or (2) output condition (adjusted) temperature
             should be used to calculate bh, by default 1 (i.e., input).
+        bh_upsilon : float, optional
+            If this is a single-parameter system and method_fCO2=4, then the value of
+            bh_upsilon must be specified here.
 
         Returns
         -------

@@ -1,6 +1,6 @@
 # PyCO2SYS
 
-PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  Its core is a Python implementation of CO2SYS for MATLAB[^1].
+PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 
 ## Installation
 
@@ -10,15 +10,15 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
     pip install PyCO2SYS
 
-Update an existing installation:
-
-    pip install PyCO2SYS --upgrade --no-cache-dir
-
 ### With conda/mamba
+
+!!! warning
+
+    PyCO2SYS cannot be installed through conda on Windows – use pip instead.
 
 Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
 
-    conda install PyCO2SYS -c conda-forge
+    conda install conda-forge::PyCO2SYS
 
 ## Basic use
 
@@ -28,14 +28,13 @@ The import convention for PyCO2SYS is:
 import PyCO2SYS as pyco2
 ```
 
-and the only function you need is:
+and the main function needed is:
 
 ```python
-results = pyco2.sys(**kwargs)
+co2s = pyco2.sys(**kwargs)
 ```
 
-Read [How to use PyCO2SYS](co2sys_nd) for more on `pyco2.sys`, its `kwargs` and its `results`.
-
+Read [How to use PyCO2SYS](co2sys_nd) for more on `pyco2.sys`, its `kwargs` and the result `co2s`.
 
 ### Examples
 

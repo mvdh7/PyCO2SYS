@@ -2,7 +2,7 @@
 site_name: PyCO2SYS
 site_author: Matthew P. Humphreys
 site_description: Marine carbonate system calculations in Python
-copyright: Copyright &copy; 2020–2023 Matthew P. Humphreys (GNU GPLv3)
+copyright: Copyright &copy; 2020-2024 Matthew P. Humphreys (GNU GPLv3)
 
 # Github repo info
 repo_name: mvdh7/PyCO2SYS
@@ -11,8 +11,8 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 # Navigation
 nav:
   - Overview: index.md
-  - PyCO2SYS v2: co2sys2.md
   - How to use PyCO2SYS: co2sys_nd.md
+  - Switching from v1 to v2: v1_to_v2.md
   - Uncertainty propagation: uncertainty.md
   - Validation: validate.md
   - References: refs.md
@@ -36,6 +36,8 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.details
   - codehilite:
       guess_lang: false
@@ -46,7 +48,7 @@ markdown_extensions:
   - pymdownx.arithmatex
   - tables
 extra_javascript:
-  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML
+  - http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 extra_css:
   - stylesheets/extra.css
 
