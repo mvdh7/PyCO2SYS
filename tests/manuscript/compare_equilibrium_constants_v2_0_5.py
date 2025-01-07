@@ -87,10 +87,10 @@ def test_equilibrium_constants():
                 )
             )
         # Solve under input and output conditions
-        sys_in = CO2System(values=values_in, opts=opts)
-        sys_in.solve(svars)
-        sys_out = CO2System(values=values_out, opts=opts)
-        sys_out.solve(svars)
+        sys_in = CO2System(**values_in, **opts)
+        sys_in.solve(svars, store_steps=2)
+        sys_out = CO2System(**values_out, **opts)
+        sys_out.solve(svars, store_steps=2)
         # Compare MATLAB with Python
         for m, p in m_to_p:
             with warnings.catch_warnings():
@@ -100,17 +100,13 @@ def test_equilibrium_constants():
                     -999.9,
                     -np.log10(group[m + "input"].values),
                 )
-                pk_python_in = np.where(
-                    sys_in.values[p] == 0, -999.9, -np.log10(sys_in.values[p])
-                )
+                pk_python_in = np.where(sys_in[p] == 0, -999.9, -np.log10(sys_in[p]))
                 pk_matlab_out = np.where(
                     group[m + "output"].values == 0,
                     -999.9,
                     -np.log10(group[m + "output"].values),
                 )
-                pk_python_out = np.where(
-                    sys_out.values[p] == 0, -999.9, -np.log10(sys_out.values[p])
-                )
+                pk_python_out = np.where(sys_out[p] == 0, -999.9, -np.log10(sys_out[p]))
                 # These terms are not included when opt_k_carbonic == 6
                 if g[0] == 6 and p in [
                     "k_H2O",
@@ -169,11 +165,11 @@ def test_total_salts():
         elif g[0] == 7:
             opts.update(dict(opt_total_borate=4))
         # Solve
-        sys = CO2System(values=values, opts=opts)
+        sys = CO2System(**values, **opts)
         sys.solve(svars)
         # Compare MATLAB with Python
         for m, p in m_to_p:
-            python = sys.values[p]
+            python = sys[p]
             # These terms are not included when opt_k_carbonic == 8
             if g[0] == 8 and p in ["total_sulfate", "total_fluoride", "total_borate"]:
                 python[:] = 0.0

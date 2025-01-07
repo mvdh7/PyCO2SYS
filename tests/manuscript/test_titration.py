@@ -39,9 +39,8 @@ for k in ["total_borate", "total_fluoride", "total_sulfate"]:
     values[k] *= dilution_factor
 
 # Solve for pH, no phosphate
-sys = CO2System(values=values, opts=opts)
-sys.solve("pH")
-pH = sys.values["pH"]
+sys = CO2System(**values, **opts)
+pH = sys["pH"]
 
 # And again, with phosphate
 values_phosphate = values.copy()
@@ -53,9 +52,8 @@ values_phosphate.update(
         "k_HPO4": 1.32e-15 / 8e-7,
     }
 )
-sys_phosphate = CO2System(values=values_phosphate, opts=opts)
-sys_phosphate.solve("pH")
-pH_phosphate = sys_phosphate.values["pH"]
+sys_phosphate = CO2System(**values_phosphate, **opts)
+pH_phosphate = sys_phosphate["pH"]
 
 # Compare with D81's tables
 d81_pH = np.genfromtxt(

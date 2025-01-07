@@ -569,6 +569,14 @@ get_funcs_opts["opt_pH_scale"] = {
     ),
 }
 for o, funcs in get_funcs_opts["opt_pH_scale"].items():
+    if o == 1:
+        funcs.update(dict(pH_total=lambda pH: pH))
+    if o == 2:
+        funcs.update(dict(pH_sws=lambda pH: pH))
+    if o == 3:
+        funcs.update(dict(pH_free=lambda pH: pH))
+    if o == 4:
+        funcs.update(dict(pH_nbs=lambda pH: pH))
     if o in [2, 3, 4]:
         funcs.update(dict(pH_total=lambda pH, opt_to_tot: pH - np.log10(opt_to_tot)))
     if o in [1, 3, 4]:
@@ -1630,7 +1638,7 @@ class CO2System_ud(UserDict):
                         # factors, and a few selected others
                         store_steps == 1
                         and not p.startswith("factor_k_")
-                        and not p.endswith("_sws")
+                        and not (p.startswith("k_") and p.endswith("_sws"))
                         and not p.endswith("_1atm")
                         and p not in ["sws_to_opt", "opt_to_free", "ionic_strength"]
                     )
@@ -1661,7 +1669,8 @@ class CO2System_ud(UserDict):
             self.solve("gas_constant")
         match method_fCO2:
             case 1:
-                fCO2 = self.solve("fCO2", save_steps=False)["fCO2"]
+                self.solve("fCO2", store_steps=0)
+                fCO2 = self.fCO2
                 assert opt_which_fCO2_insitu in [1, 2]
                 if opt_which_fCO2_insitu == 2:
                     # If the output conditions are the environmental ones, then we need
@@ -1764,7 +1773,8 @@ class CO2System_ud(UserDict):
         if self.icase > 100:
             # If we know (any) two MCS parameters, solve for alkalinity and DIC under
             # the "input" conditions
-            core = self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
+            self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
+            core = {k: self[k] for k in ["alkalinity", "dic"]}
             data = {}
         elif self.icase in [4, 5, 8, 9]:
             assert (
@@ -1772,7 +1782,8 @@ class CO2System_ud(UserDict):
             ), "Cannot adjust pressure for a single-parameter system!"
             # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
             # the "input" conditions
-            core = self.solve(parameters="fCO2", store_steps=store_steps)
+            self.solve(parameters="fCO2", store_steps=store_steps)
+            core = {"fCO2": self.fCO2}
             # Then, convert this to the value at the new temperature using the requested
             # method
             assert method_fCO2 in range(

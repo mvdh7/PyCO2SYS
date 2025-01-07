@@ -26,30 +26,26 @@ def test_pressured_differences():
             partypes[pars[1]]: group.par2.values,
         }
         sys_in = CO2System(
-            values={
-                **values_pars,
-                "pressure": group.pressure.values,
-                "temperature": group.temperature.values,
-                "salinity": group.salinity.values,
-            },
-            opts=opts,
+            **values_pars,
+            pressure=group.pressure.values,
+            temperature=group.temperature.values,
+            salinity=group.salinity.values,
+            **opts,
         )
         sys_in.solve(solve_in)
         sys_out = CO2System(
-            values={
-                "alkalinity": sys_in.values["alkalinity"],
-                "dic": sys_in.values["dic"],
-                "pressure": group.pressure_out.values,
-                "temperature": group.temperature.values,
-                "salinity": group.salinity.values,
-            },
-            opts=opts,
+            alkalinity=sys_in.alkalinity,
+            dic=sys_in.dic,
+            pressure=group.pressure_out.values,
+            temperature=group.temperature.values,
+            salinity=group.salinity.values,
+            **opts,
         )
         sys_out.solve(solve_out)
         for v in solve_in:
-            assert np.all(np.abs(group[v].values - sys_in.values[v]) < 1e-6)
+            assert np.all(np.abs(group[v].values - sys_in[v]) < 1e-6)
         for v in solve_out:
-            assert np.all(np.abs(group[v + "_out"].values - sys_out.values[v]) < 1e-4)
+            assert np.all(np.abs(group[v + "_out"].values - sys_out[v]) < 1e-4)
 
 
 # test_pressured_differences()

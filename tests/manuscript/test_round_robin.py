@@ -24,7 +24,7 @@ opts = dict(
     opt_pH_scale=1,
     opt_total_borate=1,
 )
-sys_init = CO2System(values=values_init, opts=opts)
+sys_init = CO2System(**values_init, **opts)
 
 # Define parameter types and names and get initial values
 partypes = {
@@ -55,19 +55,19 @@ def test_round_robin():
         # print(" ")
         # print(par1, par2)
         sys = CO2System(
-            values={
-                par1: sys_init.values[par1],
-                par2: sys_init.values[par2],
+            **{
+                par1: sys_init[par1],
+                par2: sys_init[par2],
                 **values,
             },
-            opts=opts,
+            **opts,
         )
         sys.solve(partypes.values())
         for par in partypes.values():
             # print(par, sys_init.values[par], sys.values[par])
             assert np.isclose(
-                sys_init.values[par],
-                sys.values[par],
+                sys_init[par],
+                sys[par],
                 rtol=1e-12,
                 atol=1e-12,
             ), "{} & {} => {}".format(par1, par2, par)

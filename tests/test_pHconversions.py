@@ -66,26 +66,21 @@ def test_pH_conversions():
 
 
 def test_pH_conversions_sys():
-    sys1 = CO2System(values=dict(pH=8.1), opts=dict(opt_pH_scale=1))
-    sys1.solve(["pH_sws", "pH_free", "pH_nbs"])
-    sys1.values["pH_total"] = sys1.values["pH"]
-    sys2 = CO2System(values=dict(pH=sys1.values["pH_sws"]), opts=dict(opt_pH_scale=2))
-    sys2.solve(["pH_total", "pH_free", "pH_nbs"])
-    sys2.values["pH_sws"] = sys2.values["pH"]
-    sys3 = CO2System(values=dict(pH=sys1.values["pH_free"]), opts=dict(opt_pH_scale=3))
-    sys3.solve(["pH_total", "pH_sws", "pH_nbs"])
-    sys3.values["pH_free"] = sys3.values["pH"]
-    sys4 = CO2System(values=dict(pH=sys1.values["pH_nbs"]), opts=dict(opt_pH_scale=4))
-    sys4.solve(["pH_total", "pH_sws", "pH_free"])
-    sys4.values["pH_nbs"] = sys4.values["pH"]
-    for scale in ["pH_total", "pH_sws", "pH_free", "pH_nbs"]:
-        assert np.isclose(sys1.values[scale], sys2.values[scale], rtol=0, atol=1e-12)
-        assert np.isclose(sys1.values[scale], sys3.values[scale], rtol=0, atol=1e-12)
-        assert np.isclose(sys1.values[scale], sys4.values[scale], rtol=0, atol=1e-12)
-        assert np.isclose(sys2.values[scale], sys3.values[scale], rtol=0, atol=1e-12)
-        assert np.isclose(sys2.values[scale], sys4.values[scale], rtol=0, atol=1e-12)
-        assert np.isclose(sys3.values[scale], sys4.values[scale], rtol=0, atol=1e-12)
+    scales = ["pH_total", "pH_sws", "pH_free", "pH_nbs"]
+    sys1 = CO2System(pH=8.1, opt_pH_scale=1)
+    sys2 = CO2System(pH=sys1["pH_sws"], opt_pH_scale=2)
+    sys3 = CO2System(pH=sys1["pH_free"], opt_pH_scale=3)
+    sys4 = CO2System(pH=sys1["pH_nbs"], opt_pH_scale=4)
+    for sys in [sys1, sys2, sys3, sys4]:
+        sys.solve(scales)
+    for scale in scales:
+        assert np.isclose(sys1[scale], sys2[scale], rtol=0, atol=1e-12)
+        assert np.isclose(sys1[scale], sys3[scale], rtol=0, atol=1e-12)
+        assert np.isclose(sys1[scale], sys4[scale], rtol=0, atol=1e-12)
+        assert np.isclose(sys2[scale], sys3[scale], rtol=0, atol=1e-12)
+        assert np.isclose(sys2[scale], sys4[scale], rtol=0, atol=1e-12)
+        assert np.isclose(sys3[scale], sys4[scale], rtol=0, atol=1e-12)
 
 
-# test_pH_conversions()
-# test_pH_conversions_sys()
+test_pH_conversions()
+test_pH_conversions_sys()

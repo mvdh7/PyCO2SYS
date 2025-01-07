@@ -28,14 +28,14 @@ opts_orr2 = dict(
     opt_k_carbonic=10,
     opt_total_borate=2,
 )
-sys2 = CO2System(values=values_orr2, opts=opts_orr2)
+sys2 = CO2System(**values_orr2, **opts_orr2)
 sys2.get_grads(grads_of, grads_wrt)
 # Get grads w.r.t. H_free manually from pH grad, because that's how Orr did it and the
 # results are not consistent otherwise
 grads_Hfree_manual_orr2 = {}
 for wrt in grads_wrt:
     grads_Hfree_manual_orr2[wrt] = (
-        -np.log(10) * 10 ** -sys2.values["pH"] * sys2.grads["pH"][wrt] * 1e6
+        -np.log(10) * 10 ** -sys2["pH"] * sys2.grads["pH"][wrt] * 1e6
     )
 # Merge PyCO2SYS calculations with the Orr table
 for wrt in grads_wrt:
@@ -64,12 +64,12 @@ opts_orr3 = dict(
     opt_total_borate=2,
 )
 grads_wrt = ["total_phosphate", "total_silicate"]
-sys3 = CO2System(values=values_orr3, opts=opts_orr3)
+sys3 = CO2System(**values_orr3, **opts_orr3)
 sys3.get_grads(grads_of, grads_wrt)
 grads_Hfree_manual_orr3 = {}
 for wrt in grads_wrt:
     grads_Hfree_manual_orr3[wrt] = (
-        -np.log(10) * 10 ** -sys3.values["pH"] * sys3.grads["pH"][wrt] * 1e6
+        -np.log(10) * 10 ** -sys3["pH"] * sys3.grads["pH"][wrt] * 1e6
     )
 for wrt in grads_wrt:
     nrow = pd.DataFrame({"wrt": [wrt], "program": "PyCO2SYS"})
@@ -106,12 +106,10 @@ uncertainty_from = {
     "total_phosphate": 0.1,
     "total_silicate": 4,
 }
-sys4 = CO2System(values=values_orr4, opts=opts_orr4)
+sys4 = CO2System(**values_orr4, **opts_orr4)
 sys4.propagate(uncertainty_into, uncertainty_from)
 
-u_Hfree_manual = (
-    np.log(10) * 10 ** -sys4.values["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
-)
+u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "no"}
 )
@@ -125,7 +123,7 @@ uncertainty_from.update(pyco2.uncertainty_OEDG18)
 sys4.propagate(uncertainty_into, uncertainty_from)
 
 u_Hfree_manual_pks = (
-    np.log(10) * 10 ** -sys4.values["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
+    np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
 )
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
@@ -176,6 +174,6 @@ def test_table4_OEDG18():
             ), "Failed on {} / {}".format(of, wrt)
 
 
-# test_table2_OEDG18()
-# test_table3_OEDG18()
-# test_table4_OEDG18()
+test_table2_OEDG18()
+test_table3_OEDG18()
+test_table4_OEDG18()

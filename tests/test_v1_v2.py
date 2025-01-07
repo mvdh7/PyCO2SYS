@@ -10,8 +10,8 @@ def test_v1_v2():
     with open("tests/data/test_v1_v2.pkl", "rb") as f:
         results = pickle.load(f)
     # Solve the system with the v2 approach
-    sys = CO2System(
-        values={
+    co2s = CO2System(
+        **{
             k: results[k]
             for k in [
                 "alkalinity",
@@ -26,9 +26,9 @@ def test_v1_v2():
                 "pressure_atmosphere",
             ]
         },
-        opts=dict(opt_k_carbonic=10),
+        opt_k_carbonic=10,
     )
-    sys.solve()
+    co2s.solve()
     # These values don't need to be compared because they weren't output by pyco2.sys
     dont_compare = [
         "H",
@@ -137,12 +137,11 @@ def test_v1_v2():
             "alphaH",
             "beta",
             "betaH",
-            "pH_total",
             "bh_upsilon",
         ]
     ]
     # Test the values that can be output as standard from a CO2System
-    for k, v in sys.values.items():
+    for k, v in co2s.items():
         if k in results:
             # These ones have the same name in v1 and v2
             assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
@@ -160,15 +159,18 @@ def test_v1_v2():
     # to be calculated manually for a CO2System
     for k in results_keys.copy():
         if k == "dlnfCO2_dT":
-            sys.get_grad("fCO2", "temperature")
-            v = sys.grads["fCO2"]["temperature"] / sys.values["fCO2"]
+            co2s.get_grad("fCO2", "temperature")
+            v = co2s.grads["fCO2"]["temperature"] / co2s["fCO2"]
             assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
             results_keys.remove(k)
         elif k == "dlnpCO2_dT":
-            sys.get_grad("pCO2", "temperature")
-            v = sys.grads["pCO2"]["temperature"] / sys.values["pCO2"]
+            co2s.get_grad("pCO2", "temperature")
+            v = co2s.grads["pCO2"]["temperature"] / co2s["pCO2"]
             assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
             results_keys.remove(k)
         else:
             # There shouldn't be anything else left in results_keys
             assert False
+
+
+# test_v1_v2()
