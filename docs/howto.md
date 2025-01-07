@@ -52,7 +52,7 @@ kwargs = {
 
 ### Calculate new parameters
 
-Attempting to access parameters with square brackets will cause them to be calculated and returned.  For example:
+Parameters will be calculated and returned when they are accessed with square brackets (as if in a dict).  For example:
 
 ```python
 import PyCO2SYS as pyco2
@@ -71,11 +71,11 @@ dic = co2s["dic"]
 params = co2s[["fCO2", "k_H2CO3"]]
 ```
 
-All intermediate parameters used in calculating the requested parameter will also be stored in the `co2s`, so they can be accessed more quickly for future calculations.
+All intermediate parameters used in calculating the requested parameter will also be stored in the `co2s`, so they can be accessed without recalculating them in the future.
 
 ### Propagate uncertainties
 
-To propagate independent uncertainties through the calculations, use `propagate`:
+To propagate independent uncertainties through the calculations, use the `propagate` method:
 
 ```python
 # Propagate uncertainties
@@ -87,6 +87,10 @@ dic_uncertainty_from_pH = co2s.uncertainty["dic"]["pH"]
 ```
 
 In the example above, independent uncertainties in alkalinity of 2 µmol&nbsp;kg<sup>–1</sup> and pH of 0.02 were propagated through to DIC (`dic_uncertainty` in the standard units of DIC, i.e., µmol&nbsp;kg<sup>–1</sup>).  The individual components of uncertainty deriving from each source can also be accessed.
+
+Uncertainties can be provided in any input value and/or in any internally calculated equilibrium constants or total salt contents.
+
+[> More details on uncertainty propagation here.](../uncertainty)
 
 ### Adjust conditions
 
