@@ -67,7 +67,7 @@ co2s = pyco2.sys(
 )
 # (If necessary) solve for and retrieve a calculated parameter
 dic = co2s["dic"]
-# Solve for and retrieve multiple parameters
+# Solve for and retrieve multiple parameters as a dict
 params = co2s[["fCO2", "k_H2CO3"]]
 ```
 
@@ -96,7 +96,7 @@ To adjust the system to a different set of temperature and/or pressure condition
 co2s_adj = co2s.adjust(temperature=25, pressure=1000)
 ```
 
-The result `co2s_adj` is a new `CO2System` with all values at the new conditions (temperature of 25 °C and hydrostatic pressure of 1000 dbar).
+The result `co2s_adj` is a new `CO2System` with all values at the new conditions (above, temperature of 25 °C and hydrostatic pressure of 1000 dbar).
 
 The `adjust` method can be used if any two carbonate system parameters are known, but also if only one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub> is known.  In this case, `adjust` can take additional kwargs:
 
