@@ -32,3 +32,9 @@ include = ["PyCO2SYS*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "PyCO2SYS.meta.version"}
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = ["PyCO2SYS"]
