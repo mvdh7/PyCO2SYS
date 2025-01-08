@@ -10,9 +10,9 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.6
     hooks:
-      # - id: ruff
-      #   name: ruff lint
-      #   args: [--fix, --show-fixes]
+      - id: ruff
+        name: ruff lint
+        args: [--fix, --show-fixes]
       - id: ruff-format
   - repo: https://github.com/rbubley/mirrors-prettier # Update mirror as official mirror is deprecated
     rev: v3.4.2
