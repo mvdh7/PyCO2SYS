@@ -174,6 +174,6 @@ def test_table4_OEDG18():
             ), "Failed on {} / {}".format(of, wrt)
 
 
-test_table2_OEDG18()
-test_table3_OEDG18()
-test_table4_OEDG18()
+# test_table2_OEDG18()
+# test_table3_OEDG18()
+# test_table4_OEDG18()

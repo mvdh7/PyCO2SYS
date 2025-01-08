@@ -1965,10 +1965,10 @@ class CO2System_ud(UserDict):
 
         New entries are added in the ``uncertainty`` attribute, for example:
 
-            sys = CO2System(dic=2100, alkalinity=2300)
-            sys.propagate("pH", {"dic": 2, "alkalinity": 2})
-            sys.uncertainty["pH"]["total"]  # total uncertainty in pH
-            sys.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
+            co2s = CO2System(dic=2100, alkalinity=2300)
+            co2s.propagate("pH", {"dic": 2, "alkalinity": 2})
+            co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
+            co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
 
         Parameters
         ----------
@@ -2008,7 +2008,7 @@ class CO2System_ud(UserDict):
                     self.solve(var_from)
                     data = self.get_values_original()
                     data.update({var_from: self.data[var_from]})
-                    sys = CO2System_ud(data=data, opts=self.opts)
+                    sys = CO2System_ud(**data, **self.opts)
                     sys.get_grad(var_in, var_from)
                     u_part = np.abs(sys.grads[var_in][var_from] * u_from)
                 # Add the p back and convert value, if necessary
