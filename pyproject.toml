@@ -8,6 +8,7 @@ build-backend = "setuptools.build_meta"
 name = "PyCO2SYS"
 description = "PyCO2SYS: marine carbonate system calculations in Python"
 readme = "README.md"
+requires-python = ">= 3.10"
 dependencies = [
     "jax",
     "networkx",
