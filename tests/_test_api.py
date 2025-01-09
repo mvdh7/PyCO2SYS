@@ -1,5 +1,5 @@
 from PyCO2SYS.api import CO2SYS_wrap as CO2SYS
-
+import pytest
 
 def test_CO2sys_api():
     import pandas as pd
@@ -21,16 +21,8 @@ def test_CO2sys_api_vector():
 
 
 def test_CO2sys_raise_error():
-    try:
-        output = CO2SYS(dic=2000)
-        output = Exception
-    except KeyError:
-        output = None
-    except Exception as e:
-        output = e
-
-    if output is not None:
-        raise output("Test should fail if no KeyError is not passed")
+    with pytest.raises(KeyError):
+        CO2SYS(dic=2000)
 
 
 def test_CO2sys_xarray():
