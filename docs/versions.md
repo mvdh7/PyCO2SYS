@@ -356,16 +356,16 @@ Calculates a wider variety of chemical buffer factors.
 ### 1.2.1 (9 April 2020)
 
 !!! new-version "Changes in v1.2.1"
-    * Fixed typo in [ESM10](../refs/#ESM10) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
+    * Fixed typo in [ESM10](../refs/#e) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
 
 ### 1.2.0 (8 April 2020)
 
 !!! new-version "Changes in v1.2.0"
     * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
-      * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#ESM10), corrected for the typos noted by [RAH18](../refs/#RAH18).
-      * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 8.
-      * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](../refs/#HDW18), Eq. 7.
-      * `psi` calculates the $\psi$ factor of [FCG94](../refs/#FCG94).
+      * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#e), corrected for the typos noted by [RAH18](../refs/#r).
+      * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](../refs/#h), Eq. 8.
+      * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](../refs/#h), Eq. 7.
+      * `psi` calculates the $\psi$ factor of [FCG94](../refs/#f).
     * Added all functions in `extra` to the `CO2dict` output of the main `CO2SYS` function, and documented in the [Github repo README](https://github.com/mvdh7/PyCO2SYS#pyco2sys).
 
 ## 1.1

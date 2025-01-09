@@ -14,6 +14,7 @@ nav:
   - How to use PyCO2SYS: howto.md
   - Uncertainty propagation: uncertainty.md
   - Switching from v1 to v2: v1_to_v2.md
+  - API reference: api.md
   - Validation: validate.md
   - References: refs.md
   - Version history: versions.md
@@ -53,3 +54,8 @@ extra_css:
 # Plugins
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
