@@ -20,12 +20,12 @@ Marine carbonate system calculations in Python.
 """
 
 from . import meta
-from .engine import CO2System_ud as CO2System
+from .engine import CO2System, sys
 from .meta import hello  # because history
 from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 # from .engine.nd import CO2SYS as sys
-__all__ = ["CO2System", "hello", "uncertainty_OEDG18"]
+__all__ = ["CO2System", "hello", "sys", "uncertainty_OEDG18"]
 __author__ = meta.authors
 __version__ = meta.version
