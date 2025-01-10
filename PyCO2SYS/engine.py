@@ -1101,7 +1101,7 @@ class CO2System:
         Parameters
         ----------
         temperature : float, optional
-            Temperature to adjust to in °C, by default None, in which case temperature
+            Temperature to adjust to in °C, by default `None`, in which case temperature
             is not adjusted.
         pressure : float, optional
             Hydrostatic pressure to adjust to in dbar, by default None, in which case
@@ -1736,39 +1736,42 @@ class CO2System_ud(UserDict):
         Parameters
         ----------
         temperature : float, optional
-            Temperature to adjust to in °C, by default None, in which case temperature
-            is not adjusted.
+            Temperature in °C to adjust to.  If `None`, temperature is not adjusted.
         pressure : float, optional
-            Hydrostatic pressure to adjust to in dbar, by default None, in which case
-            pressure is not adjusted
+            Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is not
+            adjusted.
         store_steps : int, optional
             Whether/which non-requested parameters calculated during intermediate
-            calculation steps should be stored, by default 1.  The options are
-                0 - store only the specifically requested parameters,
-                1 - store the most used set of intermediate parameters, or
-                2 - store the complete set of parameters.
+            calculation steps should be stored.  The options are:
+
+              - `0`: Store only the requested parameters.
+              - `1`: Store the requested and most commonly used set of intermediate
+              parameters (default).
+              - `2`: Store the requested and complete set of intermediate parameters.
         method_fCO2 : int, optional
             If this is a single-parameter system, which method to use for the
-            adjustment, by default 1.  The options are
-                1 - parameterisation of H24
-                2 - constant bh fitted to TOG93 dataset by H24
-                3 - constant theoretical bh of H24
-                4 - user-specified bh with the equations of H24
-                5 - linear fit of TOG93
-                6 - quadratic fit of TOG93
+            adjustment.  The options are:
+
+              - `1`: parameterisation of H24 (default).
+              - `2`: constant bh fitted to TOG93 dataset by H24.
+              - `3`: constant theoretical bh of H24.
+              - `4`: user-specified bh with the equations of H24.
+              - `5`: linear fit of TOG93.
+              - `6`: quadratic fit of TOG93.
         opt_which_fCO2_insitu : int, optional
-            If this is a single-parameter system and method_fCO2=1, whether (1) the
-            input condition (starting) or (2) output condition (adjusted) temperature
-            should be used to calculate bh, by default 1 (i.e., input).
+            If this is a single-parameter system and `method_fCO2` is `1`, whether:
+              - `1` the input condition (starting; default) or
+              - `2` output condition (adjusted) temperature
+            should be used to calculate $b_h$.
         bh_upsilon : float, optional
-            If this is a single-parameter system and method_fCO2=4, then the value of
-            bh_upsilon must be specified here.
+            If this is a single-parameter system and `method_fCO2` is `4`, then the
+            value of $b_h$ in J/mol must be specified here.
 
         Returns
         -------
         CO2System
-            A new CO2System with all values adjusted to the requested temperature and/or
-            pressure.
+            A new `CO2System` with all values adjusted to the requested temperature(s)
+            and/or pressure(s).
         """
         if self.icase > 100:
             # If we know (any) two MCS parameters, solve for alkalinity and DIC under
@@ -1821,7 +1824,7 @@ class CO2System_ud(UserDict):
         sys.solve(parameters=self.data)
         return sys
 
-    def get_func_of(self, var_of):
+    def _get_func_of(self, var_of):
         """Create a function to compute ``var_of`` directly from an input set of values.
 
         The created function has the signature
@@ -1875,14 +1878,14 @@ class CO2System_ud(UserDict):
         get_value_of.__doc__ += "\n{}".format(var_of)
         return get_value_of
 
-    def get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with ``get_func_of`` so that one of its kwargs
+    def _get_func_of_from_wrt(self, get_value_of, var_wrt):
+        """Reorganise a function created with ``_get_func_of`` so that one of its kwargs
         is instead a positional arg (and which can thus be gradded).
 
         Parameters
         ----------
         get_value_of : func
-            Function created with ``get_func_of``.
+            Function created with ``_get_func_of``.
         var_wrt : str
             Name of the value to use as a positional arg instead.
 
@@ -1900,14 +1903,14 @@ class CO2System_ud(UserDict):
         return get_value_of_from_wrt
 
     def get_grad_func(self, var_of, var_wrt):
-        get_value_of = self.get_func_of(var_of)
-        get_value_of_from_wrt = self.get_func_of_from_wrt(get_value_of, var_wrt)
+        get_value_of = self._get_func_of(var_of)
+        get_value_of_from_wrt = self._get_func_of_from_wrt(get_value_of, var_wrt)
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of ``var_of`` with respect to ``var_wrt`` and store
-        this in ``sys.grads[var_of][var_wrt]``.  If there is already a value there then
-        that value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt` and store it in
+        `sys.grads[var_of][var_wrt]`.  If there is already a value there, then that
+        value is returned instead of recalculating.
 
         Parameters
         ----------
@@ -1915,12 +1918,12 @@ class CO2System_ud(UserDict):
             The name of the variable to get the derivative of.
         var_wrt : str
             The name of the variable to get the derivative with respect to.  This must
-            be one of the fixed values provided when creating the ``CO2System``, i.e.,
-            listed in ``sys.nodes_original``.
+            be one of the fixed values provided when creating the `CO2System`, i.e.,
+            listed in its `nodes_original` attribute.
         """
         assert (
             var_wrt in self.nodes_original
-        ), "``var_wrt`` must be one of ``sys.nodes_original!``"
+        ), "`var_wrt` must be one of `sys.nodes_original!`"
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
         except KeyError:  # only do the calculations if there isn't already a value
@@ -1949,6 +1952,19 @@ class CO2System_ud(UserDict):
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
+        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and store
+        them in `sys.grads[var_of][var_wrt]`.  If there are already values there, then
+        those values are returned instead of recalculating.
+
+        Parameters
+        ----------
+        vars_of : list
+            The names of the variables to get the derivatives of.
+        vars_wrt : list
+            The names of the variables to get the derivatives with respect to.  These
+            must all be one of the fixed values provided when creating the `CO2System`,
+            i.e., listed in its `nodes_original` attribute.
+        """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
@@ -1963,7 +1979,7 @@ class CO2System_ud(UserDict):
         """Propagate independent uncertainties through the calculations.  Covariances
         are not accounted for.
 
-        New entries are added in the ``uncertainty`` attribute, for example:
+        New entries are added in the `uncertainty` attribute, for example:
 
             co2s = CO2System(dic=2100, alkalinity=2300)
             co2s.propagate("pH", {"dic": 2, "alkalinity": 2})
@@ -2036,24 +2052,25 @@ class CO2System_ud(UserDict):
         Parameters
         ----------
         ax : matplotlib axes, optional
-            The axes, by default None, in which case a new figure and axes are created.
+            The axes on which to plot.  If `None`, a new figure and axes are created.
         exclude_nodes : list of str, optional
-            List of nodes to exclude from the plot, by default None.  Nodes in this list
-            are not shown, nor are connections to them or through them.
+            List of nodes to exclude from the plot, by default `None`.  Nodes in this
+            list are not shown, nor are connections to them or through them.
         prog_graphviz : str, optional
             Name of Graphviz layout program, by default "neato".
         show_tsp : bool, optional
-            Whether to show temperature, salinity and pressure nodes, by default False.
+            Whether to show temperature, salinity and pressure nodes, by default
+            `False`.
         show_unknown : bool, optional
             Whether to show nodes for parameters that have not (yet) been calculated,
-            by default True.
+            by default `True`.
         show_isolated : bool, optional
             Whether to show nodes for parameters that are not connected to the graph,
-            by default True.
+            by default `True`.
         skip_nodes : bool, optional
-            List of nodes to skip from the plot, by default None.  Nodes in this list
+            List of nodes to skip from the plot, by default `None`.  Nodes in this list
             are not shown, but the connections between their predecessors and children
-            are still drawn in.
+            are still drawn.
 
         Returns
         -------
