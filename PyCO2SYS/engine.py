@@ -876,7 +876,7 @@ def _remove_jax_overhead(d):
 
 
 class CO2System(UserDict):
-    def __init__(self, pd_index=None, xr_dims=None, **kwargs):
+    def __init__(self, pd_index=None, xr_dims=None, xr_shape=None, **kwargs):
         super().__init__()
         opts = {k: v for k, v in kwargs.items() if k.startswith("opt_")}
         data = {k: v for k, v in kwargs.items() if k not in opts}
@@ -920,9 +920,14 @@ class CO2System(UserDict):
         self.grads = {}
         self.uncertainty = {}
         self.requested = set()  # keep track of all parameters that have been requested
-        # These are not yet implemented:
         self.pd_index = pd_index
+        if xr_dims is not None:
+            assert xr_shape is not None
+            assert len(xr_dims) == len(xr_shape)
+        else:
+            assert xr_shape is None
         self.xr_dims = xr_dims
+        self.xr_shape = xr_shape
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet, then solve
@@ -1067,13 +1072,16 @@ class CO2System(UserDict):
         _remove_jax_overhead(self_data)
         self.data.update(self_data)
 
-    def to_pandas(self, parameters, store_steps=1):
-        """Return parameters as a pandas `Series` or `DataFrame`.
+    def to_pandas(self, parameters=None, store_steps=1):
+        """Return parameters as a pandas `Series` or `DataFrame`.  All parameters should
+        be scalar or one-dimensional vectors of the same size.
 
         Parameters
         ----------
-        parameters : str or list of str
+        parameters : str or list of str, optional
             The parameter(s) to return.  These are solved for if not already available.
+            If `None`, then all parameters that have already been solved for are
+            returned.
         store_steps : int, optional
             See `solve`.
 
@@ -1088,18 +1096,74 @@ class CO2System(UserDict):
         try:
             import pandas as pd
 
+            if parameters is None:
+                parameters = self.keys()
             self.solve(parameters=parameters, store_steps=store_steps)
             if isinstance(parameters, str):
                 return pd.Series(data=self[parameters], index=self.pd_index)
             else:
                 return pd.DataFrame(
                     {
-                        p: pd.Series(data=self[p], index=self.pd_index)
+                        p: pd.Series(
+                            data=self[p] * np.ones(self.pd_index.shape),
+                            index=self.pd_index,
+                        )
                         for p in parameters
                     }
                 )
         except ImportError:
             warnings.warn("pandas could not be imported.")
+
+    def _get_xr_ndims(self, parameter):
+        ndims = []
+        if not np.isscalar(self[parameter]):
+            for i, vs in enumerate(self[parameter].shape):
+                if vs == self.xr_shape[i]:
+                    ndims.append(self.xr_dims[i])
+        return ndims
+
+    def to_xarray(self, parameters=None, store_steps=1):
+        """Return parameters as an xarray `DataArray` or `Dataset`.
+
+        Parameters
+        ----------
+        parameters : str or list of str, optional
+            The parameter(s) to return.  These are solved for if not already available.
+            If `None`, then all parameters that have already been solved for are
+            returned.
+        store_steps : int, optional
+            See `solve`.
+
+        Returns
+        -------
+        xr.DataArray or xr.Dataset
+            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`) or as a
+            `xr.Dataset` (if `parameters` is a `list`) with the original xarray
+            dimensions passed into the `CO2System` as `data`.  If `data` was not an
+            `xr.Dataset` then this function will not work.
+        """
+        assert self.xr_dims is not None and self.xr_shape is not None, (
+            "`data` was not provided as an `xr.Dataset` "
+            + "when creating this `CO2System`."
+        )
+        try:
+            import xarray as xr
+
+            if parameters is None:
+                parameters = self.keys()
+            self.solve(parameters=parameters, store_steps=store_steps)
+            if isinstance(parameters, str):
+                ndims = self._get_xr_ndims(parameters)
+                return xr.DataArray(np.squeeze(self[parameters]), dims=ndims)
+            else:
+                return xr.Dataset(
+                    {
+                        p: xr.DataArray(np.squeeze(self[p]), dims=self._get_xr_ndims(p))
+                        for p in parameters
+                    }
+                )
+        except ImportError:
+            warnings.warn("xarray could not be imported.")
 
     def _get_expUps(
         self,
@@ -1583,19 +1647,50 @@ def sys(data=None, **kwargs):
     # Merge data with kwargs
     pd_index = None
     xr_dims = None
+    data_is_dict = False
     if data is not None:
-        if isinstance(data, dict):
+        for k in kwargs:
+            if k in data:
+                warnings.warn(
+                    f'"{k}" found in both `data` and `kwargs` - the value in '
+                    + "`data` will be used."
+                )
+        data_is_dict = isinstance(data, dict)
+        if data_is_dict:
             kwargs.update(data)
         else:
+            data_is_pandas = False
             try:
                 import pandas as pd
 
-                if isinstance(data, pd.DataFrame):
+                data_is_pandas = isinstance(data, pd.DataFrame)
+                if data_is_pandas:
                     pd_index = data.index.copy()
                     for c in data.columns:
                         kwargs[c] = data[c].to_numpy()
             except ImportError:
                 warnings.warn("pandas could not be imported - ignoring `data`.")
+            data_is_xarray = False
+            if not data_is_pandas:
+                try:
+                    import xarray as xr
+
+                    data_is_xarray = isinstance(data, xr.Dataset)
+                    if data_is_xarray:
+                        xr_dims = list(data.sizes.keys())
+                        xr_shape = list(data.sizes.values())
+                        for k, v in data.items():
+                            ndims = []
+                            for d in xr_dims:
+                                if d in v.sizes:
+                                    ndims.append(v.sizes[d])
+                                else:
+                                    ndims.append(1)
+                            kwargs[k] = np.reshape(v.data, ndims)
+                except ImportError:
+                    warnings.warn("xarray could not be imported - ignoring `data`.")
+                if not data_is_xarray:
+                    warnings.warn("Type of `data` not recognised - it will be ignored.")
     # Parse kwargs
     for k in kwargs:
         # Convert lists to numpy arrays
@@ -1619,4 +1714,4 @@ def sys(data=None, **kwargs):
                 kwargs[k] = float(kwargs[k])
             elif kwargs[k].dtype == int:
                 kwargs[k] = kwargs[k].astype(float)
-    return CO2System(pd_index=pd_index, xr_dims=xr_dims, **kwargs)
+    return CO2System(pd_index=pd_index, xr_dims=xr_dims, xr_shape=xr_shape, **kwargs)
