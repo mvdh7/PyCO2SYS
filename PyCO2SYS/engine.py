@@ -6,6 +6,7 @@ from collections import UserDict
 
 import networkx as nx
 from jax import numpy as np
+from jaxlib.xla_extension import ArrayImpl
 
 from . import (
     bio,
@@ -875,7 +876,7 @@ def _remove_jax_overhead(d):
 
 
 class CO2System(UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, pd_index=None, xr_dims=None, **kwargs):
         super().__init__()
         opts = {k: v for k, v in kwargs.items() if k.startswith("opt_")}
         data = {k: v for k, v in kwargs.items() if k not in opts}
@@ -919,6 +920,9 @@ class CO2System(UserDict):
         self.grads = {}
         self.uncertainty = {}
         self.requested = set()  # keep track of all parameters that have been requested
+        # These are not yet implemented:
+        self.pd_index = pd_index
+        self.xr_dims = xr_dims
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet, then solve
@@ -1541,5 +1545,32 @@ class CO2System(UserDict):
         return ax
 
 
-def sys(**kwargs):
+def sys(data=None, **kwargs):
+    # Merge data with kwargs
+    if data is not None:
+        if isinstance(data, dict):
+            kwargs.update(data)
+    # Parse kwargs
+    for k in kwargs:
+        # Convert lists to numpy arrays
+        if isinstance(kwargs[k], list):
+            kwargs[k] = np.array(kwargs[k])
+        # If opts are scalar, only take first value
+        if k.startswith("opt_"):
+            if np.isscalar(kwargs[k]):
+                if isinstance(kwargs[k], ArrayImpl):
+                    kwargs[k] = kwargs[k].item()
+            else:
+                kwargs[k] = np.ravel(np.array(kwargs[k]))[0].item()
+                warnings.warn(
+                    f"`{k}` is not scalar, so only the first value will be used."
+                )
+            if isinstance(kwargs[k], float):
+                kwargs[k] = int(kwargs[k])
+        # Convert ints to floats
+        else:
+            if isinstance(kwargs[k], int):
+                kwargs[k] = float(kwargs[k])
+            elif kwargs[k].dtype == int:
+                kwargs[k] = kwargs[k].astype(float)
     return CO2System(**kwargs)
