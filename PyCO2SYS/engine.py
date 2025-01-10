@@ -1067,6 +1067,40 @@ class CO2System(UserDict):
         _remove_jax_overhead(self_data)
         self.data.update(self_data)
 
+    def to_pandas(self, parameters, store_steps=1):
+        """Return parameters as a pandas `Series` or `DataFrame`.
+
+        Parameters
+        ----------
+        parameters : str or list of str
+            The parameter(s) to return.  These are solved for if not already available.
+        store_steps : int, optional
+            See `solve`.
+
+        Returns
+        -------
+        pd.Series or pd.DataFrame
+            The parameter(s) as a `pd.Series` (if `parameters` is a `str`) or as a
+            `pd.DataFrame` (if `parameters` is a `list`) with the original pandas index
+            passed into the `CO2System` as `data`.  If `data` was not a `pd.DataFrame`
+            then the default index will be used.
+        """
+        try:
+            import pandas as pd
+
+            self.solve(parameters=parameters, store_steps=store_steps)
+            if isinstance(parameters, str):
+                return pd.Series(data=self[parameters], index=self.pd_index)
+            else:
+                return pd.DataFrame(
+                    {
+                        p: pd.Series(data=self[p], index=self.pd_index)
+                        for p in parameters
+                    }
+                )
+        except ImportError:
+            warnings.warn("pandas could not be imported.")
+
     def _get_expUps(
         self,
         method_fCO2,
@@ -1547,9 +1581,21 @@ class CO2System(UserDict):
 
 def sys(data=None, **kwargs):
     # Merge data with kwargs
+    pd_index = None
+    xr_dims = None
     if data is not None:
         if isinstance(data, dict):
             kwargs.update(data)
+        else:
+            try:
+                import pandas as pd
+
+                if isinstance(data, pd.DataFrame):
+                    pd_index = data.index.copy()
+                    for c in data.columns:
+                        kwargs[c] = data[c].to_numpy()
+            except ImportError:
+                warnings.warn("pandas could not be imported - ignoring `data`.")
     # Parse kwargs
     for k in kwargs:
         # Convert lists to numpy arrays
@@ -1573,4 +1619,4 @@ def sys(data=None, **kwargs):
                 kwargs[k] = float(kwargs[k])
             elif kwargs[k].dtype == int:
                 kwargs[k] = kwargs[k].astype(float)
-    return CO2System(**kwargs)
+    return CO2System(pd_index=pd_index, xr_dims=xr_dims, **kwargs)
