@@ -20,15 +20,21 @@ Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys
 
     conda install conda-forge::PyCO2SYS
 
-## Basic use
+## How to use PyCO2SYS
 
-See:
+Start with the
 
-  * [Quick-start guide](quick.md), 
+  * [Quick-start guide](quick.md)
+
+before moving on to
+
   * [Arguments and results](detail.md),
-  * [Adjust conditions](adjust.md),
-  * [Uncertainty propagation](uncertainty.md) and
-  * [Advanced results access](results.md)
+  * [Adjust conditions](adjust.md) and
+  * [Uncertainty propagation](uncertainty.md).
+
+If you're really interested, also look at
+
+  * [Advanced results access](results.md).
 
 If you're already familiar with PyCO2SYS v1, then
 
