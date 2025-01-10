@@ -2,7 +2,7 @@
 site_name: PyCO2SYS
 site_author: Matthew P. Humphreys
 site_description: Marine carbonate system calculations in Python
-copyright: Copyright &copy; 2020-2024 Matthew P. Humphreys (GNU GPLv3)
+copyright: Copyright &copy; 2020-2025 Matthew P. Humphreys (GNU GPLv3)
 
 # Github repo info
 repo_name: mvdh7/PyCO2SYS
