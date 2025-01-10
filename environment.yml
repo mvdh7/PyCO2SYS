@@ -1,0 +1,17 @@
+name: pyco2sys
+channels:
+  - conda-forge
+dependencies:
+  # Core
+  - jax
+  - networkx
+
+  # Dev
+  - pytest
+  - pandas
+  - xarray
+  - openpyxl
+  - pre_commit
+
+  # Docs
+  - mkdocs-material

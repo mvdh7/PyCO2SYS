@@ -8,6 +8,7 @@ Contributions to PyCO2SYS from anyone are very welcome, but please read this fir
     - [Version 2](#version-2)
   - [Ideas and bug reporting](#ideas-and-bug-reporting)
   - [Adding or editing code](#adding-or-editing-code)
+    - [Setting up your Conda development environment](#setting-up-your-conda-development-environment)
     - [Branches](#branches)
     - [Code style](#code-style)
     - [Credit](#credit)
@@ -36,6 +37,16 @@ If you would like a new feature to be added to PyCO2SYS, or if you find a bug or
 If you would like to add or edit something directly then please make a fork of PyCO2SYS, make your changes, and submit the updates back with a pull request, noting the comments below.  If you are frequently making lots of contributions, you could also be given direct access to the main repo.
 
 Please add a comment on the corresponding [issue](https://github.com/mvdh7/PyCO2SYS/issues) to say that you are working on that problem.
+
+### Setting up your Conda development environment
+
+- Install Anaconda (or miniconda) by following [the instructions on their website](https://docs.anaconda.com/miniconda/).
+- Run:
+  - `conda create -n pyco2sys-dev python=3.10`
+  - `conda env update -n pyco2sys-dev -f environment.yml`
+  - `conda activate pyco2sys-dev`
+
+Now you have a conda environment called `pyco2sys-dev` with all the required development dependencies.
 
 ### Branches
 
