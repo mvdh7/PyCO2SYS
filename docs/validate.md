@@ -99,7 +99,7 @@ PyCO2SYS offers two independent ways to evaluate the various buffer factors of t
 
 The "explicit" approach is taken by functions in `PyCO2SYS.buffers.explicit`.  These use the equations for each buffer factor that have been reported in the literature, corrected for typographical errors where known.  These functions typically only include the effects of carbonate, borate and water alkalinity on each buffer, because the other components of alkalinity complicate the equations but usually only make a small difference to the result.
 
-The "automatic" approach is PyCO2SYS's default behaviour and is taken by the functions in `PyCO2SYS.buffers`.  These functions calculate each buffer factor based on its definition as a derivative in the literature.  The relevant derivative of the appropriate function from `PyCO2SYS.solve.get` is evaluated automatically by [Autograd](https://github.com/HIPS/autograd) ([M16](../refs/#m)).  This has several advantages:
+The "automatic" approach is PyCO2SYS's default behaviour and is taken by the functions in `PyCO2SYS.buffers`.  These functions calculate each buffer factor based on its definition as a derivative in the literature.  The relevant derivative of the appropriate function from `PyCO2SYS.solve.get` is evaluated automatically by [Autograd](https://github.com/HIPS/autograd) ([M16](refs.md/#m)).  This has several advantages:
 
   * If the function in `PyCO2SYS.solve.get` is correct, then its derivatives are also accurate.
   * All equilibrating solutes accounted for in the main alkalinity equation are automatically included in all derivatives too (not just carbonate, borate and water).
@@ -154,7 +154,7 @@ Comparing the results of these two independent methods with each other therefore
 
 We consider these differences all small enough to be negligible.
 
-Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffers_ESM10.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_ESM10.py) to make a passable replicate of Fig. 2 of [ESM10](../refs/#e):
+Although explicit check values are not available, we can attempt to recreate figures from the literature to check the consistency of PyCO2SYS's calculations.  For example, you can use [buffers_ESM10.py](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/buffers_ESM10.py) to make a passable replicate of Fig. 2 of [ESM10](refs.md/#e):
 
 <p style='text-align:center'>
 <img src='https://raw.githubusercontent.com/mvdh7/PyCO2SYS/master/validate/figures/buffers_ESM10.png' title="Recreation of ESM10's Fig. 2 with PyCO2SYS"/>
@@ -174,7 +174,7 @@ You can see the tests that have been conducted, and run them for yourself, with 
 
 PyCO2SYS was originally based on [CO2SYS for MATLAB, version 2.0.5](https://github.com/jamesorr/CO2SYS-MATLAB/releases/tag/v2.0.5).  We should therefore expect that the results of these two programs will agree with each other perfectly, or that differences should be negligible for calculations where PyCO2SYS has since adjusted its calculation approach.
 
-The MATLAB program has itself[^3] been rigorously compared with a suite of similar software packages that have been implemented in several different coding languages by [OEG15](../refs/#o).  Indeed, it was used as the reference against which all other packages were compared, while noting that this does not guarantee it is error-free.  Thanks to the work of [OEG15](../refs/#o), comparisons with CO2SYS for MATLAB allow us to assess the accuracy of PyCO2SYS in the context of all the software packages that they tested.
+The MATLAB program has itself[^3] been rigorously compared with a suite of similar software packages that have been implemented in several different coding languages by [OEG15](refs.md/#o).  Indeed, it was used as the reference against which all other packages were compared, while noting that this does not guarantee it is error-free.  Thanks to the work of [OEG15](refs.md/#o), comparisons with CO2SYS for MATLAB allow us to assess the accuracy of PyCO2SYS in the context of all the software packages that they tested.
 
 PyCO2SYS now calculates a wider array of properties than this version of CO2SYS for MATLAB, and it has more inputs and options, so not everything can be tested this way.  However, some of the extra options can be tested against the new CO2SYS-MATLAB v3, [available from GitHub](https://github.com/jonathansharp/CO2-System-Extd).
 
@@ -183,19 +183,19 @@ PyCO2SYS now calculates a wider array of properties than this version of CO2SYS 
 
     We cannot compare calculations with carbonate ion, bicarbonate ion or aqueous CO<sub>2</sub> as one of the input marine carbonate system parameters, because these options are not available in CO2SYS v2.0.5 for MATLAB.
 
-    We also cannot test the [PF87](../refs/#p) input option for the hydrogen fluoride [dissociation constant](../howto/#settings).
+    We also cannot test the [PF87](refs.md/#p) input option for the hydrogen fluoride [dissociation constant](detail.md/#settings).
 
     The PyCO2SYS outputs either not calculated or not returned by CO2SYS v2.0.5 for MATLAB are:
 
-      * All of the [buffer factors](../howto/#buffer-factors) except for the Revelle factor.
-      * All properties associated with [NH<sub>3</sub> and H<sub>2</sub>S](../howto/#alkalinity-and-its-components).
-      * [Total calcium](../howto/#totals-estimated-from-salinity) molinity (although this is indirectly tested by the calcite/aragonite saturation state calculations).
+      * All of the [buffer factors](detail.md/#buffer-factors) except for the Revelle factor.
+      * All properties associated with [NH<sub>3</sub> and H<sub>2</sub>S](detail.md/#alkalinity-and-its-components).
+      * [Total calcium](detail.md/#totals-estimated-from-salinity) molinity (although this is indirectly tested by the calcite/aragonite saturation state calculations).
 
     **Against CO2SYS v3 for MATLAB:**
     
-    The new extended MATLAB version includes the full range of input marine carbonate system parameters, NH<sub>3</sub> and H<sub>2</sub>S, and the [PF87](../refs/#p) input option for the hydrogen fluoride [dissociation constant](../howto/#settings).
+    The new extended MATLAB version includes the full range of input marine carbonate system parameters, NH<sub>3</sub> and H<sub>2</sub>S, and the [PF87](refs.md/#p) input option for the hydrogen fluoride [dissociation constant](detail.md/#settings).
 
-    However, it still cannot be used to validate the [buffer factors](../howto/#buffer-factors) (again, except for the Revelle factor), nor directly the [total calcium](../howto/#totals-estimated-from-salinity) molinity.
+    However, it still cannot be used to validate the [buffer factors](detail.md/#buffer-factors) (again, except for the Revelle factor), nor directly the [total calcium](detail.md/#totals-estimated-from-salinity) molinity.
 
 !!! tip "Do it yourself"
 
@@ -204,11 +204,11 @@ PyCO2SYS now calculates a wider array of properties than this version of CO2SYS 
       * [`compare_MATLABv2_0_5.m`](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in MATLAB) and [`compare_MATLABv2_0_5.py`](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLABv2_0_5.m) (in Python) for MATLAB v2.0.5.
       * [`compare_MATLAB_extd.m`](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLAB_extd.m) and [`compare_MATLAB_extd.py`](https://github.com/mvdh7/PyCO2SYS/tree/master/validate/compare_MATLAB_extd_.m) for MATLAB v3.
      
-    The v3 results were generated using v3.0 of [SPH20](../refs/#s).  You will need to [download your own copy](https://github.com/jonathansharp/CO2-System-Extd).
+    The v3 results were generated using v3.0 of [SPH20](refs.md/#s).  You will need to [download your own copy](https://github.com/jonathansharp/CO2-System-Extd).
 
     If you don't have a MATLAB license, you can run those scripts with the free and open source [GNU Octave](https://www.gnu.org/software/octave/).  Alternatively, the CSV files generated by the MATLAB scripts are available [from GitHub](https://github.com/mvdh7/PyCO2SYS/blob/master/validate/results/).
 
-In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](../howto/#carbonate-system-parameters) and [CO2SYS settings](../howto/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
+In these tests, the marine carbonate system is solved from every possible combination of [input parameter pair](detail.md/#carbonate-system-parameters) and [CO2SYS settings](detail.md/#settings), with non-zero nutrients and pressure.  The results calculated by CO2SYS are then subtracted from those of PyCO2SYS for comparison.
 
 !!! success "PyCO2SYS vs CO2SYS-MATLAB"
     * Every variable computed by `PyCO2SYS.CO2SYS` is negligibly different from its counterpart in CO2SYS v2.0.5 for MATLAB, except for the Revelle factor ([see discussion below](#revelle-factor-discrepancy)).
@@ -221,10 +221,10 @@ In these tests, the marine carbonate system is solved from every possible combin
     * These variables in the PyCO2SYS output `CO2dict` are set to zero where appropriate (as of v1.4.0).  This means that the values you see in `CO2dict` are those that were actually used in the calculations.
     * However, in MATLAB and in earlier versions of PyCOSYS, the outputs simply repeated the user inputs.
 
-We've also compared the [original CO2SYS clone](../howto/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` against CO2SYS for MATLAB.  It is important to remember that this module stands in isolation.  It has its own self-contained set of functions for evaluating equilibrium constants and solving the marine carbonate system that do not interact with the rest of PyCO2SYS.  Agreement between this module and CO2SYS for MATLAB tells us nothing about the performance of `PyCO2SYS.CO2SYS` or any of its underlying functions (and the opposite).
+We've also compared the [original CO2SYS clone](detail.md/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` against CO2SYS for MATLAB.  It is important to remember that this module stands in isolation.  It has its own self-contained set of functions for evaluating equilibrium constants and solving the marine carbonate system that do not interact with the rest of PyCO2SYS.  Agreement between this module and CO2SYS for MATLAB tells us nothing about the performance of `PyCO2SYS.CO2SYS` or any of its underlying functions (and the opposite).
 
 !!! success "The original CO2SYS clone vs CO2SYS-MATLAB"
-    * Every variable computed by the [original CO2SYS clone](../howto/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` is virtually identical to its counterpart in CO2SYS v2.0.5 for MATLAB.
+    * Every variable computed by the [original CO2SYS clone](detail.md/#the-original-co2sys-clone) in `PyCO2SYS.original.CO2SYS` is virtually identical to its counterpart in CO2SYS v2.0.5 for MATLAB.
     * The absolute differences in all compared variables under the test conditions range from 0 to a maximum less than 10<sup>−9</sup>%.
 
 #### Revelle factor discrepancy
@@ -249,6 +249,6 @@ With `opt_buffers_mode=2`, PyCO2SYS does use the finite-difference approach but 
 
 [^1]: The pH tolerance threshold for all iterative solvers is controlled by `PyCO2SYS.solve.get.pH_tolerance`.
 
-[^2]: The [default conditions](../howto/#using-the-pythonic-api) for `PyCO2SYS.api.CO2SYS_wrap` with total alkalinity = 2300 μmol/kg-sw and DIC = 2150 μmol/kg-sw.
+[^2]: The [default conditions](detail.md/#using-the-pythonic-api) for `PyCO2SYS.api.CO2SYS_wrap` with total alkalinity = 2300 μmol/kg-sw and DIC = 2150 μmol/kg-sw.
 
-[^3]: The [OEG15](../refs/#o) intercomparison used CO2SYS v1.1 of [HPR11](../refs/#HPR11), but the only difference between v2.0.5 and this in terms of solving the marine carbonate system is the addition of an extra set of carbonic acid dissociation constants.
+[^3]: The [OEG15](refs.md/#o) intercomparison used CO2SYS v1.1 of [HPR11](refs.md/#h), but the only difference between v2.0.5 and this in terms of solving the marine carbonate system is the addition of an extra set of carbonic acid dissociation constants.

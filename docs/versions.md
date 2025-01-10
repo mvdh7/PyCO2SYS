@@ -12,12 +12,12 @@
 !!! warning
     *Will (not) break your code* refers **only** to the functions covered in this documentation.
 
-    For the main CO2SYS functions as imported with
+    For the main CO2SYS function as imported with
 
     ```python
     import PyCO2SYS as pyco2
-    results = pyco2.sys(*args, **kwargs)  # new Pythonic syntax
-    results = pyco2.CO2SYS(*args, **kwargs)  # old MATLAB syntax
+    
+    co2s = pyco2.sys(**kwargs)
     ```
 
     the only things that may change, in at least a *minor* version release, are:
@@ -33,7 +33,7 @@ Switches from Autograd to JAX for automatic differentiation.  Internal mechanism
 
 !!! new-version "Changes in v2.0"
 
-
+    * Major internal revisions.
 
 ## 1.8
 
@@ -46,11 +46,11 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
     ***New features***
 
     * Added `"dlnfCO2_dT"` and `"dlnpCO2_dT"` results, the theoretical effect of temperature on the natural log of <i>ƒ</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.
-    * Added the [PLR18](../refs/#p) parameterisation of the carbonic acid constants for sea-ice brines.
+    * Added the [PLR18](refs.md/#p) parameterisation of the carbonic acid constants for sea-ice brines.
 
     ***Default options***
 
-    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](../refs/#l)) for consistency with the best practice guide.
+    * Reverted default `opt_k_carbonic` to `10` (i.e., [LDK00](refs.md/#l)) for consistency with the best practice guide.
 
     ***Bug fixes***
     
@@ -68,7 +68,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
 
     ***New features***
 
-    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](../refs/#w).  These have been added to CO2SYS-MATLAB by Jon Sharp at the same time with consistent results (differences less than 10<sup>−4</sup> %).  These pressure corrections are not enabled by default, for consistency with previous versions.
+    * Added `opt_pressured_kCO2` to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following [W74](refs.md/#w).  These have been added to CO2SYS-MATLAB by Jon Sharp at the same time with consistent results (differences less than 10<sup>−4</sup> %).  These pressure corrections are not enabled by default, for consistency with previous versions.
 
     ***Bug fixes***
 
@@ -86,7 +86,7 @@ Adds atmospheric pressure input for *p*CO<sub>2</sub>-*f*CO<sub>2</sub>-*x*CO<su
     ***New features***
 
     * Adds new `par1_type` / `par2_type` options `10` and `11` for saturation states with respect to calcite and aragonite.
-    * Adds [KSK18](../refs/#k) parameterisation for estimating total borate from salinity.
+    * Adds [KSK18](refs.md/#k) parameterisation for estimating total borate from salinity.
 
     ***Dependencies***
 
@@ -126,8 +126,8 @@ Adds new syntax to return equilibrium constants and total salts without needing 
 
     * Can now run `pyco2.sys` with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.
     * Can also run `pyco2.sys` with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.
-    * Added carbonic acid constants parameterisation of [SB21](../refs/#s).
-    * Added bisulfate dissociation constant parameterisation of [WM13](../refs/#w)/[WMW14](../refs/#w).
+    * Added carbonic acid constants parameterisation of [SB21](refs.md/#s).
+    * Added bisulfate dissociation constant parameterisation of [WM13](refs.md/#w)/[WMW14](refs.md/#w).
     * Added spreadsheet-to-spreadsheet function `pyco2.ezio` (with thanks to [Daniel Sandborn](https://github.com/d-sandborn)).
     * Integrated uncertainty propagation into the main `pyco2.sys` function and expanded its capabilities.
 
@@ -224,7 +224,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***Bug fixes***
 
-    * Corrected missing a pH scale conversion in [SLH20](../refs/#s) option for carbonic acid dissociation.  **Any calculations with this option in PyCO2SYS v1.4.1 or v1.4.2 should be updated!**
+    * Corrected missing a pH scale conversion in [SLH20](refs.md/#s) option for carbonic acid dissociation.  **Any calculations with this option in PyCO2SYS v1.4.1 or v1.4.2 should be updated!**
 
     ***Validation***
 
@@ -259,7 +259,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
     ***Extra calculation options***
 
     * Added the [2018 CODATA](https://physics.nist.gov/cgi-bin/cuu/Value?r) value for the universal gas constant *R* as an option for consistency with forthcoming CO2SYS-MATLAB v3.  The original DOEv2 version remains default.
-    * Added the [SLH20](../refs/#s) equations as option `16` for the carbonic acid dissociation constants.
+    * Added the [SLH20](refs.md/#s) equations as option `16` for the carbonic acid dissociation constants.
 
 ### 1.4.0 (9 June 2020)
 
@@ -267,7 +267,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***New features***
 
-    * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs, along with corresponding [documentation](../uncertainty).
+    * Added `uncertainty` module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs, along with corresponding [documentation](uncertainty.md).
     * Specific input values can optionally be provided for all total concentrations and equilibrium constants that are estimated internally from salinity, temperature and pressure.
 
     ***General improvements***
@@ -277,7 +277,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***New outputs***
 
-    * Substrate:inhibitor ratio (SIR) of [B15](../refs/#b), calculated with `SIratio` in new module `bio`.
+    * Substrate:inhibitor ratio (SIR) of [B15](refs.md/#b), calculated with `SIratio` in new module `bio`.
     * Inputs `PAR1` and `PAR2`.
     * The "Peng correction" factor.
     * The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.
@@ -285,7 +285,7 @@ Enables uncertainty propagation with forward finite-difference derivatives.
 
     ***Validation***
 
-    * Calculations compare very favourably against the forthcoming [CO2SYS for MATLAB v3](https://github.com/jonathansharp/CO2-System-Extd) - see [Validation](../validate/#co2sys-for-matlab) for discussion of the results.
+    * Calculations compare very favourably against the forthcoming [CO2SYS for MATLAB v3](https://github.com/jonathansharp/CO2-System-Extd).
 
 ## 1.3
 
@@ -310,7 +310,7 @@ Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbona
         * Added missing "Peng correction" to Revelle factor calculation at output conditions.  *Note that this correction is currently also missing from CO2SYS for MATLAB!*
         * Decreased DIC perturbation size for more accurate finite-difference "explicit" evaluation.
         * Finite-difference calculation now references the correct DIC value.
-    * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](../refs/#m) and [OE15](../refs/#o).
+    * Implemented better initial guesses for pH in all iterative solvers in `solve.get` following [M13](refs.md/#m) and [OE15](refs.md/#o).
     * Switched to using exact slopes in iterative solvers in `solve.get`, evaluated using Autograd in new submodule `solve.delta`.
     * Updated entire package to be [Autograd](https://github.com/HIPS/autograd)-able.
     * Return NaN instead of negative DIC if an impossible pH-alkalinity combination is given as input (i.e. pH is too high).
@@ -356,16 +356,16 @@ Calculates a wider variety of chemical buffer factors.
 ### 1.2.1 (9 April 2020)
 
 !!! new-version "Changes in v1.2.1"
-    * Fixed typo in [ESM10](../refs/#e) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
+    * Fixed typo in [ESM10](refs.md/#e) equations that had been carried through into `extra.buffers_ESM10` function (thanks [Jim Orr](https://twitter.com/James1Orr/status/1248216403355803648)!).
 
 ### 1.2.0 (8 April 2020)
 
 !!! new-version "Changes in v1.2.0"
     * Added module `extra` containing functions to calculate variables not included in CO2SYS for MATLAB:
-      * `buffers_ESM10` calculates the buffer factors of [ESM10](../refs/#e), corrected for the typos noted by [RAH18](../refs/#r).
-      * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](../refs/#h), Eq. 8.
-      * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](../refs/#h), Eq. 7.
-      * `psi` calculates the $\psi$ factor of [FCG94](../refs/#f).
+      * `buffers_ESM10` calculates the buffer factors of [ESM10](refs.md/#e), corrected for the typos noted by [RAH18](refs.md/#r).
+      * `bgc_isocap` calculates the "exact" isocapnic quotient of [HDW18](refs.md/#h), Eq. 8.
+      * `bgc_isocap_approx` calculates the approximate isocapnic quotient of [HDW18](refs.md/#h), Eq. 7.
+      * `psi` calculates the $\psi$ factor of [FCG94](refs.md/#f).
     * Added all functions in `extra` to the `CO2dict` output of the main `CO2SYS` function, and documented in the [Github repo README](https://github.com/mvdh7/PyCO2SYS#pyco2sys).
 
 ## 1.1

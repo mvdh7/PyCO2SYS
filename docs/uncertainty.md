@@ -4,7 +4,7 @@ PyCO2SYS provides tools to propagate uncertainties in all arguments through to a
 
 ## Independent uncertainties
 
-If the uncertainty in each [argument](../howto/#arguments) is independent – i.e. there is no covariance between the uncertainties in different parameters – then you can use the `propagate` method to propagate the parameter uncertainties through into any [result](../howto/#results).
+If the uncertainty in each [argument](detail.md/#arguments) is independent – i.e. there is no covariance between the uncertainties in different parameters – then you can use the `propagate` method to propagate the parameter uncertainties through into any [result](detail.md/#results).
 
 ### Syntax
 
@@ -18,11 +18,11 @@ where `co2s` is a `CO2System`.
 
 #### Arguments
 
-  * `uncertainty_into` is a list of strings of the [results keys](../howto/#results) to propagate uncertainties into.
+  * `uncertainty_into` is a list of strings of the [results keys](detail.md/#results) to propagate uncertainties into.
 
   * `uncertainty_from` is a dict of the uncertainties in the arguments to propagate through `pyco2.sys`.
 
-The keys of `uncertainty_from` can include any `CO2System` [arguments](../howto/#arguments) that can have an uncertainty.  The key for each uncertainty in `uncertainty_from` should be the same as the corresponding key in the `CO2System` [results](../howto/#results).
+The keys of `uncertainty_from` can include any `CO2System` [arguments](detail.md/#arguments) that can have an uncertainty.  The key for each uncertainty in `uncertainty_from` should be the same as the corresponding key in the `CO2System` [results](detail.md/#results).
 
 Some additional considerations:
 
@@ -30,7 +30,7 @@ Some additional considerations:
 
   * For the equilibrium constants, to propagate an uncertainty in terms of a p<i>K</i> value rather than <i>K</i>, prefix the corresponding key in `uncertainty_from` with a `"p"` (e.g. use `"pk_H2CO3"` instead of `"k_H2CO3"`).
 
-  * The "standard" uncertainties in the equilbrium constants and total borate used by CO2SYS for MATLAB following [OEDG18](../refs/#o) are available as a dict in the correct format for `uncertainty_from` at `pyco2.uncertainty_OEDG18`.
+  * The "standard" uncertainties in the equilbrium constants and total borate used by CO2SYS for MATLAB following [OEDG18](refs.md/#o) are available as a dict in the correct format for `uncertainty_from` at `pyco2.uncertainty_OEDG18`.
 
   * The values of `uncertainty_from` are the uncertainties in each input parameter as a standard deviation.  You can provide a single value if all uncertainties are the same for a parameter, or an array of the same size as the parameter if they are different.  Any parameters not included are assumed to have zero uncertainty.
 

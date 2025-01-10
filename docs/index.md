@@ -14,7 +14,7 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
 !!! warning
 
-    PyCO2SYS cannot be installed through conda on Windows – use pip instead.
+    PyCO2SYS v2 cannot currently be installed through conda on Windows – use pip instead.
 
 Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
 
@@ -22,19 +22,19 @@ Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys
 
 ## Basic use
 
-The import convention for PyCO2SYS is:
+See:
 
-```python
-import PyCO2SYS as pyco2
-```
+  * [Quick-start guide](quick.md), 
+  * [Arguments and results](detail.md),
+  * [Adjust conditions](adjust.md),
+  * [Uncertainty propagation](uncertainty.md) and
+  * [Advanced results access](results.md)
 
-and the main function needed is:
+If you're already familiar with PyCO2SYS v1, then
 
-```python
-co2s = pyco2.sys(**kwargs)
-```
+  * [Switching from v1 to v2](v1_to_v2.md)
 
-Read [How to use PyCO2SYS](co2sys_nd) for more on `pyco2.sys`, its `kwargs` and the result `co2s`.
+may help you to transition.
 
 ### Examples
 
@@ -65,11 +65,11 @@ import PyCO2SYS as pyco2
 pyco2.hello()
 ```
 
-You should also consider citing the original work by [Lewis and Wallace (1998)](refs/#l), and specify which [optional sets of constants](co2sys_nd/#settings) you used in your calculations.
+You should also consider citing the original work by [Lewis and Wallace (1998)](refs.md/#l), and specify which [optional sets of constants](detail.md/#settings) you used in your calculations.
 
 ### History
 
-The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work.  Further (ongoing) modifications and additions to the PyCO2SYS code and documentation have been made by Matthew Humphreys, Luke Gregor, Daniel Sandborn and Abigail Schiller ([HSS21](refs/#h)).
+The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs.md/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs.md/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs.md/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work.  Further (ongoing) modifications and additions to the PyCO2SYS code and documentation have been made by Matthew Humphreys, Luke Gregor, Daniel Sandborn and Abigail Schiller ([HSS21](refs.md/#h)).
 
 ### License
 
@@ -81,4 +81,4 @@ Suggestions for new features, bug reports and contributions to PyCO2SYS are very
 
 To add a notebook to PyCO2SYS-examples, please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS-examples#contributing) of that repo.
 
-[^1]: For CO2SYS for MATLAB refer to [LW98](refs/#l), [HPR11](refs/#h) and [OEDG18](refs/#o).
+[^1]: For CO2SYS for MATLAB refer to [LW98](refs.md/#l), [HPR11](refs.md/#h) and [OEDG18](refs.md/#o).

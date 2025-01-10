@@ -344,13 +344,13 @@ get_funcs_opts["opt_factor_k_BOH3"] = {
 }
 get_funcs_opts["opt_factor_k_H2CO3"] = {
     1: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3),
-    2: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_fw),
-    3: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_GEOSECS),
+    2: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_GEOSECS),
+    3: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_fw),
 }
 get_funcs_opts["opt_factor_k_HCO3"] = {
     1: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3),
-    2: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_fw),
-    3: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_GEOSECS),
+    2: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_GEOSECS),
+    3: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_fw),
 }
 get_funcs_opts["opt_factor_k_H2O"] = {
     1: dict(factor_k_H2O=equilibria.pcx.factor_k_H2O),
@@ -612,7 +612,7 @@ get_funcs_opts["opt_k_aragonite"] = {
     1: dict(k_aragonite=solubility.k_aragonite_M83),
     2: dict(k_aragonite=solubility.k_aragonite_GEOSECS),  # for GEOSECS
 }
-get_funcs_opts["opt_adjust_temperature"] = {
+get_funcs_opts["opt_fCO2_temperature"] = {
     1: dict(
         bh=upsilon.get_bh_H24,
         upsilon=upsilon.inverse,
@@ -699,7 +699,7 @@ opts_default = {
     "opt_factor_k_HCO3": 1,
     "opt_factor_k_H2O": 1,
     "opt_fH": 1,
-    "opt_k_carbonic": 1,
+    "opt_k_carbonic": 10,
     "opt_k_phosphate": 1,
     "opt_k_BOH3": 1,
     "opt_k_H2O": 1,
@@ -714,7 +714,7 @@ opts_default = {
     "opt_HCO3_root": 2,
     "opt_k_calcite": 1,
     "opt_k_aragonite": 1,
-    "opt_adjust_temperature": 1,
+    "opt_fCO2_temperature": 1,
 }
 
 # Define labels for parameter plotting
@@ -908,7 +908,7 @@ class CO2System(UserDict):
         if self.icase != 207:
             self.opts.pop("opt_HCO3_root")
         if self.icase not in [0, 4, 5, 8, 9]:
-            self.opts.pop("opt_adjust_temperature")
+            self.opts.pop("opt_fCO2_temperature")
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.data = self._assemble(self.icase, data)
         for k in self.data:
@@ -1327,7 +1327,13 @@ class CO2System(UserDict):
             data["pressure"] = pressure
         else:
             data["pressure"] = self.data["pressure"]
-        sys = CO2System(**data, **self.opts)
+        sys = CO2System(
+            **data,
+            **self.opts,
+            pd_index=self.pd_index,
+            xr_dims=self.xr_dims,
+            xr_shape=self.xr_shape,
+        )
         sys.solve(parameters=self.data)
         return sys
 
@@ -1647,6 +1653,7 @@ def sys(data=None, **kwargs):
     # Merge data with kwargs
     pd_index = None
     xr_dims = None
+    xr_shape = None
     data_is_dict = False
     if data is not None:
         for k in kwargs:
@@ -1712,6 +1719,7 @@ def sys(data=None, **kwargs):
         else:
             if isinstance(kwargs[k], int):
                 kwargs[k] = float(kwargs[k])
-            elif kwargs[k].dtype == int:
-                kwargs[k] = kwargs[k].astype(float)
+            elif hasattr(kwargs[k], "dtype"):
+                if kwargs[k].dtype == int:
+                    kwargs[k] = kwargs[k].astype(float)
     return CO2System(pd_index=pd_index, xr_dims=xr_dims, xr_shape=xr_shape, **kwargs)

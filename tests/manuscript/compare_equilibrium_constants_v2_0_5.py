@@ -57,8 +57,8 @@ def test_equilibrium_constants():
                 dict(
                     opt_k_BOH3=2,
                     opt_factor_k_BOH3=2,
-                    opt_factor_k_H2CO3=3,
-                    opt_factor_k_HCO3=3,
+                    opt_factor_k_H2CO3=2,
+                    opt_factor_k_HCO3=2,
                 )
             )
         elif g[0] == 7:
@@ -70,8 +70,8 @@ def test_equilibrium_constants():
                     opt_k_phosphate=2,
                     opt_k_Si=2,
                     opt_factor_k_BOH3=2,
-                    opt_factor_k_H2CO3=3,
-                    opt_factor_k_HCO3=3,
+                    opt_factor_k_H2CO3=2,
+                    opt_factor_k_HCO3=2,
                 )
             )
         elif g[0] == 8:
@@ -82,8 +82,8 @@ def test_equilibrium_constants():
                     opt_fH=3,
                     opt_k_H2O=3,
                     opt_factor_k_H2O=2,
-                    opt_factor_k_H2CO3=2,
-                    opt_factor_k_HCO3=2,
+                    opt_factor_k_H2CO3=3,
+                    opt_factor_k_HCO3=3,
                 )
             )
         # Solve under input and output conditions

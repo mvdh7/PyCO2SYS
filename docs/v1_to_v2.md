@@ -1,6 +1,6 @@
 # Switching from v1 to v2
 
-This explanation is designed as a detailed overview of differences for those who are already familiar with using PyCO2SYS with the `pyco2.sys` syntax from v1.  New or casual users may find the [general instructions for v2](../howto) more helpful.
+This explanation is designed as a detailed overview of differences for those who are already familiar with using PyCO2SYS with the `pyco2.sys` syntax from v1.  New or casual users may find the [general instructions for v2](detail.md) more helpful.
 
 ## Solving the carbonate system
 
@@ -159,7 +159,7 @@ In v1, a second set of temperature and/or pressure conditions could be specified
     fCO2_adj = co2s["fCO2_out"]
     ```
 
-The result `co2s_adj` is a separate `CO2System` at the requested temperature and pressure.  If the original `co2s` had two known parameters, then both are used to make the adjustment (via DIC and alkalinity).  Temperature can also be adjusted with only one known parameter, if its one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub>.  The kwargs `method_fCO2`, `opt_which_fCO2_insitu` and `bh_upsilon` allow for finer control of the one-parameter adjustment (see the [v2 general instructions](../howto) for details).
+The result `co2s_adj` is a separate `CO2System` at the requested temperature and pressure.  If the original `co2s` had two known parameters, then both are used to make the adjustment (via DIC and alkalinity).  Temperature can also be adjusted with only one known parameter, if its one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub>.  The kwargs `method_fCO2`, `opt_which_fCO2_insitu` and `bh_upsilon` allow for finer control of the one-parameter adjustment (see the [v2 general instructions](detail.md) for details).
 
 ## Uncertainty propagation
 
@@ -222,11 +222,11 @@ Before v2, changing `opt_k_carbonic` to a different set of carbonic acid dissoci
 
 This affects only `opt_k_carbonic` values `6`, `7`, and `8`, i.e., the GEOSECS and freshwater cases.  All other `opt_k_carbonic` options used the set of parameterisations that are now the defaults in v2.
 
-## Summary of differences
+<!-- ## Summary of differences
 
 | v1 | v2 |
 | - | - |
 | All possible parameters are always calculated. | Only the requested parameters and the required intermediates are calculated. |
 | Settings (kwargs beginning `opt_`) can be multidimensional. | Settings (`opts`) must all be scalars. |
 | Known marine carbonate system parameters are provided as `par1` and `par2`, with their types given by `par1_type` and `par2_type`. | Known marine carbonate system core parameters are provided as `alkalinity`, `dic`, `pH`, etc. |
-| Multiple different combinations of `par1_type` and `par2_type` can be provided. | Each `CO2System` instance can only contain one particular combination of core parameters. |
+| Multiple different combinations of `par1_type` and `par2_type` can be provided. | Each `CO2System` instance can only contain one particular combination of core parameters. | -->

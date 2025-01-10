@@ -38,20 +38,20 @@ factor_k_NH3
 factor_k_H2CO3
     Calculate pressure-correction factor for k_H2CO3.
     Used when opt_factor_k_H2CO3 = 1.
-factor_k_H2CO3_fw
-    Calculate pressure-correction factor for k_H2CO3 in freshwater.
-    Used when opt_factor_k_H2CO3 = 2.
 factor_k_H2CO3_GEOSECS
     Calculate pressure-correction factor for k_H2CO3 following GEOSECS.
+    Used when opt_factor_k_H2CO3 = 2.
+factor_k_H2CO3_fw
+    Calculate pressure-correction factor for k_H2CO3 in freshwater.
     Used when opt_factor_k_H2CO3 = 3.
 factor_k_H2CO3
     Calculate pressure-correction factor for k_HCO3.
     Used when opt_factor_k_HCO3 = 1.
-factor_k_HCO3_fw
-    Calculate pressure-correction factor for k_HCO3 in freshwater.
-    Used when opt_factor_k_HCO3 = 2.
 factor_k_HCO3_GEOSECS
     Calculate pressure-correction factor for k_HCO3 following GEOSECS.
+    Used when opt_factor_k_HCO3 = 2.
+factor_k_HCO3_fw
+    Calculate pressure-correction factor for k_HCO3 in freshwater.
     Used when opt_factor_k_HCO3 = 3.
 factor_k_CO2
     Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
