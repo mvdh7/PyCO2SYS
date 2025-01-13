@@ -1,6 +1,6 @@
 # PyCO2SYS
 
-!!! warning "PyCO2SYS v2"
+!!! info "PyCO2SYS v2"
 
     These are the docs for the forthcoming PyCO2SYS v2!
 
@@ -10,18 +10,21 @@
 
         pip install git+https://github.com/mvdh7/PyCO2SYS@jax
 
-    This installs PyCO2SYS and its core requirements: JAX and NetworkX.  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
+    This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
 
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 
 ## Installation
 
+!!! warning "Don't follow these instructions"
+
+    The installation instructions below are not yet active - see the box above if you're here to test PyCO2SYS!
+
 !!! tip "JAX double precision"
 
-    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which might affect the results.  To be on the safe side, you could set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, e.g.:
+    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which will adversely affect the results.  If a warning about this appears when running code, or to be on the safe side, set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, for example:
 
         conda env config vars set JAX_ENABLE_X64=True
-
 
 ### With pip
 
