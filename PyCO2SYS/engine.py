@@ -895,9 +895,9 @@ class CO2System(UserDict):
         for k, v in opts.items():
             if k in get_funcs_opts:
                 assert np.isscalar(v)
-                assert (
-                    v in get_funcs_opts[k].keys()
-                ), "{} is not allowed for {}!".format(v, k)
+                assert v in get_funcs_opts[k].keys(), (
+                    "{} is not allowed for {}!".format(v, k)
+                )
             else:
                 warnings.warn(
                     "'{}' is not recognised".format(k)
@@ -1209,9 +1209,9 @@ class CO2System(UserDict):
                     self.data["gas_constant"],
                 )
             case 4:
-                assert (
-                    bh_upsilon is not None
-                ), "A bh_upsilon value must be provided for method_fCO2=4."
+                assert bh_upsilon is not None, (
+                    "A bh_upsilon value must be provided for method_fCO2=4."
+                )
                 return upsilon.expUps_Hoff_H24(
                     self.data["temperature"],
                     temperature,
@@ -1287,18 +1287,18 @@ class CO2System(UserDict):
             core = {k: self[k] for k in ["alkalinity", "dic"]}
             data = {}
         elif self.icase in [4, 5, 8, 9]:
-            assert (
-                pressure is None
-            ), "Cannot adjust pressure for a single-parameter system!"
+            assert pressure is None, (
+                "Cannot adjust pressure for a single-parameter system!"
+            )
             # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
             # the "input" conditions
             self.solve(parameters="fCO2", store_steps=store_steps)
             core = {"fCO2": self.fCO2}
             # Then, convert this to the value at the new temperature using the requested
             # method
-            assert method_fCO2 in range(
-                1, 7
-            ), "`method_fCO2` must be an integer from 1-6."
+            assert method_fCO2 in range(1, 7), (
+                "`method_fCO2` must be an integer from 1-6."
+            )
             expUps = self._get_expUps(
                 method_fCO2,
                 temperature,
@@ -1434,9 +1434,9 @@ class CO2System(UserDict):
             be one of the fixed values provided when creating the `CO2System`, i.e.,
             listed in its `nodes_original` attribute.
         """
-        assert (
-            var_wrt in self.nodes_original
-        ), "`var_wrt` must be one of `sys.nodes_original!`"
+        assert var_wrt in self.nodes_original, (
+            "`var_wrt` must be one of `sys.nodes_original!`"
+        )
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
         except KeyError:  # only do the calculations if there isn't already a value
@@ -1650,6 +1650,12 @@ class CO2System(UserDict):
 
 
 def sys(data=None, **kwargs):
+    # Check for double precision
+    if np.array(1.0).dtype is np.dtype("float32"):
+        warnings.warn(
+            "JAX does not appear to be using double precision - "
+            + "set the environment variable `JAX_ENABLE_X64=True`."
+        )
     # Merge data with kwargs
     pd_index = None
     xr_dims = None
