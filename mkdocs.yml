@@ -13,7 +13,7 @@ nav:
   - Overview and installation: index.md
   - Quick-start guide: quick.md
   - Arguments and results: detail.md
-  - Adjust conditions: adjust.md
+  - Adjust conditions (temperature and pressure): adjust.md
   - Uncertainty propagation: uncertainty.md
   - Advanced results access: results.md
   - Switching from v1 to v2: v1_to_v2.md
@@ -27,12 +27,23 @@ theme:
   name: material
   language: en
   palette:
-    scheme: default
-    primary: white
-    accent: deep orange
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: white
+      accent: deep orange
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: black
+      accent: orange
   font:
     text: Noto Sans
     code: Noto Sans Mono
+  features:
+    navigation.footer
 
 # Extensions
 markdown_extensions:

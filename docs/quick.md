@@ -6,7 +6,7 @@ For most users, the only function needed from PyCO2SYS is `pyco2.sys`.  This use
 import PyCO2SYS as pyco2
 
 co2s = pyco2.sys(**kwargs)
-result = co2s["<result_key>"]
+result = co2s[result_key]
 ```
 
 Results can be calculated and accessed with square brackets, as if `co2s` were a dict.  (It isn't a dict, it's a `CO2System`, which means that it can also do some other things too.)

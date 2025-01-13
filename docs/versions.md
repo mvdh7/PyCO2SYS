@@ -29,7 +29,7 @@
 
 ## 2.0 (forthcoming)
 
-Switches from Autograd to JAX for automatic differentiation.  Internal mechanism rebuilt for more efficient calculations.
+Switches from Autograd to JAX for automatic differentiation.  Internal mechanism rebuilt for significantly more memory-efficient and faster calculations.
 
 !!! new-version "Changes in v2.0"
 

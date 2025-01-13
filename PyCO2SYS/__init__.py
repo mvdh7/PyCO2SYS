@@ -19,10 +19,14 @@ PyCO2SYS
 Marine carbonate system calculations in Python.
 """
 
+import jax
+
 from . import meta
 from .engine import CO2System, sys
 from .meta import hello  # because history
 from .uncertainty import all_OEDG18 as uncertainty_OEDG18
+
+jax.config.update("jax_enable_x64", True)
 
 # from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 # from .engine.nd import CO2SYS as sys

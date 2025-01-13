@@ -21,15 +21,15 @@
   }
   .md-typeset .admonition.inputs,
   .md-typeset details.inputs {
-    border-color: rgb(0, 184, 212);
+    border-color: #7C4DFF;
   }
   .md-typeset .inputs > .admonition-title,
   .md-typeset .inputs > summary {
-    background-color: rgba(0, 184, 212, 0.1);
+    background-color: #7C4DFF0F;
   }
   .md-typeset .inputs > .admonition-title::before,
   .md-typeset .inputs > summary::before {
-    background-color: rgb(0, 184, 212);
+    background-color: #7C4DFF;
     -webkit-mask-image: var(--md-admonition-icon--inputs);
             mask-image: var(--md-admonition-icon--inputs);
   }
