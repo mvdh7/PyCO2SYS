@@ -1,5 +1,13 @@
 # PyCO2SYS
 
+!!! warning "PyCO2SYS v2"
+
+    These are the docs for the forthcoming PyCO2SYS v2!
+
+    These instructions will not work for the current version 1.8 that can be installed through pip and conda.
+
+    Please see [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) for documentation for the latest release.
+
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 
 ## Installation
