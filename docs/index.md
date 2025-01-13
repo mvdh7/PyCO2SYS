@@ -4,9 +4,13 @@
 
     These are the docs for the forthcoming PyCO2SYS v2!
 
-    These instructions will not work for the current version 1.8 that can be installed through pip and conda.
+    **These instructions will not work for the current version 1.8** that can be installed through pip and conda - please see [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) for documentation for the latest release.
 
-    Please see [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) for documentation for the latest release.
+    **If you are here to test PyCO2SYS v2**, then create a test environment with Python v3.10 or greater, and then in that environment run
+
+        pip install git+https://github.com/mvdh7/PyCO2SYS@jax
+
+    This installs PyCO2SYS and its core requirements: JAX and NetworkX.  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
 
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 

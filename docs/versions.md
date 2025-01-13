@@ -33,7 +33,14 @@ Switches from Autograd to JAX for automatic differentiation.  Internal mechanism
 
 !!! new-version "Changes in v2.0"
 
-    * Major internal revisions.
+    * Calculations performed only when needed for specifically requested parameters.
+    * Only one combination of known marine carbonate system parameters allowed per calculation.
+    * Only one combination of optional settings allowed per calculation.
+    * Optional settings each only affect one parameterisation, so there are more of them.  (In v1, `opt_k_carbonic` could alter several other parameterisations beyond just the carbonic acid equilibrium.)
+    * "Input" and "output" conditions deprecated in favour of the `adjust` method.
+    * Uncertainty propagation uses automatic differentiation instead of finite differences.
+    * Simple tests suggest calculations including iterative pH solving are on the order of 100 times faster and have about 100 times lower peak memory demand.
+    * Differences in calculated values from v1.8 should all be at the level of computer precision (i.e., negligible).
 
 ## 1.8
 

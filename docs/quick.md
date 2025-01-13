@@ -30,23 +30,35 @@ results = co2s[["pCO2", "fCO2"]]
 
 Each call of `pyco2.sys` may include a maximum of two known marine carbonate system parameters.
 
-## Propagate uncertainties
+## Calculations without solving the system
 
-Uncertainty propagation uses the `propagate` method.  To get the total uncertainty in pH from independent uncertainties in alkalinity and DIC in the example above, use:
-
-```python
-# Uncertainties in alkalinity and DIC are both 2 µmol/kg
-co2s.propagate("pH", {"alkalinity": 2, "dic": 2})
-pH_uncertainty = co2s.uncertainty["pH"]["total"]
-```
-
-The individual components of the total uncertainty can also be found, for example:
+Some properties (mainly equilibrium constants and total salt contents) can be calculated without solving the marine carbonate system, so `pyco2.sys` can be run with no marine carbonate system parameters:
 
 ```python
-pH_uncertainty_from_dic = co2s.uncertainty["pH"]["dic"]
+# Set up a CO2System under default conditions 
+# (temperature 25 °C, salinity 35, hydrostatic pressure 0 dbar
+#   - other values could be specified with the appropriate kwargs)
+co2s = pyco2.sys()
+
+# Get water dissociation constant
+k_H2O = co2s["k_H2O"]
 ```
+
+## Use different parameterisations
+
+PyCO2SYS contains many different options for the parameterisations of equilibrium constants and total salt contents.  These can be selected using `kwargs` beginning with `opt_`, for example:
+
+```python
+# Set up a CO2System with non-default equilibrium constants for carbonic acid
+# and non-default total borate from salinity
+co2s = pyco2.sys(opt_k_carbonic=3, opt_total_borate=2)
+```
+
+All settings arguments must be single scalar values.
 
 ## Convert to different temperatures and/or pressures
+
+> Discussed in more detail in [Adjust conditions](adjust.md).
 
 ### With two known parameters
 
@@ -74,30 +86,22 @@ co2s_insitu = co2s_lab.adjust(temperature=10, pressure=1500)
 pCO2_insitu = co2s_insitu["pCO2"]
 ```
 
-## Use different parameterisations
+## Propagate uncertainties
 
-PyCO2SYS contains many different options for the parameterisations of equilibrium constants and total salt contents.  These can be selected using `kwargs` beginning with `opt_`, for example:
+> Discussed in more detail in [Uncertainty propagation](uncertainty.md).
+
+Uncertainty propagation uses the `propagate` method.  To get the total uncertainty in pH from independent uncertainties in alkalinity and DIC in the example above, use:
 
 ```python
-# Set up a CO2System with non-default equilibrium constants for carbonic acid
-# and non-default total borate from salinity
-co2s = pyco2.sys(opt_k_carbonic=3, opt_total_borate=2)
+# Uncertainties in alkalinity and DIC are both 2 µmol/kg
+co2s.propagate("pH", {"alkalinity": 2, "dic": 2})
+pH_uncertainty = co2s.uncertainty["pH"]["total"]
 ```
 
-All settings arguments must be single scalar values.
-
-## Calculations without solving the system
-
-Some properties (mainly equilibrium constants and total salt contents) can be calculated without solving the marine carbonate system, so `pyco2.sys` can be run with no marine carbonate system parameters:
+The individual components of the total uncertainty can also be found, for example:
 
 ```python
-# Set up a CO2System under default conditions 
-# (temperature 25 °C, salinity 35, hydrostatic pressure 0 dbar
-#   - other values could be specified with the appropriate kwargs)
-co2s = pyco2.sys()
-
-# Get water dissociation constant
-k_H2O = co2s["k_H2O"]
+pH_uncertainty_from_dic = co2s.uncertainty["pH"]["dic"]
 ```
 
 ## Multidimensional data

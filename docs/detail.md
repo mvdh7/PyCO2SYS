@@ -230,7 +230,9 @@ See [Advanced results access](results.md) for a more detailed overview of the di
 
 ### `pyco2.sys` arguments
 
-All [keyword arguments](#keyword-arguments) that can be provided to `pyco2.sys` are also available as results with the same keyword.
+All [keyword arguments](#keyword-arguments) that can be provided to `pyco2.sys` and are not settings (i.e., do not begin with `opt_`) are also available as results with the same keyword.
+
+Settings arguments can be found at `co2s.opts`.  They should not be modified there - doing so will have unpredictable consequences for future calculations.
 
 ### pH
 

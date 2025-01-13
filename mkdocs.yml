@@ -43,7 +43,8 @@ theme:
     text: Noto Sans
     code: Noto Sans Mono
   features:
-    navigation.footer
+    - navigation.footer
+    - content.code.copy
 
 # Extensions
 markdown_extensions:
