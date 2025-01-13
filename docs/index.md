@@ -4,6 +4,13 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 ## Installation
 
+!!! tip "JAX double precision"
+
+    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which might affect the results.  To be on the safe side, you could set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, e.g.:
+
+        conda env config vars set JAX_ENABLE_X64=True
+
+
 ### With pip
 
 Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
@@ -12,7 +19,7 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
 ### With conda/mamba
 
-!!! warning
+!!! warning "Use pip on Windows"
 
     PyCO2SYS v2 cannot currently be installed through conda on Windows – use pip instead.
 
