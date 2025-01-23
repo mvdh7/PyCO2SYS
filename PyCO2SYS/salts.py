@@ -204,3 +204,19 @@ def Ca_C65(salinity):
     # Culkin gives Ca = (.0213/40.078)*(Sal/1.80655) in mol/kg-SW
     # which corresponds to Ca = .01030*Sal/35.
     return 1e6 * 0.01026 * salinity / 35
+
+
+def Mg_reference_composition(salinity):
+    """Magnesium in µmol/kg-sw following the reference composition.
+
+    Parameters
+    ----------
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        Magnesium in µmol/kg-sw following the reference composition.
+    """
+    return 0.0547421 * salinity / 35

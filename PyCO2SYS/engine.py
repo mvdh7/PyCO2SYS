@@ -121,6 +121,14 @@ get_funcs = {
     "HS": solve.speciate.get_HS,
     # Gasses
     "vp_factor": gas.vpfactor,
+    # Mg-calcite solubility
+    "acf_Ca": solubility.get_activity_coefficient_Ca,
+    "acf_Mg": solubility.get_activity_coefficient_Mg,
+    "acf_CO3": solubility.get_activity_coefficient_CO3,
+    "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
+    "k_Mg_calcite": solubility.get_k_Mg_calcite,
+    "Mg": salts.Mg_reference_composition,
+    "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
 }
 
 # Define functions for calculations that depend on icase:
@@ -627,6 +635,15 @@ get_funcs_opts["opt_fCO2_temperature"] = {
         upsilon=upsilon.quadratic,
     ),
 }
+get_funcs_opts["opt_Mg_calcite_type"] = {
+    1: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_minprep),
+    2: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_biogenic),
+    3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
+}
+get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
+    1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
+    2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
+}
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
 # based on the function names and signatures in get_funcs
@@ -690,6 +707,7 @@ values_default = {
     "salinity": 35.0,
     "pressure": 0.0,  # dbar
     "pressure_atmosphere": 1.0,  # atm
+    "Mg_percent": 0.0,  # %
 }
 
 opts_default = {
@@ -715,6 +733,8 @@ opts_default = {
     "opt_k_calcite": 1,
     "opt_k_aragonite": 1,
     "opt_fCO2_temperature": 1,
+    "opt_Mg_calcite_type": 2,
+    "opt_Mg_calcite_kt_Tdep": 1,
 }
 
 # Define labels for parameter plotting
@@ -844,6 +864,7 @@ set_node_labels = {
     "bq": "$b_q$",
     "bh": "$b_h$",
     "upsilon": r"$\upsilon$",
+    "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
 }
 
 # Parameters that do not change between input and output conditions
@@ -860,6 +881,7 @@ condition_independent = (
     "total_sulfide",
     "total_silicate",
     "total_borate",
+    "Mg_percent",
 )
 
 
