@@ -144,20 +144,23 @@ def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
 
 def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):
     # curve 3
+    # TODO warning if Mg_percent is above 22
     a, b, c, d = -1.047e-05, 0.0008416, -0.001061, -8.502
-    return 10 ** (a * Mg_percent**3 + b**Mg_percent**2 + c * Mg_percent + d)
+    return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
 def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):
     # curve 2
+    # TODO warning if Mg_percent is above 22
     a, b, c, d = -8.968e-06, 0.0006153, 0.002346, -8.377
-    return 10 ** (a * Mg_percent**3 + b**Mg_percent**2 + c * Mg_percent + d)
+    return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
 def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):
     # curve 1
+    # TODO warning if Mg_percent is above 27
     a, b, c, d = -0.0002341, 0.008575, -0.01618, -8.512
-    return 10 ** (a * Mg_percent**3 + b**Mg_percent**2 + c * Mg_percent + d)
+    return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
 def _get_deltaH_Mg_calcite(Mg_percent):
@@ -188,17 +191,18 @@ def _get_kt_calcite_1atm_PB82(temperature):
 def get_kt_Mg_calcite_1atm_vantHoff(
     temperature, Mg_percent, gas_constant, kt_Mg_calcite_25C_1atm
 ):
+    GasR = gas_constant / 10
     TempK = convert.celsius_to_kelvin(temperature)
     T0 = 298.15  # standard temperature is 25C
     kt_Mg_calcite_1atm = (
         np.exp(
             (
                 (-_get_deltaH_Mg_calcite(Mg_percent) * 1000)
-                / gas_constant
+                / GasR
                 * (1 / (TempK) - 1 / (T0))
             )
             - _get_Cp_Mg_calcite(Mg_percent)
-            / gas_constant
+            / GasR
             * (np.log(TempK / T0) + T0 / TempK - 1)
         )
         * kt_Mg_calcite_25C_1atm
@@ -300,8 +304,9 @@ def get_activity_coefficient_CO3(salinity, temperature):
 
 def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1atm):
     # calculate stoichiometric K*
+    Mg_fraction = Mg_percent / 100
     k_Mg_calcite_1atm = kt_Mg_calcite_1atm / (
-        acf_Ca ** (1 - Mg_percent) * acf_Mg**Mg_percent * acf_CO3
+        acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
     )
     return k_Mg_calcite_1atm
 
@@ -309,7 +314,9 @@ def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1at
 def get_k_Mg_calcite(
     pressure, temperature, Mg_percent, gas_constant, k_Mg_calcite_1atm
 ):
+    RGas = gas_constant / 10 
     TempK = convert.celsius_to_kelvin(temperature)
+    Pbar = convert.decibar_to_bar(pressure)
     deltaV_ca, deltaK_ca = _deltaKappaCalcite_I75(temperature)  # from PyCO2Sys
     # get ∆V for Mg content
     deltaV_mg = deltaV_ca + 10.22 * Mg_percent  # sources for this fit: RB62, PR90, A77
@@ -317,7 +324,7 @@ def get_k_Mg_calcite(
     deltaK_mg = deltaK_ca
     # calculate pressure dependence
     ln_K_K = (
-        (-deltaV_mg + 0.5 * deltaK_mg * pressure) * pressure / (gas_constant * TempK)
+        (-deltaV_mg + 0.5 * deltaK_mg * Pbar) * Pbar / (RGas * TempK)
     )
     k_Mg_calcite = k_Mg_calcite_1atm * np.exp(ln_K_K)
     return k_Mg_calcite
@@ -325,4 +332,4 @@ def get_k_Mg_calcite(
 
 def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_percent, k_Mg_calcite):
     Mg_fraction = Mg_percent / 100
-    return 1e-18 * CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction / k_Mg_calcite
+    return 1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / k_Mg_calcite

@@ -129,6 +129,12 @@ get_funcs = {
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
     "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
+    # for testing
+    "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
+    "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
+    "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
+    "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
+    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82
 }
 
 # Define functions for calculations that depend on icase:
