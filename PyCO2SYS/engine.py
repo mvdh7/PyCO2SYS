@@ -689,204 +689,204 @@ def get_graph_opts(exclude=[]):
 
 parameters_core = (
     "alkalinity",
-    "dic",
-    "pH",
-    "pCO2",
-    "fCO2",
-    "CO3",
-    "HCO3",
     "CO2",
-    "xCO2",
-    "saturation_calcite",
+    "CO3",
+    "dic",
+    "fCO2",
+    "HCO3",
+    "pCO2",
+    "pH",
     "saturation_aragonite",
+    "saturation_calcite",
+    "xCO2",
 )
 
 values_default = {
+    "Mg_percent": 0.0,  # %
+    "pressure_atmosphere": 1.0,  # atm
+    "pressure": 0.0,  # dbar
+    "salinity": 35.0,
     "temperature": 25.0,  # °C
     "total_ammonia": 0.0,  # µmol/kg-sw
     "total_phosphate": 0.0,  # µmol/kg-sw
     "total_silicate": 0.0,  # µmol/kg-sw
     "total_sulfide": 0.0,  # µmol/kg-sw
-    "salinity": 35.0,
-    "pressure": 0.0,  # dbar
-    "pressure_atmosphere": 1.0,  # atm
-    "Mg_percent": 0.0,  # %
 }
 
 opts_default = {
-    "opt_gas_constant": 3,
+    "opt_Ca": 1,
     "opt_factor_k_BOH3": 1,
     "opt_factor_k_H2CO3": 1,
-    "opt_factor_k_HCO3": 1,
     "opt_factor_k_H2O": 1,
+    "opt_factor_k_HCO3": 1,
+    "opt_fCO2_temperature": 1,
     "opt_fH": 1,
-    "opt_k_carbonic": 10,
-    "opt_k_phosphate": 1,
+    "opt_fugacity_factor": 1,
+    "opt_gas_constant": 3,
+    "opt_HCO3_root": 2,
+    "opt_k_aragonite": 1,
     "opt_k_BOH3": 1,
+    "opt_k_calcite": 1,
+    "opt_k_carbonic": 10,
     "opt_k_H2O": 1,
     "opt_k_HF": 1,
     "opt_k_HSO4": 1,
     "opt_k_NH3": 1,
+    "opt_k_phosphate": 1,
     "opt_k_Si": 1,
+    "opt_Mg_calcite_kt_Tdep": 1,
+    "opt_Mg_calcite_type": 2,
     "opt_pH_scale": 1,
     "opt_total_borate": 1,
-    "opt_Ca": 1,
-    "opt_fugacity_factor": 1,
-    "opt_HCO3_root": 2,
-    "opt_k_calcite": 1,
-    "opt_k_aragonite": 1,
-    "opt_fCO2_temperature": 1,
-    "opt_Mg_calcite_type": 2,
-    "opt_Mg_calcite_kt_Tdep": 1,
 }
 
 # Define labels for parameter plotting
 set_node_labels = {
-    "dic": r"$T_\mathrm{C}$",
-    "k_CO2": "$K_0′$",
-    "k_CO2_1atm": "$K_0′^0$",
-    "k_H2CO3": "$K_1^*$",
-    "k_HCO3": "$K_2^*$",
-    "k_H2CO3_sws": "$K_1^s$",
-    "k_HCO3_sws": "$K_2^s$",
-    "k_H2CO3_sws_1atm": r"$K_1^\mathrm{S0}$",
-    "k_HCO3_sws_1atm": r"$K_2^\mathrm{S0}$",
-    "k_H2CO3_total_1atm": r"$K_1^\mathrm{T0}$",
-    "k_HCO3_total_1atm": r"$K_2^\mathrm{T0}$",
-    "k_HF_free": r"$K_\mathrm{HF}^\mathrm{F}$",
-    "k_HSO4_free": r"$K_\mathrm{HSO_4}^\mathrm{F}$",
-    "k_HF_free_1atm": r"$K_\mathrm{HF}^\mathrm{F0}$",
-    "k_HSO4_free_1atm": r"$K_\mathrm{HSO_4}^\mathrm{F0}$",
-    "pressure_atmosphere": r"$p_\mathrm{atm}$",
-    "ionic_strength": "$I$",
-    "temperature": "$t$",
-    "salinity": "$S$",
-    "pressure": "$p$",
-    "gas_constant": "$R$",
-    "CO3": "[CO$_3^{2–}$]",
-    "HCO3": "[HCO$_3^–$]",
-    "total_sulfate": r"$T_\mathrm{SO_4}$",
-    "total_fluoride": r"$T_\mathrm{F}$",
-    "total_ammonia": r"$T_\mathrm{NH_3}$",
-    "total_phosphate": r"$T_\mathrm{P}$",
-    "total_sulfide": r"$T_\mathrm{H_2S}$",
-    "total_silicate": r"$T_\mathrm{Si}$",
-    "total_borate": r"$T_\mathrm{B}$",
-    "Ca": r"$[\mathrm{Ca}^{2+}]$",
-    "Mg": r"$[\mathrm{Mg}^{2+}]$",
-    "Mg_percent": "Mg%",
-    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
-    "sws_to_opt": r"$_\mathrm{S}^*Y$",
-    "opt_to_free": r"$_*^\mathrm{F}Y$",
-    "fCO2": "fCO$_2$",
-    "factor_k_CO2": "$P_0$",
-    "factor_k_H2CO3": "$P_1$",
-    "factor_k_HCO3": "$P_2$",
-    "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
-    "factor_k_HF": r"$P_\mathrm{HF}$",
-    "factor_k_BOH3": r"$P_\mathrm{B}$",
-    "factor_k_H2O": r"$P_w$",
-    "factor_k_Si": r"$P_\mathrm{Si}$",
-    "factor_k_NH3": r"$P_\mathrm{NH_3}$",
-    "factor_k_H2S": r"$P_\mathrm{H_2S}$",
-    "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
-    "H3PO4": r"$[\mathrm{H}_3\mathrm{PO}_4]$",
-    "H2PO4": r"$[\mathrm{H}_2\mathrm{PO}_4^–]$",
-    "HPO4": r"$[\mathrm{HPO}_4^{2–}]$",
-    "PO4": r"$[\mathrm{PO}_4^{3–}]$",
-    "k_H3PO4": r"$K_\mathrm{P1}^*$",
-    "k_H2PO4": r"$K_\mathrm{P2}^*$",
-    "k_HPO4": r"$K_\mathrm{P3}^*$",
-    "k_BOH3": r"$K_\mathrm{B}^*$",
-    "k_Si": r"$K_\mathrm{Si}^*$",
-    "k_NH3": r"$K_\mathrm{NH_3}^*$",
-    "k_H2S": r"$K_\mathrm{H_2S}^*$",
-    "k_H2O": "$K_w^*$",
-    "k_H3PO4_sws": r"$K_\mathrm{P1}^\mathrm{S}$",
-    "k_H2PO4_sws": r"$K_\mathrm{P2}^\mathrm{S}$",
-    "k_HPO4_sws": r"$K_\mathrm{P3}^\mathrm{S}$",
-    "k_BOH3_sws": r"$K_\mathrm{B}^\mathrm{S}$",
-    "k_Si_sws": r"$K_\mathrm{Si}^\mathrm{S}$",
-    "k_NH3_sws": r"$K_\mathrm{NH_3}^\mathrm{S}$",
-    "k_H2S_sws": r"$K_\mathrm{H_2S}^\mathrm{S}$",
-    "k_H2O_sws": r"$K_w^\mathrm{S}$",
-    "k_H3PO4_sws_1atm": r"$K_\mathrm{P1}^\mathrm{S0}$",
-    "k_H2PO4_sws_1atm": r"$K_\mathrm{P2}^\mathrm{S0}$",
-    "k_HPO4_sws_1atm": r"$K_\mathrm{P3}^\mathrm{S0}$",
-    "k_BOH3_sws_1atm": r"$K_\mathrm{B}^\mathrm{S0}$",
-    "k_BOH3_total_1atm": r"$K_\mathrm{B}^\mathrm{T0}$",
-    "k_Si_sws_1atm": r"$K_\mathrm{Si}^\mathrm{S0}$",
-    "k_NH3_sws_1atm": r"$K_\mathrm{NH_3}^\mathrm{S0}$",
-    "k_H2S_sws_1atm": r"$K_\mathrm{H_2S}^\mathrm{S0}$",
-    "k_H2S_total_1atm": r"$K_\mathrm{H_2S}^\mathrm{T0}$",
-    "k_H2O_sws_1atm": r"$K_w^\mathrm{S0}$",
-    "factor_k_H3PO4": r"$P_\mathrm{P1}$",
-    "factor_k_H2PO4": r"$P_\mathrm{P2}$",
-    "factor_k_HPO4": r"$P_\mathrm{P3}$",
-    "BOH4": r"$[\mathrm{B(OH)}_4^–]$",
-    "BOH3": r"$[\mathrm{B(OH)}_3]$",
-    "OH": r"$[\mathrm{OH}^–]$",
-    "H": r"$[\mathrm{H}^+]^*$",
-    "H_free": r"$[\mathrm{H}^+]^\mathrm{F}$",
-    "H3SiO4": r"$[\mathrm{H}_3\mathrm{SiO}_4^–]$",
-    "H4SiO4": r"$[\mathrm{H}_4\mathrm{SiO}_4]$",
-    "HSO4": r"$[\mathrm{HSO}_4^–]$",
-    "SO4": r"$[\mathrm{SO}_4^{2–}]$",
-    "HF": "[HF]",
-    "F": r"$[\mathrm{F}^-]$",
-    "NH3": r"$[\mathrm{NH}_3]$",
-    "NH4": r"$[\mathrm{NH}_4^+]$",
-    "H2S": r"$[\mathrm{H_2S}]$",
-    "HS": r"$[\mathrm{HS}^–]$",
+    "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
+    "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
+    "acf_Mg": r"$\gamma_{\mathrm{Mg}^{2+}}$",
     "alkalinity": r"$A_\mathrm{T}$",
-    "fugacity_factor": "$ƒ$",
-    "vp_factor": "$v$",
-    "pCO2": r"$p\mathrm{CO}_2$",
-    "xCO2": r"$x\mathrm{CO}_2$",
-    "k_aragonite": r"$K_\mathrm{a}^*$",
-    "k_calcite": r"$K_\mathrm{c}^*$",
-    "saturation_aragonite": r"$Ω_\mathrm{a}$",
-    "saturation_calcite": r"$Ω_\mathrm{c}$",
-    "pH_total": r"pH$_\mathrm{T}$",
-    "pH_sws": r"pH$_\mathrm{S}$",
-    "pH_free": r"pH$_\mathrm{F}$",
-    "pH_nbs": r"pH$_\mathrm{N}$",
-    "substrate_inhibitor_ratio": "SIR",
-    "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
-    "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
+    "aq": "$a_q$",
     "beta_alkalinity": r"$\beta_{A_\mathrm{T}}$",
     "beta_dic": r"$\beta_{C_\mathrm{T}}$",
+    "bh": "$b_h$",
+    "bl": "$b_l$",
+    "BOH3": r"$[\mathrm{B(OH)}_3]$",
+    "BOH4": r"$[\mathrm{B(OH)}_4^–]$",
+    "bq": "$b_q$",
+    "Ca": r"$[\mathrm{Ca}^{2+}]$",
+    "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
+    "CO3": "[CO$_3^{2–}$]",
+    "dic": r"$T_\mathrm{C}$",
+    "F": r"$[\mathrm{F}^-]$",
+    "factor_k_BOH3": r"$P_\mathrm{B}$",
+    "factor_k_CO2": "$P_0$",
+    "factor_k_H2CO3": "$P_1$",
+    "factor_k_H2O": r"$P_w$",
+    "factor_k_H2PO4": r"$P_\mathrm{P2}$",
+    "factor_k_H2S": r"$P_\mathrm{H_2S}$",
+    "factor_k_H3PO4": r"$P_\mathrm{P1}$",
+    "factor_k_HCO3": "$P_2$",
+    "factor_k_HF": r"$P_\mathrm{HF}$",
+    "factor_k_HPO4": r"$P_\mathrm{P3}$",
+    "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
+    "factor_k_NH3": r"$P_\mathrm{NH_3}$",
+    "factor_k_Si": r"$P_\mathrm{Si}$",
+    "fCO2": "fCO$_2$",
+    "fugacity_factor": "$ƒ$",
+    "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
+    "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
+    "gas_constant": "$R$",
+    "H_free": r"$[\mathrm{H}^+]^\mathrm{F}$",
+    "H": r"$[\mathrm{H}^+]^*$",
+    "H2PO4": r"$[\mathrm{H}_2\mathrm{PO}_4^–]$",
+    "H2S": r"$[\mathrm{H_2S}]$",
+    "H3PO4": r"$[\mathrm{H}_3\mathrm{PO}_4]$",
+    "H3SiO4": r"$[\mathrm{H}_3\mathrm{SiO}_4^–]$",
+    "H4SiO4": r"$[\mathrm{H}_4\mathrm{SiO}_4]$",
+    "HCO3": "[HCO$_3^–$]",
+    "HF": "[HF]",
+    "HPO4": r"$[\mathrm{HPO}_4^{2–}]$",
+    "HS": r"$[\mathrm{HS}^–]$",
+    "HSO4": r"$[\mathrm{HSO}_4^–]$",
+    "ionic_strength": "$I$",
+    "k_aragonite": r"$K_\mathrm{a}^*$",
+    "k_BOH3_sws_1atm": r"$K_\mathrm{B}^\mathrm{S0}$",
+    "k_BOH3_sws": r"$K_\mathrm{B}^\mathrm{S}$",
+    "k_BOH3_total_1atm": r"$K_\mathrm{B}^\mathrm{T0}$",
+    "k_BOH3": r"$K_\mathrm{B}^*$",
+    "k_calcite": r"$K_\mathrm{c}^*$",
+    "k_CO2_1atm": "$K_0′^0$",
+    "k_CO2": "$K_0′$",
+    "k_H2CO3_sws_1atm": r"$K_1^\mathrm{S0}$",
+    "k_H2CO3_sws": "$K_1^s$",
+    "k_H2CO3_total_1atm": r"$K_1^\mathrm{T0}$",
+    "k_H2CO3": "$K_1^*$",
+    "k_H2O_sws_1atm": r"$K_w^\mathrm{S0}$",
+    "k_H2O_sws": r"$K_w^\mathrm{S}$",
+    "k_H2O": "$K_w^*$",
+    "k_H2PO4_sws_1atm": r"$K_\mathrm{P2}^\mathrm{S0}$",
+    "k_H2PO4_sws": r"$K_\mathrm{P2}^\mathrm{S}$",
+    "k_H2PO4": r"$K_\mathrm{P2}^*$",
+    "k_H2S_sws_1atm": r"$K_\mathrm{H_2S}^\mathrm{S0}$",
+    "k_H2S_sws": r"$K_\mathrm{H_2S}^\mathrm{S}$",
+    "k_H2S_total_1atm": r"$K_\mathrm{H_2S}^\mathrm{T0}$",
+    "k_H2S": r"$K_\mathrm{H_2S}^*$",
+    "k_H3PO4_sws_1atm": r"$K_\mathrm{P1}^\mathrm{S0}$",
+    "k_H3PO4_sws": r"$K_\mathrm{P1}^\mathrm{S}$",
+    "k_H3PO4": r"$K_\mathrm{P1}^*$",
+    "k_HCO3_sws_1atm": r"$K_2^\mathrm{S0}$",
+    "k_HCO3_sws": "$K_2^s$",
+    "k_HCO3_total_1atm": r"$K_2^\mathrm{T0}$",
+    "k_HCO3": "$K_2^*$",
+    "k_HF_free_1atm": r"$K_\mathrm{HF}^\mathrm{F0}$",
+    "k_HF_free": r"$K_\mathrm{HF}^\mathrm{F}$",
+    "k_HPO4_sws_1atm": r"$K_\mathrm{P3}^\mathrm{S0}$",
+    "k_HPO4_sws": r"$K_\mathrm{P3}^\mathrm{S}$",
+    "k_HPO4": r"$K_\mathrm{P3}^*$",
+    "k_HSO4_free_1atm": r"$K_\mathrm{HSO_4}^\mathrm{F0}$",
+    "k_HSO4_free": r"$K_\mathrm{HSO_4}^\mathrm{F}$",
+    "k_NH3_sws_1atm": r"$K_\mathrm{NH_3}^\mathrm{S0}$",
+    "k_NH3_sws": r"$K_\mathrm{NH_3}^\mathrm{S}$",
+    "k_NH3": r"$K_\mathrm{NH_3}^*$",
+    "k_Si_sws_1atm": r"$K_\mathrm{Si}^\mathrm{S0}$",
+    "k_Si_sws": r"$K_\mathrm{Si}^\mathrm{S}$",
+    "k_Si": r"$K_\mathrm{Si}^*$",
+    "Mg_percent": "Mg%",
+    "Mg": r"$[\mathrm{Mg}^{2+}]$",
+    "NH3": r"$[\mathrm{NH}_3]$",
+    "NH4": r"$[\mathrm{NH}_4^+]$",
+    "OH": r"$[\mathrm{OH}^–]$",
     "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
     "omega_dic": r"$\omega_{C_\mathrm{T}}$",
-    "Q_isocap": "$Q$",
-    "Q_isocap_approx": "$Q_x$",
+    "opt_to_free": r"$_*^\mathrm{F}Y$",
+    "pCO2": r"$p\mathrm{CO}_2$",
+    "pH_free": r"pH$_\mathrm{F}$",
+    "pH_nbs": r"pH$_\mathrm{N}$",
+    "pH_sws": r"pH$_\mathrm{S}$",
+    "pH_total": r"pH$_\mathrm{T}$",
+    "PO4": r"$[\mathrm{PO}_4^{3–}]$",
+    "pressure_atmosphere": r"$p_\mathrm{atm}$",
+    "pressure": "$p$",
     "psi": r"$\psi$",
+    "Q_isocap_approx": "$Q_x$",
+    "Q_isocap": "$Q$",
     "revelle_factor": r"$R_\mathrm{F}$",
-    "bl": "$b_l$",
-    "aq": "$a_q$",
-    "bq": "$b_q$",
-    "bh": "$b_h$",
+    "salinity": "$S$",
+    "saturation_aragonite": r"$Ω_\mathrm{a}$",
+    "saturation_calcite": r"$Ω_\mathrm{c}$",
+    "SO4": r"$[\mathrm{SO}_4^{2–}]$",
+    "substrate_inhibitor_ratio": "SIR",
+    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "temperature": "$t$",
+    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "total_ammonia": r"$T_\mathrm{NH_3}$",
+    "total_borate": r"$T_\mathrm{B}$",
+    "total_fluoride": r"$T_\mathrm{F}$",
+    "total_phosphate": r"$T_\mathrm{P}$",
+    "total_silicate": r"$T_\mathrm{Si}$",
+    "total_sulfate": r"$T_\mathrm{SO_4}$",
+    "total_sulfide": r"$T_\mathrm{H_2S}$",
     "upsilon": r"$\upsilon$",
-    "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
-    "acf_Mg": r"$\gamma_{\mathrm{Mg}^{2+}}$",
-    "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
+    "vp_factor": "$v$",
+    "xCO2": r"$x\mathrm{CO}_2$",
 }
 
 # Parameters that do not change between input and output conditions
 condition_independent = (
     "alkalinity",
-    "dic",
-    "salinity",
-    "ionic_strength",
     "Ca",
-    "total_sulfate",
-    "total_fluoride",
-    "total_ammonia",
-    "total_phosphate",
-    "total_sulfide",
-    "total_silicate",
-    "total_borate",
+    "dic",
+    "ionic_strength",
     "Mg_percent",
+    "salinity",
+    "total_ammonia",
+    "total_borate",
+    "total_fluoride",
+    "total_phosphate",
+    "total_silicate",
+    "total_sulfate",
+    "total_sulfide",
 )
 
 
@@ -924,10 +924,8 @@ class CO2System(UserDict):
                 assert np.isscalar(v)
                 assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
             else:
-                warnings.warn(
-                    f"'{k}' is not recognised"
-                    + " - it will not be used in any calculations."
-                )
+                warnings.warn(f"'{k}' not recognised - it is being ignored.")
+                opts.pop(k)
         self.opts.update(opts)
         # Deal with tricky special cases
         if self.icase != 207:
@@ -936,12 +934,6 @@ class CO2System(UserDict):
             self.opts.pop("opt_fCO2_temperature")
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.data = self._assemble(self.icase, data)
-        for k in self.data:
-            if k not in self.graph.nodes:
-                warnings.warn(
-                    f"'{k}' is not recognised"
-                    + " - it will not be used in any calculations."
-                )
         self.grads = {}
         self.uncertainty = {}
         self.requested = set()  # keep track of all parameters that have been requested
@@ -1003,16 +995,22 @@ class CO2System(UserDict):
             graph = nx.compose(graph, graph_opts[opt][v])
             funcs.update(get_funcs_opts[opt][v])
         # Assign default values
-        data = data.copy()
         for k, v in values_default.items():
             if k not in data:
                 data[k] = v
                 graph.add_node(k)
         # Save arguments
+        to_remove = []
         for k, v in data.items():
             if v is not None:
-                # state 1 means that the value was provided as an argument
-                nx.set_node_attributes(graph, {k: 1}, name="state")
+                if k in graph.nodes:
+                    # state 1 means that the value was provided as an argument
+                    nx.set_node_attributes(graph, {k: 1}, name="state")
+                else:
+                    warnings.warn(f"'{k}' is not recognised - it is being ignored.")
+                    to_remove.append(k)
+        for k in to_remove:
+            data.pop(k)
         self.nodes_original = list(k for k, v in data.items() if v is not None)
         return graph, funcs, data
 
@@ -1212,9 +1210,10 @@ class CO2System(UserDict):
                 fCO2 = self.fCO2
                 assert opt_which_fCO2_insitu in [1, 2]
                 if opt_which_fCO2_insitu == 2:
-                    # If the output conditions are the environmental ones, then we need
-                    # to provide an estimate of output fCO2 in order to use the bh
-                    # parameterisation; we get this using the method_fCO2=2 approach:
+                    # If the output conditions are the environmental ones, then
+                    # we need to provide an estimate of output fCO2 in order to
+                    # use the bh parameterisation; we get this using the method_fCO2=2
+                    # approach:
                     fCO2 = fCO2 * upsilon.expUps_TOG93_H24(
                         self.data["temperature"],
                         temperature,
@@ -1277,8 +1276,8 @@ class CO2System(UserDict):
         temperature : float, optional
             Temperature in °C to adjust to.  If `None`, temperature is not adjusted.
         pressure : float, optional
-            Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is not
-            adjusted.
+            Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is
+            not adjusted.
         store_steps : int, optional
             Whether/which non-requested parameters calculated during intermediate
             calculation steps should be stored.  The options are:
@@ -1370,7 +1369,8 @@ class CO2System(UserDict):
         return sys
 
     def _get_func_of(self, var_of):
-        """Create a function to compute ``var_of`` directly from an input set of values.
+        """Create a function to compute ``var_of`` directly from an input set of
+        values.
 
         The created function has the signature
 
@@ -1424,8 +1424,8 @@ class CO2System(UserDict):
         return get_value_of
 
     def _get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with ``_get_func_of`` so that one of its kwargs
-        is instead a positional arg (and which can thus be gradded).
+        """Reorganise a function created with ``_get_func_of`` so that one of its
+        kwargs is instead a positional arg (and which can thus be gradded).
 
         Parameters
         ----------
@@ -1453,18 +1453,18 @@ class CO2System(UserDict):
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and store it in
-        `sys.grads[var_of][var_wrt]`.  If there is already a value there, then that
-        value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt` and store
+        it in `sys.grads[var_of][var_wrt]`.  If there is already a value there,
+        then that value is returned instead of recalculating.
 
         Parameters
         ----------
         var_of : str
             The name of the variable to get the derivative of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.  This must
-            be one of the fixed values provided when creating the `CO2System`, i.e.,
-            listed in its `nodes_original` attribute.
+            The name of the variable to get the derivative with respect to.  This
+            must be one of the fixed values provided when creating the `CO2System`,
+            i.e., listed in its `nodes_original` attribute.
         """
         assert var_wrt in self.nodes_original, (
             "`var_wrt` must be one of `sys.nodes_original!`"
@@ -1472,43 +1472,43 @@ class CO2System(UserDict):
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
         except KeyError:  # only do the calculations if there isn't already a value
-            # We need to know the shape of the variable that we want the grad of, the
-            # easy way to get this is just to solve for it (if that hasn't already been
-            # done)
+            # We need to know the shape of the variable that we want the grad of,
+            # the easy way to get this is just to solve for it (if that hasn't
+            # already been done)
             if var_of not in self.data:
                 self.solve(var_of)
             # Next, we extract the originally set values, which are fixed during the
             # differentiation
             values_original = self.get_values_original()
             other_values_original = values_original.copy()
-            # We have to make sure the value we are differentiating with respect to has
-            # the same shape as the value we want the differential of
+            # We have to make sure the value we are differentiating with respect
+            # to has the same shape as the value we want the differential of
             value_wrt = other_values_original.pop(var_wrt) * np.ones_like(
                 self.data[var_of]
             )
             # Here we compute the gradient
             grad_func = self.get_grad_func(var_of, var_wrt)
             d_of__d_wrt = grad_func(value_wrt, **other_values_original)
-            # Put the final value into self.grads, first creating a new sub-dict if
-            # necessary
+            # Put the final value into self.grads, first creating a new sub-dict
+            # if necessary
             if var_of not in self.grads:
                 self.grads[var_of] = {}
             self.grads[var_of][var_wrt] = d_of__d_wrt
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
-        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and store
-        them in `sys.grads[var_of][var_wrt]`.  If there are already values there, then
-        those values are returned instead of recalculating.
+        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
+        store them in `sys.grads[var_of][var_wrt]`.  If there are already values
+        there, then those values are returned instead of recalculating.
 
         Parameters
         ----------
         vars_of : list
             The names of the variables to get the derivatives of.
         vars_wrt : list
-            The names of the variables to get the derivatives with respect to.  These
-            must all be one of the fixed values provided when creating the `CO2System`,
-            i.e., listed in its `nodes_original` attribute.
+            The names of the variables to get the derivatives with respect to.
+            These must all be one of the fixed values provided when creating the
+            `CO2System`, i.e., listed in its `nodes_original` attribute.
         """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
@@ -1543,16 +1543,18 @@ class CO2System(UserDict):
         if isinstance(uncertainty_in, str):
             uncertainty_in = [uncertainty_in]
         for var_in in uncertainty_in:
-            # This should always be reset to zero and all values wiped, even if it
-            # already exists (so you don't end up with old uncertainty_from components
-            # from a previous calculation which are no longer part of the total)
+            # This should always be reset to zero and all values wiped, even if
+            # it already exists (so you don't end up with old uncertainty_from
+            # components from a previous calculation which are no longer part of
+            # the total)
             self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
                 is_pk = var_from.startswith("pk_")
                 if is_pk:
-                    # If the uncertainty is given in terms of a pK value, we do the
-                    # calculations as if it were a K value, and convert at the end
+                    # If the uncertainty is given in terms of a pK value, we do
+                    # the calculations as if it were a K value, and convert at
+                    # the end
                     var_from = var_from[1:]
                 is_fractional = var_from.endswith("__f")
                 if is_fractional:
@@ -1563,9 +1565,9 @@ class CO2System(UserDict):
                     self.get_grad(var_in, var_from)
                     u_part = np.abs(self.grads[var_in][var_from] * u_from)
                 else:
-                    # If the uncertainty is from some internally calculated value, then
-                    # we need to make a second CO2System where that value is one of the
-                    # known inputs, and get the grad from that
+                    # If the uncertainty is from some internally calculated value,
+                    # then we need to make a second CO2System where that value
+                    # is one of the known inputs, and get the grad from that
                     self.solve(var_from)
                     data = self.get_values_original()
                     data.update({var_from: self.data[var_from]})
@@ -1664,8 +1666,8 @@ class CO2System(UserDict):
                 [n for n, d in dict(plot_graph.degree).items() if d == 0]
             )
         if skip_nodes:
-            # Skipping nodes removes them but then shows their predecessors as being
-            # directly connected to their children
+            # Skipping nodes removes them but then shows their predecessors as
+            # being directly connected to their children
             edge_states = nx.get_edge_attributes(plot_graph, "state", default=0)
             if isinstance(skip_nodes, str):
                 skip_nodes = [skip_nodes]
@@ -1716,6 +1718,7 @@ class CO2System(UserDict):
 
 
 def sys(data=None, **kwargs):
+    """Create a `CO2System`."""
     # Check for double precision
     if np.array(1.0).dtype is np.dtype("float32"):
         warnings.warn(
