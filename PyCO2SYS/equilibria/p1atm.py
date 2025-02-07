@@ -154,7 +154,6 @@ def k_CO2_W74(temperature, salinity):
 
     Parameters
     ----------
-
     temperature : float
         Temperature in °C.
     salinity : float
@@ -1836,17 +1835,27 @@ def k_NH3_total_CW95(temperature, salinity):
     # eq (18)  Total scale   t=[-2 to 40 oC]  S=[0 to 40 ppt]   pK=+-0.00015
     TempK = convert.celsius_to_kelvin(temperature)
     PKNH3expCW = 9.244605 - 2729.33 * (1 / 298.15 - 1 / TempK)
-    PKNH3expCW += (0.04203362 - 11.24742 / TempK) * salinity**0.25
-    PKNH3expCW += (
-        -13.6416 + 1.176949 * TempK**0.5 - 0.02860785 * TempK + 545.4834 / TempK
-    ) * salinity**0.5
-    PKNH3expCW += (
-        -0.1462507 + 0.0090226468 * TempK**0.5 - 0.0001471361 * TempK + 10.5425 / TempK
-    ) * salinity**1.5
-    PKNH3expCW += (
-        0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK
-    ) * salinity**2
-    PKNH3expCW += (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
+    PKNH3expCW = PKNH3expCW + (0.04203362 - 11.24742 / TempK) * salinity**0.25
+    PKNH3expCW = (
+        PKNH3expCW
+        + (-13.6416 + 1.176949 * TempK**0.5 - 0.02860785 * TempK + 545.4834 / TempK)
+        * salinity**0.5
+    )
+    PKNH3expCW = (
+        PKNH3expCW
+        + (
+            -0.1462507
+            + 0.0090226468 * TempK**0.5
+            - 0.0001471361 * TempK
+            + 10.5425 / TempK
+        )
+        * salinity**1.5
+    )
+    PKNH3expCW = (
+        PKNH3expCW
+        + (0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK) * salinity**2
+    )
+    PKNH3expCW = PKNH3expCW + (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
     return KNH3

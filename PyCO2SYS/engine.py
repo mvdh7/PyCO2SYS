@@ -128,7 +128,6 @@ get_funcs = {
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
-    "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
 }
 
 # Define functions for calculations that depend on icase:
@@ -292,6 +291,7 @@ for k, fc in get_funcs_core.items():
             {
                 "saturation_aragonite": solubility.OA_from_CO3,
                 "saturation_calcite": solubility.OC_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
             }
         )
     elif k in [10, 110, 210, 310, 410, 510, 710, 810, 910]:
@@ -299,6 +299,7 @@ for k, fc in get_funcs_core.items():
             {
                 "CO3": solubility.CO3_from_OC,
                 "saturation_aragonite": solubility.OA_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
             }
         )
     elif k in [11, 111, 211, 311, 411, 511, 711, 811, 911]:
@@ -306,6 +307,7 @@ for k, fc in get_funcs_core.items():
             {
                 "CO3": solubility.CO3_from_OA,
                 "saturation_calcite": solubility.OC_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
             }
         )
 
@@ -463,8 +465,9 @@ get_funcs_opts["opt_k_carbonic"] = {
     ),
     17: dict(
         # k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
-        # ^ although the above should work, it gives slightly different answers than
-        #   the conversion below, and below is consistent with the MATLAB implementation
+        # ^ although the above should work, it gives slightly different answers
+        #   than he conversion below, and below is consistent with the MATLAB
+        #   implementation
         k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_WMW14,
         k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
             k_H2CO3_total_1atm * tot_to_sws_1atm
@@ -738,8 +741,6 @@ opts_default = {
 }
 
 # Define labels for parameter plotting
-thinspace = " "
-f = "$ƒ$" + thinspace
 set_node_labels = {
     "dic": r"$T_\mathrm{C}$",
     "k_CO2": "$K_0′$",
@@ -775,7 +776,7 @@ set_node_labels = {
     "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "sws_to_opt": r"$_\mathrm{S}^*Y$",
     "opt_to_free": r"$_*^\mathrm{F}Y$",
-    "fCO2": f + "CO$_2$",
+    "fCO2": "fCO$_2$",
     "factor_k_CO2": "$P_0$",
     "factor_k_H2CO3": "$P_1$",
     "factor_k_HCO3": "$P_2$",
@@ -917,12 +918,10 @@ class CO2System(UserDict):
         for k, v in opts.items():
             if k in get_funcs_opts:
                 assert np.isscalar(v)
-                assert v in get_funcs_opts[k].keys(), (
-                    "{} is not allowed for {}!".format(v, k)
-                )
+                assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
             else:
                 warnings.warn(
-                    "'{}' is not recognised".format(k)
+                    f"'{k}' is not recognised"
                     + " - it will not be used in any calculations."
                 )
         self.opts.update(opts)
@@ -936,7 +935,7 @@ class CO2System(UserDict):
         for k in self.data:
             if k not in self.graph.nodes:
                 warnings.warn(
-                    "'{}' is not recognised".format(k)
+                    f"'{k}' is not recognised"
                     + " - it will not be used in any calculations."
                 )
         self.grads = {}
@@ -952,20 +951,20 @@ class CO2System(UserDict):
         self.xr_shape = xr_shape
 
     def __getitem__(self, key):
-        # When the user requests a dict key that hasn't been solved for yet, then solve
-        # and provide the requested parameter
+        # When the user requests a dict key that hasn't been solved for yet, then
+        # solve and provide the requested parameter
         self.solve(parameters=key)
         if isinstance(key, list):
-            # If the user provides a list of keys to solve for, return all of them as
-            # a dict
+            # If the user provides a list of keys to solve for, return all of them
+            # as a dict
             return {k: self.data[k] for k in key}
         else:
             # If a single key is requested, return the corresponding value(s) directly
             return self.data[key]
 
     def __getattr__(self, attr):
-        # This allows solved parameter values to be accessed with dot notation, purely
-        # for convenience.
+        # This allows solved parameter values to be accessed with dot notation,
+        # purely for convenience.
         # So, when the user tries to access something with dot notation...
         try:
             # ... then if it's an attribute, return it (this is the standard behaviour).
@@ -973,12 +972,13 @@ class CO2System(UserDict):
         except AttributeError:
             # But if it's not an attribute...
             try:
-                # ... return the corresponding parameter value, if it's already been
-                # solved for...
+                # ... return the corresponding parameter value, if it's already
+                # been solved for...
                 return self.data[attr]
             except KeyError:
-                # ... but it if hasn't been solved for, throw an error.  The user needs
-                # to use the normal dict notation (or solve method) to solve for it.
+                # ... but it if hasn't been solved for, throw an error.  The user
+                # needs to use the normal dict notation (or solve method) to solve
+                # for it.
                 raise AttributeError(attr)
 
     def __setitem__(self, key, value):
@@ -1037,17 +1037,17 @@ class CO2System(UserDict):
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
         self_data = self.data.copy()  # what was already known before this solve
-        # Remove known nodes from a copy of self.graph, so that ancestors of known nodes
-        # are not unnecessarily recomputed
+        # Remove known nodes from a copy of self.graph, so that ancestors of known
+        # nodes are not unnecessarily recomputed
         graph_unknown = self.graph.copy()
         graph_unknown.remove_nodes_from([k for k in self_data if k not in parameters])
-        # Add intermediate parameters that we need to know in order to calculate the
-        # requested parameters
+        # Add intermediate parameters that we need to know in order to calculate
+        # the requested parameters
         parameters_all = parameters.copy()
         for p in parameters:
             parameters_all = parameters_all | nx.ancestors(graph_unknown, p)
-        # Convert the set of parameters into a list, exclude already-known ones, and
-        # organise the list into the order required for calculations
+        # Convert the set of parameters into a list, exclude already-known ones,
+        # and organise the list into the order required for calculations
         parameters_all = [
             p
             for p in nx.topological_sort(self.graph)
@@ -1083,8 +1083,14 @@ class CO2System(UserDict):
                 )
                 if store_here:
                     store_parameters.append(p)
-                    # state = 2 means that the value was calculated internally
-                    nx.set_node_attributes(self.graph, {p: 2}, name="state")
+                    if p in parameters:
+                        # state = 3 means that the value was calculated internally
+                        # due to direct request
+                        nx.set_node_attributes(self.graph, {p: 3}, name="state")
+                    else:
+                        # state = 2 means that the value was calculated internally
+                        # as an intermediate to a requested parameter
+                        nx.set_node_attributes(self.graph, {p: 2}, name="state")
                     for f in self.funcs[p].__code__.co_varnames[
                         : self.funcs[p].__code__.co_argcount
                     ]:
@@ -1401,16 +1407,16 @@ class CO2System(UserDict):
 
         # Generate docstring
         get_value_of.__doc__ = (
-            "Calculate ``{}``.".format(var_of)
+            f"Calculate ``{var_of}``."
             + "\n\nParameters\n----------"
             + "\nvalues : dict"
             + "\n    Key-value pairs for the following parameters:"
         )
         for p in nodes_vo_all:
             if p in self.nodes_original:
-                get_value_of.__doc__ += "\n        {}".format(p)
+                get_value_of.__doc__ += f"\n        {p}"
         get_value_of.__doc__ += "\n\nReturns\n-------"
-        get_value_of.__doc__ += "\n{}".format(var_of)
+        get_value_of.__doc__ += f"\n{var_of}"
         return get_value_of
 
     def _get_func_of_from_wrt(self, get_value_of, var_wrt):
@@ -1589,23 +1595,23 @@ class CO2System(UserDict):
         ax : matplotlib axes, optional
             The axes on which to plot.  If `None`, a new figure and axes are created.
         exclude_nodes : list of str, optional
-            List of nodes to exclude from the plot, by default `None`.  Nodes in this
-            list are not shown, nor are connections to them or through them.
+            List of nodes to exclude from the plot, by default `None`.  Nodes in
+            this list are not shown, nor are connections to them or through them.
         prog_graphviz : str, optional
             Name of Graphviz layout program, by default "neato".
         show_tsp : bool, optional
             Whether to show temperature, salinity and pressure nodes, by default
-            `False`.
+            `True`.
         show_unknown : bool, optional
             Whether to show nodes for parameters that have not (yet) been calculated,
             by default `True`.
         show_isolated : bool, optional
-            Whether to show nodes for parameters that are not connected to the graph,
-            by default `True`.
+            Whether to show nodes for parameters that are not connected to the
+            graph, by default `True`.
         skip_nodes : bool, optional
-            List of nodes to skip from the plot, by default `None`.  Nodes in this list
-            are not shown, but the connections between their predecessors and children
-            are still drawn.
+            List of nodes to skip from the plot, by default `None`.  Nodes in this
+            list are not shown, but the connections between their predecessors
+            and children are still drawn.
 
         Returns
         -------
@@ -1614,52 +1620,80 @@ class CO2System(UserDict):
         """
         from matplotlib import pyplot as plt
 
+        # NODE STATES
+        # -----------
+        # no state (grey) = unknwown
+        # 1 (grass) = provided by user (or default) i.e. known but not calculated
+        # 2 (azure) = calculated en route to a user-requested parameter
+        # 3 (tangerine) = calculated after direct user request
+        #
+        # EDGE STATES
+        # -----------
+        # no state (grey) = calculation not performed
+        # 2 = (azure) calculation performed
+        #
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        self_graph = self.graph.copy()
-        node_states = nx.get_node_attributes(self_graph, "state", default=0)
-        edge_states = nx.get_edge_attributes(self_graph, "state", default=0)
+        plot_graph = self.graph.copy()
+        # Remove nodes as requested by user
         if not show_tsp:
-            self_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
+            plot_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
         if not show_unknown:
-            self_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
-        if not show_isolated:
-            self_graph.remove_nodes_from(
-                [n for n, d in dict(self_graph.degree).items() if d == 0]
-            )
+            node_states = nx.get_node_attributes(plot_graph, "state", default=0)
+            plot_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
+        # Connect nodes that are missing due to store_steps=1 mode
+        _plot_graph = plot_graph.copy()
+        for n, properties in plot_graph.nodes.items():
+            if "state" in properties and properties["state"] == 2:
+                for a in nx.ancestors(self.graph, n):
+                    if a in plot_graph.nodes:
+                        if len(_plot_graph.pred[n]) == len(_plot_graph.succ[a]) == 0:
+                            plot_graph.add_edge(a, n, state=2)
         if exclude_nodes:
-            # Excluding nodes just makes them disappear from the graph without caring
-            # about what they were connected to
+            # Excluding nodes just makes them disappear from the graph without
+            # caring about what they were connected to
             if isinstance(exclude_nodes, str):
                 exclude_nodes = [exclude_nodes]
-            self_graph.remove_nodes_from(exclude_nodes)
+            plot_graph.remove_nodes_from(exclude_nodes)
+        if not show_isolated:
+            plot_graph.remove_nodes_from(
+                [n for n, d in dict(plot_graph.degree).items() if d == 0]
+            )
         if skip_nodes:
             # Skipping nodes removes them but then shows their predecessors as being
             # directly connected to their children
+            edge_states = nx.get_edge_attributes(plot_graph, "state", default=0)
             if isinstance(skip_nodes, str):
                 skip_nodes = [skip_nodes]
             for n in skip_nodes:
                 for p, s in itertools.product(
-                    self_graph.predecessors(n), self_graph.successors(n)
+                    plot_graph.predecessors(n), plot_graph.successors(n)
                 ):
-                    self_graph.add_edge(p, s)
+                    plot_graph.add_edge(p, s)
                     if edge_states[(p, n)] + edge_states[(n, s)] == 4:
                         new_state = {(p, s): 2}
                     else:
                         new_state = {(p, s): 0}
-                    nx.set_edge_attributes(self_graph, new_state, name="state")
+                    nx.set_edge_attributes(plot_graph, new_state, name="state")
                     edge_states.update(new_state)
-                self_graph.remove_node(n)
-        state_colours = {0: "xkcd:grey", 1: "xkcd:grass", 2: "xkcd:azure"}
-        node_colour = [state_colours[node_states[n]] for n in nx.nodes(self_graph)]
-        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(self_graph)]
+                plot_graph.remove_node(n)
+        state_colours = {
+            0: "xkcd:grey",  # unknown
+            1: "xkcd:grass",  # provided by user i.e. known but not calculated
+            2: "xkcd:azure",  # calculated en route to a user-requested parameter
+            3: "xkcd:tangerine",  # calculated after direct user request
+        }
+        node_states = nx.get_node_attributes(plot_graph, "state", default=0)
+        edge_states = nx.get_edge_attributes(plot_graph, "state", default=0)
+        node_colour = [state_colours[node_states[n]] for n in nx.nodes(plot_graph)]
+        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(plot_graph)]
         pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
-        node_labels = {k: k for k in self_graph.nodes}
+        node_labels = {k: k for k in plot_graph.nodes}
         for k, v in set_node_labels.items():
             if k in node_labels:
                 node_labels[k] = v
         nx.draw_networkx(
-            self_graph,
+            plot_graph,
             ax=ax,
             clip_on=False,
             with_labels=True,
@@ -1669,6 +1703,12 @@ class CO2System(UserDict):
             labels=node_labels,
         )
         return ax
+
+    def keys_all(self):
+        """Return a list of all possible results keys, including those that have
+        not yet been solved for.
+        """
+        return list(self.graph.nodes)
 
 
 def sys(data=None, **kwargs):
