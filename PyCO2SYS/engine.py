@@ -687,18 +687,19 @@ def get_graph_opts(exclude=[]):
     return graph_opts
 
 
+# DO NOT CHANGE THE ORDER OF THE ITEMS IN THIS TUPLE!!!
 parameters_core = (
-    "alkalinity",
-    "CO2",
-    "CO3",
-    "dic",
-    "fCO2",
-    "HCO3",
-    "pCO2",
-    "pH",
-    "saturation_aragonite",
-    "saturation_calcite",
-    "xCO2",
+    "alkalinity",  # 1
+    "dic",  # 2
+    "pH",  # 3
+    "pCO2",  # 4
+    "fCO2",  # 5
+    "CO3",  # 6
+    "HCO3",  # 7
+    "CO2",  # 8
+    "xCO2",  # 9
+    "saturation_calcite",  # 10
+    "saturation_aragonite",  # 11
 )
 
 values_default = {
