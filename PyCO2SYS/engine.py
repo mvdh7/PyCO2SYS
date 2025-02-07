@@ -773,6 +773,8 @@ set_node_labels = {
     "total_silicate": r"$T_\mathrm{Si}$",
     "total_borate": r"$T_\mathrm{B}$",
     "Ca": r"$[\mathrm{Ca}^{2+}]$",
+    "Mg": r"$[\mathrm{Mg}^{2+}]$",
+    "Mg_percent": "Mg%",
     "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "sws_to_opt": r"$_\mathrm{S}^*Y$",
     "opt_to_free": r"$_*^\mathrm{F}Y$",
@@ -866,6 +868,8 @@ set_node_labels = {
     "bh": "$b_h$",
     "upsilon": r"$\upsilon$",
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
+    "acf_Mg": r"$\gamma_{\mathrm{Mg}^{2+}}$",
+    "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
 }
 
 # Parameters that do not change between input and output conditions
