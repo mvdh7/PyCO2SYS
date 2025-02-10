@@ -22,7 +22,7 @@ authors = " and ".join(authorlist)
 
 def hello():
     print(
-        """
+        f"""
                M.P. Humphreys, A.J. Schiller, D.E. Sandborn,
                 L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
                         E.R. Lewis & D.W.R. Wallace
@@ -30,7 +30,7 @@ def hello():
                              ~~~ present ~~~
 
         PyCO2SYS: marine carbonate system calculations in Python.
-               Version {} :: doi:10.5281/zenodo.3744275
+               Version {version_xyz} :: doi:10.5281/zenodo.3744275
 
 
   Py  CCCC       OOOOO        222        SSS      YY      YY      SSS
@@ -45,7 +45,7 @@ def hello():
    Lasciate ogni speranza, voi ch' entrate!
                                     Dante, Inferno iii, 9
                                     sign on the entrance gates of hell
-""".format(version_xyz)
+"""
     )  # (All hope abandon, ye who enter here!)
 
 
