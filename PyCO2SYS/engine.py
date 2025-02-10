@@ -134,7 +134,8 @@ get_funcs = {
     "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
     "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
     "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
-    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82
+    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
+    "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm
 }
 
 # Define functions for calculations that depend on icase:

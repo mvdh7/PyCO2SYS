@@ -109,6 +109,10 @@ def bar_to_decibar(pressure_bar):
     """Convert pressure from bar to dbar."""
     return pressure_bar * 10.0
 
+def decibar_to_pascal(pressure):
+    """Convert pressure from dbar to bar."""
+    return pressure * 10000.0
+
 
 def pH_free_to_tot(total_sulfate, k_HSO4_free):
     """Free to total pH scale conversion factor.

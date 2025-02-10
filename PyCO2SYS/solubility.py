@@ -302,34 +302,48 @@ def get_activity_coefficient_CO3(salinity, temperature):
     return _get_activity_coefficient(salinity, temperature, acf_params_CO3)
 
 
-def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1atm):
+def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1atm, gas_constant):
     # calculate stoichiometric K*
     Mg_fraction = Mg_percent / 100
     k_Mg_calcite_1atm = kt_Mg_calcite_1atm / (
         acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
     )
-    return k_Mg_calcite_1atm
+    # add correction so that K*(calcite) calculated here matches K* from Mucci (1983)
+    # k_calcite_25C_35_1atm_M83 = k_calcite_M83(25, 35, 0, gas_constant) 
+    # = 4.2723509278623117e-07
+    # logK_25C_35_1atm_M83 = -6.369333081874932
+    # and: 
+    # K*(calcite, 25C, S=35) = K / acf
+    # _get_kt_calcite_1atm_PB82(temperature) = 3.141739156707202e-09
+    # acf(Ca, 25C, S=35) = get_activity_coefficient_Ca(35, 25) = 0.18917
+    # acf(CO3, 25C, S=35) =  get_activity_coefficient_CO3(35, 25) = 0.1008449
+    # k_calcite_25C_35_1atm_acf = 1.646829871365102e-07
+    # logK_calcite_25C_35_1atm_acf = -6.783351264062593
+    # the correction is technically a constant, therefore
+    # delta = k_acf - k_M83 = 1.646829871365102e-07 - 4.2723509278623117e-07 
+    # = -2.6255210564972095e-07
+    # delta = logK_acf - logK_M83 = 
+    k_Mg_calcite_1atm_corr = k_Mg_calcite_1atm + 2.6255210564972095e-07
+    return k_Mg_calcite_1atm_corr
+    #return k_Mg_calcite_1atm
 
 
 def get_k_Mg_calcite(
     pressure, temperature, Mg_percent, gas_constant, k_Mg_calcite_1atm
 ):
-    RGas = gas_constant / 10 
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
-    deltaV_ca, deltaK_ca = _deltaKappaCalcite_I75(temperature)  # from PyCO2Sys
+    deltaV_Ca, deltaK_Ca = _deltaKappaCalcite_I75(temperature)  # from PyCO2Sys
     # get ∆V for Mg content
-    deltaV_mg = deltaV_ca + 10.22 * Mg_percent  # sources for this fit: RB62, PR90, A77
+    deltaV_Mg_calcite = deltaV_Ca + 0.1022 * Mg_percent  # sources for this fit: RB62, PR90, A77
     # get ∆K
-    deltaK_mg = deltaK_ca
+    deltaK_Mg_calcite = deltaK_Ca
     # calculate pressure dependence
-    ln_K_K = (
-        (-deltaV_mg + 0.5 * deltaK_mg * Pbar) * Pbar / (RGas * TempK)
-    )
+    ln_K_K = (-deltaV_Mg_calcite + 0.5 * deltaK_Mg_calcite * Pbar) * Pbar / (gas_constant * TempK)
     k_Mg_calcite = k_Mg_calcite_1atm * np.exp(ln_K_K)
     return k_Mg_calcite
 
 
 def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_percent, k_Mg_calcite):
     Mg_fraction = Mg_percent / 100
-    return 1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / k_Mg_calcite
+    return 1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg ** Mg_fraction) / k_Mg_calcite

@@ -12,10 +12,11 @@ import numpy as np
 co2s = pyco2.sys(
     dic=2300,
     alkalinity=2450,
-    opt_Mg_calcite_type=1,
-    Mg_percent=15,
+    opt_Mg_calcite_type=2,
+    Mg_percent=0,
     opt_Mg_calcite_kt_Tdep=2,
     temperature=17,
+    pressure=3000
 )
 
 # IAP is fine
@@ -41,13 +42,14 @@ print('gamma Ca', co2s.acf_Ca)
 print('gamma Mg', co2s.acf_Mg)
 print('gamma CO3', co2s.acf_CO3)
 print()
-print(np.log10(co2s.k_Mg_calcite_1atm))
-print(np.log10(co2s.k_Mg_calcite))
-print(co2s.saturation_Mg_calcite)
-print()
 print("[Ca]", co2s.Ca)
 print("[Mg]", co2s.Mg)
 print("[CO3]", co2s.CO3)
+print()
+print('Mg calcite')
+print(np.log10(co2s.k_Mg_calcite_1atm))
+print(np.log10(co2s.k_Mg_calcite))
+print(co2s.saturation_Mg_calcite)
 print()
 print('calcite')
 print(np.log10(co2s.k_calcite))
@@ -55,6 +57,6 @@ print(co2s.saturation_calcite)
 print('aragonite')
 print(np.log10(co2s.k_aragonite))
 print(co2s.saturation_aragonite)
-print(co2s.gas_constant)
+
 
 # %%
