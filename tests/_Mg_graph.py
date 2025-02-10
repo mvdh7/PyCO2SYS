@@ -11,12 +11,12 @@ import numpy as np
 
 co2s = pyco2.sys(
     dic=2300,
-    alkalinity=2450,
-    opt_Mg_calcite_type=2,
-    Mg_percent=0,
+    alkalinity=2350,
+    opt_Mg_calcite_type=1,
+    Mg_percent=10,
     opt_Mg_calcite_kt_Tdep=2,
-    temperature=17,
-    pressure=3000
+    temperature=25,
+    pressure=1000,
 )
 
 # IAP is fine
@@ -24,14 +24,18 @@ co2s = pyco2.sys(
 # BP82 is fine
 # acf seem fine
 
-co2s.solve(["kt_Mg_calcite_25C_1atm_synthetic",
+co2s.solve(["kt_Mg_calcite_25C_1atm_minprep",
+            "kt_Mg_calcite_25C_1atm_biogenic",
+            "kt_Mg_calcite_25C_1atm_synthetic",
             "kt_Mg_calcite_1atm_vantHoff",
             "kt_Mg_calcite_1atm_PB82",
             "saturation_calcite",
             "saturation_aragonite",
             "saturation_Mg_calcite"], store_steps=2)
 co2s.plot_graph(show_unknown=False, show_isolated=False)
-print('IAP',np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic))
+print('C1',np.log10(co2s.kt_Mg_calcite_25C_1atm_minprep))
+print('C2',np.log10(co2s.kt_Mg_calcite_25C_1atm_biogenic))
+print('C3',np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic))
 print('IAP',co2s.kt_Mg_calcite_25C_1atm_synthetic)
 print('IAP',np.log10(co2s.kt_Mg_calcite_25C_1atm))
 print()
