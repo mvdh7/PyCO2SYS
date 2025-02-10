@@ -61,6 +61,7 @@ Nutrients default to zero if not provided, while other solutes are calculated fr
     * `total_phosphate`: **total phosphate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]$).
     * `total_ammonia`: **total ammonia** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{NH}_3] + [\mathrm{NH}_4^+]$).
     * `total_sulfide`: **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]$).
+    * `total_nitrite`: **total nitrite** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{HNO}_2] + [\mathrm{NO}_2^-]$).
 
     Others are calculated from salinity if not provided:
 
@@ -166,6 +167,10 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
         * **`1`: [M95](refs.md/#m) (default).**
         * `2`: [M79](refs.md/#m), for GEOSECS compatibility.
         * `3`: [HO58](refs.md/#h) refit by [M79](refs.md/#m), for freshwater.
+    
+    * `opt_k_HNO2`: which parameterisation to use for **nitrous acid dissociation**:
+        * **`1`: [BBWB24](refs.md/#b) for seawater (default).** 
+        * `2`: [BBWB24](refs.md/#b) for freshwater.
 
 #### Other dissociation constant pressure corrections
 
@@ -270,6 +275,8 @@ Settings arguments can be found at `co2s.opts`.  They should not be modified the
     * `SO4`: **sulfate** $[\text{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
     * `HF`: **hydrofluoric acid** $[\text{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
     * `F`: **fluoride** $[\text{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HNO2`: **nitrous acid** $[\text{HNO}_2]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NO2`: **nitrite** $[\text{NO}_2^-]$ in μmol&nbsp;kg<sup>–1</sup>.
 
 
 ### Carbonate mineral saturation
@@ -317,7 +324,8 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
     * `k_HPO4`: **third phosphoric acid** dissociation constant.
     * `k_Si`: **silicic acid** dissociation constant.
     * `k_NH3`: **ammonia** equilibrium constant.
-    * `k_H2S`: **hydrogen sulfide** equilibrium constant.
+    * `k_H2S`: **hydrogen sulfide** dissociation constant.
+    * `k_HNO2`: **nitrous acid** dissociation constant.
     <!--* `k_alpha`: **HA** equilibrium constant.-->
     <!--* `k_beta`: **HB** equilibrium constant.-->
 
