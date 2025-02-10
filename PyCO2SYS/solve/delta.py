@@ -20,6 +20,7 @@ def pH_from_alkalinity_dic(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_H2CO3,
@@ -33,6 +34,7 @@ def pH_from_alkalinity_dic(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_dic``."""
     args = (
@@ -46,6 +48,7 @@ def pH_from_alkalinity_dic(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         opt_to_free,
         k_H2O,
         k_H2CO3,
@@ -59,6 +62,7 @@ def pH_from_alkalinity_dic(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
     alkalinity_residual = residual.pH_from_alkalinity_dic(*args)
     alkalinity_residual_grad = egrad(residual.pH_from_alkalinity_dic)(*args)
@@ -77,6 +81,7 @@ def pH_from_alkalinity_fCO2(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_CO2,
@@ -91,6 +96,7 @@ def pH_from_alkalinity_fCO2(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_fCO2``."""
     args = (
@@ -104,6 +110,7 @@ def pH_from_alkalinity_fCO2(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         opt_to_free,
         k_H2O,
         k_CO2,
@@ -118,6 +125,7 @@ def pH_from_alkalinity_fCO2(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
     alkalinity_residual = residual.pH_from_alkalinity_fCO2(*args)
     alkalinity_residual_grad = egrad(residual.pH_from_alkalinity_fCO2)(*args)
@@ -136,6 +144,7 @@ def pH_from_alkalinity_CO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -148,6 +157,7 @@ def pH_from_alkalinity_CO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_CO3``."""
     args = (
@@ -161,6 +171,7 @@ def pH_from_alkalinity_CO3(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         opt_to_free,
         k_H2O,
         k_HCO3,
@@ -173,6 +184,7 @@ def pH_from_alkalinity_CO3(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
     alkalinity_residual = residual.pH_from_alkalinity_CO3(*args)
     alkalinity_residual_grad = egrad(residual.pH_from_alkalinity_CO3)(*args)
@@ -191,6 +203,7 @@ def pH_from_alkalinity_HCO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -203,6 +216,7 @@ def pH_from_alkalinity_HCO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate delta-pH for solver ``inorganic.pH_from_alkalinity_HCO3``."""
     args = (
@@ -216,6 +230,7 @@ def pH_from_alkalinity_HCO3(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         opt_to_free,
         k_H2O,
         k_HCO3,
@@ -228,6 +243,7 @@ def pH_from_alkalinity_HCO3(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
     alkalinity_residual = residual.pH_from_alkalinity_HCO3(*args)
     alkalinity_residual_grad = egrad(residual.pH_from_alkalinity_HCO3)(*args)

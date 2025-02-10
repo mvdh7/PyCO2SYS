@@ -394,7 +394,7 @@ def get_HS(total_sulfide, H, k_H2S):
     Parameters
     ----------
     total_sulfide : float
-        Total fluoride in µmol/kg-sw.
+        Total sulfide in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
     k_H2S : float
@@ -414,7 +414,7 @@ def get_H2S(total_sulfide, H, k_H2S):
     Parameters
     ----------
     total_sulfide : float
-        Total fluoride in µmol/kg-sw.
+        Total sulfide in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
     k_H2S : float
@@ -428,8 +428,61 @@ def get_H2S(total_sulfide, H, k_H2S):
     return total_sulfide * H / (H + k_H2S)
 
 
+def get_NO2(total_nitrite, H, k_HNO2):
+    """Nitrite content in µmol/kg-sw.
+
+    Parameters
+    ----------
+    total_nitrite : float
+        Total nitrite in µmol/kg-sw.
+    H : float
+        [H⁺] on opt_pH_scale in mol/kg-sw.
+    k_H2S : float
+        Nitrous acid dissociation constant on opt_pH_scale.
+
+    Returns
+    -------
+    float
+        [NO₂⁻] in µmol/kg-sw.
+    """
+    return total_nitrite * k_HNO2 / (H + k_HNO2)
+
+
+def get_HNO2(total_nitrite, H, k_HNO2):
+    """Undissociated nitrous acide content in µmol/kg-sw.
+
+    Parameters
+    ----------
+    total_nitrite : float
+        Total nitrite in µmol/kg-sw.
+    H : float
+        [H⁺] on opt_pH_scale in mol/kg-sw.
+    k_HNO2 : float
+        Nitrous acid dissociation constant on opt_pH_scale.
+
+    Returns
+    -------
+    float
+        [HNO₂] in µmol/kg-sw.
+    """
+    return total_nitrite * H / (H + k_HNO2)
+
+
 def sum_alkalinity(
-    H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+    H_free,
+    OH,
+    HCO3,
+    CO3,
+    BOH4,
+    HPO4,
+    PO4,
+    H3PO4,
+    H3SiO4,
+    NH3,
+    HS,
+    HSO4,
+    HF,
+    HNO2,
 ):
     """Total alkalinity in µmol/kg-sw.
 
@@ -461,6 +514,8 @@ def sum_alkalinity(
         Bisulfate content in µmol/kg-sw.
     HF : float
         HF content in µmol/kg-sw.
+    HNO2 : float
+        Nitrous acid content in µmol/kg-sw.
 
     Returns
     -------
@@ -481,4 +536,5 @@ def sum_alkalinity(
         - H_free
         - HSO4
         - HF
+        - HNO2
     )

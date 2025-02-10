@@ -99,6 +99,10 @@ def test_v1_v2():
         "acf_CO3",
         "k_Mg_calcite",
         "saturation_Mg_calcite",
+        "total_nitrite",
+        "k_HNO2",
+        "HNO2",
+        "NO2",
     ]
     # This converts keys for values that have a different name in v1 and v2
     v1_to_v2 = {

@@ -142,6 +142,10 @@ k_HCO3_total_SB21
 k_H2CO3_total_PLR18, k_HCO3_total_PLR18
     Carbonic acid dissociation constants following PLR18.
     Used when opt_k_carbonic = 18.
+k_HNO2_total_BBWB24
+    Nitrous acid dissociation constant in artificial seawater following BBWB24.
+k_HNO2_nbs_BBWB24_freshwater
+    Nitrous acid dissociation constant in freshwater following BBWB24.
 """
 
 from jax import numpy as np
@@ -1859,3 +1863,43 @@ def k_NH3_total_CW95(temperature, salinity):
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
     return KNH3
+
+
+def k_HNO2_total_BBWB24(temperature):
+    """Nitrous acid dissociation constant in artificial seawater following BBWB24.
+
+    Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+
+    Returns
+    -------
+    float
+        HNO2 dissociation constant.
+    """
+    T = convert.celsius_to_kelvin(temperature)
+    pk_HNO2 = 16084.01 / T + 50.17 * np.log(T) - 336.92
+    return 10**-pk_HNO2
+
+
+def k_HNO2_nbs_BBWB24_freshwater(temperature):
+    """Nitrous acid dissociation constant in freshwater following BBWB24.
+
+    Used when opt_k_HNO2 = 2.  Valid from 5 to 35 °C.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+
+    Returns
+    -------
+    float
+        HNO2 dissociation constant.
+    """
+    T = convert.celsius_to_kelvin(temperature)
+    pk_HNO2 = 16437.31 / T + 53.61 * np.log(T) - 357.43
+    return 10**-pk_HNO2

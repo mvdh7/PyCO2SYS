@@ -59,6 +59,7 @@ get_funcs = {
     "factor_k_Si": equilibria.pcx.factor_k_Si,
     "factor_k_NH3": equilibria.pcx.factor_k_NH3,
     "factor_k_CO2": equilibria.pcx.factor_k_CO2,
+    "factor_k_HNO2": lambda: 1.0,  # unknown!
     # Equilibrium constants at pressure and on the free pH scale
     "k_HF_free": lambda k_HF_free_1atm, factor_k_HF: k_HF_free_1atm * factor_k_HF,
     "k_HSO4_free": lambda k_HSO4_free_1atm, factor_k_HSO4: (
@@ -87,6 +88,9 @@ get_funcs = {
     "k_HCO3_sws": lambda k_HCO3_sws_1atm, factor_k_HCO3: (
         k_HCO3_sws_1atm * factor_k_HCO3
     ),
+    "k_HNO2_sws": lambda k_HNO2_sws_1atm, factor_k_HNO2: (
+        k_HNO2_sws_1atm * factor_k_HNO2
+    ),
     # Equilibrium constants at pressure and on the requested pH scale
     "k_CO2": lambda k_CO2_1atm, factor_k_CO2: k_CO2_1atm * factor_k_CO2,
     "k_BOH3": lambda sws_to_opt, k_BOH3_sws: sws_to_opt * k_BOH3_sws,
@@ -99,6 +103,7 @@ get_funcs = {
     "k_NH3": lambda sws_to_opt, k_NH3_sws: sws_to_opt * k_NH3_sws,
     "k_H2CO3": lambda sws_to_opt, k_H2CO3_sws: sws_to_opt * k_H2CO3_sws,
     "k_HCO3": lambda sws_to_opt, k_HCO3_sws: sws_to_opt * k_HCO3_sws,
+    "k_HNO2": lambda sws_to_opt, k_HNO2_sws: sws_to_opt * k_HNO2_sws,
     # Chemical speciation
     "H": lambda pH: 10.0**-pH,
     "H3PO4": solve.speciate.get_H3PO4,
@@ -119,6 +124,8 @@ get_funcs = {
     "NH4": solve.speciate.get_NH4,
     "H2S": solve.speciate.get_H2S,
     "HS": solve.speciate.get_HS,
+    "HNO2": solve.speciate.get_HNO2,
+    "NO2": solve.speciate.get_NO2,
     # Gasses
     "vp_factor": gas.vpfactor,
     # Mg-calcite solubility
@@ -553,6 +560,20 @@ get_funcs_opts["opt_k_Si"] = {
         k_Si_sws_1atm=lambda k_Si_nbs_1atm, nbs_to_sws: (k_Si_nbs_1atm * nbs_to_sws),
     ),
 }
+get_funcs_opts["opt_k_HNO2"] = {
+    1: dict(
+        k_HNO2_total_1atm=equilibria.p1atm.k_HNO2_total_BBWB24,
+        k_HNO2_sws_1atm=lambda k_HNO2_total_1atm, tot_to_sws_1atm: (
+            k_HNO2_total_1atm * tot_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        k_HNO2_nbs_1atm=equilibria.p1atm.k_HNO2_nbs_BBWB24_freshwater,
+        k_HNO2_sws_1atm=lambda k_HNO2_nbs_1atm, nbs_to_sws: (
+            k_HNO2_nbs_1atm * nbs_to_sws
+        ),
+    ),
+}
 get_funcs_opts["opt_pH_scale"] = {
     1: dict(  # total
         sws_to_opt=convert.pH_sws_to_tot,
@@ -712,6 +733,7 @@ values_default = {
     "total_phosphate": 0.0,  # µmol/kg-sw
     "total_silicate": 0.0,  # µmol/kg-sw
     "total_sulfide": 0.0,  # µmol/kg-sw
+    "total_nitrite": 0.0,  # µmol/kg-sw
 }
 
 opts_default = {
@@ -735,6 +757,7 @@ opts_default = {
     "opt_k_NH3": 1,
     "opt_k_phosphate": 1,
     "opt_k_Si": 1,
+    "opt_k_HNO2": 1,
     "opt_Mg_calcite_kt_Tdep": 1,
     "opt_Mg_calcite_type": 2,
     "opt_pH_scale": 1,
@@ -888,6 +911,7 @@ condition_independent = (
     "total_silicate",
     "total_sulfate",
     "total_sulfide",
+    "total_nitrite",
 )
 
 

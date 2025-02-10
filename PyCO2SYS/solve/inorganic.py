@@ -20,6 +20,7 @@ def alkalinity_from_dic_pH(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -32,6 +33,7 @@ def alkalinity_from_dic_pH(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate total alkalinity from dissolved inorganic carbon and pH."""
     H = 10.0**-pH
@@ -48,8 +50,9 @@ def alkalinity_from_dic_pH(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return speciate.sum_alkalinity(
-        H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+        H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF, HNO2
     )
 
 
@@ -64,6 +67,7 @@ def alkalinity_from_pH_fCO2(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_CO2,
     k_H2O,
     k_H2CO3,
@@ -77,6 +81,7 @@ def alkalinity_from_pH_fCO2(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate total alkalinity from dissolved inorganic carbon and CO2 fugacity."""
     dic = dic_from_pH_fCO2(pH, fCO2, k_CO2, k_H2CO3, k_HCO3)
@@ -91,6 +96,7 @@ def alkalinity_from_pH_fCO2(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_H2O,
         k_H2CO3,
         k_HCO3,
@@ -103,6 +109,7 @@ def alkalinity_from_pH_fCO2(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
 
 
@@ -120,6 +127,7 @@ def dic_from_alkalinity_pH_speciated(
     HS,
     HSO4,
     HF,
+    HNO2,
     k_H2CO3,
     k_HCO3,
 ):
@@ -154,6 +162,8 @@ def dic_from_alkalinity_pH_speciated(
         Bisulfate content in µmol/kg-sw.
     HF : float
         HF content in µmol/kg-sw.
+    HNO2 : float
+        Nitrous acid content in µmol/kg-sw.
     k_H2CO3, k_HCO3 : float
         Carbonic acid dissociation constants.
 
@@ -163,7 +173,7 @@ def dic_from_alkalinity_pH_speciated(
         DIC in µmol/kg-sw.
     """
     alkalinity_with_zero_dic = speciate.sum_alkalinity(
-        H_free, OH, 0, 0, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+        H_free, OH, 0, 0, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF, HNO2
     )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
@@ -189,6 +199,7 @@ def dic_from_alkalinity_pH(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -201,6 +212,7 @@ def dic_from_alkalinity_pH(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     H = 10.0**-pH
     H_free = speciate.get_H_free(H, opt_to_free)
@@ -214,6 +226,7 @@ def dic_from_alkalinity_pH(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return dic_from_alkalinity_pH_speciated(
         alkalinity,
         pH,
@@ -228,6 +241,7 @@ def dic_from_alkalinity_pH(
         HS,
         HSO4,
         HF,
+        HNO2,
         k_H2CO3,
         k_HCO3,
     )
@@ -381,6 +395,7 @@ def pH_from_alkalinity_dic(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_H2CO3,
@@ -394,6 +409,7 @@ def pH_from_alkalinity_dic(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate pH from total alkalinity and DIC using a Newton-Raphson iterative
     method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
@@ -418,6 +434,7 @@ def pH_from_alkalinity_dic(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             opt_to_free,
             k_H2O,
             k_H2CO3,
@@ -431,6 +448,7 @@ def pH_from_alkalinity_dic(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
@@ -449,6 +467,7 @@ def pH_from_alkalinity_fCO2(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_CO2,
@@ -463,6 +482,7 @@ def pH_from_alkalinity_fCO2(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate pH from total alkalinity and DIC using a Newton-Raphson iterative
     method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
@@ -489,6 +509,7 @@ def pH_from_alkalinity_fCO2(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             opt_to_free,
             k_H2O,
             k_CO2,
@@ -503,6 +524,7 @@ def pH_from_alkalinity_fCO2(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
@@ -521,6 +543,7 @@ def pH_from_alkalinity_CO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -533,6 +556,7 @@ def pH_from_alkalinity_CO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate pH from total alkalinity and CO3 using a Newton-Raphson iterative
     method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
@@ -557,6 +581,7 @@ def pH_from_alkalinity_CO3(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             opt_to_free,
             k_H2O,
             k_HCO3,
@@ -569,6 +594,7 @@ def pH_from_alkalinity_CO3(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
@@ -587,6 +613,7 @@ def pH_from_alkalinity_HCO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -599,6 +626,7 @@ def pH_from_alkalinity_HCO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate pH from total alkalinity and HCO3 using a Newton-Raphson iterative
     method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
@@ -623,6 +651,7 @@ def pH_from_alkalinity_HCO3(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             opt_to_free,
             k_H2O,
             k_HCO3,
@@ -635,6 +664,7 @@ def pH_from_alkalinity_HCO3(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
@@ -893,6 +923,7 @@ def fCO2_from_alkalinity_pH(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_CO2,
     k_H2O,
     k_H2CO3,
@@ -906,6 +937,7 @@ def fCO2_from_alkalinity_pH(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate CO2 fugacity from total alkalinity and pH."""
     H = 10.0**-pH
@@ -920,6 +952,7 @@ def fCO2_from_alkalinity_pH(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     dic = dic_from_alkalinity_pH_speciated(
         alkalinity,
         pH,
@@ -934,6 +967,7 @@ def fCO2_from_alkalinity_pH(
         HS,
         HSO4,
         HF,
+        HNO2,
         k_H2CO3,
         k_HCO3,
     )
@@ -1027,6 +1061,7 @@ def CO3_from_alkalinity_pH(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -1039,6 +1074,7 @@ def CO3_from_alkalinity_pH(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate carbonate ion from total alkalinity and pH."""
     dic = dic_from_alkalinity_pH(
@@ -1052,6 +1088,7 @@ def CO3_from_alkalinity_pH(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_H2O,
         k_H2CO3,
         k_HCO3,
@@ -1064,6 +1101,7 @@ def CO3_from_alkalinity_pH(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )
     return CO3_from_dic_pH(dic, pH, k_H2CO3, k_HCO3)
 

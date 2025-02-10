@@ -16,6 +16,7 @@ def pH_from_alkalinity_dic(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_H2CO3,
@@ -29,6 +30,7 @@ def pH_from_alkalinity_dic(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate residual alkalinity from pH and DIC for solver
     `inorganic.pH_from_alkalinity_dic()`.
@@ -47,9 +49,23 @@ def pH_from_alkalinity_dic(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return (
         speciate.sum_alkalinity(
-            H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+            H_free,
+            OH,
+            HCO3,
+            CO3,
+            BOH4,
+            HPO4,
+            PO4,
+            H3PO4,
+            H3SiO4,
+            NH3,
+            HS,
+            HSO4,
+            HF,
+            HNO2,
         )
         - alkalinity
     )
@@ -66,6 +82,7 @@ def pH_from_alkalinity_fCO2(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_CO2,
@@ -80,6 +97,7 @@ def pH_from_alkalinity_fCO2(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate residual alkalinity from pH and DIC for solver
     `inorganic.pH_from_alkalinity_fCO2()`.
@@ -99,9 +117,23 @@ def pH_from_alkalinity_fCO2(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return (
         speciate.sum_alkalinity(
-            H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+            H_free,
+            OH,
+            HCO3,
+            CO3,
+            BOH4,
+            HPO4,
+            PO4,
+            H3PO4,
+            H3SiO4,
+            NH3,
+            HS,
+            HSO4,
+            HF,
+            HNO2,
         )
         - alkalinity
     )
@@ -118,6 +150,7 @@ def pH_from_alkalinity_CO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -130,6 +163,7 @@ def pH_from_alkalinity_CO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate residual alkalinity from pH and CO3 for solver
     `inorganic.pH_from_alkalinity_CO3()`.
@@ -147,9 +181,23 @@ def pH_from_alkalinity_CO3(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return (
         speciate.sum_alkalinity(
-            H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+            H_free,
+            OH,
+            HCO3,
+            CO3,
+            BOH4,
+            HPO4,
+            PO4,
+            H3PO4,
+            H3SiO4,
+            NH3,
+            HS,
+            HSO4,
+            HF,
+            HNO2,
         )
         - alkalinity
     )
@@ -166,6 +214,7 @@ def pH_from_alkalinity_HCO3(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     opt_to_free,
     k_H2O,
     k_HCO3,
@@ -178,6 +227,7 @@ def pH_from_alkalinity_HCO3(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     """Calculate residual alkalinity from pH and HCO3 for solver
     `inorganic.pH_from_alkalinity_HCO3()`.
@@ -195,9 +245,23 @@ def pH_from_alkalinity_HCO3(
     HS = speciate.get_HS(total_sulfide, H, k_H2S)
     HSO4 = speciate.get_HSO4(total_sulfate, H_free, k_HSO4_free)
     HF = speciate.get_HF(total_fluoride, H_free, k_HF_free)
+    HNO2 = speciate.get_HNO2(total_nitrite, H, k_HNO2)
     return (
         speciate.sum_alkalinity(
-            H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF
+            H_free,
+            OH,
+            HCO3,
+            CO3,
+            BOH4,
+            HPO4,
+            PO4,
+            H3PO4,
+            H3SiO4,
+            NH3,
+            HS,
+            HSO4,
+            HF,
+            HNO2,
         )
         - alkalinity
     )
