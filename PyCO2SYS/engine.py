@@ -970,6 +970,12 @@ class CO2System(UserDict):
             assert xr_shape is None
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
+        self.state_colours = {
+            0: "xkcd:grey",  # unknown
+            1: "xkcd:grass",  # provided by user i.e. known but not calculated
+            2: "xkcd:azure",  # calculated en route to a user-requested parameter
+            3: "xkcd:tangerine",  # calculated after direct user request
+        }
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet, then
@@ -1609,15 +1615,116 @@ class CO2System(UserDict):
                 u_total = u_total + u_part**2
             self.uncertainty[var_in]["total"] = np.sqrt(u_total)
 
+    def get_graph_to_plot(
+        self,
+        show_tsp=True,
+        show_unknown=True,
+        keep_unknown=None,
+        exclude_nodes=None,
+        show_isolated=True,
+        skip_nodes=None,
+    ):
+        graph_to_plot = self.graph.copy()
+        # Remove nodes as requested by user
+        if not show_tsp:
+            graph_to_plot.remove_nodes_from(["pressure", "salinity", "temperature"])
+        if not show_unknown:
+            if keep_unknown is None:
+                keep_unknown = []
+            elif isinstance(keep_unknown, str):
+                keep_unknown = [keep_unknown]
+            node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
+            to_remove = [
+                n for n, s in node_states.items() if s == 0 and n not in keep_unknown
+            ]
+            graph_to_plot.remove_nodes_from(to_remove)
+        # Connect nodes that are missing due to store_steps=1 mode
+        _graph_to_plot = graph_to_plot.copy()
+        for n, properties in _graph_to_plot.nodes.items():
+            if (
+                "state" in properties
+                and properties["state"] in [2, 3]
+                and len(_graph_to_plot.pred[n]) == 0
+                and len(nx.ancestors(self.graph, n)) > 0
+            ):
+                for a in nx.ancestors(self.graph, n):
+                    if a in _graph_to_plot.nodes:
+                        graph_to_plot.add_edge(a, n, state=2)
+        if exclude_nodes:
+            # Excluding nodes just makes them disappear from the graph without
+            # caring about what they were connected to
+            if isinstance(exclude_nodes, str):
+                exclude_nodes = [exclude_nodes]
+            graph_to_plot.remove_nodes_from(exclude_nodes)
+        if not show_isolated:
+            graph_to_plot.remove_nodes_from(
+                [n for n, d in dict(graph_to_plot.degree).items() if d == 0]
+            )
+        if skip_nodes:
+            # Skipping nodes removes them but then shows their predecessors as
+            # being directly connected to their children
+            edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
+            if isinstance(skip_nodes, str):
+                skip_nodes = [skip_nodes]
+            for n in skip_nodes:
+                for p, s in itertools.product(
+                    graph_to_plot.predecessors(n), graph_to_plot.successors(n)
+                ):
+                    graph_to_plot.add_edge(p, s)
+                    if edge_states[(p, n)] + edge_states[(n, s)] == 4:
+                        new_state = {(p, s): 2}
+                    else:
+                        new_state = {(p, s): 0}
+                    nx.set_edge_attributes(graph_to_plot, new_state, name="state")
+                    edge_states.update(new_state)
+                graph_to_plot.remove_node(n)
+        return graph_to_plot
+
+    def get_graph_pos(
+        self,
+        graph_to_plot=None,
+        prog_graphviz=None,
+        root_graphviz=None,
+        args_graphviz="",
+        nx_layout=nx.spring_layout,
+        nx_args=None,
+        nx_kwargs=None,
+    ):
+        if graph_to_plot is None:
+            graph_to_plot = self.graph
+        if prog_graphviz is not None:
+            pos = nx.nx_agraph.graphviz_layout(
+                graph_to_plot,
+                prog=prog_graphviz,
+                root=root_graphviz,
+                args=args_graphviz,
+            )
+        else:
+            if nx_args is None:
+                nx_args = ()
+            if nx_kwargs is None:
+                nx_kwargs = {}
+            pos = nx_layout(graph_to_plot, *nx_args, **nx_kwargs)
+        return pos
+
     def plot_graph(
         self,
         ax=None,
         exclude_nodes=None,
-        prog_graphviz="neato",
         show_tsp=True,
         show_unknown=True,
+        keep_unknown=None,
         show_isolated=True,
         skip_nodes=None,
+        prog_graphviz=None,
+        root_graphviz=None,
+        args_graphviz="",
+        nx_layout=nx.spring_layout,
+        nx_args=None,
+        nx_kwargs=None,
+        node_kwargs=None,
+        edge_kwargs=None,
+        label_kwargs=None,
     ):
         """Draw a graph showing the relationships between the different parameters.
 
@@ -1665,73 +1772,61 @@ class CO2System(UserDict):
         #
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        plot_graph = self.graph.copy()
-        # Remove nodes as requested by user
-        if not show_tsp:
-            plot_graph.remove_nodes_from(["pressure", "salinity", "temperature"])
-        if not show_unknown:
-            node_states = nx.get_node_attributes(plot_graph, "state", default=0)
-            plot_graph.remove_nodes_from([n for n, s in node_states.items() if s == 0])
-        # Connect nodes that are missing due to store_steps=1 mode
-        _plot_graph = plot_graph.copy()
-        for n, properties in plot_graph.nodes.items():
-            if "state" in properties and properties["state"] == 2:
-                for a in nx.ancestors(self.graph, n):
-                    if a in plot_graph.nodes:
-                        if len(_plot_graph.pred[n]) == len(_plot_graph.succ[a]) == 0:
-                            plot_graph.add_edge(a, n, state=2)
-        if exclude_nodes:
-            # Excluding nodes just makes them disappear from the graph without
-            # caring about what they were connected to
-            if isinstance(exclude_nodes, str):
-                exclude_nodes = [exclude_nodes]
-            plot_graph.remove_nodes_from(exclude_nodes)
-        if not show_isolated:
-            plot_graph.remove_nodes_from(
-                [n for n, d in dict(plot_graph.degree).items() if d == 0]
-            )
-        if skip_nodes:
-            # Skipping nodes removes them but then shows their predecessors as
-            # being directly connected to their children
-            edge_states = nx.get_edge_attributes(plot_graph, "state", default=0)
-            if isinstance(skip_nodes, str):
-                skip_nodes = [skip_nodes]
-            for n in skip_nodes:
-                for p, s in itertools.product(
-                    plot_graph.predecessors(n), plot_graph.successors(n)
-                ):
-                    plot_graph.add_edge(p, s)
-                    if edge_states[(p, n)] + edge_states[(n, s)] == 4:
-                        new_state = {(p, s): 2}
-                    else:
-                        new_state = {(p, s): 0}
-                    nx.set_edge_attributes(plot_graph, new_state, name="state")
-                    edge_states.update(new_state)
-                plot_graph.remove_node(n)
-        state_colours = {
-            0: "xkcd:grey",  # unknown
-            1: "xkcd:grass",  # provided by user i.e. known but not calculated
-            2: "xkcd:azure",  # calculated en route to a user-requested parameter
-            3: "xkcd:tangerine",  # calculated after direct user request
-        }
-        node_states = nx.get_node_attributes(plot_graph, "state", default=0)
-        edge_states = nx.get_edge_attributes(plot_graph, "state", default=0)
-        node_colour = [state_colours[node_states[n]] for n in nx.nodes(plot_graph)]
-        edge_colour = [state_colours[edge_states[e]] for e in nx.edges(plot_graph)]
-        pos = nx.nx_agraph.graphviz_layout(self.graph, prog=prog_graphviz)
-        node_labels = {k: k for k in plot_graph.nodes}
+        graph_to_plot = self.get_graph_to_plot(
+            exclude_nodes=exclude_nodes,
+            show_tsp=show_tsp,
+            show_unknown=show_unknown,
+            keep_unknown=keep_unknown,
+            show_isolated=show_isolated,
+            skip_nodes=skip_nodes,
+        )
+        pos = self.get_graph_pos(
+            graph_to_plot=graph_to_plot,
+            prog_graphviz=prog_graphviz,
+            root_graphviz=root_graphviz,
+            args_graphviz=args_graphviz,
+            nx_layout=nx_layout,
+            nx_args=nx_args,
+            nx_kwargs=nx_kwargs,
+        )
+        node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
+        edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
+        node_colour = [
+            self.state_colours[node_states[n]] for n in nx.nodes(graph_to_plot)
+        ]
+        edge_colour = [
+            self.state_colours[edge_states[e]] for e in nx.edges(graph_to_plot)
+        ]
+        node_labels = {k: k for k in graph_to_plot.nodes}
         for k, v in set_node_labels.items():
             if k in node_labels:
                 node_labels[k] = v
-        nx.draw_networkx(
-            plot_graph,
+        if node_kwargs is None:
+            node_kwargs = {}
+        if edge_kwargs is None:
+            edge_kwargs = {}
+        if label_kwargs is None:
+            label_kwargs = {}
+        nx.draw_networkx_nodes(
+            graph_to_plot,
             ax=ax,
-            clip_on=False,
-            with_labels=True,
             node_color=node_colour,
+            pos=pos,
+            **node_kwargs,
+        )
+        nx.draw_networkx_edges(
+            graph_to_plot,
+            ax=ax,
             edge_color=edge_colour,
             pos=pos,
+            **edge_kwargs,
+        )
+        nx.draw_networkx_labels(
+            graph_to_plot,
+            ax=ax,
             labels=node_labels,
+            pos=pos,
+            **label_kwargs,
         )
         return ax
 

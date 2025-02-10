@@ -1,4 +1,5 @@
 # %%
+import networkx as nx
 import numpy as np
 
 import PyCO2SYS as pyco2
@@ -8,13 +9,54 @@ co2s = pyco2.sys(
     dic=2100,
     pH=8.1,
 )
-co2s.solve(["fCO2", "alkalinity"])
+co2s.solve(["CO3"], store_steps=1)
+node_size = 2100
 co2s.plot_graph(
     show_unknown=False,
+    keep_unknown="HCO3",
     show_isolated=False,
-    show_tsp=False,
+    show_tsp=True,
     prog_graphviz="dot",
+    # root_graphviz="dic",
+    # args_graphviz="-Granksep=1.0 -Gnodesep=1.0",
+    # nx_layout=nx.arf_layout,
+    # nx_args=("salinity",),
+    skip_nodes=["gas_constant", "pressure"],
+    node_kwargs={"alpha": 0.7, "node_size": node_size},
+    edge_kwargs={"arrowstyle": "-|>", "alpha": 1, "node_size": node_size},
 )
+# (
+#     osage,
+#     gc,
+#     sccmap,
+#     gvpr,
+#     ccomps,
+#     sfdp,
+#     patchwork,
+#     twopi,
+#     nop,
+#     circo,
+#     dot,
+#     gvcolor,
+#     acyclic,
+#     neato,
+#     unflatten,
+#     tred,
+#     fdp,
+# )
+
+# %%
+
+# %% Draw the graph
+nx.draw(
+    co2s.graph,
+    pos,
+    with_labels=True,
+    node_color="lightblue",
+    node_size=500,
+    font_size=10,
+)
+# plt.show()
 
 # %%
 
