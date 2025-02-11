@@ -67,7 +67,7 @@ Nutrients default to zero if not provided, while other solutes are calculated fr
 
     * `total_borate`: **total borate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{B(OH)}_3] + [\mathrm{B(OH)}_4^-]$).
     * `total_fluoride`: **total fluoride** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HF}] + [\mathrm{F}^-]$).
-    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^2-]$).
+    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^{2-}]$).
     * `Ca`: **dissolved calcium** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{Ca}^{2+}]$).
 
     If these are provided then their [parameterisation settings](#settings) are ignored.
