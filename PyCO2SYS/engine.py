@@ -1858,8 +1858,24 @@ def sys(data=None, **kwargs):
                     + "`data` will be used."
                 )
         data_is_dict = isinstance(data, dict)
+        # Any kwargs other than `data` provided as strings will be interpreted
+        # as being the keys for the corresponding values
+        renamer = {}
+        for k, v in kwargs.items():
+            if isinstance(v, str):
+                if v in renamer:
+                    raise Exception(
+                        f'"{v}" cannot be used for {k}'
+                        + f" because it is already being used for {renamer[v]}!"
+                    )
+                else:
+                    renamer[v] = k
         if data_is_dict:
-            kwargs.update(data)
+            for k, v in data.items():
+                if k in renamer:
+                    kwargs[renamer[k]] = v
+                else:
+                    kwargs[k] = v
         else:
             data_is_pandas = False
             try:
@@ -1869,7 +1885,10 @@ def sys(data=None, **kwargs):
                 if data_is_pandas:
                     pd_index = data.index.copy()
                     for c in data.columns:
-                        kwargs[c] = data[c].to_numpy()
+                        if c in renamer:
+                            kwargs[renamer[c]] = data[c].to_numpy()
+                        else:
+                            kwargs[c] = data[c].to_numpy()
             except ImportError:
                 warnings.warn("pandas could not be imported - ignoring `data`.")
             data_is_xarray = False
@@ -1888,7 +1907,10 @@ def sys(data=None, **kwargs):
                                     ndims.append(v.sizes[d])
                                 else:
                                     ndims.append(1)
-                            kwargs[k] = np.reshape(v.data, ndims)
+                            if k in renamer:
+                                kwargs[renamer[k]] = np.reshape(v.data, ndims)
+                            else:
+                                kwargs[k] = np.reshape(v.data, ndims)
                 except ImportError:
                     warnings.warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:

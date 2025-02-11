@@ -1,10 +1,25 @@
 # %%
 import networkx as nx
 import numpy as np
+import pandas as pd
 
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
 
+co2s = pyco2.sys(
+    data=pd.DataFrame(
+        {
+            "dich": [2100, 2200],
+            "pHx": 8.1,
+        }
+    ),
+    dic="dich",
+    pH="pHx",
+)
+co2s.solve(["CO3"])
+print(co2s.CO3)
+
+# %%
 co2s = pyco2.sys(
     dic=2100,
     pH=8.1,
