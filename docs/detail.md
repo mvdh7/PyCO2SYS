@@ -57,7 +57,7 @@ Nutrients default to zero if not provided, while other solutes are calculated fr
 
     Some default to zero if not provided:
 
-    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)_3}^-]$).
+    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)}_3^-]$).
     * `total_phosphate`: **total phosphate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]$).
     * `total_ammonia`: **total ammonia** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{NH}_3] + [\mathrm{NH}_4^+]$).
     * `total_sulfide`: **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]$).
