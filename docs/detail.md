@@ -259,24 +259,24 @@ Settings arguments can be found at `co2s.opts`.  They should not be modified the
     * `CO3`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * `CO2`: **aqueous CO<sub>2</sub>** in μmol&nbsp;kg<sup>–1</sup>.
-    * `BOH4`: **tetrahydroxyborate** $[\text{B(OH)}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `BOH3`: **boric acid** $[\text{B(OH)}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H3PO4`: **phosphoric acid** $[\text{H}_3\text{PO}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H2PO4`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HPO4`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `PO4`: **phosphate** $[\text{PO}_4^{3-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H4SiO4`: **orthosilicic acid** $[\text{Si(OH)}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H3SiO4`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `NH3`: **ammonia** $[\text{NH}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `NH4`: **ammonium** $[\text{NH}_4^+]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HS`: **bisulfide** $[\text{HS}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H2S`: **hydrogen sulfide** $[\text{H}_2\text{S}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HSO4`: **bisulfate** $[\text{HSO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `SO4`: **sulfate** $[\text{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HF`: **hydrofluoric acid** $[\text{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `F`: **fluoride** $[\text{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HNO2`: **nitrous acid** $[\text{HNO}_2]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `NO2`: **nitrite** $[\text{NO}_2^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `BOH4`: **tetrahydroxyborate** $[\mathrm{B(OH)}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `BOH3`: **boric acid** $[\mathrm{B(OH)}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H3PO4`: **phosphoric acid** $[\mathrm{H}_3\mathrm{PO}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H2PO4`: **dihydrogen phosphate** $[\mathrm{H}_2\mathrm{PO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HPO4`: **monohydrogen phosphate** $[\mathrm{HPO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `PO4`: **phosphate** $[\mathrm{PO}_4^{3-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H4SiO4`: **orthosilicic acid** $[\mathrm{Si(OH)}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H3SiO4`: **trihydrogen orthosilicate** $[\mathrm{SiO(OH)}_3^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NH3`: **ammonia** $[\mathrm{NH}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NH4`: **ammonium** $[\mathrm{NH}_4^+]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HS`: **bisulfide** $[\mathrm{HS}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H2S`: **hydrogen sulfide** $[\mathrm{H}_2\mathrm{S}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HSO4`: **bisulfate** $[\mathrm{HSO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `SO4`: **sulfate** $[\mathrm{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HF`: **hydrofluoric acid** $[\mathrm{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `F`: **fluoride** $[\mathrm{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HNO2`: **nitrous acid** $[\mathrm{HNO}_2]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NO2`: **nitrite** $[\mathrm{NO}_2^-]$ in μmol&nbsp;kg<sup>–1</sup>.
 
 
 ### Carbonate mineral saturation
