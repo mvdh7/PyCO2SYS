@@ -135,11 +135,12 @@ If your data are in a `dict`, you can provide this as `data`:
 # Define known parameters
 df = {"dic": [2000, 2100, 2200], "pCO2": [400, 450, 485]}
 
-# Set up a CO2System
+# Set up a CO2System, including an extra parameter that was not
+# in the df (total_silicate), and an optional setting
 co2s = pyco2.sys(data=df, total_silicate=1.5, opt_k_carbonic=9)
 ```
 
-If some of the dict keys do not match the kwargs expected by PyCO2SYS:
+If some of the `dict` keys do not match the kwargs expected by PyCO2SYS, the correct keys can be given as the corresponding kwargs:
 
 ```python
 # Define known parameters
