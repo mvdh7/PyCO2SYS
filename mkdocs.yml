@@ -59,10 +59,12 @@ markdown_extensions:
       permalink: true
   - footnotes
   - pymdownx.inlinehilite
-  - pymdownx.arithmatex
+  - pymdownx.arithmatex:
+      generic: true
   - tables
 extra_javascript:
-  - http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 extra_css:
   - stylesheets/extra.css
 
