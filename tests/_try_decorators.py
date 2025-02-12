@@ -1,5 +1,6 @@
 # %%
 import functools
+from inspect import signature
 
 import jax
 from jax import numpy as np
@@ -24,7 +25,7 @@ def _get_kval(t, s):
 # get_kval = tweak_args(_get_kval)
 
 
-@set_validity(temperature=[5, 25])
+# @set_validity(temperature=[5, 25])
 def get_kval(t, s):
     return 50 + 3 * t - 0.1 * s**2
 
@@ -40,7 +41,8 @@ print(kval_grad_0)
 print(kval_grad_1)
 print(get_kval.__name__)
 print(get_kval.__code__.co_varnames)
-print(get_kval.__signature__.parameters.keys())
+# print(get_kval.__signature__.parameters.keys())
+print(signature(get_kval).parameters.keys())
 print(validity)
 print("-----")
 
