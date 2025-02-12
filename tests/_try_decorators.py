@@ -4,6 +4,7 @@ import functools
 import jax
 from jax import numpy as np
 
+import PyCO2SYS as pyco2
 from decorators import decorator
 
 validity = {}
@@ -41,3 +42,7 @@ print(get_kval.__name__)
 print(get_kval.__code__.co_varnames)
 print(get_kval.__signature__.parameters.keys())
 print(validity)
+print("-----")
+
+co2s = pyco2.sys()
+co2s.solve()

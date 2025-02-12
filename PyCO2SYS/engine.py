@@ -104,28 +104,6 @@ get_funcs = {
     "k_H2CO3": lambda sws_to_opt, k_H2CO3_sws: sws_to_opt * k_H2CO3_sws,
     "k_HCO3": lambda sws_to_opt, k_HCO3_sws: sws_to_opt * k_HCO3_sws,
     "k_HNO2": lambda sws_to_opt, k_HNO2_sws: sws_to_opt * k_HNO2_sws,
-    # Chemical speciation
-    "H": lambda pH: 10.0**-pH,
-    "H3PO4": solve.speciate.get_H3PO4,
-    "H2PO4": solve.speciate.get_H2PO4,
-    "HPO4": solve.speciate.get_HPO4,
-    "PO4": solve.speciate.get_PO4,
-    "BOH4": solve.speciate.get_BOH4,
-    "BOH3": solve.speciate.get_BOH3,
-    "OH": solve.speciate.get_OH,
-    "H_free": solve.speciate.get_H_free,
-    "H3SiO4": solve.speciate.get_H3SiO4,
-    "H4SiO4": solve.speciate.get_H4SiO4,
-    "HSO4": solve.speciate.get_HSO4,
-    "SO4": solve.speciate.get_SO4,
-    "HF": solve.speciate.get_HF,
-    "F": solve.speciate.get_F,
-    "NH3": solve.speciate.get_NH3,
-    "NH4": solve.speciate.get_NH4,
-    "H2S": solve.speciate.get_H2S,
-    "HS": solve.speciate.get_HS,
-    "HNO2": solve.speciate.get_HNO2,
-    "NO2": solve.speciate.get_NO2,
     # Gasses
     "vp_factor": gas.vpfactor,
     # Mg-calcite solubility
@@ -346,6 +324,34 @@ for k, fc in get_funcs_core.items():
                 "d_fCO2__d_pH__alkalinity": buffers.d_fCO2__d_pH__alkalinity,
             }
         )
+
+# Chemical speciation functions can only be used if there is a pH value
+funcs_chemspec = {
+    "H": lambda pH: 10.0**-pH,
+    "H3PO4": solve.speciate.get_H3PO4,
+    "H2PO4": solve.speciate.get_H2PO4,
+    "HPO4": solve.speciate.get_HPO4,
+    "PO4": solve.speciate.get_PO4,
+    "BOH4": solve.speciate.get_BOH4,
+    "BOH3": solve.speciate.get_BOH3,
+    "OH": solve.speciate.get_OH,
+    "H_free": solve.speciate.get_H_free,
+    "H3SiO4": solve.speciate.get_H3SiO4,
+    "H4SiO4": solve.speciate.get_H4SiO4,
+    "HSO4": solve.speciate.get_HSO4,
+    "SO4": solve.speciate.get_SO4,
+    "HF": solve.speciate.get_HF,
+    "F": solve.speciate.get_F,
+    "NH3": solve.speciate.get_NH3,
+    "NH4": solve.speciate.get_NH4,
+    "H2S": solve.speciate.get_H2S,
+    "HS": solve.speciate.get_HS,
+    "HNO2": solve.speciate.get_HNO2,
+    "NO2": solve.speciate.get_NO2,
+}
+for k, fc in get_funcs_core.items():
+    if k > 100 or k == 3:
+        fc.update(funcs_chemspec)
 
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)
@@ -601,6 +607,9 @@ get_funcs_opts["opt_pH_scale"] = {
         opt_to_sws=convert.pH_nbs_to_sws,
     ),
 }
+# TODO these below can be added only if there is a pH accessible!
+# While also depending on an opt!  See also below TODO for fCO2
+# i.e. icase == 3 or icase > 100
 for o, funcs in get_funcs_opts["opt_pH_scale"].items():
     if o == 1:
         funcs.update(dict(pH_total=lambda pH: pH))
@@ -644,6 +653,8 @@ get_funcs_opts["opt_k_aragonite"] = {
     1: dict(k_aragonite=solubility.k_aragonite_M83),
     2: dict(k_aragonite=solubility.k_aragonite_GEOSECS),  # for GEOSECS
 }
+# TODO option 1 below can only be added if there is an fCO2 value accessible
+# (see also similar TODO above about pH)
 get_funcs_opts["opt_fCO2_temperature"] = {
     1: dict(
         bh=upsilon.get_bh_H24,
@@ -1025,6 +1036,19 @@ class CO2System(UserDict):
         for opt, v in self.opts.items():
             graph = nx.compose(graph, graph_opts[opt][v])
             funcs.update(get_funcs_opts[opt][v])
+        # If fCO2 is not accessible, we can't calculate bh with
+        # opt_fCO2_temperature = 1, so use a default constant bh value instead
+        if icase < 100 and icase not in [4, 5, 8, 9]:
+            graph.remove_nodes_from(["fCO2", "bh"])
+            funcs["bh"] = lambda: upsilon.bh_TOG93_H24
+            graph.add_edge("bh", "upsilon")
+        # If pH is not accessible, we can't calculate it on different scales
+        if icase < 100 and icase not in [3]:
+            pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
+            for v in pH_vars:
+                graph.remove_node(v)
+                if v in funcs:
+                    funcs.pop(v)
         # Assign default values
         for k, v in values_default.items():
             if k not in data:
