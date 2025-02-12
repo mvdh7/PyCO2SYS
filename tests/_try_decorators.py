@@ -44,6 +44,7 @@ print(get_kval.__code__.co_varnames)
 # print(get_kval.__signature__.parameters.keys())
 print(signature(get_kval).parameters.keys())
 print(validity)
+print("-----")
 
 co2s = pyco2.sys()
 co2s.solve()
