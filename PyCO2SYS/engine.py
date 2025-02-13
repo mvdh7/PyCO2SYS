@@ -1896,14 +1896,18 @@ class CO2System(UserDict):
         """
         return tuple(self.graph.nodes)
 
-    def check_valid(self):
+    def check_valid(self, ignore=None):
         """Check which parameters are valid."""
+        if ignore is None:
+            ignore = []
+        if isinstance(ignore, str):
+            ignore = [ignore]
         for n in nx.topological_sort(self.graph):
             # First, assign validity for functions that do have valid ranges
             # (shown by node fill colour on the graph plot)
-            if n in self.funcs and hasattr(self.funcs[n], "valid"):
+            if n in self.funcs and n not in ignore and hasattr(self.funcs[n], "valid"):
+                n_valid = []
                 for p, p_range in self.funcs[n].valid.items():
-                    n_valid = []
                     # If all predecessor parameters fall within valid ranges, it's valid
                     if np.all(
                         (self.data[p] >= p_range[0]) & (self.data[p] <= p_range[1])
@@ -1922,11 +1926,11 @@ class CO2System(UserDict):
                             {(p, n): -1},
                             name="valid",
                         )
-                    nx.set_node_attributes(
-                        self.graph,
-                        {n: min(n_valid)},
-                        name="valid",
-                    )
+                nx.set_node_attributes(
+                    self.graph,
+                    {n: min(n_valid)},
+                    name="valid",
+                )
             # Next, assign inherited validity
             # (shown by node edge colour on the graph plot)
             n_valid_p = []

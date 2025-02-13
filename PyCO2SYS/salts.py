@@ -32,7 +32,7 @@ Ca_C65
     Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 """
 
-from ..meta import valid
+from .meta import valid
 
 
 def ionic_strength_DOE94(salinity):

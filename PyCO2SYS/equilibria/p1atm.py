@@ -183,7 +183,7 @@ def k_CO2_W74(temperature, salinity):
     return np.exp(lnK0)
 
 
-@valid(temperature=[0, 45], salinity=[5, 45])
+@valid(temperature=[0, 45], salinity=[5, 45], ionic_strength=[0.10012312, 0.93904847])
 def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
     Used when opt_k_HSO4 = 1.
@@ -223,7 +223,7 @@ def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
     return np.exp(lnk_HSO4) * (1 - 0.001005 * salinity)
 
 
-@valid(temperature=[5, 40], salinity=[20, 45])
+@valid(temperature=[5, 40], salinity=[20, 45], ionic_strength=[0.40665374, 0.93904847])
 def k_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
     Used when opt_k_HSO4 = 2.
@@ -305,7 +305,9 @@ def k_HSO4_free_WM13(temperature, salinity):
     return k_HSO4
 
 
-@valid(temperature=[5, 35], salinity=[10.43, 47.78])
+@valid(
+    temperature=[5, 35], salinity=[10.43, 47.78], ionic_strength=[0.21000866, 0.999987]
+)
 def k_HF_free_DR79(temperature, salinity, ionic_strength):
     """Hydrogen fluoride dissociation constant on the free scale following DR79a.
     Used when opt_k_HF = 1.

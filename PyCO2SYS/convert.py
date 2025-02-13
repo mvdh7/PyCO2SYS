@@ -7,24 +7,32 @@ Convert units and calculate conversion factors.
 
 pH scale conversions
 --------------------
-There is a function for every variant of pH_<scale1>_to_<scale2>, where <scale1> and
-<scale2> are any of free, total, sws and nbs.  Each function has a different set of
-arguments, depending on what is needed.  For example, to get the conversion factor to
-go from the total to the NBS scale, use:
+There is a function for every variant of pH_<scale1>_to_<scale2>, where <scale1>
+and <scale2> are any of free, total, sws and nbs.  Each function has a different
+set of arguments, depending on what is needed.  For example, to get the conversion
+factor to go from the total to the NBS scale, use:
 
   >>> factor = pyco2.convert.pH_tot_to_nbs(
         total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
       )
 
-``factor`` should be multiplied by [H+] or K value(s) on the total scale to convert to
-the NBS scale.
+``factor`` should be multiplied by [H+] or K value(s) on the total scale to convert
+to the NBS scale.
 
-Other functions
+CO2 conversions
 ---------------
-CO2aq_to_fCO2
-    Convert aqueous CO2 content to fugacity.
-fCO2_to_CO2aq
-    Convert CO2 fugacity to aqueous content.
+There is a function for every variant of <aCO2>_to_<bCO2>, where <aCO2> and <bCO2>
+are any of pCO2, fCO2, CO2aq and xCO2.  Each function has a different set of arguments,
+depending on what is needed.  For example, to convert pCO2 to fCO2, use:
+
+  >>> fCO2 = pyco2.convert.pCO2_to_fCO2(pCO2, fugacity_factor)
+
+Other conversions
+-----------------
+celsius_to_kelvin
+kelvin_to_celsius
+decibar_to_bar
+bar_to_decibar
 """
 
 import copy
@@ -390,91 +398,3 @@ def fH_TWB82(temperature, salinity):
     # v. 3, 1982 (p. 80).
     TempK = temperature + 273.15
     return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * salinity**2
-
-
-def pH_to_all_scales(pH, pH_scale, totals, k_constants):
-    """Calculate pH on all scales.
-
-    This takes the pH on the given pH_scale and finds the pH on all scales.
-
-    Based on FindpHOnAllScales, version 01.02, 01-08-97, by Ernie Lewis.
-    """
-    f2t = pH_free_to_tot(totals, k_constants)
-    s2t = pH_sws_to_tot(totals, k_constants)
-    factor = np.full(np.shape(pH), np.nan)
-    factor = np.where(pH_scale == 1, 0.0, factor)  # Total
-    factor = np.where(pH_scale == 2, np.log10(s2t), factor)  # Seawater
-    factor = np.where(pH_scale == 3, np.log10(f2t), factor)  # Free
-    factor = np.where(pH_scale == 4, np.log10(s2t / k_constants["fH"]), factor)  # NBS
-    pH_total = pH - factor  # pH comes into this function on the given scale
-    pH_sws = pH_total + np.log10(s2t)
-    pH_free = pH_total + np.log10(f2t)
-    pH_nbs = pH_total + np.log10(s2t / k_constants["fH"])
-    return pH_total, pH_sws, pH_free, pH_nbs
-
-
-def pH_sws_to_tot_P0(TempK, totals, k_constants, WhoseKSO4, WhoseKF):
-    """Determine SWS to Total pH scale correction factor at zero pressure."""
-    k_constants_P0 = copy.deepcopy(k_constants)
-    k_constants_P0["KSO4"] = k_constants["KSO4_P0"]
-    k_constants_P0["KF"] = k_constants["KF_P0"]
-    return pH_sws_to_tot(totals, k_constants_P0)
-
-
-def options_old2new(KSO4CONSTANTS):
-    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
-    if np.shape(KSO4CONSTANTS) == ():
-        KSO4CONSTANTS = np.array([KSO4CONSTANTS])
-    only2KSO4 = {
-        1: 1,
-        2: 2,
-        3: 1,
-        4: 2,
-    }
-    only2BORON = {
-        1: 1,
-        2: 1,
-        3: 2,
-        4: 2,
-    }
-    KSO4CONSTANT = np.array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
-    BORON = np.array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
-    return KSO4CONSTANT, BORON
-
-
-def _flattenfirst(args, dtype):
-    # Determine and check lengths of input vectors
-    arglengths = np.array([np.size(arg) for arg in args])
-    assert (
-        np.size(np.unique(arglengths[arglengths != 1])) <= 1
-    ), "Inputs must all be the same length as each other or of length 1."
-    # Make vectors of all inputs
-    npts = np.max(arglengths)
-    return (
-        [
-            (
-                np.full(npts, arg, dtype=dtype)
-                if np.size(arg) == 1
-                else arg.ravel().astype(dtype)
-            )
-            for arg in args
-        ],
-        npts,
-    )
-
-
-def options_new2old(KSO4CONSTANT, BORON):
-    """Convert separated `KSO4CONSTANT` and `BORON` options into traditional CO2SYS
-    `KSO4CONSTANTS` input.
-    """
-    pair2one = {
-        (1, 1): 1,
-        (2, 1): 2,
-        (1, 2): 3,
-        (2, 2): 4,
-        (3, 1): 5,  # these two don't actually exist, but are needed for the
-        (3, 2): 6,  # validation tests
-    }
-    KSO4CONSTANT, BORON = _flattenfirst((KSO4CONSTANT, BORON), int)[0]
-    pairs = zip(KSO4CONSTANT, BORON)
-    return np.array([pair2one[pair] for pair in pairs])
