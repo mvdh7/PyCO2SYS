@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 
 from PyCO2SYS import CO2System

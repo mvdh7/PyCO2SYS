@@ -955,7 +955,7 @@ class CO2System(UserDict):
                 assert np.isscalar(v)
                 assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
             else:
-                warnings.warn(f"'{k}' not recognised - it is being ignored.")
+                warnings.warn(f"'{k}' not recognised - it will be ignored.")
                 opts.pop(k)
         self.opts.update(opts)
         # Deal with tricky special cases
@@ -1044,11 +1044,6 @@ class CO2System(UserDict):
                 graph.remove_node(v)
                 if v in funcs:
                     funcs.pop(v)
-        # Assign default values
-        for k, v in values_default.items():
-            if k not in data:
-                data[k] = v
-                graph.add_node(k)
         # Save arguments
         to_remove = []
         for k, v in data.items():
@@ -1057,10 +1052,18 @@ class CO2System(UserDict):
                     # state 1 means that the value was provided as an argument
                     nx.set_node_attributes(graph, {k: 1}, name="state")
                 else:
-                    warnings.warn(f"'{k}' is not recognised - it is being ignored.")
+                    # TODO need to rethink how it is judged whether a value is
+                    # allowed here --- things that are not part of the graph
+                    # but that could be added as an isolated element should be
+                    # kept?  Or could change the warning below
+                    warnings.warn(f"'{k}' is not recognised - it will be ignored.")
                     to_remove.append(k)
         for k in to_remove:
             data.pop(k)
+        # Assign default values
+        for k, v in values_default.items():
+            if k not in data and k in graph.nodes:
+                data[k] = v
         self.nodes_original = list(k for k, v in data.items() if v is not None)
         return graph, funcs, data
 
