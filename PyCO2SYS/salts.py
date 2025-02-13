@@ -32,6 +32,8 @@ Ca_C65
     Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 """
 
+from ..meta import valid
+
 
 def ionic_strength_DOE94(salinity):
     """Ionic strength following DOE94.
@@ -51,6 +53,7 @@ def ionic_strength_DOE94(salinity):
     return 19.924 * salinity / (1000 - 1.005 * salinity)
 
 
+@valid(salinity=[34.1, 36.3])
 def total_borate_U74(salinity):
     """Total borate in µmol/kg-sw following U74.  Used when opt_total_borate = 1.
 
@@ -71,6 +74,7 @@ def total_borate_U74(salinity):
     return 415.7 * salinity / 35
 
 
+@valid(salinity=[34.1, 36.9])
 def total_borate_LKB10(salinity):
     """Total borate in µmol/kg-sw following LKB10.  Used when opt_total_borate = 2.
 
@@ -91,6 +95,7 @@ def total_borate_LKB10(salinity):
     return 432.6 * salinity / 35
 
 
+@valid(salinity=[0, 20])
 def total_borate_KSK18(salinity):
     """Total borate in µmol/kg-sw following KSK18.  Used when opt_total_borate = 3.
 
