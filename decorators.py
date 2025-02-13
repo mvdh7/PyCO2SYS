@@ -286,6 +286,10 @@ def decorate(func, caller, extras=(), kwsyntax=False):
         fun.__dict__.update(func.__dict__)
     except AttributeError:
         pass
+    try:
+        fun.validity = func.validity
+    except AttributeError:
+        pass
     return fun
 
 

@@ -151,8 +151,10 @@ k_HNO2_nbs_BBWB24_freshwater
 from jax import numpy as np
 
 from .. import convert
+from ..meta import valid
 
 
+@valid(temperature=[-1, 40], salinity=[0, 40])
 def k_CO2_W74(temperature, salinity):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
 

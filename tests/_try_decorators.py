@@ -1,33 +1,21 @@
 # %%
-import functools
+import warnings
+from functools import wraps
 from inspect import signature
 
 import jax
 from jax import numpy as np
 
 import PyCO2SYS as pyco2
-from decorators import decorator
-
-validity = {}
+from PyCO2SYS.meta import valid
 
 
-@decorator
-def set_validity(func, temperature=None, *args, **kwargs):
-    if temperature is not None:
-        validity[func.__name__] = temperature
-    return func(*args, **kwargs)
-
-
-def _get_kval(t, s):
-    return 50 + 3 * t - 0.1 * s**2
-
-
-# get_kval = tweak_args(_get_kval)
-
-
-# @set_validity(temperature=[5, 25])
+@valid(test=3)
 def get_kval(t, s):
     return 50 + 3 * t - 0.1 * s**2
+
+
+# get_lval.temperature = [5, 25]
 
 
 args = (25.0, 35.0)
@@ -40,11 +28,14 @@ print(kval_jit)
 print(kval_grad_0)
 print(kval_grad_1)
 print(get_kval.__name__)
-print(get_kval.__code__.co_varnames)
-# print(get_kval.__signature__.parameters.keys())
 print(signature(get_kval).parameters.keys())
-print(validity)
+print(get_kval.valid)
 print("-----")
 
 co2s = pyco2.sys()
-co2s.solve()
+co2s.solve("k_CO2")
+co2s.plot_graph(
+    show_isolated=False,
+    show_unknown=False,
+    prog_graphviz="dot",
+)

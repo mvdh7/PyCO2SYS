@@ -2,6 +2,8 @@
 # Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
+from functools import wraps
+
 import jax
 from jax import numpy as np
 
@@ -58,3 +60,18 @@ def egrad(g):
         return x_bar
 
     return wrapped
+
+
+def valid(**kwargs):
+    """Assign valid ranges of arguments."""
+
+    def decorator(func):
+        func.valid = kwargs
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
