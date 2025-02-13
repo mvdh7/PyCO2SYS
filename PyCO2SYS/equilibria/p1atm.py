@@ -183,6 +183,7 @@ def k_CO2_W74(temperature, salinity):
     return np.exp(lnK0)
 
 
+@valid(temperature=[0, 45], salinity=[5, 45])
 def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
     Used when opt_k_HSO4 = 1.
