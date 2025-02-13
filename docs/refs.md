@@ -45,7 +45,7 @@ Click on each reference to see more details.
     DOE (1994). *Handbook of methods for the analysis of the various parameters of the carbon dioxide system in sea water, version 2.* ORNL/CDIAC-74.
 
 ??? note "DR79: Dickson & Riley (1979) *Mar. Chem.*"
-    Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. II. The dissociation of phosphoric acid. *Marine Chemistry* 7, 101–109. <a href='https://doi.org/10.1016/0304-4203(79)90002-1'>doi:10.1016/0304-4203(79)90002-1</a>.
+    Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. I. The ionic product of water - K<sub>w</sub>. *Marine Chemistry* 7(2), 89-99. [doi:10.1016/0304-4203(79)90001-X](https://doi.org/10.1016/0304-4203(79)90001-X).
 
 ### E
 
