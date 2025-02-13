@@ -130,6 +130,7 @@ factor_k_CO2
 from jax import numpy as np
 
 from .. import convert
+from ..meta import valid
 
 
 def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
@@ -646,6 +647,7 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     )
 
 
+@valid(pressure=[0, 5066.25])
 def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
     """Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 

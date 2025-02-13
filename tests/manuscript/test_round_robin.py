@@ -15,10 +15,10 @@ values = dict(
     total_ammonia=2,
     total_sulfide=3,
     total_nitrite=4,
-    total_alpha=5,
-    k_alpha=1e-4,
-    total_beta=6,
-    k_beta=1e-8,
+    # total_alpha=5,
+    # k_alpha=1e-4,
+    # total_beta=6,
+    # k_beta=1e-8,
 )
 values_init = dict(alkalinity=2300, dic=2100, **values)
 opts = dict(

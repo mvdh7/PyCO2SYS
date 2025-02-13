@@ -3,6 +3,7 @@
 import itertools
 import warnings
 from collections import UserDict
+from inspect import signature
 
 import networkx as nx
 from jax import numpy as np
@@ -684,9 +685,7 @@ get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
 # based on the function names and signatures in get_funcs
 graph_fixed = nx.DiGraph()
 for k, func in get_funcs.items():
-    fcode = func.__code__
-    func_args = fcode.co_varnames[: fcode.co_argcount]
-    for f in func_args:
+    for f in signature(func).parameters.keys():
         graph_fixed.add_edge(f, k)
 
 # Automatically set up graph for each icase based on the function names and signatures
@@ -695,9 +694,7 @@ graph_core = {}
 for icase, funcs in get_funcs_core.items():
     graph_core[icase] = nx.DiGraph()
     for t, func in get_funcs_core[icase].items():
-        fcode = func.__code__
-        func_args = fcode.co_varnames[: fcode.co_argcount]
-        for f in func_args:
+        for f in signature(func).parameters.keys():
             graph_core[icase].add_edge(f, t)
 
 
@@ -712,9 +709,7 @@ def get_graph_opts(exclude=[]):
             for opt, funcs in opts.items():
                 graph_opts[o][opt] = nx.DiGraph()
                 for k, func in funcs.items():
-                    fcode = func.__code__
-                    func_args = fcode.co_varnames[: fcode.co_argcount]
-                    for f in func_args:
+                    for f in signature(func).parameters.keys():
                         graph_opts[o][opt].add_edge(f, k)
     return graph_opts
 
@@ -960,7 +955,7 @@ class CO2System(UserDict):
                 assert np.isscalar(v)
                 assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
             else:
-                warnings.warn(f"'{k}' not recognised - it is being ignored.")
+                warnings.warn(f"'{k}' not recognised - it will be ignored.")
                 opts.pop(k)
         self.opts.update(opts)
         # Deal with tricky special cases
@@ -1049,11 +1044,6 @@ class CO2System(UserDict):
                 graph.remove_node(v)
                 if v in funcs:
                     funcs.pop(v)
-        # Assign default values
-        for k, v in values_default.items():
-            if k not in data:
-                data[k] = v
-                graph.add_node(k)
         # Save arguments
         to_remove = []
         for k, v in data.items():
@@ -1062,10 +1052,18 @@ class CO2System(UserDict):
                     # state 1 means that the value was provided as an argument
                     nx.set_node_attributes(graph, {k: 1}, name="state")
                 else:
-                    warnings.warn(f"'{k}' is not recognised - it is being ignored.")
+                    # TODO need to rethink how it is judged whether a value is
+                    # allowed here --- things that are not part of the graph
+                    # but that could be added as an isolated element should be
+                    # kept?  Or could change the warning below
+                    warnings.warn(f"'{k}' is not recognised - it will be ignored.")
                     to_remove.append(k)
         for k in to_remove:
             data.pop(k)
+        # Assign default values
+        for k, v in values_default.items():
+            if k not in data and k in graph.nodes:
+                data[k] = v
         self.nodes_original = list(k for k, v in data.items() if v is not None)
         return graph, funcs, data
 
@@ -1115,12 +1113,7 @@ class CO2System(UserDict):
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
                 self_data[p] = self.funcs[p](
-                    *[
-                        self_data[r]
-                        for r in self.funcs[p].__code__.co_varnames[
-                            : self.funcs[p].__code__.co_argcount
-                        ]
-                    ]
+                    *[self_data[r] for r in signature(self.funcs[p]).parameters.keys()]
                 )
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
@@ -1148,9 +1141,7 @@ class CO2System(UserDict):
                         # state = 2 means that the value was calculated internally
                         # as an intermediate to a requested parameter
                         nx.set_node_attributes(self.graph, {p: 2}, name="state")
-                    for f in self.funcs[p].__code__.co_varnames[
-                        : self.funcs[p].__code__.co_argcount
-                    ]:
+                    for f in signature(self.funcs[p]).parameters.keys():
                         nx.set_edge_attributes(self.graph, {(f, p): 2}, name="state")
         # Get rid of jax overhead on results
         self_data = {k: v for k, v in self_data.items() if k in store_parameters}
@@ -1455,9 +1446,7 @@ class CO2System(UserDict):
                         n: self.funcs[n](
                             *[
                                 data[v]
-                                for v in self.funcs[n].__code__.co_varnames[
-                                    : self.funcs[n].__code__.co_argcount
-                                ]
+                                for v in signature(self.funcs[n]).parameters.keys()
                             ]
                         )
                     }
