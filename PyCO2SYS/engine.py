@@ -1044,9 +1044,12 @@ class CO2System(UserDict):
         else:
             graph_opts = get_graph_opts(exclude="opt_HCO3_root")
         # Assemble graph and functions
-        graph = nx.compose(graph_fixed, graph_core[icase])
         funcs = get_funcs.copy()
-        funcs.update(get_funcs_core[icase])
+        try:
+            graph = nx.compose(graph_fixed, graph_core[icase])
+            funcs.update(get_funcs_core[icase])
+        except KeyError:
+            graph = graph_fixed.copy()
         for opt, v in self.opts.items():
             graph = nx.compose(graph, graph_opts[opt][v])
             funcs.update(get_funcs_opts[opt][v])
@@ -1075,7 +1078,10 @@ class CO2System(UserDict):
                     # allowed here --- things that are not part of the graph
                     # but that could be added as an isolated element should be
                     # kept?  Or could change the warning below
-                    warnings.warn(f"'{k}' is not recognised - it will be ignored.")
+                    warnings.warn(
+                        f"'{k}' not recognised or not valid for this combination "
+                        + "of known carbonate system parameters - it's being ignored."
+                    )
                     to_remove.append(k)
         for k in to_remove:
             data.pop(k)
@@ -1224,19 +1230,19 @@ class CO2System(UserDict):
         Parameters
         ----------
         parameters : str or list of str, optional
-            The parameter(s) to return.  These are solved for if not already available.
-            If `None`, then all parameters that have already been solved for are
-            returned.
+            The parameter(s) to return.  These are solved for if not already
+            available. If `None`, then all parameters that have already been
+            solved for are returned.
         store_steps : int, optional
             See `solve`.
 
         Returns
         -------
         xr.DataArray or xr.Dataset
-            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`) or as a
-            `xr.Dataset` (if `parameters` is a `list`) with the original xarray
-            dimensions passed into the `CO2System` as `data`.  If `data` was not an
-            `xr.Dataset` then this function will not work.
+            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`)
+            or as a `xr.Dataset` (if `parameters` is a `list`) with the
+            original xarray dimensions passed into the `CO2System` as `data`.
+            If `data` was not an `xr.Dataset` then this function will not work.
         """
         assert self.xr_dims is not None and self.xr_shape is not None, (
             "`data` was not provided as an `xr.Dataset` "
@@ -1330,6 +1336,7 @@ class CO2System(UserDict):
         self,
         temperature=None,
         pressure=None,
+        data=None,
         store_steps=1,
         method_fCO2=1,
         opt_which_fCO2_insitu=1,
@@ -1340,18 +1347,20 @@ class CO2System(UserDict):
         Parameters
         ----------
         temperature : float, optional
-            Temperature in °C to adjust to.  If `None`, temperature is not adjusted.
+            Temperature in °C to adjust to.  If `None`, temperature is not
+            adjusted.
         pressure : float, optional
             Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is
             not adjusted.
         store_steps : int, optional
-            Whether/which non-requested parameters calculated during intermediate
-            calculation steps should be stored.  The options are:
+            Whether/which non-requested parameters calculated during
+            intermediate calculation steps should be stored.  The options are:
 
               - `0`: Store only the requested parameters.
-              - `1`: Store the requested and most commonly used set of intermediate
-              parameters (default).
-              - `2`: Store the requested and complete set of intermediate parameters.
+              - `1`: Store the requested and most commonly used set of
+              intermediate parameters (default).
+              - `2`: Store the requested and complete set of intermediate
+              parameters.
         method_fCO2 : int, optional
             If this is a single-parameter system, which method to use for the
             adjustment.  The options are:
@@ -1363,19 +1372,20 @@ class CO2System(UserDict):
               - `5`: linear fit of TOG93.
               - `6`: quadratic fit of TOG93.
         opt_which_fCO2_insitu : int, optional
-            If this is a single-parameter system and `method_fCO2` is `1`, whether:
+            If this is a single-parameter system and `method_fCO2` is `1`,
+            whether:
               - `1` the input condition (starting; default) or
               - `2` output condition (adjusted) temperature
             should be used to calculate $b_h$.
         bh_upsilon : float, optional
-            If this is a single-parameter system and `method_fCO2` is `4`, then the
-            value of $b_h$ in J/mol must be specified here.
+            If this is a single-parameter system and `method_fCO2` is `4`, then
+            the value of $b_h$ in J/mol must be specified here.
 
         Returns
         -------
         CO2System
-            A new `CO2System` with all values adjusted to the requested temperature(s)
-            and/or pressure(s).
+            A new `CO2System` with all values adjusted to the requested
+            temperature(s) and/or pressure(s).
         """
         if self.icase > 100:
             # If we know (any) two MCS parameters, solve for alkalinity and DIC under
@@ -1584,7 +1594,7 @@ class CO2System(UserDict):
     def get_values_original(self):
         return {k: self.data[k] for k in self.nodes_original}
 
-    def propagate(self, uncertainty_in, uncertainty_from):
+    def propagate(self, uncertainty_into, uncertainty_from):
         """Propagate independent uncertainties through the calculations.  Covariances
         are not accounted for.
 
@@ -1597,16 +1607,16 @@ class CO2System(UserDict):
 
         Parameters
         ----------
-        uncertainty_in : list
+        uncertainty_into : list
             The parameters to calculate the uncertainty in.
         uncertainty_from : dict
             The parameters to propagate the uncertainty from (keys) and their
             uncertainties (values).
         """
-        self.solve(uncertainty_in)
-        if isinstance(uncertainty_in, str):
-            uncertainty_in = [uncertainty_in]
-        for var_in in uncertainty_in:
+        self.solve(uncertainty_into)
+        if isinstance(uncertainty_into, str):
+            uncertainty_into = [uncertainty_into]
+        for var_in in uncertainty_into:
             # This should always be reset to zero and all values wiped, even if
             # it already exists (so you don't end up with old uncertainty_from
             # components from a previous calculation which are no longer part of
@@ -1647,6 +1657,7 @@ class CO2System(UserDict):
                 self.uncertainty[var_in][var_from] = u_part
                 u_total = u_total + u_part**2
             self.uncertainty[var_in]["total"] = np.sqrt(u_total)
+        return self
 
     def get_graph_to_plot(
         self,
@@ -1954,6 +1965,51 @@ class CO2System(UserDict):
         self.checked_valid = True
 
 
+def da_to_array(da, xr_dims):
+    """Convert an xarray `DataArray` `da` into a NumPy `array`.
+
+    The NumPy `array` will have as many dimensions as `len(xr_dims)` and the
+    dimensions will be in the same order as indicated in `xr_dims`.
+
+    If `da` does not contain a dimension from `xr_dims`, a new singleton
+    dimension will be added in the appropriate position.
+
+    `da` is not allowed to contain any dimensions that are not in `xr_dims`.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        The `DataArray` to be converted.
+    xr_dims : iterable
+        The full list of dimension names in the correct order for the output
+        NumPy array.  Can be obtained from an xarray `Dataset` (`ds`) as
+        `ds.sizes`.
+
+    Returns
+    -------
+    numpy.array
+        The converted `array`.
+    """
+    # Get `DataArray` info
+    da_dims = list(da.sizes)
+    da_data = da.data
+    # Prepare for loop through `xr_dims`
+    move_from = []
+    extra_dims = 0
+    for d in xr_dims:
+        if d in da_dims:
+            # If the dimension is in `da`, just append the appropriate position
+            # to `move_from`
+            move_from.append(da_dims.index(d))
+        else:
+            # If the dimension is not in `da`, we need to create it at the end
+            move_from.append(len(da_dims) + extra_dims)
+            da_data = np.expand_dims(da_data, -1)
+            extra_dims += 1  # increment offset, for adding multiple new dims
+    # Move axes around to the shape matching `xr_dims`
+    return np.moveaxis(da_data, move_from, range(len(xr_dims)))
+
+
 def sys(data=None, **kwargs):
     """Create a `CO2System`."""
     # Check for double precision
@@ -2018,16 +2074,7 @@ def sys(data=None, **kwargs):
                         xr_dims = list(data.sizes.keys())
                         xr_shape = list(data.sizes.values())
                         for k, v in data.items():
-                            ndims = []
-                            for d in xr_dims:
-                                if d in v.sizes:
-                                    ndims.append(v.sizes[d])
-                                else:
-                                    ndims.append(1)
-                            if k in renamer:
-                                kwargs[renamer[k]] = np.reshape(v.data, ndims)
-                            else:
-                                kwargs[k] = np.reshape(v.data, ndims)
+                            kwargs[k] = da_to_array(v, xr_dims)
                 except ImportError:
                     warnings.warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:
@@ -2054,6 +2101,8 @@ def sys(data=None, **kwargs):
             if isinstance(kwargs[k], int):
                 kwargs[k] = float(kwargs[k])
             elif hasattr(kwargs[k], "dtype"):
-                if kwargs[k].dtype == int:
+                try:
                     kwargs[k] = kwargs[k].astype(float)
+                except ValueError:
+                    pass
     return CO2System(pd_index=pd_index, xr_dims=xr_dims, xr_shape=xr_shape, **kwargs)
