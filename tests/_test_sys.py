@@ -2,6 +2,7 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
@@ -22,8 +23,10 @@ print(co2s.CO3)
 # %%
 co2s = pyco2.sys(
     dic=2100,
-    pH=8.1,
+    ph=8.1,
 )
+
+# %%
 co2s.solve(["CO3"], store_steps=1)
 node_size = 2100
 co2s.plot_graph(
@@ -132,3 +135,91 @@ co2s.propagate("pH", {"alkalinity": 2, "pCO2": 1})
 
 # %%
 co2s.plot_graph(show_unknown=False)
+
+# %%
+kwargs = {}
+a = np.array([[0, 1, 2], [3, 4, 5]])
+b = a.transpose()
+xa = xr.DataArray(a, dims=("a_row", "a_col"))
+xb = xr.DataArray(b, dims=("b_row", "b_col"))
+data = xr.Dataset({"xa": xa, "xb": xb})
+xr_dims = list(data.sizes.keys())
+xr_shape = list(data.sizes.values())
+for k, v in data.items():
+    # # Version 1: rubbish
+    # ndims = []
+    # for d in xr_dims:
+    #     if d in v.sizes:
+    #         ndims.append(v.sizes[d])
+    #     else:
+    #         ndims.append(1)
+    # # Version 2: works if all dims present but not with extras
+    # vdata = np.expand_dims(v.data, list(range(len(v.sizes), len(xr_dims))))
+    # order = []
+    # for d in v.sizes:
+    #     order.append(xr_dims.index(d))
+    # for x in range(len(v.sizes), len(xr_dims)):
+    #     order.append(x + 1)
+    # kwargs[k] = np.transpose(vdata, order)
+    # Version 3: works for tests so far; need to try more complicated shapes
+    # (mostly, more incompatible axes)
+    v_dims = list(v.sizes)
+    v_data = v.data
+    move_from = []
+    extra_dims = 0
+    for i, d in enumerate(xr_dims):
+        if d in v_dims:
+            move_from.append(v_dims.index(d))
+        else:
+            move_from.append(len(v_dims) + extra_dims)
+            v_data = np.expand_dims(v_data, -1)
+            extra_dims += 1
+    kwargs[k] = np.moveaxis(v_data, move_from, range(len(xr_dims)))
+
+# %%
+from PyCO2SYS.engine import da_to_array
+
+na = da_to_array(xa, xr_dims)
+nb = da_to_array(xb, xr_dims)
+
+# %%
+
+
+def prep(dims_a, dims_b):
+    a = np.array([[0, 1, 2], [3, 4, 5]])
+    b = a.transpose()
+    xa = xr.DataArray(a, dims=dims_a)
+    xb = xr.DataArray(b, dims=dims_b)
+    data = xr.Dataset({"xa": xa, "xb": xb})
+    xr_dims = list(data.sizes.keys())
+    return xa, xb, xr_dims
+
+
+def test_same_dims():
+    xa, xb, xr_dims = prep(("a1", "a2"), ("a2", "a1"))
+    na = da_to_array(xa, xr_dims)
+    nb = da_to_array(xb, xr_dims)
+    assert na.shape == (2, 3)
+    assert na.shape == nb.shape
+    assert np.all(na == nb)
+
+
+def test_one_overlap():
+    xa, xb, xr_dims = prep(("a1", "a2"), ("a2", "b1"))
+    na = da_to_array(xa, xr_dims)
+    nb = da_to_array(xb, xr_dims)
+    assert na.shape == (2, 3, 1)
+    assert nb.shape == (1, 3, 2)
+
+
+def test_no_overlap():
+    xa, xb, xr_dims = prep(("a1", "a2"), ("b1", "b2"))
+    na = da_to_array(xa, xr_dims)
+    nb = da_to_array(xb, xr_dims)
+    assert na.shape == (2, 3, 1, 1)
+    assert nb.shape == (1, 1, 3, 2)
+
+
+test_same_dims()
+test_one_overlap()
+test_no_overlap()
