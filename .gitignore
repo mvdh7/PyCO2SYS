@@ -1,6 +1,7 @@
 # Other
 .~lock*#
 .DS_Store
+tests/pyco2sys_test_des/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
