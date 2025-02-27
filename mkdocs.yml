@@ -11,12 +11,15 @@ repo_url: https://github.com/mvdh7/PyCO2SYS
 # Navigation
 nav:
   - Overview and installation: index.md
-  - Quick-start guide: quick.md
-  - Arguments and results: detail.md
-  - Adjust conditions (temperature and pressure): adjust.md
-  - Uncertainty propagation: uncertainty.md
-  - Advanced results access: results.md
-  - Switching from v1 to v2: v1_to_v2.md
+  - User guide:
+    - Quick-start guide: quick.md
+    - Arguments and results: detail.md
+    - Adjust conditions (temperature and pressure): adjust.md
+    - Uncertainty propagation: uncertainty.md
+    - Advanced results access: results.md
+    - Switching from v1 to v2: v1_to_v2.md
+  - Visualisation:
+    - Validity range checker: validity.md
   - API reference: api.md
   # - Validation: validate.md
   - References: refs.md
