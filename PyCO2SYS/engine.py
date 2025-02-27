@@ -2020,7 +2020,10 @@ def da_to_array(da, xr_dims):
     """
     # Get `DataArray` info
     da_dims = list(da.sizes)
-    da_data = da.data
+    try:
+        da_data = da.data.astype(float)
+    except ValueError:
+        return None
     # Prepare for loop through `xr_dims`
     move_from = []
     extra_dims = 0
