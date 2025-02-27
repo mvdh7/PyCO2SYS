@@ -7,6 +7,24 @@ import xarray as xr
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
 
+dic = xr.DataArray(np.ones((30, 5)) * 2000, dims=("lat", "lon"))
+alkalinity = xr.DataArray(np.ones((30, 5)) * 2200, dims=("lat", "lon"))
+temperature = xr.DataArray(np.ones((30, 5)) * 25, dims=("lat", "lon"))
+temperature_2 = xr.DataArray(np.ones((5, 30)) * 0, dims=("lon", "lat"))
+data = xr.Dataset(
+    {
+        "dic": dic,
+        "alkalinity": alkalinity,
+        "temperature": temperature,
+        "temperature_2": temperature_2,
+    }
+)
+
+co2s = pyco2.sys(data=data).solve("pH")
+co2sa = co2s.adjust(temperature=temperature_2)
+
+# %%
+
 co2s = pyco2.sys(
     data=pd.DataFrame(
         {

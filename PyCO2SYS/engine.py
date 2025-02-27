@@ -980,7 +980,7 @@ class CO2System(UserDict):
         self.graph, self.funcs, self.data = self._assemble(self.icase, data)
         self.grads = {}
         self.uncertainty = {}
-        self.requested = set()  # keep track of all parameters that have been requested
+        self.requested = set()  # keep track of all requested parameters
         self.pd_index = pd_index
         if xr_dims is not None:
             assert xr_shape is not None
@@ -1003,15 +1003,16 @@ class CO2System(UserDict):
         self.checked_valid = False
 
     def __getitem__(self, key):
-        # When the user requests a dict key that hasn't been solved for yet, then
-        # solve and provide the requested parameter
+        # When the user requests a dict key that hasn't been solved for yet,
+        # then solve and provide the requested parameter
         self.solve(parameters=key)
         if isinstance(key, list):
-            # If the user provides a list of keys to solve for, return all of them
-            # as a dict
+            # If the user provides a list of keys to solve for, return all of
+            # them as a dict
             return {k: self.data[k] for k in key}
         else:
-            # If a single key is requested, return the corresponding value(s) directly
+            # If a single key is requested, return the corresponding value(s)
+            # directly
             return self.data[key]
 
     def __getattr__(self, attr):
@@ -1019,7 +1020,8 @@ class CO2System(UserDict):
         # purely for convenience.
         # So, when the user tries to access something with dot notation...
         try:
-            # ... then if it's an attribute, return it (this is the standard behaviour).
+            # ... then if it's an attribute, return it (this is the standard
+            # behaviour).
             return object.__getattribute__(self, attr)
         except AttributeError:
             # But if it's not an attribute...
@@ -1028,9 +1030,9 @@ class CO2System(UserDict):
                 # been solved for...
                 return self.data[attr]
             except KeyError:
-                # ... but it if hasn't been solved for, throw an error.  The user
-                # needs to use the normal dict notation (or solve method) to solve
-                # for it.
+                # ... but it if hasn't been solved for, throw an error.  The
+                # user needs to use the normal dict notation (or solve method)
+                # to solve for it.
                 raise AttributeError(attr)
 
     def __setitem__(self, key, value):
@@ -1099,36 +1101,43 @@ class CO2System(UserDict):
         Parameters
         ----------
         parameters : str or list of str, optional
-            Which parameter(s) to calculate and store, by default None, in which case
-            all possible parameters are calculated and stored internally.
+            Which parameter(s) to calculate and store, by default None, in
+            which case all possible parameters are calculated and stored
+            internally.
         store_steps : int, optional
             Whether/which non-requested parameters calculated during intermediate
             calculation steps should be stored, by default 1.  The options are
                 0 - store only the specifically requested parameters,
                 1 - store the most used set of intermediate parameters, or
                 2 - store the complete set of parameters.
+
+        Returns
+        -------
+        CO2System
+            The original `CO2System` including the newly solved parameters.
         """
         # Parse user-provided parameters (if there are any)
         if parameters is None:
-            # If no parameters are provided, then we solve for everything possible
+            # If no parameters are provided, then we solve for everything
+            # possible
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
-        self_data = self.data.copy()  # what was already known before this solve
-        # Remove known nodes from a copy of self.graph, so that ancestors of known
-        # nodes are not unnecessarily recomputed
+        self_data = self.data.copy()  # what was already known before solving
+        # Remove known nodes from a copy of self.graph, so that ancestors of
+        # known nodes are not unnecessarily recomputed
         graph_unknown = self.graph.copy()
         graph_unknown.remove_nodes_from([k for k in self_data if k not in parameters])
-        # Add intermediate parameters that we need to know in order to calculate
-        # the requested parameters
+        # Add intermediate parameters that we need to know in order to
+        # calculate the requested parameters
         parameters_all = parameters.copy()
         for p in parameters:
             parameters_all = parameters_all | nx.ancestors(graph_unknown, p)
-        # Convert the set of parameters into a list, exclude already-known ones,
-        # and organise the list into the order required for calculations
+        # Convert the set of parameters into a list, exclude already-known
+        # ones, and organise the list into the order required for calculations
         parameters_all = [
             p
             for p in nx.topological_sort(self.graph)
@@ -1173,6 +1182,7 @@ class CO2System(UserDict):
         self_data = {k: v for k, v in self_data.items() if k in store_parameters}
         _remove_jax_overhead(self_data)
         self.data.update(self_data)
+        return self
 
     def to_pandas(self, parameters=None, store_steps=1):
         """Return parameters as a pandas `Series` or `DataFrame`.  All parameters should
@@ -1387,9 +1397,27 @@ class CO2System(UserDict):
             A new `CO2System` with all values adjusted to the requested
             temperature(s) and/or pressure(s).
         """
+        # Convert temperature and/or pressure from xarray DataArrays to NumPy
+        # arrays, if necessary.  The checks to see if they are DataArrays are
+        # not foolproof, but they do avoid needing to import xarray.
+        if all([hasattr(temperature, a) for a in ["data", "dims", "coords"]]):
+            assert self.xr_dims is not None, (
+                "`temperature` cannot be provided as an xarray `DataArray`"
+                + " because this CO2System was not constructed"
+                + " from an xarray `Dataset`."
+            )
+            temperature = da_to_array(temperature, self.xr_dims)
+        if all([hasattr(pressure, a) for a in ["data", "dims", "coords"]]):
+            assert self.xr_dims is not None, (
+                "`pressure` cannot be provided as an xarray `DataArray`"
+                + " because this CO2System was not constructed"
+                + " from an xarray `Dataset`."
+            )
+            pressure = da_to_array(pressure, self.xr_dims)
+        # Arguments have been wrangled - now let's get down to business
         if self.icase > 100:
-            # If we know (any) two MCS parameters, solve for alkalinity and DIC under
-            # the "input" conditions
+            # If we know (any) two MCS parameters, solve for alkalinity and DIC
+            # under the "input" conditions
             self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
             core = {k: self[k] for k in ["alkalinity", "dic"]}
             data = {}
@@ -1397,12 +1425,12 @@ class CO2System(UserDict):
             assert pressure is None, (
                 "Cannot adjust pressure for a single-parameter system!"
             )
-            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
-            # the "input" conditions
+            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get
+            # fCO2 under the "input" conditions
             self.solve(parameters="fCO2", store_steps=store_steps)
             core = {"fCO2": self.fCO2}
-            # Then, convert this to the value at the new temperature using the requested
-            # method
+            # Then, convert this to the value at the new temperature using the
+            # requested method
             assert method_fCO2 in range(1, 7), (
                 "`method_fCO2` must be an integer from 1-6."
             )
@@ -1424,8 +1452,8 @@ class CO2System(UserDict):
                 data[k] = self.data[k]
             elif k in core:
                 data[k] = core[k]
-        # Set temperature and/or pressure to adjusted value(s), unless they are None, in
-        # which case, don't adjust
+        # Set temperature and/or pressure to adjusted value(s), unless they are
+        # `None`, in which case, don't adjust
         if temperature is not None:
             data["temperature"] = temperature
         else:
