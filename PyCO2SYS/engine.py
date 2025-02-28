@@ -1585,6 +1585,33 @@ class CO2System(UserDict):
             A new `CO2System` with all values adjusted to the requested
             temperature(s) and/or pressure(s).
         """
+        # Convert temperature and/or pressure from pandas Series to NumPy
+        # arrays, if necessary.  The checks to see if they are Series are
+        # not foolproof, but they do avoid needing to import pandas.
+        if all([hasattr(temperature, a) for a in ["index", "values", "dtype"]]):
+            assert self.pd_index is not None, (
+                "`temperature` cannot be provided as a pandas `Series`"
+                + " because this CO2System was not constructed"
+                + " from an pandas `DataFrame`."
+            )
+            assert self.pd_index.equals(temperature.index), (
+                "Cannot use this pandas `Series` for the adjust-to temperature"
+                + " because its index does not match that used to construct"
+                + " this CO2System."
+            )
+            temperature = temperature.to_numpy().astype(float)
+        if all([hasattr(pressure, a) for a in ["index", "values", "dtype"]]):
+            assert self.pd_index is not None, (
+                "`pressure` cannot be provided as a pandas `Series`"
+                + " because this CO2System was not constructed"
+                + " from an pandas `DataFrame`."
+            )
+            assert self.pd_index.equals(pressure.index), (
+                "Cannot use this pandas `Series` for the adjust-to pressure"
+                + " because its index does not match that used to construct"
+                + " this CO2System."
+            )
+            pressure = pressure.to_numpy().astype(float)
         # Convert temperature and/or pressure from xarray DataArrays to NumPy
         # arrays, if necessary.  The checks to see if they are DataArrays are
         # not foolproof, but they do avoid needing to import xarray.
