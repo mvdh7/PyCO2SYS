@@ -1688,61 +1688,62 @@ class CO2System(UserDict):
         return sys
 
     def _get_func_of(self, var_of):
-        """Create a function to compute ``var_of`` directly from an input set of
-        values.
+        """Create a function to compute `var_of` directly from an input set
+        of values.
 
         The created function has the signature
 
-            value_of = get_value_of(**value)
+            value_of = get_value_of(**values)
 
-        where the ``values`` are the originally user-defined values, obtained with
-        either of the following:
+        where the `values` are the originally user-defined values, obtained
+        with either of the following:
 
             values_original = {k: sys.data[k] for k in sys.nodes_original}
             values_original = sys.get_values_original()
         """
-        # We get a sub-graph of the node of interest and all its ancestors, excluding
-        # originally fixed / user-defined values
+        # We get a sub-graph of the node of interest and all its ancestors,
+        # excluding originally fixed / user-defined values
         nodes_vo_all = nx.ancestors(self.graph, var_of)
         nodes_vo_all.add(var_of)
-        # nodes_vo = onp.array([n for n in nodes_vo if n not in self.nodes_original])
         nodes_vo = [n for n in nodes_vo_all if n not in self.nodes_original]
         graph_vo = self.graph.subgraph(nodes_vo)
 
-        def get_value_of(**data):
-            data = data.copy()
-            # This loops through the functions in the correct order determined above so
-            # we end up calculating the value of interest, which is returned
+        def get_value_of(**kwargs):
+            kwargs = kwargs.copy()
+            # This loops through the functions in the correct order determined
+            # above so we end up calculating the value of interest, which is
+            # returned
             for n in nx.topological_sort(graph_vo):
-                data.update(
+                kwargs.update(
                     {
                         n: self.funcs[n](
                             *[
-                                data[v]
+                                kwargs[v]
                                 for v in signature(self.funcs[n]).parameters.keys()
                             ]
                         )
                     }
                 )
-            return data[var_of]
+            return kwargs[var_of]
 
         # Generate docstring
         get_value_of.__doc__ = (
-            f"Calculate ``{var_of}``."
+            f"Calculate `{var_of}`."
             + "\n\nParameters\n----------"
-            + "\nvalues : dict"
+            + "\nkwargs : dict"
             + "\n    Key-value pairs for the following parameters:"
         )
-        for p in nodes_vo_all:
-            if p in self.nodes_original:
+        for p in self.nodes_original:
+            if p in nodes_vo_all:
                 get_value_of.__doc__ += f"\n        {p}"
         get_value_of.__doc__ += "\n\nReturns\n-------"
         get_value_of.__doc__ += f"\n{var_of}"
+        get_value_of.args_list = [n for n in self.nodes_original if n in nodes_vo_all]
         return get_value_of
 
     def _get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with ``_get_func_of`` so that one of its
-        kwargs is instead a positional arg (and which can thus be gradded).
+        """Reorganise a function created with ``_get_func_of`` so that one of
+        its kwargs is instead a positional arg (and which can thus be gradded).
 
         Parameters
         ----------
@@ -1770,18 +1771,18 @@ class CO2System(UserDict):
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and store
-        it in `sys.grads[var_of][var_wrt]`.  If there is already a value there,
-        then that value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt` and
+        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
+        there, then that value is returned instead of recalculating.
 
         Parameters
         ----------
         var_of : str
             The name of the variable to get the derivative of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.  This
-            must be one of the fixed values provided when creating the `CO2System`,
-            i.e., listed in its `nodes_original` attribute.
+            The name of the variable to get the derivative with respect to.
+            This must be one of the fixed values provided when creating the
+            `CO2System`, i.e., listed in its `nodes_original` attribute.
         """
         assert var_wrt in self.nodes_original, (
             "`var_wrt` must be one of `sys.nodes_original!`"
@@ -1838,8 +1839,8 @@ class CO2System(UserDict):
         return {k: self.data[k] for k in self.nodes_original}
 
     def propagate(self, uncertainty_into, uncertainty_from):
-        """Propagate independent uncertainties through the calculations.  Covariances
-        are not accounted for.
+        """Propagate independent uncertainties through the calculations.
+        Covariances are not accounted for.
 
         New entries are added in the `uncertainty` attribute, for example:
 
