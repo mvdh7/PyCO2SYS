@@ -714,6 +714,17 @@ def get_graph_opts(exclude=[]):
     return graph_opts
 
 
+def icase_to_params(icase):
+    if icase > 100:
+        p1 = int(np.floor(icase / 100))
+        p2 = int(icase - p1 * 100)
+        par1 = parameters_core[p1 - 1]
+        par2 = parameters_core[p2 - 1]
+        return par1, par2
+    elif icase > 0:
+        return [parameters_core[icase - 1]]
+
+
 # DO NOT CHANGE THE ORDER OF THE ITEMS IN THIS TUPLE!!!
 parameters_core = (
     "alkalinity",  # 1
@@ -994,6 +1005,10 @@ class CO2System(UserDict):
         The known parameters (either user provided or solved for).
     funcs : dict
         Functions that connect the parameters to each other.
+    grads_preadjust : dict
+        If this `CO2System` was created using `adjust`: derivatives of DIC and
+        alkalinity with respect to the original known pair of core carbonate
+        system parameters and original temperature and pressure.
     graph : nx.DiGraph
         The graph of calculations.
     icase : int
@@ -1068,6 +1083,7 @@ class CO2System(UserDict):
         # Assemble graphs and computation functions
         self.graph, self.funcs, self.data = self._assemble(self.icase, data)
         self.grads = {}
+        self.grads_preadjust = {}
         self.uncertainty = {}
         self.requested = set()  # keep track of all requested parameters
         self.pd_index = pd_index
@@ -1677,6 +1693,7 @@ class CO2System(UserDict):
             data["pressure"] = pressure
         else:
             data["pressure"] = self.data["pressure"]
+        # Create and solve the new CO2System
         sys = CO2System(
             **data,
             **self.opts,
@@ -1685,6 +1702,13 @@ class CO2System(UserDict):
             xr_shape=self.xr_shape,
         )
         sys.solve(parameters=self.data)
+        # Get derivatives w.r.t. original par1, par2, temperature and pressure
+        for of in ["alkalinity", "dic"]:
+            for wrt in [*icase_to_params(self.icase), "temperature", "pressure"]:
+                self.get_grad(of, wrt)
+                if of not in sys.grads_preadjust:
+                    sys.grads_preadjust[of] = {}
+                sys.grads_preadjust[of][wrt] = self.grads[of][wrt]
         return sys
 
     def _get_func_of(self, var_of):
@@ -1838,7 +1862,42 @@ class CO2System(UserDict):
     def get_values_original(self):
         return {k: self.data[k] for k in self.nodes_original}
 
-    def propagate(self, uncertainty_into, uncertainty_from):
+    def set_uncertainty(self, **kwargs):
+        for k, v in kwargs.items():
+            assert k in self.nodes_original, (
+                "Uncertainty can be assigned only for user-provided parameters."
+            )
+            self.uncertainty[k] = v
+        return self
+
+    def propagate(self, uncertainty_into=None):
+        """Propagate independent uncertainties through the calculations.
+        Covariances are not accounted for.
+
+        New entries are added in the `uncertainty` attribute, for example:
+
+            co2s = (
+                pyco2.sys(dic=2100, alkalinity=2300)
+                .set_uncertainty(dic=2, alkalinity=1.5)
+            )
+            co2s.propagate("pH")
+            co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
+            co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
+
+        Parameters
+        ----------
+        uncertainty_into : list or str
+            The parameter(s) to calculate the uncertainty in.  If `None`
+            (default), then the list of all parameters that have been directly
+            solved for is used.
+        """
+        uncertainty_from = {
+            k: self.uncertainty[k] for k in self.nodes_original if k in self.uncertainty
+        }
+        self._propagate(uncertainty_into, uncertainty_from)
+        return self
+
+    def _propagate(self, uncertainty_into, uncertainty_from):
         """Propagate independent uncertainties through the calculations.
         Covariances are not accounted for.
 
@@ -1857,9 +1916,12 @@ class CO2System(UserDict):
             The parameters to propagate the uncertainty from (keys) and their
             uncertainties (values).
         """
-        self.solve(uncertainty_into)
-        if isinstance(uncertainty_into, str):
+        if uncertainty_into is None:
+            uncertainty_into = self.requested
+        elif isinstance(uncertainty_into, str):
             uncertainty_into = [uncertainty_into]
+        uncertainty_into = [k for k in uncertainty_into if k not in self.nodes_original]
+        self.solve(uncertainty_into)
         for var_in in uncertainty_into:
             # This should always be reset to zero and all values wiped, even if
             # it already exists (so you don't end up with old uncertainty_from
@@ -2000,9 +2062,9 @@ class CO2System(UserDict):
         ax=None,
         exclude_nodes=None,
         show_tsp=True,
-        show_unknown=True,
+        show_unknown=False,
         keep_unknown=None,
-        show_isolated=True,
+        show_isolated=False,
         skip_nodes=None,
         prog_graphviz=None,
         root_graphviz=None,

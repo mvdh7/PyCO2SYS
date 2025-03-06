@@ -45,7 +45,14 @@ d_dic = grad(dic_from_ph_alkalinity, argnums=(0, 1, 2))(ph, alkalinity, temperat
 print([d.item() for d in d_dic])
 
 #
-co2s = pyco2.sys(pH=ph, alkalinity=alkalinity, temperature=temperature_0).solve("dic")
+co2s = (
+    pyco2.sys(pH=ph, alkalinity=alkalinity, temperature=temperature_0)
+    .set_uncertainty(pH=0.01, alkalinity=2)
+    .solve(["dic", "alkalinity"])
+    .propagate()
+)
+
+# %%
 testfunc = co2s._get_func_of("k_H2CO3")
 
 
@@ -66,3 +73,5 @@ def make_positional(get_value_of):
 
 
 tf = make_positional(testfunc)
+
+co2a = co2s.adjust(temperature=12)
