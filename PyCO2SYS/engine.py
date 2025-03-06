@@ -739,6 +739,22 @@ def icase_to_params(icase):
         return [parameters_core[icase - 1]]
 
 
+def make_positional(get_value_of):
+    assert hasattr(get_value_of, "args_list")
+
+    def func_positional(*args):
+        kwargs = {k: v for k, v in zip(get_value_of.args_list, args)}
+        return get_value_of(**kwargs)
+
+    func_positional.__doc__ = (
+        get_value_of.__doc__.replace("kwargs", "args")
+        .replace("dict", "tuple")
+        .replace("Key-value pairs for", "Values of")
+    )
+    func_positional.args_list = get_value_of.args_list
+    return func_positional
+
+
 # DO NOT CHANGE THE ORDER OF THE ITEMS IN THIS TUPLE!!!
 parameters_core = (
     "alkalinity",  # 1
@@ -796,6 +812,26 @@ opts_default = {
     "opt_Mg_calcite_type": 2,
     "opt_Mg_calcite_kt_Tdep": 1, # TODO should be ideal mixing
 }
+
+# Parameters that do not change between input and output conditions
+condition_independent = (
+    "alkalinity",
+    "Ca",
+    "dic",
+    "gas_constant",
+    "ionic_strength",
+    "Mg_percent",
+    "pressure_atmosphere",
+    "salinity",
+    "total_ammonia",
+    "total_borate",
+    "total_fluoride",
+    "total_phosphate",
+    "total_silicate",
+    "total_sulfate",
+    "total_sulfide",
+    "total_nitrite",
+)
 
 # Define labels for parameter plotting
 set_node_labels = {
@@ -909,6 +945,7 @@ set_node_labels = {
     "opt_to_nbs": r"$_*^\mathrm{N}Y$",
     "opt_to_sws": r"$_*^\mathrm{S}Y$",
     "pCO2": r"$p\mathrm{CO}_2$",
+    "pH": "pH",
     "pH_free": r"pH$_\mathrm{F}$",
     "pH_nbs": r"pH$_\mathrm{N}$",
     "pH_sws": r"pH$_\mathrm{S}$",
@@ -941,23 +978,12 @@ set_node_labels = {
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
 }
-
-# Parameters that do not change between input and output conditions
-condition_independent = (
-    "alkalinity",
-    "Ca",
-    "dic",
-    "ionic_strength",
-    "Mg_percent",
-    "salinity",
-    "total_ammonia",
-    "total_borate",
-    "total_fluoride",
-    "total_phosphate",
-    "total_silicate",
-    "total_sulfate",
-    "total_sulfide",
-    "total_nitrite",
+set_node_labels.update(
+    {
+        k + "__pre": r"$^\pi$" + v
+        for k, v in set_node_labels.items()
+        if k not in condition_independent
+    }
 )
 
 
@@ -971,6 +997,44 @@ def _remove_jax_overhead(d):
             d[k] = v.__array__()
         except AttributeError:
             pass
+
+
+def assemble_graph(icase, opts):
+    # Deal with tricky special cases
+    if icase == 207:
+        graph_opts = get_graph_opts()
+    else:
+        graph_opts = get_graph_opts(exclude="opt_HCO3_root")
+    # Assemble graph and functions
+    funcs = get_funcs.copy()
+    try:
+        graph = nx.compose(graph_fixed, graph_core[icase])
+        funcs.update(get_funcs_core[icase])
+    except KeyError:
+        graph = graph_fixed.copy()
+    for opt, v in opts.items():
+        graph = nx.compose(graph, graph_opts[opt][v])
+        funcs.update(get_funcs_opts[opt][v])
+    # If fCO2 is not accessible, we can't calculate bh with
+    # opt_fCO2_temperature = 1, so use a default constant bh value instead
+    if icase < 100 and icase not in [4, 5, 8, 9]:
+        graph.remove_nodes_from(["fCO2", "bh"])
+        funcs["bh"] = lambda: upsilon.bh_TOG93_H24
+        graph.add_edge("bh", "upsilon")
+    # If pH is not accessible, we can't calculate it on different scales
+    if icase < 100 and icase not in [3]:
+        pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
+        for v in pH_vars:
+            graph.remove_node(v)
+            if v in funcs:
+                funcs.pop(v)
+    nx.set_node_attributes(graph, funcs, name="func")
+    args = {}
+    for node, attrs in graph.nodes.items():
+        if "func" in attrs:
+            args[node] = list(signature(attrs["func"]).parameters)
+    nx.set_node_attributes(graph, args, name="args")
+    return graph
 
 
 class CO2System(UserDict):
@@ -1011,6 +1075,8 @@ class CO2System(UserDict):
 
     Advanced attributes
     -------------------
+    adjusted : bool
+        Whether this system was generated using `adjust`.
     c_state : dict
         Colours for plotting the state graph (see `plot_graph`).
     c_valid : dict
@@ -1019,10 +1085,6 @@ class CO2System(UserDict):
         Whether the validity of the system has been checked.
     data : dict
         The known parameters (either user provided or solved for).
-    grads_preadjust : dict
-        If this `CO2System` was created using `adjust`: derivatives of DIC and
-        alkalinity with respect to the original known pair of core carbonate
-        system parameters and original temperature and pressure.
     graph : nx.DiGraph
         The graph of calculations.
     icase : int
@@ -1045,7 +1107,14 @@ class CO2System(UserDict):
     `items` will run only over parameters that have already been solved for.
     """
 
-    def __init__(self, pd_index=None, xr_dims=None, xr_shape=None, **kwargs):
+    def __init__(
+        self,
+        graph=None,
+        pd_index=None,
+        xr_dims=None,
+        xr_shape=None,
+        **kwargs,
+    ):
         """Initialise a `CO2System`.
 
         For advanced users only - use `pyco2.sys` instead.
@@ -1059,7 +1128,7 @@ class CO2System(UserDict):
             The known parameters of the carbonate system to be modelled.
             Values must be scalar floats or NumPy arrays with dtype `float`.
             See the documentation for `pyco2.sys` for a list of possible keys.
-        pd_index, xr_dims, xr_shape
+        graph, pd_index, xr_dims, xr_shape
             For internal use only.
 
         Returns
@@ -1095,7 +1164,12 @@ class CO2System(UserDict):
         if self.icase not in [0, 4, 5, 8, 9]:
             self.opts.pop("opt_fCO2_temperature")
         # Assemble graphs and computation functions
-        self.graph, self.data = self._assemble(self.icase, data)
+        if graph is None:
+            self.graph = assemble_graph(self.icase, self.opts)
+        else:
+            assert isinstance(graph, nx.DiGraph)
+            self.graph = graph.copy()
+        self._parse_data(data)
         self.grads = {}
         self.grads_preadjust = {}
         self.uncertainty = {}
@@ -1120,6 +1194,7 @@ class CO2System(UserDict):
             1: "xkcd:sky blue",  # valid
         }
         self.checked_valid = False
+        self.adjusted = False
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -1158,42 +1233,14 @@ class CO2System(UserDict):
         # Don't allow the user to assign new key-value pairs to the dict
         raise RuntimeError("Item assignment is not supported.")
 
-    def _assemble(self, icase, data):
-        # Deal with tricky special cases
-        if icase == 207:
-            graph_opts = get_graph_opts()
-        else:
-            graph_opts = get_graph_opts(exclude="opt_HCO3_root")
-        # Assemble graph and functions
-        funcs = get_funcs.copy()
-        try:
-            graph = nx.compose(graph_fixed, graph_core[icase])
-            funcs.update(get_funcs_core[icase])
-        except KeyError:
-            graph = graph_fixed.copy()
-        for opt, v in self.opts.items():
-            graph = nx.compose(graph, graph_opts[opt][v])
-            funcs.update(get_funcs_opts[opt][v])
-        # If fCO2 is not accessible, we can't calculate bh with
-        # opt_fCO2_temperature = 1, so use a default constant bh value instead
-        if icase < 100 and icase not in [4, 5, 8, 9]:
-            graph.remove_nodes_from(["fCO2", "bh"])
-            funcs["bh"] = lambda: upsilon.bh_TOG93_H24
-            graph.add_edge("bh", "upsilon")
-        # If pH is not accessible, we can't calculate it on different scales
-        if icase < 100 and icase not in [3]:
-            pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
-            for v in pH_vars:
-                graph.remove_node(v)
-                if v in funcs:
-                    funcs.pop(v)
+    def _parse_data(self, data):
         # Save arguments
         to_remove = []
         for k, v in data.items():
             if v is not None:
-                if k in graph.nodes:
+                if k in self.graph.nodes:
                     # state 1 means that the value was provided as an argument
-                    nx.set_node_attributes(graph, {k: 1}, name="state")
+                    nx.set_node_attributes(self.graph, {k: 1}, name="state")
                 else:
                     # TODO need to rethink how it is judged whether a value is
                     # allowed here --- things that are not part of the graph
@@ -1211,12 +1258,11 @@ class CO2System(UserDict):
         self.ignored = to_remove.copy()
         # Assign default values
         for k, v in values_default.items():
-            if k not in data and k in graph.nodes:
+            if k not in data and k in self.graph.nodes:
                 data[k] = v
-                nx.set_node_attributes(graph, {k: 1}, name="state")
+                nx.set_node_attributes(self.graph, {k: 1}, name="state")
         self.nodes_original = list(k for k, v in data.items() if v is not None)
-        nx.set_node_attributes(graph, funcs, name="func")
-        return graph, data
+        self.data = data
 
     def solve(self, parameters=None, store_steps=1):
         """Calculate parameter(s) and store them internally.
@@ -1366,10 +1412,8 @@ class CO2System(UserDict):
         for p in parameters_all:
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
-                func = self.graph.nodes[p]["func"]
-                self_data[p] = func(
-                    *[self_data[r] for r in signature(func).parameters.keys()]
-                )
+                attrs = self.graph.nodes[p]
+                self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
@@ -1380,8 +1424,17 @@ class CO2System(UserDict):
                         store_steps == 1
                         and not p.startswith("factor_k_")
                         and not (p.startswith("k_") and p.endswith("_sws"))
+                        and not (p.startswith("k_") and p.endswith("_sws__pre"))
                         and not p.endswith("_1atm")
-                        and p not in ["sws_to_opt", "opt_to_free", "ionic_strength"]
+                        and not p.endswith("_1atm__pre")
+                        and p
+                        not in [
+                            "sws_to_opt",
+                            "sws_to_opt__pre",
+                            "opt_to_free",
+                            "opt_to_free__pre",
+                            "ionic_strength",
+                        ]
                     )
                     |  # If store_steps is 2, store everything
                     (store_steps == 2)
@@ -1396,7 +1449,7 @@ class CO2System(UserDict):
                         # state = 2 means that the value was calculated internally
                         # as an intermediate to a requested parameter
                         nx.set_node_attributes(self.graph, {p: 2}, name="state")
-                    for f in signature(func).parameters.keys():
+                    for f in attrs["args"]:
                         nx.set_edge_attributes(self.graph, {(f, p): 2}, name="state")
         # Get rid of jax overhead on results
         self_data = {k: v for k, v in self_data.items() if k in store_parameters}
@@ -1718,15 +1771,6 @@ class CO2System(UserDict):
             xr_shape=self.xr_shape,
         )
         sys.solve(parameters=self.data)
-        # Get derivatives w.r.t. original par1, par2, temperature and pressure
-        if icase > 100:
-            for of in ["alkalinity", "dic"]:
-                for wrt in [*icase_to_params(self.icase), "temperature", "pressure"]:
-                    self.get_grad(of, wrt)
-                    if of not in sys.grads_preadjust:
-                        sys.grads_preadjust[of] = {}
-                    sys.grads_preadjust[of][wrt] = self.grads[of][wrt]
-        # TODO also deal with single-parameter system here
         return sys
 
     def _get_func_of(self, var_of):
@@ -1759,12 +1803,7 @@ class CO2System(UserDict):
                 kwargs.update(
                     {
                         n: self.graph.nodes[n]["func"](
-                            *[
-                                kwargs[v]
-                                for v in signature(
-                                    self.graph.nodes[n]["func"]
-                                ).parameters.keys()
-                            ]
+                            *[kwargs[v] for v in self.graph.nodes[n]["args"]]
                         )
                     }
                 )
@@ -1891,6 +1930,8 @@ class CO2System(UserDict):
                 or k.endswith("__f")
             ), "Uncertainty can be assigned only for user-provided parameters."
             self.uncertainty[k] = v
+        # Recalculate any uncertainties that have already been propagated
+        self.propagate(self.uncertainty)
         return self
 
     def propagate(self, uncertainty_into=None):
@@ -2242,7 +2283,7 @@ class CO2System(UserDict):
             # First, assign validity for functions that do have valid ranges
             # (shown by node fill colour on the graph plot)
             if (
-                func in self.graph.nodes[n]
+                "func" in self.graph.nodes[n]
                 and n not in ignore
                 and hasattr(self.graph.nodes[n]["func"], "valid")
             ):
