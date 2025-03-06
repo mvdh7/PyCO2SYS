@@ -1003,8 +1003,6 @@ class CO2System(UserDict):
         Whether the validity of the system has been checked.
     data : dict
         The known parameters (either user provided or solved for).
-    funcs : dict
-        Functions that connect the parameters to each other.
     grads_preadjust : dict
         If this `CO2System` was created using `adjust`: derivatives of DIC and
         alkalinity with respect to the original known pair of core carbonate
@@ -1081,7 +1079,7 @@ class CO2System(UserDict):
         if self.icase not in [0, 4, 5, 8, 9]:
             self.opts.pop("opt_fCO2_temperature")
         # Assemble graphs and computation functions
-        self.graph, self.funcs, self.data = self._assemble(self.icase, data)
+        self.graph, self.data = self._assemble(self.icase, data)
         self.grads = {}
         self.grads_preadjust = {}
         self.uncertainty = {}
@@ -1201,7 +1199,8 @@ class CO2System(UserDict):
                 data[k] = v
                 nx.set_node_attributes(graph, {k: 1}, name="state")
         self.nodes_original = list(k for k, v in data.items() if v is not None)
-        return graph, funcs, data
+        nx.set_node_attributes(graph, funcs, name="func")
+        return graph, data
 
     def solve(self, parameters=None, store_steps=1):
         """Calculate parameter(s) and store them internally.
@@ -1351,8 +1350,9 @@ class CO2System(UserDict):
         for p in parameters_all:
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
-                self_data[p] = self.funcs[p](
-                    *[self_data[r] for r in signature(self.funcs[p]).parameters.keys()]
+                func = self.graph.nodes[p]["func"]
+                self_data[p] = func(
+                    *[self_data[r] for r in signature(func).parameters.keys()]
                 )
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
@@ -1380,7 +1380,7 @@ class CO2System(UserDict):
                         # state = 2 means that the value was calculated internally
                         # as an intermediate to a requested parameter
                         nx.set_node_attributes(self.graph, {p: 2}, name="state")
-                    for f in signature(self.funcs[p]).parameters.keys():
+                    for f in signature(func).parameters.keys():
                         nx.set_edge_attributes(self.graph, {(f, p): 2}, name="state")
         # Get rid of jax overhead on results
         self_data = {k: v for k, v in self_data.items() if k in store_parameters}
@@ -1703,12 +1703,14 @@ class CO2System(UserDict):
         )
         sys.solve(parameters=self.data)
         # Get derivatives w.r.t. original par1, par2, temperature and pressure
-        for of in ["alkalinity", "dic"]:
-            for wrt in [*icase_to_params(self.icase), "temperature", "pressure"]:
-                self.get_grad(of, wrt)
-                if of not in sys.grads_preadjust:
-                    sys.grads_preadjust[of] = {}
-                sys.grads_preadjust[of][wrt] = self.grads[of][wrt]
+        if icase > 100:
+            for of in ["alkalinity", "dic"]:
+                for wrt in [*icase_to_params(self.icase), "temperature", "pressure"]:
+                    self.get_grad(of, wrt)
+                    if of not in sys.grads_preadjust:
+                        sys.grads_preadjust[of] = {}
+                    sys.grads_preadjust[of][wrt] = self.grads[of][wrt]
+        # TODO also deal with single-parameter system here
         return sys
 
     def _get_func_of(self, var_of):
@@ -1740,10 +1742,12 @@ class CO2System(UserDict):
             for n in nx.topological_sort(graph_vo):
                 kwargs.update(
                     {
-                        n: self.funcs[n](
+                        n: self.graph.nodes[n]["func"](
                             *[
                                 kwargs[v]
-                                for v in signature(self.funcs[n]).parameters.keys()
+                                for v in signature(
+                                    self.graph.nodes[n]["func"]
+                                ).parameters.keys()
                             ]
                         )
                     }
@@ -1864,9 +1868,12 @@ class CO2System(UserDict):
 
     def set_uncertainty(self, **kwargs):
         for k, v in kwargs.items():
-            assert k in self.nodes_original, (
-                "Uncertainty can be assigned only for user-provided parameters."
-            )
+            assert (
+                k in self.nodes_original
+                or k.startswith("pk_")  # TODO revise these!
+                or k.startswith("k_")
+                or k.endswith("__f")
+            ), "Uncertainty can be assigned only for user-provided parameters."
             self.uncertainty[k] = v
         return self
 
@@ -2218,9 +2225,13 @@ class CO2System(UserDict):
         for n in nx.topological_sort(self.graph):
             # First, assign validity for functions that do have valid ranges
             # (shown by node fill colour on the graph plot)
-            if n in self.funcs and n not in ignore and hasattr(self.funcs[n], "valid"):
+            if (
+                func in self.graph.nodes[n]
+                and n not in ignore
+                and hasattr(self.graph.nodes[n]["func"], "valid")
+            ):
                 n_valid = []
-                for p, p_range in self.funcs[n].valid.items():
+                for p, p_range in self.graph.nodes[n]["func"].valid.items():
                     # If all predecessor parameters fall within valid ranges, it's valid
                     if np.all(
                         (self.data[p] >= p_range[0]) & (self.data[p] <= p_range[1])
