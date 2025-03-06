@@ -52,7 +52,6 @@ co2s = (
     .propagate()
 )
 
-# %%
 testfunc = co2s._get_func_of("k_H2CO3")
 
 
