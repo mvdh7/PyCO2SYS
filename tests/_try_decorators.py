@@ -38,4 +38,5 @@ co2s.plot_graph(
     show_isolated=False,
     show_unknown=False,
     prog_graphviz="dot",
+    mode="valid",
 )

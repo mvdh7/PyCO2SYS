@@ -2,9 +2,35 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
+
+data = pd.DataFrame({"dic": [2000, 2100], "pH": 8.1, "temperature_2": "1"})
+co2s = pyco2.sys(data=data[data.dic == 2000]).adjust(
+    temperature=data.temperature_2[data.dic == 2000]
+)
+
+# %%
+
+dic = xr.DataArray(np.ones((30, 5)) * 2000, dims=("lat", "lon"))
+alkalinity = xr.DataArray(np.ones((30, 5)) * 2200, dims=("lat", "lon"))
+temperature = xr.DataArray(np.ones((30, 5)) * 25, dims=("lat", "lon"))
+temperature_2 = xr.DataArray(np.ones((5, 30)) * 0, dims=("lon", "lat"))
+data = xr.Dataset(
+    {
+        "dic": dic,
+        "alkalinity": alkalinity,
+        "temperature": temperature,
+        "temperature_2": temperature_2,
+    }
+)
+
+co2s = pyco2.sys(data=data).solve("pH")
+co2sa = co2s.adjust(temperature=temperature_2)
+
+# %%
 
 co2s = pyco2.sys(
     data=pd.DataFrame(
@@ -22,8 +48,10 @@ print(co2s.CO3)
 # %%
 co2s = pyco2.sys(
     dic=2100,
-    pH=8.1,
+    ph=8.1,
 )
+
+# %%
 co2s.solve(["CO3"], store_steps=1)
 node_size = 2100
 co2s.plot_graph(
@@ -132,3 +160,49 @@ co2s.propagate("pH", {"alkalinity": 2, "pCO2": 1})
 
 # %%
 co2s.plot_graph(show_unknown=False)
+
+# %%
+kwargs = {}
+a = np.array([[0, 1, 2], [3, 4, 5]])
+b = a.transpose()
+xa = xr.DataArray(a, dims=("a_row", "a_col"))
+xb = xr.DataArray(b, dims=("b_row", "b_col"))
+data = xr.Dataset({"xa": xa, "xb": xb})
+xr_dims = list(data.sizes.keys())
+xr_shape = list(data.sizes.values())
+for k, v in data.items():
+    # # Version 1: rubbish
+    # ndims = []
+    # for d in xr_dims:
+    #     if d in v.sizes:
+    #         ndims.append(v.sizes[d])
+    #     else:
+    #         ndims.append(1)
+    # # Version 2: works if all dims present but not with extras
+    # vdata = np.expand_dims(v.data, list(range(len(v.sizes), len(xr_dims))))
+    # order = []
+    # for d in v.sizes:
+    #     order.append(xr_dims.index(d))
+    # for x in range(len(v.sizes), len(xr_dims)):
+    #     order.append(x + 1)
+    # kwargs[k] = np.transpose(vdata, order)
+    # Version 3: works for tests so far; need to try more complicated shapes
+    # (mostly, more incompatible axes)
+    v_dims = list(v.sizes)
+    v_data = v.data
+    move_from = []
+    extra_dims = 0
+    for i, d in enumerate(xr_dims):
+        if d in v_dims:
+            move_from.append(v_dims.index(d))
+        else:
+            move_from.append(len(v_dims) + extra_dims)
+            v_data = np.expand_dims(v_data, -1)
+            extra_dims += 1
+    kwargs[k] = np.moveaxis(v_data, move_from, range(len(xr_dims)))
+
+# %%
+from PyCO2SYS.engine import da_to_array
+
+na = da_to_array(xa, xr_dims)
+nb = da_to_array(xb, xr_dims)

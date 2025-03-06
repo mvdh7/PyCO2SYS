@@ -787,6 +787,7 @@ set_node_labels = {
     "Ca": r"$[\mathrm{Ca}^{2+}]$",
     "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
     "CO3": "[CO$_3^{2–}$]",
+    "d_lnOmega__d_CO3": "dlnΩ/d[CO$_3^{2-}$]",
     "dic": r"$T_\mathrm{C}$",
     "F": r"$[\mathrm{F}^-]$",
     "factor_k_BOH3": r"$P_\mathrm{B}$",
@@ -798,11 +799,13 @@ set_node_labels = {
     "factor_k_H3PO4": r"$P_\mathrm{P1}$",
     "factor_k_HCO3": "$P_2$",
     "factor_k_HF": r"$P_\mathrm{HF}$",
+    "factor_k_HNO2": r"$P_{\mathrm{HNO}_2}$",
     "factor_k_HPO4": r"$P_\mathrm{P3}$",
     "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
     "factor_k_NH3": r"$P_\mathrm{NH_3}$",
     "factor_k_Si": r"$P_\mathrm{Si}$",
     "fCO2": "fCO$_2$",
+    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
     "fugacity_factor": "$ƒ$",
     "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
     "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
@@ -851,6 +854,10 @@ set_node_labels = {
     "k_HCO3": "$K_2^*$",
     "k_HF_free_1atm": r"$K_\mathrm{HF}^\mathrm{F0}$",
     "k_HF_free": r"$K_\mathrm{HF}^\mathrm{F}$",
+    "k_HNO2_sws_1atm": r"$K_\mathrm{HNO_2}^\mathrm{S0}$",
+    "k_HNO2_sws": r"$K_\mathrm{HNO_2}^\mathrm{S}$",
+    "k_HNO2_total_1atm": r"$K_\mathrm{HNO_2}^\mathrm{T0}$",
+    "k_HNO2": r"$K_\mathrm{HNO_2}^*$",
     "k_HPO4_sws_1atm": r"$K_\mathrm{P3}^\mathrm{S0}$",
     "k_HPO4_sws": r"$K_\mathrm{P3}^\mathrm{S}$",
     "k_HPO4": r"$K_\mathrm{P3}^*$",
@@ -858,18 +865,22 @@ set_node_labels = {
     "k_HSO4_free": r"$K_\mathrm{HSO_4}^\mathrm{F}$",
     "k_NH3_sws_1atm": r"$K_\mathrm{NH_3}^\mathrm{S0}$",
     "k_NH3_sws": r"$K_\mathrm{NH_3}^\mathrm{S}$",
+    "k_NH3_total_1atm": r"$K_\mathrm{NH_3}^\mathrm{T0}$",
     "k_NH3": r"$K_\mathrm{NH_3}^*$",
     "k_Si_sws_1atm": r"$K_\mathrm{Si}^\mathrm{S0}$",
     "k_Si_sws": r"$K_\mathrm{Si}^\mathrm{S}$",
     "k_Si": r"$K_\mathrm{Si}^*$",
     "Mg_percent": "Mg%",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
+    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "NH3": r"$[\mathrm{NH}_3]$",
     "NH4": r"$[\mathrm{NH}_4^+]$",
     "OH": r"$[\mathrm{OH}^–]$",
     "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
     "omega_dic": r"$\omega_{C_\mathrm{T}}$",
     "opt_to_free": r"$_*^\mathrm{F}Y$",
+    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
+    "opt_to_sws": r"$_*^\mathrm{S}Y$",
     "pCO2": r"$p\mathrm{CO}_2$",
     "pH_free": r"pH$_\mathrm{F}$",
     "pH_nbs": r"pH$_\mathrm{N}$",
@@ -885,6 +896,7 @@ set_node_labels = {
     "salinity": "$S$",
     "saturation_aragonite": r"$Ω_\mathrm{a}$",
     "saturation_calcite": r"$Ω_\mathrm{c}$",
+    "saturation_Mg_calcite": r"$Ω_\mathrm{c(Mg)}$",
     "SO4": r"$[\mathrm{SO}_4^{2–}]$",
     "substrate_inhibitor_ratio": "SIR",
     "sws_to_opt": r"$_\mathrm{S}^*Y$",
@@ -893,6 +905,7 @@ set_node_labels = {
     "total_ammonia": r"$T_\mathrm{NH_3}$",
     "total_borate": r"$T_\mathrm{B}$",
     "total_fluoride": r"$T_\mathrm{F}$",
+    "total_nitrite": r"$T_\mathrm{HNO_2}$",
     "total_phosphate": r"$T_\mathrm{P}$",
     "total_silicate": r"$T_\mathrm{Si}$",
     "total_sulfate": r"$T_\mathrm{SO_4}$",
@@ -934,7 +947,96 @@ def _remove_jax_overhead(d):
 
 
 class CO2System(UserDict):
+    """An equilibrium model of the marine carbonate system.
+
+    Methods
+    -------
+    adjust
+        Adjust the system to a different temperature and/or pressure.
+    get_grads
+        Calculate derivatives of parameters with respect to each other.
+    keys_all
+        Return a tuple of all possible results keys, including those that have
+        not yet been solved for.
+    plot_graph
+        Draw graphs showing the relationships between the different parameters.
+    propagate
+        Propagate independent uncertainties through the calculations.
+    solve
+        Calculate parameter(s) and store them internally.
+    to_pandas
+        Return parameters as a pandas `Series` or `DataFrame`.
+    to_xarray
+        Return parameters as an xarray `DataArray` or `Dataset`.
+
+    Attributes
+    ----------
+    grads : dict
+        Derivatives of parameters with respect to each other, calculated with
+        `get_grads`.
+    opts : dict
+        The optional settings being used for calculations.  Constructed when
+        the `CO2System` is initalised; subsequent changes will not affect any
+        calculations.
+    uncertainty : dict
+        Uncertainties in parameters with respect to each other, calculated with
+        `propagate`.
+
+    Advanced attributes
+    -------------------
+    c_state : dict
+        Colours for plotting the state graph (see `plot_graph`).
+    c_valid : dict
+        Colours for plotting the validity graph (see `plot_graph`)
+    checked_valid : bool
+        Whether the validity of the system has been checked.
+    data : dict
+        The known parameters (either user provided or solved for).
+    funcs : dict
+        Functions that connect the parameters to each other.
+    graph : nx.DiGraph
+        The graph of calculations.
+    icase : int
+        Which known core parameters were provided.
+    ignored : list
+        Which kwargs or keys in `data` were ignored.
+    nodes_original : tuple
+        Which parameters were user-provided or took fixed default values.
+    pd_index : pd.Index
+        If `data` was a pandas `DataFrame`, this contains its index.
+    requested : list
+        Which parameters have been directly requested for solving.
+    xr_dims : tuple
+        If `data` was an xarray `Dataset`, this contains all its dimensions.
+    xr_shape : tuple
+        If `data` was an xarray `Dataset`, this contains its fullest shape.
+
+    In addition to the methods listed above, all of the methods usually
+    available for a `dict` can be used.  Methods such as `keys`, `values` and
+    `items` will run only over parameters that have already been solved for.
+    """
+
     def __init__(self, pd_index=None, xr_dims=None, xr_shape=None, **kwargs):
+        """Initialise a `CO2System`.
+
+        For advanced users only - use `pyco2.sys` instead.
+
+        Initialising the system directly requires that all kwargs are correctly
+        formatted as scalar floats or NumPy arrays with dtype `float`.
+
+        Parameters
+        ----------
+        kwargs
+            The known parameters of the carbonate system to be modelled.
+            Values must be scalar floats or NumPy arrays with dtype `float`.
+            See the documentation for `pyco2.sys` for a list of possible keys.
+        pd_index, xr_dims, xr_shape
+            For internal use only.
+
+        Returns
+        -------
+        CO2System
+        """
         super().__init__()
         opts = {k: v for k, v in kwargs.items() if k.startswith("opt_")}
         data = {k: v for k, v in kwargs.items() if k not in opts}
@@ -967,7 +1069,7 @@ class CO2System(UserDict):
         self.graph, self.funcs, self.data = self._assemble(self.icase, data)
         self.grads = {}
         self.uncertainty = {}
-        self.requested = set()  # keep track of all parameters that have been requested
+        self.requested = set()  # keep track of all requested parameters
         self.pd_index = pd_index
         if xr_dims is not None:
             assert xr_shape is not None
@@ -976,23 +1078,30 @@ class CO2System(UserDict):
             assert xr_shape is None
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
-        self.state_colours = {
+        self.c_state = {
             0: "xkcd:grey",  # unknown
             1: "xkcd:grass",  # provided by user i.e. known but not calculated
             2: "xkcd:azure",  # calculated en route to a user-requested parameter
             3: "xkcd:tangerine",  # calculated after direct user request
         }
+        self.c_valid = {
+            -1: "xkcd:light red",  # invalid
+            0: "xkcd:light grey",  # unknown
+            1: "xkcd:sky blue",  # valid
+        }
+        self.checked_valid = False
 
     def __getitem__(self, key):
-        # When the user requests a dict key that hasn't been solved for yet, then
-        # solve and provide the requested parameter
+        # When the user requests a dict key that hasn't been solved for yet,
+        # then solve and provide the requested parameter
         self.solve(parameters=key)
         if isinstance(key, list):
-            # If the user provides a list of keys to solve for, return all of them
-            # as a dict
+            # If the user provides a list of keys to solve for, return all of
+            # them as a dict
             return {k: self.data[k] for k in key}
         else:
-            # If a single key is requested, return the corresponding value(s) directly
+            # If a single key is requested, return the corresponding value(s)
+            # directly
             return self.data[key]
 
     def __getattr__(self, attr):
@@ -1000,7 +1109,8 @@ class CO2System(UserDict):
         # purely for convenience.
         # So, when the user tries to access something with dot notation...
         try:
-            # ... then if it's an attribute, return it (this is the standard behaviour).
+            # ... then if it's an attribute, return it (this is the standard
+            # behaviour).
             return object.__getattribute__(self, attr)
         except AttributeError:
             # But if it's not an attribute...
@@ -1009,9 +1119,9 @@ class CO2System(UserDict):
                 # been solved for...
                 return self.data[attr]
             except KeyError:
-                # ... but it if hasn't been solved for, throw an error.  The user
-                # needs to use the normal dict notation (or solve method) to solve
-                # for it.
+                # ... but it if hasn't been solved for, throw an error.  The
+                # user needs to use the normal dict notation (or solve method)
+                # to solve for it.
                 raise AttributeError(attr)
 
     def __setitem__(self, key, value):
@@ -1025,9 +1135,12 @@ class CO2System(UserDict):
         else:
             graph_opts = get_graph_opts(exclude="opt_HCO3_root")
         # Assemble graph and functions
-        graph = nx.compose(graph_fixed, graph_core[icase])
         funcs = get_funcs.copy()
-        funcs.update(get_funcs_core[icase])
+        try:
+            graph = nx.compose(graph_fixed, graph_core[icase])
+            funcs.update(get_funcs_core[icase])
+        except KeyError:
+            graph = graph_fixed.copy()
         for opt, v in self.opts.items():
             graph = nx.compose(graph, graph_opts[opt][v])
             funcs.update(get_funcs_opts[opt][v])
@@ -1055,15 +1168,22 @@ class CO2System(UserDict):
                     # TODO need to rethink how it is judged whether a value is
                     # allowed here --- things that are not part of the graph
                     # but that could be added as an isolated element should be
-                    # kept?  Or could change the warning below
-                    warnings.warn(f"'{k}' is not recognised - it will be ignored.")
+                    # kept?
                     to_remove.append(k)
         for k in to_remove:
             data.pop(k)
+        if len(to_remove) > 0:
+            warnings.warn(
+                "Some parameters were not recognised or not valid for this"
+                + " combination of known carbonate system parameters and are"
+                + " being ignored (see `CO2System.ignored`)"
+            )
+        self.ignored = to_remove.copy()
         # Assign default values
         for k, v in values_default.items():
             if k not in data and k in graph.nodes:
                 data[k] = v
+                nx.set_node_attributes(graph, {k: 1}, name="state")
         self.nodes_original = list(k for k, v in data.items() if v is not None)
         return graph, funcs, data
 
@@ -1073,36 +1193,139 @@ class CO2System(UserDict):
         Parameters
         ----------
         parameters : str or list of str, optional
-            Which parameter(s) to calculate and store, by default None, in which case
-            all possible parameters are calculated and stored internally.
+            Which parameter(s) to calculate and store, by default `None`, in
+            which case all possible parameters are calculated and stored
+            internally.  The full list of possible parameters is provided
+            below.
         store_steps : int, optional
-            Whether/which non-requested parameters calculated during intermediate
-            calculation steps should be stored, by default 1.  The options are
+            Whether/which non-requested parameters calculated during
+            intermediate calculation steps should be stored, by default `1`.
+            The options are
                 0 - store only the specifically requested parameters,
                 1 - store the most used set of intermediate parameters, or
                 2 - store the complete set of parameters.
+
+        Returns
+        -------
+        CO2System
+            The original `CO2System` including the newly solved parameters.
+
+        PARAMETERS THAT CAN BE SOLVED FOR
+        =================================
+        Note that some parameters may be available only for certain
+        combinations of core carbonate system parameters optional settings.
+
+        pH on different scales
+        ----------------------
+             Key | Description
+        -------: | :-----------------------------------------------------------
+              pH | pH on the scale specified by `opt_pH_scale`.
+        pH_total | pH on the total scale.
+          pH_sws | pH on the seawater scale.
+         pH_free | pH on the free scale.
+          pH_nbs | pH on the NBS scale.
+              fH | H+ activity coefficient for conversions to/from NBS scale.
+
+        Chemical speciation
+        -------------------
+        All are substance contents in units of µmol/kg.
+
+           Key | Description
+        -----: | :-------------------------------------------------------------
+        H_free | "Free" protons.
+            OH | Hydroxide ion.
+           CO3 | Carbonate ion.
+          HCO3 | Bicarbonate ion.
+           CO2 | Aqueous CO2.
+          BOH4 | Tetrahydroxyborate.
+          BOH3 | Boric acid.
+         H3PO4 | Phosphoric acid.
+         H2PO4 | Dihydrogen phosphate.
+          HPO4 | Monohydrogen phosphate.
+           PO4 | Phosphate.
+        H4SiO4 | Orthosilicic acid.
+        H3SiO4 | Trihydrogen orthosilicate.
+           NH3 | Ammonia.
+           NH4 | Ammonium.
+            HS | Bisulfide.
+           H2S | Hydrogen sulfide.
+          HSO4 | Bisulfate.
+           SO4 | Sulfate.
+            HF | Hydrofluoric acid.
+             F | Fluoride.
+          HNO2 | Nitrous acid.
+           NO2 | Nitrite.
+
+        Chemical buffer factors
+        -----------------------
+                              Key | Description
+        ------------------------: | :------------------------------------------
+                   revelle_factor | Revelle factor.
+                              psi | Psi of FCG94.
+                        gamma_dic | Buffer factors from ESM10.
+                         beta_dic | Buffer factors from ESM10.
+                        omega_dic | Buffer factors from ESM10.
+                 gamma_alkalinity | Buffer factors from ESM10.
+                  beta_alkalinity | Buffer factors from ESM10.
+                 omega_alkalinity | Buffer factors from ESM10.
+                         Q_isocap | Isocapnic quotient from HDW18.
+                  Q_isocap_approx | Approximate isocapnic quotient from HDW18.
+                       dlnfCO2_dT | temperature sensitivity of ln(fCO2).
+                       dlnpCO2_dT | temperature sensitivity of ln(pCO2).
+        substrate_inhibitor_ratio | HCO3/H_free, from B15.
+
+        Equilibrium constants
+        ---------------------
+        All are returned on the pH scale specified by `opt_pH_scale`.
+
+                Key | Description
+        ----------: | :--------------------------------------------------------
+              k_CO2 | Henry's constant for CO2.
+            k_H2CO3 | First dissociation constant for carbonic acid.
+             k_HCO3 | Second dissociation constant for carbonic acid.
+              k_H2O | Water dissociation constant.
+             k_BOH3 | Boric acid equilibrium constant.
+          k_HF_free | HF dissociation constant (always free scale).
+        k_HSO4_free | Bisulfate dissociation constant (always free scale).
+            k_H3PO4 | First dissociation constant for phosphoric acid.
+            k_H2PO4 | Second dissociation constant for phosphoric acid.
+             k_HPO4 | Third dissociation constant for phosphoric acid.
+               k_Si | Silicic acid dissociation constant.
+              k_NH3 | Ammonia equilibrium constant.
+              k_H2S | Hydrogen sulfide dissociation constant.
+             k_HNO2 | Nitrous acid dissociation constant.
+
+        Other results
+        -------------
+                    Key | Description (unit)
+        --------------: | :----------------------------------------------------
+                upsilon | Temperature-sensitivity of fCO2 (%/°C)
+        fugacity_factor | Converts between pCO2 and fCO2.
+              vp_factor | Vapour pressure factor, converts pCO2 and xCO2.
+           gas_constant | Universal gas constant (ml/bar/mol/K).
         """
         # Parse user-provided parameters (if there are any)
         if parameters is None:
-            # If no parameters are provided, then we solve for everything possible
+            # If no parameters are provided, then we solve for everything
+            # possible
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
-        self_data = self.data.copy()  # what was already known before this solve
-        # Remove known nodes from a copy of self.graph, so that ancestors of known
-        # nodes are not unnecessarily recomputed
+        self_data = self.data.copy()  # what was already known before solving
+        # Remove known nodes from a copy of self.graph, so that ancestors of
+        # known nodes are not unnecessarily recomputed
         graph_unknown = self.graph.copy()
         graph_unknown.remove_nodes_from([k for k in self_data if k not in parameters])
-        # Add intermediate parameters that we need to know in order to calculate
-        # the requested parameters
+        # Add intermediate parameters that we need to know in order to
+        # calculate the requested parameters
         parameters_all = parameters.copy()
         for p in parameters:
             parameters_all = parameters_all | nx.ancestors(graph_unknown, p)
-        # Convert the set of parameters into a list, exclude already-known ones,
-        # and organise the list into the order required for calculations
+        # Convert the set of parameters into a list, exclude already-known
+        # ones, and organise the list into the order required for calculations
         parameters_all = [
             p
             for p in nx.topological_sort(self.graph)
@@ -1147,6 +1370,7 @@ class CO2System(UserDict):
         self_data = {k: v for k, v in self_data.items() if k in store_parameters}
         _remove_jax_overhead(self_data)
         self.data.update(self_data)
+        return self
 
     def to_pandas(self, parameters=None, store_steps=1):
         """Return parameters as a pandas `Series` or `DataFrame`.  All parameters should
@@ -1204,19 +1428,19 @@ class CO2System(UserDict):
         Parameters
         ----------
         parameters : str or list of str, optional
-            The parameter(s) to return.  These are solved for if not already available.
-            If `None`, then all parameters that have already been solved for are
-            returned.
+            The parameter(s) to return.  These are solved for if not already
+            available. If `None`, then all parameters that have already been
+            solved for are returned.
         store_steps : int, optional
             See `solve`.
 
         Returns
         -------
         xr.DataArray or xr.Dataset
-            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`) or as a
-            `xr.Dataset` (if `parameters` is a `list`) with the original xarray
-            dimensions passed into the `CO2System` as `data`.  If `data` was not an
-            `xr.Dataset` then this function will not work.
+            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`)
+            or as a `xr.Dataset` (if `parameters` is a `list`) with the
+            original xarray dimensions passed into the `CO2System` as `data`.
+            If `data` was not an `xr.Dataset` then this function will not work.
         """
         assert self.xr_dims is not None and self.xr_shape is not None, (
             "`data` was not provided as an `xr.Dataset` "
@@ -1310,6 +1534,7 @@ class CO2System(UserDict):
         self,
         temperature=None,
         pressure=None,
+        data=None,
         store_steps=1,
         method_fCO2=1,
         opt_which_fCO2_insitu=1,
@@ -1320,18 +1545,20 @@ class CO2System(UserDict):
         Parameters
         ----------
         temperature : float, optional
-            Temperature in °C to adjust to.  If `None`, temperature is not adjusted.
+            Temperature in °C to adjust to.  If `None`, temperature is not
+            adjusted.
         pressure : float, optional
             Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is
             not adjusted.
         store_steps : int, optional
-            Whether/which non-requested parameters calculated during intermediate
-            calculation steps should be stored.  The options are:
+            Whether/which non-requested parameters calculated during
+            intermediate calculation steps should be stored.  The options are:
 
               - `0`: Store only the requested parameters.
-              - `1`: Store the requested and most commonly used set of intermediate
-              parameters (default).
-              - `2`: Store the requested and complete set of intermediate parameters.
+              - `1`: Store the requested and most commonly used set of
+              intermediate parameters (default).
+              - `2`: Store the requested and complete set of intermediate
+              parameters.
         method_fCO2 : int, optional
             If this is a single-parameter system, which method to use for the
             adjustment.  The options are:
@@ -1343,23 +1570,69 @@ class CO2System(UserDict):
               - `5`: linear fit of TOG93.
               - `6`: quadratic fit of TOG93.
         opt_which_fCO2_insitu : int, optional
-            If this is a single-parameter system and `method_fCO2` is `1`, whether:
+            If this is a single-parameter system and `method_fCO2` is `1`,
+            whether:
               - `1` the input condition (starting; default) or
               - `2` output condition (adjusted) temperature
             should be used to calculate $b_h$.
         bh_upsilon : float, optional
-            If this is a single-parameter system and `method_fCO2` is `4`, then the
-            value of $b_h$ in J/mol must be specified here.
+            If this is a single-parameter system and `method_fCO2` is `4`, then
+            the value of $b_h$ in J/mol must be specified here.
 
         Returns
         -------
         CO2System
-            A new `CO2System` with all values adjusted to the requested temperature(s)
-            and/or pressure(s).
+            A new `CO2System` with all values adjusted to the requested
+            temperature(s) and/or pressure(s).
         """
+        # Convert temperature and/or pressure from pandas Series to NumPy
+        # arrays, if necessary.  The checks to see if they are Series are
+        # not foolproof, but they do avoid needing to import pandas.
+        if all([hasattr(temperature, a) for a in ["index", "values", "dtype"]]):
+            assert self.pd_index is not None, (
+                "`temperature` cannot be provided as a pandas `Series`"
+                + " because this CO2System was not constructed"
+                + " from an pandas `DataFrame`."
+            )
+            assert self.pd_index.equals(temperature.index), (
+                "Cannot use this pandas `Series` for the adjust-to temperature"
+                + " because its index does not match that used to construct"
+                + " this CO2System."
+            )
+            temperature = temperature.to_numpy().astype(float)
+        if all([hasattr(pressure, a) for a in ["index", "values", "dtype"]]):
+            assert self.pd_index is not None, (
+                "`pressure` cannot be provided as a pandas `Series`"
+                + " because this CO2System was not constructed"
+                + " from an pandas `DataFrame`."
+            )
+            assert self.pd_index.equals(pressure.index), (
+                "Cannot use this pandas `Series` for the adjust-to pressure"
+                + " because its index does not match that used to construct"
+                + " this CO2System."
+            )
+            pressure = pressure.to_numpy().astype(float)
+        # Convert temperature and/or pressure from xarray DataArrays to NumPy
+        # arrays, if necessary.  The checks to see if they are DataArrays are
+        # not foolproof, but they do avoid needing to import xarray.
+        if all([hasattr(temperature, a) for a in ["data", "dims", "coords"]]):
+            assert self.xr_dims is not None, (
+                "`temperature` cannot be provided as an xarray `DataArray`"
+                + " because this CO2System was not constructed"
+                + " from an xarray `Dataset`."
+            )
+            temperature = da_to_array(temperature, self.xr_dims)
+        if all([hasattr(pressure, a) for a in ["data", "dims", "coords"]]):
+            assert self.xr_dims is not None, (
+                "`pressure` cannot be provided as an xarray `DataArray`"
+                + " because this CO2System was not constructed"
+                + " from an xarray `Dataset`."
+            )
+            pressure = da_to_array(pressure, self.xr_dims)
+        # Arguments have been wrangled - now let's get down to business
         if self.icase > 100:
-            # If we know (any) two MCS parameters, solve for alkalinity and DIC under
-            # the "input" conditions
+            # If we know (any) two MCS parameters, solve for alkalinity and DIC
+            # under the "input" conditions
             self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
             core = {k: self[k] for k in ["alkalinity", "dic"]}
             data = {}
@@ -1367,12 +1640,12 @@ class CO2System(UserDict):
             assert pressure is None, (
                 "Cannot adjust pressure for a single-parameter system!"
             )
-            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get fCO2 under
-            # the "input" conditions
+            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get
+            # fCO2 under the "input" conditions
             self.solve(parameters="fCO2", store_steps=store_steps)
             core = {"fCO2": self.fCO2}
-            # Then, convert this to the value at the new temperature using the requested
-            # method
+            # Then, convert this to the value at the new temperature using the
+            # requested method
             assert method_fCO2 in range(1, 7), (
                 "`method_fCO2` must be an integer from 1-6."
             )
@@ -1394,8 +1667,8 @@ class CO2System(UserDict):
                 data[k] = self.data[k]
             elif k in core:
                 data[k] = core[k]
-        # Set temperature and/or pressure to adjusted value(s), unless they are None, in
-        # which case, don't adjust
+        # Set temperature and/or pressure to adjusted value(s), unless they are
+        # `None`, in which case, don't adjust
         if temperature is not None:
             data["temperature"] = temperature
         else:
@@ -1415,61 +1688,62 @@ class CO2System(UserDict):
         return sys
 
     def _get_func_of(self, var_of):
-        """Create a function to compute ``var_of`` directly from an input set of
-        values.
+        """Create a function to compute `var_of` directly from an input set
+        of values.
 
         The created function has the signature
 
-            value_of = get_value_of(**value)
+            value_of = get_value_of(**values)
 
-        where the ``values`` are the originally user-defined values, obtained with
-        either of the following:
+        where the `values` are the originally user-defined values, obtained
+        with either of the following:
 
             values_original = {k: sys.data[k] for k in sys.nodes_original}
             values_original = sys.get_values_original()
         """
-        # We get a sub-graph of the node of interest and all its ancestors, excluding
-        # originally fixed / user-defined values
+        # We get a sub-graph of the node of interest and all its ancestors,
+        # excluding originally fixed / user-defined values
         nodes_vo_all = nx.ancestors(self.graph, var_of)
         nodes_vo_all.add(var_of)
-        # nodes_vo = onp.array([n for n in nodes_vo if n not in self.nodes_original])
         nodes_vo = [n for n in nodes_vo_all if n not in self.nodes_original]
         graph_vo = self.graph.subgraph(nodes_vo)
 
-        def get_value_of(**data):
-            data = data.copy()
-            # This loops through the functions in the correct order determined above so
-            # we end up calculating the value of interest, which is returned
+        def get_value_of(**kwargs):
+            kwargs = kwargs.copy()
+            # This loops through the functions in the correct order determined
+            # above so we end up calculating the value of interest, which is
+            # returned
             for n in nx.topological_sort(graph_vo):
-                data.update(
+                kwargs.update(
                     {
                         n: self.funcs[n](
                             *[
-                                data[v]
+                                kwargs[v]
                                 for v in signature(self.funcs[n]).parameters.keys()
                             ]
                         )
                     }
                 )
-            return data[var_of]
+            return kwargs[var_of]
 
         # Generate docstring
         get_value_of.__doc__ = (
-            f"Calculate ``{var_of}``."
+            f"Calculate `{var_of}`."
             + "\n\nParameters\n----------"
-            + "\nvalues : dict"
+            + "\nkwargs : dict"
             + "\n    Key-value pairs for the following parameters:"
         )
-        for p in nodes_vo_all:
-            if p in self.nodes_original:
+        for p in self.nodes_original:
+            if p in nodes_vo_all:
                 get_value_of.__doc__ += f"\n        {p}"
         get_value_of.__doc__ += "\n\nReturns\n-------"
         get_value_of.__doc__ += f"\n{var_of}"
+        get_value_of.args_list = [n for n in self.nodes_original if n in nodes_vo_all]
         return get_value_of
 
     def _get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with ``_get_func_of`` so that one of its
-        kwargs is instead a positional arg (and which can thus be gradded).
+        """Reorganise a function created with ``_get_func_of`` so that one of
+        its kwargs is instead a positional arg (and which can thus be gradded).
 
         Parameters
         ----------
@@ -1497,18 +1771,18 @@ class CO2System(UserDict):
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and store
-        it in `sys.grads[var_of][var_wrt]`.  If there is already a value there,
-        then that value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt` and
+        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
+        there, then that value is returned instead of recalculating.
 
         Parameters
         ----------
         var_of : str
             The name of the variable to get the derivative of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.  This
-            must be one of the fixed values provided when creating the `CO2System`,
-            i.e., listed in its `nodes_original` attribute.
+            The name of the variable to get the derivative with respect to.
+            This must be one of the fixed values provided when creating the
+            `CO2System`, i.e., listed in its `nodes_original` attribute.
         """
         assert var_wrt in self.nodes_original, (
             "`var_wrt` must be one of `sys.nodes_original!`"
@@ -1564,29 +1838,29 @@ class CO2System(UserDict):
     def get_values_original(self):
         return {k: self.data[k] for k in self.nodes_original}
 
-    def propagate(self, uncertainty_in, uncertainty_from):
-        """Propagate independent uncertainties through the calculations.  Covariances
-        are not accounted for.
+    def propagate(self, uncertainty_into, uncertainty_from):
+        """Propagate independent uncertainties through the calculations.
+        Covariances are not accounted for.
 
         New entries are added in the `uncertainty` attribute, for example:
 
-            co2s = CO2System(dic=2100, alkalinity=2300)
+            co2s = pyco2.sys(dic=2100, alkalinity=2300)
             co2s.propagate("pH", {"dic": 2, "alkalinity": 2})
             co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
             co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
 
         Parameters
         ----------
-        uncertainty_in : list
+        uncertainty_into : list
             The parameters to calculate the uncertainty in.
         uncertainty_from : dict
             The parameters to propagate the uncertainty from (keys) and their
             uncertainties (values).
         """
-        self.solve(uncertainty_in)
-        if isinstance(uncertainty_in, str):
-            uncertainty_in = [uncertainty_in]
-        for var_in in uncertainty_in:
+        self.solve(uncertainty_into)
+        if isinstance(uncertainty_into, str):
+            uncertainty_into = [uncertainty_into]
+        for var_in in uncertainty_into:
             # This should always be reset to zero and all values wiped, even if
             # it already exists (so you don't end up with old uncertainty_from
             # components from a previous calculation which are no longer part of
@@ -1627,6 +1901,7 @@ class CO2System(UserDict):
                 self.uncertainty[var_in][var_from] = u_part
                 u_total = u_total + u_part**2
             self.uncertainty[var_in]["total"] = np.sqrt(u_total)
+        return self
 
     def get_graph_to_plot(
         self,
@@ -1738,6 +2013,7 @@ class CO2System(UserDict):
         node_kwargs=None,
         edge_kwargs=None,
         label_kwargs=None,
+        mode="state",
     ):
         """Draw a graph showing the relationships between the different parameters.
 
@@ -1785,6 +2061,8 @@ class CO2System(UserDict):
         #
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
+        if mode == "valid" and not self.checked_valid:
+            self.check_valid()
         graph_to_plot = self.get_graph_to_plot(
             exclude_nodes=exclude_nodes,
             show_tsp=show_tsp,
@@ -1802,14 +2080,31 @@ class CO2System(UserDict):
             nx_args=nx_args,
             nx_kwargs=nx_kwargs,
         )
-        node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
-        edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
-        node_colour = [
-            self.state_colours[node_states[n]] for n in nx.nodes(graph_to_plot)
-        ]
-        edge_colour = [
-            self.state_colours[edge_states[e]] for e in nx.edges(graph_to_plot)
-        ]
+        if mode == "state":
+            node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
+            edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
+            node_colour = [
+                self.c_state[node_states[n]] for n in nx.nodes(graph_to_plot)
+            ]
+            edge_colour = [
+                self.c_state[edge_states[e]] for e in nx.edges(graph_to_plot)
+            ]
+        elif mode == "valid":
+            node_valid = nx.get_node_attributes(graph_to_plot, "valid", default=0)
+            edge_valid = nx.get_edge_attributes(graph_to_plot, "valid", default=0)
+            node_valid_p = nx.get_node_attributes(graph_to_plot, "valid_p", default=0)
+            node_colour = [self.c_valid[node_valid[n]] for n in nx.nodes(graph_to_plot)]
+            edge_colour = [self.c_valid[edge_valid[e]] for e in nx.edges(graph_to_plot)]
+            node_edgecolors = [
+                self.c_valid[node_valid_p[n]] for n in nx.nodes(graph_to_plot)
+            ]
+            node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
+        else:
+            warnings.warn(
+                f'mode "{mode}" not recognised, options are "state", "valid".'
+            )
+            node_colour = "xkcd:grey"
+            edge_colour = "xkcd:grey"
         node_labels = {k: k for k in graph_to_plot.nodes}
         for k, v in set_node_labels.items():
             if k in node_labels:
@@ -1820,6 +2115,9 @@ class CO2System(UserDict):
             edge_kwargs = {}
         if label_kwargs is None:
             label_kwargs = {}
+        if mode == "valid":
+            node_kwargs["edgecolors"] = node_edgecolors
+            node_kwargs["linewidths"] = node_linewidths
         nx.draw_networkx_nodes(
             graph_to_plot,
             ax=ax,
@@ -1844,14 +2142,332 @@ class CO2System(UserDict):
         return ax
 
     def keys_all(self):
-        """Return a list of all possible results keys, including those that have
+        """Return a tuple of all possible results keys, including those that have
         not yet been solved for.
         """
-        return list(self.graph.nodes)
+        return tuple(self.graph.nodes)
+
+    def check_valid(self, ignore=None):
+        """Check which parameters are valid."""
+        if ignore is None:
+            ignore = []
+        if isinstance(ignore, str):
+            ignore = [ignore]
+        for n in nx.topological_sort(self.graph):
+            # First, assign validity for functions that do have valid ranges
+            # (shown by node fill colour on the graph plot)
+            if n in self.funcs and n not in ignore and hasattr(self.funcs[n], "valid"):
+                n_valid = []
+                for p, p_range in self.funcs[n].valid.items():
+                    # If all predecessor parameters fall within valid ranges, it's valid
+                    if np.all(
+                        (self.data[p] >= p_range[0]) & (self.data[p] <= p_range[1])
+                    ):
+                        n_valid.append(1)
+                        nx.set_edge_attributes(
+                            self.graph,
+                            {(p, n): 1},
+                            name="valid",
+                        )
+                    # If any predecessor parameter is outside any range, it's invalid
+                    else:
+                        n_valid.append(-1)
+                        nx.set_edge_attributes(
+                            self.graph,
+                            {(p, n): -1},
+                            name="valid",
+                        )
+                nx.set_node_attributes(
+                    self.graph,
+                    {n: min(n_valid)},
+                    name="valid",
+                )
+            # Next, assign inherited validity
+            # (shown by node edge colour on the graph plot)
+            n_valid_p = []
+            for p in self.graph.predecessors(n):
+                p_attrs = self.graph.nodes[p]
+                for v in ["valid", "valid_p"]:
+                    if v in p_attrs:
+                        n_valid_p.append(p_attrs[v])
+                        if p_attrs[v] == -1:
+                            nx.set_edge_attributes(
+                                self.graph,
+                                {(p, n): -1},
+                                name="valid",
+                            )
+            if -1 in n_valid_p:
+                nx.set_node_attributes(
+                    self.graph,
+                    {n: -1},
+                    name="valid_p",
+                )
+        self.checked_valid = True
+
+
+def da_to_array(da, xr_dims):
+    """Convert an xarray `DataArray` `da` into a NumPy `array`.
+
+    The NumPy `array` will have as many dimensions as `len(xr_dims)` and the
+    dimensions will be in the same order as indicated in `xr_dims`.
+
+    If `da` does not contain a dimension from `xr_dims`, a new singleton
+    dimension will be added in the appropriate position.
+
+    `da` is not allowed to contain any dimensions that are not in `xr_dims`.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        The `DataArray` to be converted.
+    xr_dims : iterable
+        The full list of dimension names in the correct order for the output
+        NumPy array.  Can be obtained from an xarray `Dataset` (`ds`) as
+        `ds.sizes`.
+
+    Returns
+    -------
+    numpy.array
+        The converted `array`.
+    """
+    # Get `DataArray` info
+    da_dims = list(da.sizes)
+    try:
+        da_data = da.data.astype(float)
+    except ValueError:
+        return None
+    # Prepare for loop through `xr_dims`
+    move_from = []
+    extra_dims = 0
+    for d in xr_dims:
+        if d in da_dims:
+            # If the dimension is in `da`, just append the appropriate position
+            # to `move_from`
+            move_from.append(da_dims.index(d))
+        else:
+            # If the dimension is not in `da`, we need to create it at the end
+            move_from.append(len(da_dims) + extra_dims)
+            da_data = np.expand_dims(da_data, -1)
+            extra_dims += 1  # increment offset, for adding multiple new dims
+    # Move axes around to the shape matching `xr_dims`
+    return np.moveaxis(da_data, move_from, range(len(xr_dims)))
 
 
 def sys(data=None, **kwargs):
-    """Create a `CO2System`."""
+    """Initialise a `CO2System`.
+
+    Once initialised, various methods are available including `solve`, `adjust`
+    and `propagate.
+
+    PARAMETERS PROVIDED AS KWARGS
+    =============================
+    There are many possible kwargs, so they are grouped into sections below.
+
+    Data as separate variables
+    --------------------------
+    If the input data are all stored as separate variables, they can be
+    provided with the appropriate kwargs from below.  In this case, each
+    variable must be one of a scalar, a `list` or a NumPy `array`, and the
+    shapes of these arrays must be mutually broadcastable.  For example:
+
+      >>> import PyCO2SYS as pyco2, numpy as np
+      >>> dic = [2100, 2150]
+      >>> temperature = np.array([15, 13.5])
+      >>> co2s = pyco2.sys(dic=dic, pH=8.1, temperature=temperature)
+
+    Data variables in a container
+    -----------------------------
+    If the input data are gathered in a `dict`, pandas `DataFrame` or xarray
+    `Dataset`, then this can be provided with the `data` kwarg.  The keys in
+    the container dataset must be strings and they should correspond to the
+    kwargs below.  If they do not correspond, then the kwarg can be passed with
+    the corresponding key instead.  For example:
+
+      >>> import PyCO2SYS as pyco2
+      >>> data = {"dic": [2100, 2150], "pH_lab": 8.1, "t_lab": 25}
+      >>> co2s = pyco2.sys(data=data, pH="pH_lab", temperature="t_lab")
+
+    Core marine carbonate system parameters
+    ---------------------------------------
+    A maximum of two core parameters may be provided, and not all combinations
+    are valid.  In some cases, a subset of calculations can still be carried
+    out with only one parameter.  It is also possible to pass none of these
+    parameters and still calculate e.g. equilibrium constants.
+
+               Parameter | Description (unit)
+    -------------------: | :---------------------------------------------------
+              alkalinity | Total alkalinity (µmol/kg)
+                     dic | Dissolved inorganic carbon (µmol/kg)
+                      pH | Seawater pH on the scale given by `opt_pH_scale`
+                    pCO2 | Seawater partial pressure of CO2 (µatm)
+                    fCO2 | Seawater fugacity of CO2 (µatm)
+                     CO2 | Aqueous CO2 content (µmol/kg)
+                    HCO3 | Bicarbonate ion content (µmol/kg)
+                     CO3 | Carbonate ion content (µmol/kg)
+                    xCO2 | Seawater dry air mole fraction of CO2 (ppm)
+      saturation_calcite | Saturation state with respect to calcite
+    saturation_aragonite | Saturation state with respect to aragonite
+
+    Hydrographic conditions
+    -----------------------
+    Middle column gives default values if not provided.
+
+              Parameter | Df. | Description (unit)
+    ------------------: | --: | :----------------------------------------------
+               salinity |  35 | Practical salinity
+            temperature |  25 | Temperature (°C)
+               pressure |   0 | Hydrostatic pressure (dbar)
+    pressure_atmosphere |   1 | Atmospheric pressure (atm)
+
+    Nutrients and other solutes
+    ---------------------------
+    Middle column gives default values; S = calculated from salinity.
+
+          Parameter | Df. | Description (unit)
+    --------------: | :-: | :----------------------------------------------
+     total_silicate |  0  | Total dissolved silicate (µmol/kg)
+    total_phosphate |  0  | Total dissolved phosphate (µmol/kg)
+      total_ammonia |  0  | Total dissolved ammonia (µmol/kg)
+      total_sulfide |  0  | Total dissolved sulfide (µmol/kg)
+      total_nitrite |  0  | Total dissolved nitrite (µmol/kg)
+       total_borate |  S  | Total dissolved borate (µmol/kg)
+     total_fluoride |  S  | Total dissolved fluoride (µmol/kg)
+      total_sulfate |  S  | Total dissolved sulfate (µmol/kg)
+                 Ca |  S  | Dissolved calcium (µmol/kg)
+
+    SETTINGS PROVIDED AS KWARGS
+    ===========================
+    Options such as which pH scale to use and the choice of parameterisation
+    for various e.g. equilibrium constants can also be altered with kwargs.
+    These kwargs must all be scalar integers.
+
+    Citations use a code with the initials of the first few authors' surnames
+    plus the final two digits of the year of publication.  Refer to the online
+    documentation for full references.
+
+    pH scale
+    --------
+    opt_pH_scale: pH scale of `pH` (if provided), also used for calculating
+    equilibrium constants.
+        1: total [DEFAULT].
+        2: seawater.
+        3: free.
+        4: NBS.
+
+    Carbonic acid dissociation
+    --------------------------
+    opt_k_carbonic: parameterisation for carbonic acid dissociation (K1 and
+    K2).
+         1: RRV93.
+         2: GP89.
+         3: H73a and H73b refit by DM87.
+         4: MCHP73 refit by DM87.
+         5: H73a, H73b and MCHP73 refit by DM87.
+         6: MCHP73 ("GEOSECS").
+         7: MCHP73 ("GEOSECS-Peng").
+         8: M79 (freshwater).
+         9: CW98.
+        10: LDK00 [DEFAULT].
+        11: MM02.
+        12: MPL02.
+        13: MGH06.
+        14: M10.
+        15: WMW14.
+        16: SLH20.
+        17: SB21.
+        18: PLR18.
+    opt_factor_k_H2CO3: pressure correction for the first carbonic acid
+    dissociation constant (K1).
+        1: M95 [DEFAULT].
+        2: EG70 (GEOSECS).
+        3: M83 (freshwater).
+    opt_factor_k_HCO3: pressure correction for the second carbonic acid
+    dissociation constant (K2).
+        1: M95 [DEFAULT].
+        2: EG70 (GEOSECS).
+        3: M83 (freshwater).
+
+    Other equilibrium constants
+    ---------------------------
+    opt_k_BOH3: parameterisation for boric acid equilibrium.
+        1: D90b [DEFAULT].
+        2: LTB69 (GEOSECS).
+    opt_k_H2O: parameterisation for water dissociation.
+        1: M95 [DEFAULT].
+        2: M79 (GEOSECS).
+        3: HO58 refit by M79 (freshwater).
+    opt_k_HF: parameterisation for hydrogen fluoride dissociation.
+        1: DR79 [DEFAULT].
+        2: PF87.
+    opt_k_HNO2: parameterisation for nitrous acid dissociation.
+        1: BBWB24 for seawater [DEFAULT].
+        2: BBWB24 for freshwater.
+    opt_k_HSO4: parameterisation for bisulfate dissociation.
+        1: D90a [DEFAULT].
+        2: KRCB77.
+        3: WM13/WMW14.
+    opt_k_NH3: parameterisation for ammonium dissociation.
+        1: CW95 [DEFAULT].
+        2: YM95.
+    opt_k_phosphate: parameterisation for the phosphoric acid dissocation
+    constants.
+        1: YM95 [DEFAULT].
+        2: KP67 (GEOSECS).
+    opt_k_Si: parameterisation for bisulfate dissociation.
+        1: YM95 [DEFAULT].
+        2: SMB64 (GEOSECS).
+    opt_k_aragonite: parameterisation for aragonite solubility product.
+        1: M83 [DEFAULT].
+        2: ICHP73 (GEOSECS).
+    opt_k_calcite: parameterisation for calcite solubility product.
+        1: M83 [DEFAULT].
+        2: I75 (GEOSECS).
+
+    Other dissociation constant pressure corrections
+    ------------------------------------------------
+    opt_factor_k_BOH3: pressure correction for boric acid equilibrium.
+        1: M79 [DEFAULT].
+        2: EG70 (GEOSECS).
+    opt_factor_k_H2O: pressure correction for water dissociation.
+        1: M95 [DEFAULT].
+        2: M83 (freshwater).
+
+    Total salt contents
+    -------------------
+    These settings are ignored if their values are provided directly as kwargs.
+
+    opt_total_borate: for calculating `total_borate` from `salinity`.
+        1: U74 [DEFAULT].
+        2: LKB10.
+        3: KSK18 (Baltic Sea).
+    opt_Ca: for calculating `Ca` from `salinity`.
+        1: RT67 [DEFAULT].
+        2: C65 (GEOSECS).
+
+    Other settings
+    --------------
+    opt_gas_constant: the universal gas constant (R)
+        1: DOEv2 (consistent with pre-July 2020 CO2SYS software).
+        2: DOEv3.
+        3: 2018 CODATA [DEFAULT].
+    opt_fugacity_factor: how to convert between partial pressure and fugacity.
+        1: with a fugacity factor [DEFAULT].
+        2: assuming they are equal (GEOSECS).
+    opt_HCO3_root: with known `dic` and `HCO3`, which root to solve for.
+        1: the lower pH root.
+        2: the higher pH root [DEFAULT].
+    opt_fCO2_temperature: sensitivity of fCO2 to temperature.
+        1: H24 parameterisation [DEFAULT].
+        2: TOG93 linear fit.
+        3: TOG93 quadratic fit.
+
+    Equilibrium constants
+    ---------------------
+    Any equilibrium constant calculated within PyCO2SYS can be provided
+    directly as an input instead.  The kwarg should use the same key as would
+    be used to solve for this parameter.  See the docs for `CO2System.solve`
+    for more detail.
+    """
     # Check for double precision
     if np.array(1.0).dtype is np.dtype("float32"):
         warnings.warn(
@@ -1914,16 +2530,10 @@ def sys(data=None, **kwargs):
                         xr_dims = list(data.sizes.keys())
                         xr_shape = list(data.sizes.values())
                         for k, v in data.items():
-                            ndims = []
-                            for d in xr_dims:
-                                if d in v.sizes:
-                                    ndims.append(v.sizes[d])
-                                else:
-                                    ndims.append(1)
                             if k in renamer:
-                                kwargs[renamer[k]] = np.reshape(v.data, ndims)
+                                kwargs[renamer[k]] = da_to_array(v, xr_dims)
                             else:
-                                kwargs[k] = np.reshape(v.data, ndims)
+                                kwargs[k] = da_to_array(v, xr_dims)
                 except ImportError:
                     warnings.warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:
@@ -1950,6 +2560,8 @@ def sys(data=None, **kwargs):
             if isinstance(kwargs[k], int):
                 kwargs[k] = float(kwargs[k])
             elif hasattr(kwargs[k], "dtype"):
-                if kwargs[k].dtype == int:
+                try:
                     kwargs[k] = kwargs[k].astype(float)
+                except ValueError:
+                    pass
     return CO2System(pd_index=pd_index, xr_dims=xr_dims, xr_shape=xr_shape, **kwargs)

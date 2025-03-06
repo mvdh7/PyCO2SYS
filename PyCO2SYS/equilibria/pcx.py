@@ -236,6 +236,10 @@ def factor_k_HF(temperature, pressure, gas_constant):
     return pressure_factor(deltaV, Kappa, pressure, temperature, gas_constant)
 
 
+# CP68 data are from 2 to 22 °C but I think it's reasonable to expect validity
+# at least up to 25 °C given how thermodynamic data are generally always available
+# at that temperature
+@valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_BOH3_M79(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_BOH3 following M79.
     Used when opt_factor_k_BOH3 = 1.
@@ -474,6 +478,10 @@ def factor_k_NH3(temperature, pressure, gas_constant):
     return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
 
 
+# CP68 data are from 2 to 22 °C but I think it's reasonable to expect validity
+# at least up to 25 °C given how thermodynamic data are generally always available
+# at that temperature
+@valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_H2CO3(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_H2CO3.
     Used when opt_factor_k_H2CO3 = 1.
@@ -559,6 +567,10 @@ def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
     )
 
 
+# CP68 data are from 2 to 22 °C but I think it's reasonable to expect validity
+# at least up to 25 °C given how thermodynamic data are generally always available
+# at that temperature
+@valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_HCO3(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_HCO3.
     Used when opt_factor_k_HCO3 = 1.
@@ -647,7 +659,7 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     )
 
 
-@valid(pressure=[0, 5066.25])
+@valid(temperature=[-1, 40], pressure=[0, 5066.25])
 def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
     """Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 
