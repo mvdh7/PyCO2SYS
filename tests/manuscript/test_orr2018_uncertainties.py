@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 import pandas as pd
 
@@ -106,8 +107,8 @@ uncertainty_from = {
     "total_phosphate": 0.1,
     "total_silicate": 4,
 }
-sys4 = CO2System(**values_orr4, **opts_orr4)
-sys4.propagate(uncertainty_into, uncertainty_from)
+sys4 = CO2System(**values_orr4, **opts_orr4).set_uncertainty(**uncertainty_from)
+sys4.propagate(uncertainty_into)
 
 u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
 nrow = pd.DataFrame(
@@ -120,7 +121,8 @@ for into in uncertainty_into:
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
 # Now also include the pKs etc.
 uncertainty_from.update(pyco2.uncertainty_OEDG18)
-sys4.propagate(uncertainty_into, uncertainty_from)
+sys4.set_uncertainty(**uncertainty_from)
+sys4.propagate(uncertainty_into)
 
 u_Hfree_manual_pks = (
     np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
@@ -145,9 +147,9 @@ def test_table2_OEDG18():
             # if of != "Hfree":
             v_orr = orr2_groups.loc[wrt][of]
             v_pyco2 = orr2.loc[wrt].loc["PyCO2SYS"][of]
-            assert np.isclose(
-                v_orr, v_pyco2, rtol=1e-3, atol=0
-            ), "Failed on {} / {}".format(of, wrt)
+            assert np.isclose(v_orr, v_pyco2, rtol=1e-3, atol=0), (
+                "Failed on {} / {}".format(of, wrt)
+            )
 
 
 def test_table3_OEDG18():
@@ -157,9 +159,9 @@ def test_table3_OEDG18():
             # if of != "Hfree":
             v_orr = orr3_groups.loc[wrt][of]
             v_pyco2 = orr3.loc[wrt].loc["PyCO2SYS"][of]
-            assert np.isclose(
-                v_orr, v_pyco2, rtol=1e-3, atol=0
-            ), "Failed on {} / {}".format(of, wrt)
+            assert np.isclose(v_orr, v_pyco2, rtol=1e-3, atol=0), (
+                "Failed on {} / {}".format(of, wrt)
+            )
 
 
 def test_table4_OEDG18():
@@ -169,9 +171,9 @@ def test_table4_OEDG18():
             # if of != "Hfree":
             v_orr = orr4_groups.loc[with_k][of]
             v_pyco2 = orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
-            assert np.isclose(
-                v_orr, v_pyco2, rtol=1e-4, atol=0
-            ), "Failed on {} / {}".format(of, wrt)
+            assert np.isclose(v_orr, v_pyco2, rtol=1e-4, atol=0), (
+                "Failed on {} / {}".format(of, wrt)
+            )
 
 
 # test_table2_OEDG18()
