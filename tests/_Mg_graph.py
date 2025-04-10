@@ -12,11 +12,11 @@ import numpy as np
 co2s = pyco2.sys(
     dic=2300,
     alkalinity=2350,
-    opt_Mg_calcite_type=1,
-    Mg_percent=10,
+    opt_Mg_calcite_type=2,
+    Mg_percent=20,
     opt_Mg_calcite_kt_Tdep=2,
     temperature=25,
-    pressure=1000,
+    pressure=2000,
 )
 
 # IAP is fine
@@ -62,5 +62,18 @@ print('aragonite')
 print(np.log10(co2s.k_aragonite))
 print(co2s.saturation_aragonite)
 
+
+# %%
+co2s = pyco2.sys(
+    Mg_percent=[0, 10, 20],
+)
+
+co2s.solve(["kt_Mg_calcite_25C_1atm_minprep",
+            "kt_Mg_calcite_25C_1atm_biogenic",
+            "kt_Mg_calcite_25C_1atm_synthetic",], store_steps=2)
+
+print('C1',np.log10(co2s.kt_Mg_calcite_25C_1atm_minprep))
+print('C2',np.log10(co2s.kt_Mg_calcite_25C_1atm_biogenic))
+print('C3',np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic))
 
 # %%
