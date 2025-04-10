@@ -308,24 +308,7 @@ def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1at
     k_Mg_calcite_1atm = kt_Mg_calcite_1atm / (
         acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
     )
-    # add correction so that K*(calcite) calculated here matches K* from Mucci (1983)
-    # k_calcite_25C_35_1atm_M83 = k_calcite_M83(25, 35, 0, gas_constant) 
-    # = 4.2723509278623117e-07
-    # logK_25C_35_1atm_M83 = -6.369333081874932
-    # and: 
-    # K*(calcite, 25C, S=35) = K / acf
-    # _get_kt_calcite_1atm_PB82(temperature) = 3.141739156707202e-09
-    # acf(Ca, 25C, S=35) = get_activity_coefficient_Ca(35, 25) = 0.18917
-    # acf(CO3, 25C, S=35) =  get_activity_coefficient_CO3(35, 25) = 0.1008449
-    # k_calcite_25C_35_1atm_acf = 1.646829871365102e-07
-    # logK_calcite_25C_35_1atm_acf = -6.783351264062593
-    # the correction is technically a constant, therefore
-    # delta = k_acf - k_M83 = 1.646829871365102e-07 - 4.2723509278623117e-07 
-    # = -2.6255210564972095e-07
-    # delta = logK_acf - logK_M83 = 
-    k_Mg_calcite_1atm_corr = k_Mg_calcite_1atm + 2.6255210564972095e-07
-    return k_Mg_calcite_1atm_corr
-    #return k_Mg_calcite_1atm
+    return k_Mg_calcite_1atm
 
 
 def get_k_Mg_calcite(
