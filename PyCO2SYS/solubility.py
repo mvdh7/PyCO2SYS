@@ -145,21 +145,21 @@ def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
 def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):
     # curve 3
     # TODO warning if Mg_percent is above 22
-    a, b, c, d = -1.047e-05, 0.0008416, -0.001061, -8.502
+    a, b, c, d = -1.04700900e-05,  8.41626295e-04, -1.06073211e-03, -8.50230163e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
 def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):
     # curve 2
     # TODO warning if Mg_percent is above 22
-    a, b, c, d = -8.968e-06, 0.0006153, 0.002346, -8.377
+    a, b, c, d = -8.96818838e-06,  6.15303057e-04,  2.34631155e-03, -8.37687208e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
 def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):
     # curve 1
     # TODO warning if Mg_percent is above 27
-    a, b, c, d = -0.0002341, 0.008575, -0.01618, -8.512
+    a, b, c, d = -2.34131949e-04,  8.57477879e-03, -1.61786329e-02, -8.51219119e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
