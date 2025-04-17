@@ -13,10 +13,10 @@ co2s = pyco2.sys(
     dic=2300,
     alkalinity=2350,
     opt_Mg_calcite_type=2,
-    Mg_percent=20,
+    Mg_percent=15,
     opt_Mg_calcite_kt_Tdep=2,
-    temperature=25,
-    pressure=2000,
+    temperature=5,
+    pressure=0,
 )
 
 # IAP is fine
@@ -41,6 +41,8 @@ print('IAP',np.log10(co2s.kt_Mg_calcite_25C_1atm))
 print()
 print('vant Hoff',np.log10(co2s.kt_Mg_calcite_1atm_vantHoff))
 print('PB82',np.log10(co2s.kt_Mg_calcite_1atm_PB82))
+print('vant Hoff',co2s.kt_Mg_calcite_1atm_vantHoff)
+print('PB82',co2s.kt_Mg_calcite_1atm_PB82)
 print()
 print('gamma Ca', co2s.acf_Ca)
 print('gamma Mg', co2s.acf_Mg)

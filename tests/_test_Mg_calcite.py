@@ -32,6 +32,11 @@ def test_temperature_correction():
     assert np.log10(co2s.kt_Mg_calcite_1atm_vantHoff[0]) > -171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK)
     TempK = 21+273.15
     assert np.log10(co2s.kt_Mg_calcite_1atm_vantHoff[1]) < -171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK)
+    # same value at 298.15K?
+    co2s = pyco2.sys(Mg_percent=np.arange(0,20,2), temperature=[25], opt_Mg_calcite_type=2)
+    co2s.solve(["kt_Mg_calcite_1atm_vantHoff",
+            "kt_Mg_calcite_1atm_PB82"], store_steps=2)
+    assert np.all(np.isclose(co2s.kt_Mg_calcite_1atm_vantHoff, co2s.kt_Mg_calcite_1atm_PB82))
         
 
 def test_activity_coefficients():
