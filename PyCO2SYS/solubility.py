@@ -162,6 +162,11 @@ def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):
     a, b, c, d = -2.34131949e-04,  8.57477879e-03, -1.61786329e-02, -8.51219119e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
+def get_kt_Mg_calcite_25C_1atm_fish():
+    # Mg_percent = 40 (average for Gulf toadfish W12 and F24)
+    # K_t = K_star * (gamma_Ca**(1-Mg_percent) * gamma_Mg**Mg_percent * gamma_CO3)
+    return 1.0385026318190157e-08
+
 
 def _get_deltaH_Mg_calcite(Mg_percent):
     # enthalpy deltaH based on Mg content
