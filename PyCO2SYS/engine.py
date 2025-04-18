@@ -135,6 +135,7 @@ get_funcs = {
     "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
     "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
     "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
+    "kt_Mg_calcite_1atm_idealmix": solubility.get_kt_Mg_calcite_1atm_idealmix,
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm
 }
 
@@ -651,6 +652,7 @@ get_funcs_opts["opt_Mg_calcite_type"] = {
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
     1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
     2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
+    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts

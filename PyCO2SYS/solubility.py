@@ -192,6 +192,18 @@ def _get_kt_calcite_1atm_PB82(temperature):
         -171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK)
     )
 
+def _get_kt_magnesite_1atm_B18(temperature):
+    TempK = convert.celsius_to_kelvin(temperature)
+    # temperature dependence of K_calcite according to B18
+    return 10 ** (
+        7.267 - 1476.604 / TempK - 0.033918 * TempK
+    )
+
+def _get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_percent):
+    ideal_mix = np.log10(_get_kt_magnesite_1atm_B18(temperature))*Mg_percent/100 + (
+        np.log10(_get_kt_calcite_1atm_PB82(temperature))*(1-(Mg_percent/100)))
+    return 10 ** (ideal_mix)
+
 
 def get_kt_Mg_calcite_1atm_vantHoff(
     temperature, Mg_percent, gas_constant, kt_Mg_calcite_25C_1atm
@@ -215,16 +227,23 @@ def get_kt_Mg_calcite_1atm_vantHoff(
     return kt_Mg_calcite_1atm
 
 
+def get_kt_Mg_calcite_1atm_idealmix(temperature, kt_Mg_calcite_25C_1atm, Mg_percent):
+    # uses temperature dependence of logK(calcite) from PB82
+    # uses temperature dependence of logK(magnesite) from B18
+    # assumes ideal solid solution
+    delta = np.log10(_get_kt_calcite_magnesite_idealmix_1atm(25, Mg_percent)) - (
+        np.log10(kt_Mg_calcite_25C_1atm))
+    kt_Mg_calcite_1atm = 10 ** (np.log10(_get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_percent)) 
+                                - delta )
+    return kt_Mg_calcite_1atm
+
+
 def get_kt_Mg_calcite_1atm_PB82(temperature, kt_Mg_calcite_25C_1atm):
-    # uses temperature dependence of logK(calcite from PB82)
-    # logK_c_t needs to be calculated somewhere
-    # logK_c_25_0 = Ksp of calcite at 25C, constant
-    np.log10(kt_Mg_calcite_25C_1atm)
-    logK_c_25_0 = -8.479
-    logK_mg_t_0 = (np.log10(kt_Mg_calcite_25C_1atm) - logK_c_25_0) + np.log10(
-        _get_kt_calcite_1atm_PB82(temperature)
-    )
-    kt_Mg_calcite_1atm = 10 ** (logK_mg_t_0)
+    # uses temperature dependence of logK(calcite) from PB82
+    delta = np.log10(_get_kt_calcite_1atm_PB82(25)) - (
+        np.log10(kt_Mg_calcite_25C_1atm))
+    kt_Mg_calcite_1atm = 10 ** (np.log10(_get_kt_calcite_1atm_PB82(temperature)) 
+                                - delta)
     return kt_Mg_calcite_1atm
 
 
