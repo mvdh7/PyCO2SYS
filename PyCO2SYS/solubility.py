@@ -141,38 +141,32 @@ def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
     return 1e12 * saturation_aragonite * k_aragonite / Ca
 
-
+@valid(Mg_percent=[0,22])
 def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):
     # curve 3
-    # TODO warning if Mg_percent is above 22
     a, b, c, d = -1.04700900e-05,  8.41626295e-04, -1.06073211e-03, -8.50230163e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
-
+@valid(Mg_percent=[0,45])
 def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):
     # curve 2
-    # TODO warning if Mg_percent is above 22
-    a, b, c, d = -8.96818838e-06,  6.15303057e-04,  2.34631155e-03, -8.37687208e+00
+    a, b, c, d = -9.56525687e-06,  6.34456760e-04,  2.18346079e-03, -8.37659138e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
+@valid(Mg_percent=[0,27])
 def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):
     # curve 1
-    # TODO warning if Mg_percent is above 27
     a, b, c, d = -2.34131949e-04,  8.57477879e-03, -1.61786329e-02, -8.51219119e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
-def get_kt_Mg_calcite_25C_1atm_fish():
-    # Mg_percent = 40 (average for Gulf toadfish W12 and F24)
-    # K_t = K_star * (gamma_Ca**(1-Mg_percent) * gamma_Mg**Mg_percent * gamma_CO3)
-    return 1.0385026318190157e-08
 
 
 def _get_deltaH_Mg_calcite(Mg_percent):
     # enthalpy deltaH based on Mg content
-    # linear line between dH = -13.07 calcite (0% Mg) and dH = -48.19 of magnesite (100% Mg)
+    # ideal solid solution line between dH_calcite (0% Mg) and dH_magnesite (100% Mg)
     deltaH_c_25 = -13.07  # NBS
-    deltaH_mag_25 = -48.19  # NBS
+    deltaH_mag_25 = -28.9  # Robie1995
     return deltaH_c_25 - (deltaH_c_25 - deltaH_mag_25) / 100 * Mg_percent
 
 

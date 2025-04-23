@@ -11,13 +11,14 @@ def test_IAP_curves():
                              [-8.51219119, -8.05063159, -7.27890792]))
     # curve 2
     assert np.all(np.isclose(np.log10(co2s.kt_Mg_calcite_25C_1atm_biogenic), 
-                             [-8.37687208, -8.30084685, -8.15557013]))
+                             [-8.37659138, -8.30087635, -8.15566151]))
     # curve 3
     assert np.all(np.isclose(np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic), 
                              [-8.50230163, -8.43921642, -8.27062648]))
 
 
 def test_temperature_correction():
+    # TODO add ideal_mix tests
     # which temperature correction leads to higher solubility at same T?
     co2s = pyco2.sys(Mg_percent=15, temperature=[20,30], opt_Mg_calcite_type=3)
     co2s.solve(["kt_Mg_calcite_1atm_vantHoff",
