@@ -7,144 +7,144 @@ Calculate stoichiometric equilibrium constants under standard atmospheric pressu
 
 Functions
 ---------
-k_CO2_W74
+pk_CO2_W74
     Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
-k_BOH3_total_D90b
-    Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
-k_BOH3_nbs_LTB69
-    Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
-k_H2O_sws_M95
+pk_BOH3_total_D90b
+    Boric acid dissociation constant following D90b.  Used when opt_pk_BOH3 = 1.
+pk_BOH3_nbs_LTB69
+    Boric acid dissociation constant following LTB69.  Used when opt_pk_BOH3 = 2.
+pk_H2O_sws_M95
     Water dissociation constant on the seawater scale following M95.
-    Used when opt_k_H2O = 1.
-k_H2O_sws_M79
+    Used when opt_pk_H2O = 1.
+pk_H2O_sws_M79
     Water dissociation constant on the seawater scale following M79, for freshwater.
-    Used when opt_k_H2O = 2.
-k_H2O_sws_HO58_M79
+    Used when opt_pk_H2O = 2.
+pk_H2O_sws_HO58_M79
     Water dissociation constant on the seawater scale following HO58 refit by M79,
-    for freshwater.  Used when opt_k_H2O = 3.
-k_H2S_total_YM95
+    for freshwater.  Used when opt_pk_H2O = 3.
+pk_H2S_total_YM95
     Hydrogen sulfide dissociation constant on the total scale following YM95.
-k_HF_free_DR79
+pk_HF_free_DR79
     Hydrogen fluoride dissociation constant on the free scale following DR79.
-    Used when opt_k_HF = 1.
-k_HF_free_PF87
+    Used when opt_pk_HF = 1.
+pk_HF_free_PF87
     Hydrogen fluoride dissociation constant on the free scale following PF87.
-    Used when opt_k_HF = 2.
-k_H3PO4_sws_YM95
+    Used when opt_pk_HF = 2.
+pk_H3PO4_sws_YM95
     First phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
-k_H2PO4_sws_YM95
+    Used when opt_pk_phosphate = 1.
+pk_H2PO4_sws_YM95
     Second phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
-k_HPO4_sws_YM95
+    Used when opt_pk_phosphate = 1.
+pk_HPO4_sws_YM95
     Third phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
-k_H3PO4_sws_KP67
+    Used when opt_pk_phosphate = 1.
+pk_H3PO4_sws_KP67
     First phosphate dissociation constant on the seawater scale following KP67.
-    Used when opt_k_phosphate = 2.
-k_H2PO4_nbs_KP67
+    Used when opt_pk_phosphate = 2.
+pk_H2PO4_nbs_KP67
     Second phosphate dissociation constant on the NBS scale following KP67.
-    Used when opt_k_phosphate = 2.
-k_HPO4_nbs_KP67
+    Used when opt_pk_phosphate = 2.
+pk_HPO4_nbs_KP67
     Third phosphate dissociation constant on the NBS scale following KP67.
-    Used when opt_k_phosphate = 2.
-k_HSO4_free_D90a
+    Used when opt_pk_phosphate = 2.
+pk_HSO4_free_D90a
     Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
-    Used when opt_k_HSO4 = 1.
-k_HSO4_free_KRCB77
+    Used when opt_pk_HSO4 = 1.
+pk_HSO4_free_KRCB77
     Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
-    Used when opt_k_HSO4 = 2.
-k_HSO4_free_WM13
+    Used when opt_pk_HSO4 = 2.
+pk_HSO4_free_WM13
     Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
-    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
-k_Si_sws_YM95
+    with the corrections of WMW14.  Used when opt_pk_HSO4 = 3.
+pk_Si_sws_YM95
     Silicate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_Si = 1.
-k_Si_nbs_SMB64
+    Used when opt_pk_Si = 1.
+pk_Si_nbs_SMB64
     Silicate dissociation constant on the NBS scale following SMB64.
-    Used when opt_k_Si = 2.
-k_NH3_sws_YM95
-    Ammonium association constant following YM95.  Used when opt_k_NH3 = 1.
-k_NH3_tot_CW95
-    Ammonium association constant following CW95.  Used when opt_k_NH3 = 2.
-k_H2CO3_total_RRV93
+    Used when opt_pk_Si = 2.
+pk_NH3_sws_YM95
+    Ammonium association constant following YM95.  Used when opt_pk_NH3 = 1.
+pk_NH3_tot_CW95
+    Ammonium association constant following CW95.  Used when opt_pk_NH3 = 2.
+pk_H2CO3_total_RRV93
     First carbonic acid dissociation constant following RRV93.
-    Used when opt_k_carbonic = 1.
-k_HCO3_total_RRV93
+    Used when opt_pk_carbonic = 1.
+pk_HCO3_total_RRV93
     Second carbonic acid dissociation constant following RRV93.
-    Used when opt_k_carbonic = 1.
-k_H2CO3_sws_GP89
+    Used when opt_pk_carbonic = 1.
+pk_H2CO3_sws_GP89
     First carbonic acid dissociation constant following GP89.
-    Used when opt_k_carbonic = 2.
-k_HCO3_sws_GP89
+    Used when opt_pk_carbonic = 2.
+pk_HCO3_sws_GP89
     Second carbonic acid dissociation constant following GP89.
-    Used when opt_k_carbonic = 2.
-k_H2CO3_sws_H73_DM87
+    Used when opt_pk_carbonic = 2.
+pk_H2CO3_sws_H73_DM87
     First carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
-k_HCO3_sws_H73_DM87
+    Used when opt_pk_carbonic = 3.
+pk_HCO3_sws_H73_DM87
     Second carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
-k_H2CO3_sws_MCHP73_DM87
+    Used when opt_pk_carbonic = 3.
+pk_H2CO3_sws_MCHP73_DM87
     First carbonic acid dissociation constant following DM87 refit of MCHP73.
-    Used when opt_k_carbonic = 4.
-k_HCO3_sws_MCHP73_DM87
+    Used when opt_pk_carbonic = 4.
+pk_HCO3_sws_MCHP73_DM87
     Second carbonic acid dissociation constant following DM87 refit of MCHP73.
-    Used when opt_k_carbonic = 4.
-k_H2CO3_sws_HM_DM87
+    Used when opt_pk_carbonic = 4.
+pk_H2CO3_sws_HM_DM87
     First carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
-k_HCO3_sws_HM_DM87
+    Hansson [H73a, H73b].  Used when opt_pk_carbonic = 5.
+pk_HCO3_sws_HM_DM87
     Second carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
-k_H2CO3_nbs_MCHP73
+    Hansson [H73a, H73b].  Used when opt_pk_carbonic = 5.
+pk_H2CO3_nbs_MCHP73
     First carbonic acid dissociation constant following MCHP73.
-    Used when opt_k_carbonic = 6 or 7.
-k_HCO3_nbs_MCHP73
+    Used when opt_pk_carbonic = 6 or 7.
+pk_HCO3_nbs_MCHP73
     Second carbonic acid dissociation constant following MCHP73.
-    Used when opt_k_carbonic = 6 or 7.
-k_H2CO3_sws_M79
+    Used when opt_pk_carbonic = 6 or 7.
+pk_H2CO3_sws_M79
     First carbonic acid dissociation constant following M79, pure water case.
-    Used when opt_k_carbonic = 8.
-k_HCO3_sws_M79
+    Used when opt_pk_carbonic = 8.
+pk_HCO3_sws_M79
     Second carbonic acid dissociation constant following M79, pure water case.
-    Used when opt_k_carbonic = 8.
-k_H2CO3_nbs_CW98
+    Used when opt_pk_carbonic = 8.
+pk_H2CO3_nbs_CW98
     First carbonic acid dissociation constant following CW98.
-    Used when opt_k_carbonic = 9.
-k_HCO3_nbs_CW98
+    Used when opt_pk_carbonic = 9.
+pk_HCO3_nbs_CW98
     Second carbonic acid dissociation constant following CW98.
-    Used when opt_k_carbonic = 9.
-k_H2CO3_total_LDK00, k_HCO3_total_LDK00
+    Used when opt_pk_carbonic = 9.
+pk_H2CO3_total_LDK00, pk_HCO3_total_LDK00
     Carbonic acid dissociation constants following LDK00.
-    Used when opt_k_carbonic = 10.
-k_H2CO3_sws_MM02, k_HCO3_sws_MM02
+    Used when opt_pk_carbonic = 10.
+pk_H2CO3_sws_MM02, pk_HCO3_sws_MM02
     Carbonic acid dissociation constants following MM02.
-    Used when opt_k_carbonic = 11.
-k_H2CO3_sws_MPL02, k_H2CO3_sws_MPL02
+    Used when opt_pk_carbonic = 11.
+pk_H2CO3_sws_MPL02, pk_H2CO3_sws_MPL02
     Carbonic acid dissociation constants following MPL02.
-    Used when opt_k_carbonic = 12.
-k_H2CO3_sws_MGH06, k_HCO3_sws_MGH06
+    Used when opt_pk_carbonic = 12.
+pk_H2CO3_sws_MGH06, pk_HCO3_sws_MGH06
     Carbonic acid dissociation constants following MGH06.
-    Used when opt_k_carbonic = 13.
-k_H2CO3_sws_M10, k_HCO3_sws_M10
+    Used when opt_pk_carbonic = 13.
+pk_H2CO3_sws_M10, pk_HCO3_sws_M10
     Carbonic acid dissociation constants following M10.
-    Used when opt_k_carbonic = 14.
-k_H2CO3_sws_WMW14, k_HCO3_sws_WMW14
+    Used when opt_pk_carbonic = 14.
+pk_H2CO3_sws_WMW14, pk_HCO3_sws_WMW14
     Carbonic acid dissociation constants following WM13/WMW14.
-    Used when opt_k_carbonic = 15.
-k_H2CO3_total_SLH20, k_HCO3_total_SLH20
+    Used when opt_pk_carbonic = 15.
+pk_H2CO3_total_SLH20, pk_HCO3_total_SLH20
     Carbonic acid dissociation constants following SLH20.
-    Used when opt_k_carbonic = 16.
-k_HCO3_total_SB21
+    Used when opt_pk_carbonic = 16.
+pk_HCO3_total_SB21
     Second carbonic acid dissociation constant following SB21.
-    Used when opt_k_carbonic = 17 together with K1 from WMW14.
-k_H2CO3_total_PLR18, k_HCO3_total_PLR18
+    Used when opt_pk_carbonic = 17 together with K1 from WMW14.
+pk_H2CO3_total_PLR18, pk_HCO3_total_PLR18
     Carbonic acid dissociation constants following PLR18.
-    Used when opt_k_carbonic = 18.
-k_HNO2_total_BBWB24
+    Used when opt_pk_carbonic = 18.
+pk_HNO2_total_BBWB24
     Nitrous acid dissociation constant in artificial seawater following BBWB24.
-k_HNO2_nbs_BBWB24_freshwater
+pk_HNO2_nbs_BBWB24_freshwater
     Nitrous acid dissociation constant in freshwater following BBWB24.
 """
 
@@ -155,7 +155,7 @@ from ..meta import valid
 
 
 @valid(temperature=[-1, 40], salinity=[0, 40])
-def k_CO2_W74(temperature, salinity):
+def pk_CO2_W74(temperature, salinity):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
 
     Parameters
@@ -180,13 +180,13 @@ def k_CO2_W74(temperature, salinity):
         + 23.3585 * np.log(TempK100)
         + salinity * (0.023517 - 0.023656 * TempK100 + 0.0047036 * TempK100**2)
     )
-    return np.exp(lnK0)
+    return -lnK0 / np.log(10)
 
 
 @valid(temperature=[0, 45], salinity=[5, 45], ionic_strength=[0.10012312, 0.93904847])
-def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
+def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
-    Used when opt_k_HSO4 = 1.
+    Used when opt_pk_HSO4 = 1.
 
     Parameters
     ----------
@@ -220,13 +220,13 @@ def k_HSO4_free_D90a(temperature, salinity, ionic_strength):
         + (-2698 / TempK) * np.sqrt(ionic_strength) * ionic_strength
         + (1776 / TempK) * ionic_strength**2
     )
-    return np.exp(lnk_HSO4) * (1 - 0.001005 * salinity)
+    return -np.log10(np.exp(lnk_HSO4) * (1 - 0.001005 * salinity))
 
 
 @valid(temperature=[5, 40], salinity=[20, 45], ionic_strength=[0.40665374, 0.93904847])
-def k_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
+def pk_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
-    Used when opt_k_HSO4 = 2.
+    Used when opt_pk_HSO4 = 2.
 
     Parameters
     ----------
@@ -260,13 +260,13 @@ def k_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     pk_HSO4 = (
         647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(ionic_strength)
     )
-    return 10.0**-pk_HSO4 * (1 - 0.001005 * salinity)
+    return pk_HSO4 - np.log10(1 - 0.001005 * salinity)
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def k_HSO4_free_WM13(temperature, salinity):
+def pk_HSO4_free_WM13(temperature, salinity):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
-    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
+    with the corrections of WMW14.  Used when opt_pk_HSO4 = 3.
 
     Parameters
     ----------
@@ -302,19 +302,19 @@ def k_HSO4_free_WM13(temperature, salinity):
         + -0.0000403724 * salinity**2
     )
     k_HSO4 = (1 - 0.001005 * salinity) * 10.0 ** (logKSK0 + logKS0)
-    return k_HSO4
+    return -np.log10(k_HSO4)
 
 
 @valid(
     temperature=[5, 35], salinity=[10.43, 47.78], ionic_strength=[0.21000866, 0.999987]
 )
-def k_HF_free_DR79(temperature, salinity, ionic_strength):
+def pk_HF_free_DR79(temperature, salinity, ionic_strength):
     """Hydrogen fluoride dissociation constant on the free scale following DR79a.
-    Used when opt_k_HF = 1.
+    Used when opt_pk_HF = 1.
 
     Note that the validity range given for this function is given as the ranges
-    of temperature and salinity that DR79 applied it to when computing k_H2O, rather
-    than being a true validity range for the k_HF expression itself.
+    of temperature and salinity that DR79 applied it to when computing pk_H2O, rather
+    than being a true validity range for the pk_HF expression itself.
 
     Parameters
     ----------
@@ -332,13 +332,13 @@ def k_HF_free_DR79(temperature, salinity, ionic_strength):
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
     lnKF = 1590.2 / (temperature + 273.15) - 12.641 + 1.525 * ionic_strength**0.5
-    return np.exp(lnKF) * (1 - 0.001005 * salinity)
+    return -np.log10(np.exp(lnKF) * (1 - 0.001005 * salinity))
 
 
 @valid(temperature=[9, 33], salinity=[10, 40])
-def k_HF_free_PF87(temperature, salinity):
+def pk_HF_free_PF87(temperature, salinity):
     """Hydrogen fluoride dissociation constant on the free scale following PF87.
-    Used when opt_k_HF = 2.
+    Used when opt_pk_HF = 2.
 
     Parameters
     ----------
@@ -361,12 +361,12 @@ def k_HF_free_PF87(temperature, salinity):
     # which is based on only three salinityinities: [0 26.7 34.6]
     # Output is on the free pH scale in mol/kg-SW.
     lnKF = 874 / (temperature + 273.15) - 9.68 + 0.111 * salinity**0.5
-    return np.exp(lnKF)
+    return -lnKF / np.log(10)
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def k_BOH3_total_D90b(temperature, salinity):
-    """Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
+def pk_BOH3_total_D90b(temperature, salinity):
+    """Boric acid dissociation constant following D90b.  Used when opt_pk_BOH3 = 1.
 
     Parameters
     ----------
@@ -400,12 +400,12 @@ def k_BOH3_total_D90b(temperature, salinity):
         + (-24.4344 - 25.085 * sqrsalinity - 0.2474 * salinity) * np.log(TempK)
         + 0.053105 * sqrsalinity * TempK
     )
-    return np.exp(lnKB)
+    return -lnKB / np.log(10)
 
 
 @valid(temperature=[0, 25], salinity=[29, 38])
-def k_BOH3_nbs_LTB69(temperature, salinity):
-    """Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
+def pk_BOH3_nbs_LTB69(temperature, salinity):
+    """Boric acid dissociation constant following LTB69.  Used when opt_pk_BOH3 = 2.
 
     Parameters
     ----------
@@ -425,13 +425,13 @@ def k_BOH3_nbs_LTB69(temperature, salinity):
     # fit by Li et al, JGR 74:5507-5525, 1969.
     # logKB is on NBS pH scale
     logKB = -9.26 + 0.00886 * salinity + 0.01 * temperature
-    return 10.0**logKB
+    return -logKB
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def k_H2O_sws_M95(temperature, salinity):
+def pk_H2O_sws_M95(temperature, salinity):
     """Water dissociation constant on the seawater scale following M95.
-    Used when opt_k_H2O = 1.
+    Used when opt_pk_H2O = 1.
 
     Parameters
     ----------
@@ -449,19 +449,19 @@ def k_H2O_sws_M95(temperature, salinity):
     # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
     # his check value of 1.6 umol/kg-SW should be 6.2 (for ln(k))
     TempK = convert.celsius_to_kelvin(temperature)
-    return np.exp(
+    return -(
         148.9802
         - 13847.26 / TempK
         - 23.6521 * np.log(TempK)
         + (-5.977 + 118.67 / TempK + 1.0495 * np.log(TempK)) * np.sqrt(salinity)
         - 0.01615 * salinity
-    )
+    ) / np.log(10)
 
 
 @valid(temperature=[0, 50], salinity=[0, 40])
-def k_H2O_sws_M79(temperature, salinity):
+def pk_H2O_sws_M79(temperature, salinity):
     """Water dissociation constant on the seawater scale following M79.
-    Used when opt_k_H2O = 2.
+    Used when opt_pk_H2O = 2.
 
     Parameters
     ----------
@@ -478,19 +478,19 @@ def k_H2O_sws_M79(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
     TempK = convert.celsius_to_kelvin(temperature)
-    return np.exp(
+    return -(
         148.9802
         - 13847.26 / TempK
         - 23.6521 * np.log(TempK)
         + (-79.2447 + 3298.72 / TempK + 12.0408 * np.log(TempK)) * np.sqrt(salinity)
         - 0.019813 * salinity
-    )
+    ) / np.log(10)
 
 
 @valid(temperature=[0, 50])
-def k_H2O_sws_HO58_M79(temperature):
+def pk_H2O_sws_HO58_M79(temperature):
     """Water dissociation constant on the seawater scale following HO58 refit by
-    M79, for freshwater.  Used when opt_k_H2O = 3.
+    M79, for freshwater.  Used when opt_pk_H2O = 3.
 
     Parameters
     ----------
@@ -509,12 +509,12 @@ def k_H2O_sws_HO58_M79(temperature):
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
     TempK = convert.celsius_to_kelvin(temperature)
-    return np.exp(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK))
+    return -(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK)) / np.log(10)
 
 
-def k_H3PO4_sws_KP67():
+def pk_H3PO4_sws_KP67():
     """First phosphate dissociation constant on the seawater scale following KP67.
-    Used when opt_k_phosphate = 2.
+    Used when opt_pk_phosphate = 2.
 
     Returns
     -------
@@ -525,12 +525,12 @@ def k_H3PO4_sws_KP67():
     # Peng et al don't include the contribution from the KP1 term,
     # but it is so small it doesn't contribute. It needs to be
     # kept so that the routines work ok.
-    return 0.02  # This is already on the seawater scale!
+    return -np.log10(0.02)  # This is already on the seawater scale!
 
 
-def k_H2PO4_nbs_KP67(temperature):
+def pk_H2PO4_nbs_KP67(temperature):
     """Second phosphate dissociation constant on the NBS scale following KP67.
-    Used when opt_k_phosphate = 2.
+    Used when opt_pk_phosphate = 2.
 
     Parameters
     ----------
@@ -549,12 +549,12 @@ def k_H2PO4_nbs_KP67(temperature):
     # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
-    return np.exp(-9.039 - 1450 / (temperature + 273.15))
+    return -(-9.039 - 1450 / (temperature + 273.15)) / np.log(10)
 
 
-def k_HPO4_nbs_KP67(temperature):
+def pk_HPO4_nbs_KP67(temperature):
     """Third phosphate dissociation constant on the NBS scale following KP67.
-    Used when opt_k_phosphate = 2.
+    Used when opt_pk_phosphate = 2.
 
     Parameters
     ----------
@@ -573,12 +573,12 @@ def k_HPO4_nbs_KP67(temperature):
     # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
-    return np.exp(4.466 - 7276 / (temperature + 273.15))
+    return -(4.466 - 7276 / (temperature + 273.15)) / np.log(10)
 
 
-def k_H3PO4_sws_YM95(temperature, salinity):
+def pk_H3PO4_sws_YM95(temperature, salinity):
     """First phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    Used when opt_pk_phosphate = 1.
 
     Parameters
     ----------
@@ -603,12 +603,12 @@ def k_H3PO4_sws_YM95(temperature, salinity):
         + (-106.736 / TempK + 0.69171) * np.sqrt(salinity)
         + (-0.65643 / TempK - 0.01844) * salinity
     )
-    return np.exp(lnKP1)
+    return -lnKP1 / np.log(10)
 
 
-def k_H2PO4_sws_YM95(temperature, salinity):
+def pk_H2PO4_sws_YM95(temperature, salinity):
     """Second phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    Used when opt_pk_phosphate = 1.
 
     Parameters
     ----------
@@ -633,12 +633,12 @@ def k_H2PO4_sws_YM95(temperature, salinity):
         + (-160.34 / TempK + 1.3566) * np.sqrt(salinity)
         + (0.37335 / TempK - 0.05778) * salinity
     )
-    return np.exp(lnKP2)
+    return -lnKP2 / np.log(10)
 
 
-def k_HPO4_sws_YM95(temperature, salinity):
+def pk_HPO4_sws_YM95(temperature, salinity):
     """Third phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    Used when opt_pk_phosphate = 1.
 
     Parameters
     ----------
@@ -662,12 +662,12 @@ def k_HPO4_sws_YM95(temperature, salinity):
         + (17.27039 / TempK + 2.81197) * np.sqrt(salinity)
         + (-44.99486 / TempK - 0.09984) * salinity
     )
-    return np.exp(lnKP3)
+    return -lnKP3 / np.log(10)
 
 
-def k_Si_nbs_SMB64():
+def pk_Si_nbs_SMB64():
     """Silicate dissociation constant on the NBS scale following SMB64.
-    Used when opt_k_Si = 2.
+    Used when opt_pk_Si = 2.
 
     Returns
     -------
@@ -677,12 +677,12 @@ def k_Si_nbs_SMB64():
     # === CO2SYS.m comments: =======
     # Sillen, Martell, and Bjerrum,  Stability Constants of metal-ion
     # complexes, The Chemical Society (London), Special Publ. 17:751, 1964.
-    return 0.0000000004
+    return -np.log10(0.0000000004)
 
 
-def k_Si_sws_YM95(temperature, salinity, ionic_strength):
+def pk_Si_sws_YM95(temperature, salinity, ionic_strength):
     """Silicate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_Si = 1.
+    Used when opt_pk_Si = 1.
 
     Parameters
     ----------
@@ -711,13 +711,13 @@ def k_Si_sws_YM95(temperature, salinity, ionic_strength):
         + (188.74 / TempK - 1.5998) * ionic_strength
         + (-12.1652 / TempK + 0.07871) * ionic_strength**2
     )
-    return np.exp(lnKSi) * (1 - 0.001005 * salinity)
+    return -np.log10(np.exp(lnKSi) * (1 - 0.001005 * salinity))
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def k_H2CO3_total_RRV93(temperature, salinity):
+def pk_H2CO3_total_RRV93(temperature, salinity):
     """First carbonic acid dissociation constant following RRV93.
-    Used when opt_k_carbonic = 1.
+    Used when opt_pk_carbonic = 1.
 
     Parameters
     ----------
@@ -755,15 +755,18 @@ def k_H2CO3_total_RRV93(temperature, salinity):
         + 0.08468345 * salinity
         - 0.00654208 * np.sqrt(salinity) * salinity
     )
-    return np.exp(lnK1) * (  # this is on the total pH scale in mol/kg-H2O
-        1 - 0.001005 * salinity
-    )  # convert to mol/kg-SW
+    return -np.log10(
+        np.exp(lnK1)  # this is on the total pH scale in mol/kg-H2O
+        * (
+            1 - 0.001005 * salinity  # convert to mol/kg-SW
+        )
+    )
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def k_HCO3_total_RRV93(temperature, salinity):
+def pk_HCO3_total_RRV93(temperature, salinity):
     """Second carbonic acid dissociation constant following RRV93.
-    Used when opt_k_carbonic = 1.
+    Used when opt_pk_carbonic = 1.
 
     Parameters
     ----------
@@ -787,15 +790,18 @@ def k_HCO3_total_RRV93(temperature, salinity):
         + 0.1130822 * salinity
         - 0.00846934 * np.sqrt(salinity) * salinity
     )
-    return np.exp(lnK2) * (  # this is on the total pH scale in mol/kg-H2O
-        1 - 0.001005 * salinity
-    )  # convert to mol/kg-SW
+    return -np.log10(
+        np.exp(lnK2)  # this is on the total pH scale in mol/kg-H2O
+        * (
+            1 - 0.001005 * salinity  # convert to mol/kg-SW
+        )
+    )
 
 
 @valid(temperature=[-1, 40], salinity=[10, 50])
-def k_H2CO3_sws_GP89(temperature, salinity):
+def pk_H2CO3_sws_GP89(temperature, salinity):
     """First carbonic acid dissociation constant following GP89.
-    Used when opt_k_carbonic = 2.
+    Used when opt_pk_carbonic = 2.
 
     Parameters
     ----------
@@ -821,13 +827,13 @@ def k_H2CO3_sws_GP89(temperature, salinity):
         - 0.00171 * salinity * np.log(TempK)
         + 0.000091 * salinity**2
     )
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[-1, 40], salinity=[10, 50])
-def k_HCO3_sws_GP89(temperature, salinity):
+def pk_HCO3_sws_GP89(temperature, salinity):
     """Second carbonic acid dissociation constant following GP89.
-    Used when opt_k_carbonic = 2.
+    Used when opt_pk_carbonic = 2.
 
     Parameters
     ----------
@@ -849,13 +855,13 @@ def k_HCO3_sws_GP89(temperature, salinity):
         - 0.00385 * salinity * np.log(TempK)
         + 0.000182 * salinity**2
     )
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_H2CO3_sws_H73_DM87(temperature, salinity):
+def pk_H2CO3_sws_H73_DM87(temperature, salinity):
     """First carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
+    Used when opt_pk_carbonic = 3.
 
     Parameters
     ----------
@@ -886,13 +892,13 @@ def k_H2CO3_sws_H73_DM87(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # This is from Table 4 on p. 1739.
     pK1 = 851.4 / TempK + 3.237 - 0.0106 * salinity + 0.000105 * salinity**2
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_HCO3_sws_H73_DM87(temperature, salinity):
+def pk_HCO3_sws_H73_DM87(temperature, salinity):
     """Second carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
+    Used when opt_pk_carbonic = 3.
 
     Parameters
     ----------
@@ -915,13 +921,13 @@ def k_HCO3_sws_H73_DM87(temperature, salinity):
         - 0.0192 * salinity
         + 0.000132 * salinity**2
     )
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_H2CO3_sws_MCHP73_DM87(temperature, salinity):
+def pk_H2CO3_sws_MCHP73_DM87(temperature, salinity):
     """First carbonic acid dissociation constant following DM87 refit of MCHP73.
-    Used when opt_k_carbonic = 4.
+    Used when opt_pk_carbonic = 4.
 
     Parameters
     ----------
@@ -954,13 +960,13 @@ def k_H2CO3_sws_MCHP73_DM87(temperature, salinity):
         - 0.0118 * salinity
         + 0.000116 * salinity**2
     )
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_HCO3_sws_MCHP73_DM87(temperature, salinity):
+def pk_HCO3_sws_MCHP73_DM87(temperature, salinity):
     """Second carbonic acid dissociation constant following DM87 refit of MCHP73.
-    Used when opt_k_carbonic = 4.
+    Used when opt_pk_carbonic = 4.
 
     Parameters
     ----------
@@ -977,13 +983,13 @@ def k_HCO3_sws_MCHP73_DM87(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # This is in Table 4 on p. 1739.
     pK2 = 1394.7 / TempK + 4.777 - 0.0184 * salinity + 0.000118 * salinity**2
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_H2CO3_sws_HM_DM87(temperature, salinity):
+def pk_H2CO3_sws_HM_DM87(temperature, salinity):
     """First carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
+    Hansson [H73a, H73b].  Used when opt_pk_carbonic = 5.
 
     Parameters
     ----------
@@ -1013,13 +1019,13 @@ def k_H2CO3_sws_HM_DM87(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # This is in Table 5 on p. 1740.
     pK1 = 845 / TempK + 3.248 - 0.0098 * salinity + 0.000087 * salinity**2
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[20, 40])
-def k_HCO3_sws_HM_DM87(temperature, salinity):
+def pk_HCO3_sws_HM_DM87(temperature, salinity):
     """Second carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
+    Hansson [H73a, H73b].  Used when opt_pk_carbonic = 5.
 
     Parameters
     ----------
@@ -1036,13 +1042,13 @@ def k_HCO3_sws_HM_DM87(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # This is in Table 5 on p. 1740.
     pK2 = 1377.3 / TempK + 4.824 - 0.0185 * salinity + 0.000122 * salinity**2
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[19, 43])
-def k_H2CO3_nbs_MCHP73(temperature, salinity):
+def pk_H2CO3_nbs_MCHP73(temperature, salinity):
     """First carbonic acid dissociation constant following MCHP73.
-    Used when opt_k_carbonic = 6 or 7.
+    Used when opt_pk_carbonic = 6 or 7.
 
     Parameters
     ----------
@@ -1072,13 +1078,13 @@ def k_H2CO3_nbs_MCHP73(temperature, salinity):
         + 1.3e-5 * salinity * TempK
         - 0.1032 * salinity**0.5
     )
-    return 10.0**-pK1  # this is on the NBS scale
+    return pK1  # this is on the NBS scale
 
 
 @valid(temperature=[2, 35], salinity=[19, 43])
-def k_HCO3_nbs_MCHP73(temperature, salinity):
+def pk_HCO3_nbs_MCHP73(temperature, salinity):
     """Second carbonic acid dissociation constant following MCHP73.
-    Used when opt_k_carbonic = 6 or 7.
+    Used when opt_pk_carbonic = 6 or 7.
 
     Parameters
     ----------
@@ -1106,13 +1112,13 @@ def k_HCO3_nbs_MCHP73(temperature, salinity):
     )  # pK2 is not defined for salinity=0, since log10(0)=-inf, but since v1.8.3 we
     # return the value for salinity=1e-16 instead (this option shouldn't be used in
     # such low salinities anyway, it's only valid above 19!)
-    return 10.0**-pK2  # this is on the NBS scale
+    return pK2  # this is on the NBS scale
 
 
 @valid(temperature=[0, 50])
-def k_H2CO3_sws_M79(temperature):
+def pk_H2CO3_sws_M79(temperature):
     """First carbonic acid dissociation constant following M79, pure water case.
-    Used when opt_k_carbonic = 8.
+    Used when opt_pk_carbonic = 8.
 
     Parameters
     ----------
@@ -1136,13 +1142,13 @@ def k_H2CO3_sws_M79(temperature):
     # These are the thermodynamic Constants:
     TempK = convert.celsius_to_kelvin(temperature)
     lnK1 = 290.9097 - 14554.21 / TempK - 45.0575 * np.log(TempK)
-    return np.exp(lnK1)
+    return -lnK1 / np.log(10)
 
 
 @valid(temperature=[0, 50])
-def k_HCO3_sws_M79(temperature):
+def pk_HCO3_sws_M79(temperature):
     """Second carbonic acid dissociation constant following M79, pure water case.
-    Used when opt_k_carbonic = 8.
+    Used when opt_pk_carbonic = 8.
 
     Parameters
     ----------
@@ -1156,13 +1162,13 @@ def k_HCO3_sws_M79(temperature):
     """
     TempK = convert.celsius_to_kelvin(temperature)
     lnK2 = 207.6548 - 11843.79 / TempK - 33.6485 * np.log(TempK)
-    return np.exp(lnK2)
+    return -lnK2 / np.log(10)
 
 
 @valid(temperature=[0.2, 30], salinity=[0, 40])
-def k_H2CO3_nbs_CW98(temperature, salinity):
+def pk_H2CO3_nbs_CW98(temperature, salinity):
     """First carbonic acid dissociation constant following CW98.
-    Used when opt_k_carbonic = 9.
+    Used when opt_pk_carbonic = 9.
 
     Parameters
     ----------
@@ -1199,13 +1205,13 @@ def k_H2CO3_nbs_CW98(temperature, salinity):
         - 0.071692 * F1 * salinity**0.5
         + 0.0021487 * salinity
     )
-    return 10.0**-pK1  # this is on the NBS scale
+    return pK1  # this is on the NBS scale
 
 
 @valid(temperature=[0.2, 30], salinity=[0, 40])
-def k_HCO3_nbs_CW98(temperature, salinity):
+def pk_HCO3_nbs_CW98(temperature, salinity):
     """Second carbonic acid dissociation constant following CW98.
-    Used when opt_k_carbonic = 9.
+    Used when opt_pk_carbonic = 9.
 
     Parameters
     ----------
@@ -1228,13 +1234,13 @@ def k_HCO3_nbs_CW98(temperature, salinity):
         - 0.3191 * F2 * salinity**0.5
         + 0.0198 * salinity
     )
-    return 10.0**-pK2  # this is on the NBS scale
+    return pK2  # this is on the NBS scale
 
 
 @valid(temperature=[2, 35], salinity=[19, 43])
-def k_H2CO3_total_LDK00(temperature, salinity):
+def pk_H2CO3_total_LDK00(temperature, salinity):
     """First carbonic acid dissociation constant following LDK00.
-    Used when opt_k_carbonic = 10.
+    Used when opt_pk_carbonic = 10.
 
     Parameters
     ----------
@@ -1262,13 +1268,13 @@ def k_H2CO3_total_LDK00(temperature, salinity):
         - 0.011555 * salinity
         + 0.0001152 * salinity**2
     )
-    return 10.0**-pK1  # this is on the Total pH scale in mol/kg-SW
+    return pK1  # this is on the Total pH scale in mol/kg-SW
 
 
 @valid(temperature=[2, 35], salinity=[19, 43])
-def k_HCO3_total_LDK00(temperature, salinity):
+def pk_HCO3_total_LDK00(temperature, salinity):
     """Second carbonic acid dissociation constant following LDK00.
-    Used when opt_k_carbonic = 10.
+    Used when opt_pk_carbonic = 10.
 
     Parameters
     ----------
@@ -1290,13 +1296,13 @@ def k_HCO3_total_LDK00(temperature, salinity):
         - 0.01781 * salinity
         + 0.0001122 * salinity**2
     )
-    return 10.0**-pK2  # this is on the Total pH scale in mol/kg-SW
+    return pK2  # this is on the Total pH scale in mol/kg-SW
 
 
 @valid(temperature=[0, 45], salinity=[5, 42])
-def k_H2CO3_sws_MM02(temperature, salinity):
+def pk_H2CO3_sws_MM02(temperature, salinity):
     """First carbonic acid dissociation constant following MM02.
-    Used when opt_k_carbonic = 11.
+    Used when opt_pk_carbonic = 11.
 
     Parameters
     ----------
@@ -1324,13 +1330,13 @@ def k_H2CO3_sws_MM02(temperature, salinity):
         + 2885.378 / TempK
         + 7.045159 * np.log(TempK)
     )
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[0, 45], salinity=[5, 42])
-def k_HCO3_sws_MM02(temperature, salinity):
+def pk_HCO3_sws_MM02(temperature, salinity):
     """Second carbonic acid dissociation constant following MM02.
-    Used when opt_k_carbonic = 11.
+    Used when opt_pk_carbonic = 11.
 
     Parameters
     ----------
@@ -1354,13 +1360,13 @@ def k_HCO3_sws_MM02(temperature, salinity):
         + (-581.4428 * salinity + 0.259601 * salinity**2) / TempK
         - 1.967035 * salinity * np.log(TempK)
     )
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[-1.6, 35], salinity=[34, 37])
-def k_H2CO3_sws_MPL02(temperature, salinity):
+def pk_H2CO3_sws_MPL02(temperature, salinity):
     """First carbonic acid dissociation constant following MPL02.
-    Used when opt_k_carbonic = 12.
+    Used when opt_pk_carbonic = 12.
 
     Parameters
     ----------
@@ -1381,13 +1387,13 @@ def k_H2CO3_sws_MPL02(temperature, salinity):
     # sigma for pK2 is reported to be 0.008
     # This is from page 1715
     pK1 = 6.359 - 0.00664 * salinity - 0.01322 * temperature + 4.989e-5 * temperature**2
-    return 10.0**-pK1  # this is on the SWS pH scale in mol/kg-SW
+    return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[-1.6, 35], salinity=[34, 37])
-def k_HCO3_sws_MPL02(temperature, salinity):
+def pk_HCO3_sws_MPL02(temperature, salinity):
     """Second carbonic acid dissociation constant following MPL02.
-    Used when opt_k_carbonic = 12.
+    Used when opt_pk_carbonic = 12.
 
     Parameters
     ----------
@@ -1402,13 +1408,13 @@ def k_HCO3_sws_MPL02(temperature, salinity):
         HCO3 dissociation constant.
     """
     pK2 = 9.867 - 0.01314 * salinity - 0.01904 * temperature + 2.448e-5 * temperature**2
-    return 10.0**-pK2  # this is on the SWS pH scale in mol/kg-SW
+    return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
 @valid(temperature=[0, 50], salinity=[1, 50])
-def k_H2CO3_sws_MGH06(temperature, salinity):
+def pk_H2CO3_sws_MGH06(temperature, salinity):
     """First carbonic acid dissociation constant following MGH06.
-    Used when opt_k_carbonic = 13.
+    Used when opt_pk_carbonic = 13.
 
     Parameters
     ----------
@@ -1434,13 +1440,13 @@ def k_H2CO3_sws_MGH06(temperature, salinity):
     B_1 = -530.123 * salinity**0.5 - 6.103 * salinity
     C_1 = -2.06950 * salinity**0.5
     pK1 = A_1 + B_1 / TempK + C_1 * np.log(TempK) + pK1_0  # pK1 sigma = 0.0054
-    return 10.0**-(pK1)
+    return pK1
 
 
 @valid(temperature=[0, 50], salinity=[1, 50])
-def k_HCO3_sws_MGH06(temperature, salinity):
+def pk_HCO3_sws_MGH06(temperature, salinity):
     """Second carbonic acid dissociation constant following MGH06.
-    Used when opt_k_carbonic = 13.
+    Used when opt_pk_carbonic = 13.
 
     Parameters
     ----------
@@ -1460,13 +1466,13 @@ def k_HCO3_sws_MGH06(temperature, salinity):
     B_2 = -772.483 * salinity**0.5 - 20.051 * salinity
     C_2 = -3.3336 * salinity**0.5
     pK2 = A_2 + B_2 / TempK + C_2 * np.log(TempK) + pK2_0  # pK2 sigma = 0.011
-    return 10.0**-(pK2)
+    return pK2
 
 
 @valid(temperature=[0, 50], salinity=[1, 50])
-def k_H2CO3_sws_M10(temperature, salinity):
+def pk_H2CO3_sws_M10(temperature, salinity):
     """First carbonic acid dissociation constant following M10.
-    Used when opt_k_carbonic = 14.
+    Used when opt_pk_carbonic = 14.
 
     Parameters
     ----------
@@ -1495,13 +1501,13 @@ def k_H2CO3_sws_M10(temperature, salinity):
     B1 = -530.659 * salinity**0.5 - 5.8210 * salinity
     C1 = -2.0664 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
-    return 10.0**-pK1
+    return pK1
 
 
 @valid(temperature=[0, 50], salinity=[1, 50])
-def k_HCO3_sws_M10(temperature, salinity):
+def pk_HCO3_sws_M10(temperature, salinity):
     """Second carbonic acid dissociation constant following M10.
-    Used when opt_k_carbonic = 14.
+    Used when opt_pk_carbonic = 14.
 
     Parameters
     ----------
@@ -1523,7 +1529,7 @@ def k_HCO3_sws_M10(temperature, salinity):
     B2 = -788.289 * salinity**0.5 - 19.189 * salinity
     C2 = -3.374 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
-    return 10.0**-pK2
+    return pK2
 
 
 def _kH2CO3_WMW14(TempK):
@@ -1534,9 +1540,9 @@ def _kH2CO3_WMW14(TempK):
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def k_H2CO3_sws_WMW14(temperature, salinity):
+def pk_H2CO3_sws_WMW14(temperature, salinity):
     """First carbonic acid dissociation constant following WM13/WMW14.
-    Used when opt_k_carbonic = 15.
+    Used when opt_pk_carbonic = 15.
 
     Parameters
     ----------
@@ -1563,13 +1569,13 @@ def k_H2CO3_sws_WMW14(temperature, salinity):
     B1 = -531.3642 * salinity**0.5 - 5.713 * salinity
     C1 = -2.0669166 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
-    return 10.0**-pK1
+    return pK1
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def k_HCO3_sws_WMW14(temperature, salinity):
+def pk_HCO3_sws_WMW14(temperature, salinity):
     """Second carbonic acid dissociation constant following WM13/WMW14.
-    Used when opt_k_carbonic = 15.
+    Used when opt_pk_carbonic = 15.
 
     Parameters
     ----------
@@ -1589,13 +1595,13 @@ def k_HCO3_sws_WMW14(temperature, salinity):
     B2 = -779.3444 * salinity**0.5 - 19.91739 * salinity
     C2 = -3.3534679 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
-    return 10.0**-pK2
+    return pK2
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def k_H2CO3_total_WMW14(temperature, salinity):
+def pk_H2CO3_total_WMW14(temperature, salinity):
     """First carbonic acid dissociation constant following WM13/WMW14.
-    Used when opt_k_carbonic = 17.
+    Used when opt_pk_carbonic = 17.
 
     Parameters
     ----------
@@ -1616,12 +1622,11 @@ def k_H2CO3_total_WMW14(temperature, salinity):
     B1 = -539.2304 * salinity**0.5 - 5.635 * salinity
     C1 = -2.0901396 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
-    K1 = 10.0**-pK1
-    return K1
+    return pK1
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def k_HCO3_total_WMW14(temperature, salinity):
+def pk_HCO3_total_WMW14(temperature, salinity):
     """Second carbonic acid dissociation constant following WM13/WMW14.
 
     Parameters
@@ -1643,14 +1648,13 @@ def k_HCO3_total_WMW14(temperature, salinity):
     B2 = -787.3736 * salinity**0.5 - 19.84233 * salinity
     C2 = -3.3773006 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
-    K2 = 10.0**-pK2
-    return K2
+    return pK2
 
 
 @valid(temperature=[-1.67, 31.8], salinity=[30.73, 37.57])
-def k_H2CO3_total_SLH20(temperature, salinity):
+def pk_H2CO3_total_SLH20(temperature, salinity):
     """First carbonic acid dissociation constant following SLH20.
-    Used when opt_k_carbonic = 16.
+    Used when opt_pk_carbonic = 16.
 
     Parameters
     ----------
@@ -1673,13 +1677,13 @@ def k_H2CO3_total_SLH20(temperature, salinity):
         - 0.011555 * salinity
         + 0.0001152 * salinity**2
     )
-    return 10.0**-pK1  # this is on the Total pH scale in mol/kg-SW
+    return pK1  # this is on the Total pH scale in mol/kg-SW
 
 
 @valid(temperature=[-1.67, 31.8], salinity=[30.73, 37.57])
-def k_HCO3_total_SLH20(temperature, salinity):
+def pk_HCO3_total_SLH20(temperature, salinity):
     """Second carbonic acid dissociation constant following SLH20.
-    Used when opt_k_carbonic = 16.
+    Used when opt_pk_carbonic = 16.
 
     Parameters
     ----------
@@ -1701,13 +1705,13 @@ def k_HCO3_total_SLH20(temperature, salinity):
         - 0.01781 * salinity
         + 0.0001122 * salinity**2
     )
-    return 10.0**-pK2  # this is on the Total pH scale in mol/kg-SW
+    return pK2  # this is on the Total pH scale in mol/kg-SW
 
 
 @valid(temperature=[15, 35], salinity=[19.6, 41])
-def k_HCO3_total_SB21(temperature, salinity):
+def pk_HCO3_total_SB21(temperature, salinity):
     """Second carbonic acid dissociation constant following SB21.
-    Used when opt_k_carbonic = 17 together with K1 from WMW14.
+    Used when opt_pk_carbonic = 17 together with K1 from WMW14.
 
     Parameters
     ----------
@@ -1731,13 +1735,13 @@ def k_HCO3_total_SB21(temperature, salinity):
         - 0.0002799 * salinity**2
         + 4.969 * salinity / TempK
     )
-    return 10.0**-pK2
+    return pK2
 
 
 @valid(temperature=[-6, 25], salinity=[33, 100])
-def k_H2CO3_total_PLR18(temperature, salinity):
+def pk_H2CO3_total_PLR18(temperature, salinity):
     """First carbonic acid dissociation constant following PLR18.
-    Used when opt_k_carbonic = 18.
+    Used when opt_pk_carbonic = 18.
 
     Parameters
     ----------
@@ -1761,13 +1765,13 @@ def k_H2CO3_total_PLR18(temperature, salinity):
         + (9914.37 - 622.886 * salinity**0.5 + 29.714 * salinity) / TempK
         + (26.05129 - 0.666812 * salinity**0.5) * np.log(TempK)
     )
-    return 10.0**-pK1
+    return pK1
 
 
 @valid(temperature=[-6, 25], salinity=[33, 100])
-def k_HCO3_total_PLR18(temperature, salinity):
+def pk_HCO3_total_PLR18(temperature, salinity):
     """Second carbonic acid dissociation constant following PLR18.
-    Used when opt_k_carbonic = 18.
+    Used when opt_pk_carbonic = 18.
 
     Parameters
     ----------
@@ -1790,10 +1794,10 @@ def k_HCO3_total_PLR18(temperature, salinity):
         + (14763.287 - 1014.819 * salinity**0.5 - 14.35223 * salinity) / TempK
         + (50.385807 - 4.4630415 * salinity**0.5) * np.log(TempK)
     )
-    return 10.0**-pK2
+    return pK2
 
 
-def k_H2S_total_YM95(temperature, salinity):
+def pk_H2S_total_YM95(temperature, salinity):
     """Hydrogen sulfide dissociation constant on the total scale following YM95.
 
     Parameters
@@ -1823,11 +1827,11 @@ def k_H2S_total_YM95(temperature, salinity):
         + 0.3449 * np.sqrt(salinity)
         - 0.0274 * salinity
     )
-    return np.exp(lnkH2S)
+    return -lnkH2S / np.log(10)
 
 
-def k_NH3_sws_YM95(temperature, salinity):
-    """Ammonium association constant following YM95.  Used when opt_k_NH3 = 1.
+def pk_NH3_sws_YM95(temperature, salinity):
+    """Ammonium association constant following YM95.  Used when opt_pk_NH3 = 1.
 
     Parameters
     ----------
@@ -1851,12 +1855,12 @@ def k_NH3_sws_YM95(temperature, salinity):
         + (0.46532 - 123.7184 / TempK) * np.sqrt(salinity)
         + (-0.01992 + 3.17556 / TempK) * salinity
     )
-    return np.exp(lnkNH3)
+    return -lnkNH3 / np.log(10)
 
 
 @valid(temperature=[-2, 40], salinity=[0, 40])
-def k_NH3_total_CW95(temperature, salinity):
-    """Ammonium association constant following CW95.  Used when opt_k_NH3 = 2.
+def pk_NH3_total_CW95(temperature, salinity):
+    """Ammonium association constant following CW95.  Used when opt_pk_NH3 = 2.
 
     Parameters
     ----------
@@ -1899,14 +1903,14 @@ def k_NH3_total_CW95(temperature, salinity):
     PKNH3expCW = PKNH3expCW + (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
-    return KNH3
+    return -np.log10(KNH3)
 
 
 @valid(temperature=[5, 35])
-def k_HNO2_total_BBWB24(temperature):
+def pk_HNO2_total_BBWB24(temperature):
     """Nitrous acid dissociation constant in artificial seawater following BBWB24.
 
-    Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C.
+    Used when opt_pk_HNO2 = 1 (default).  Valid from 5 to 35 °C.
 
     Parameters
     ----------
@@ -1920,14 +1924,14 @@ def k_HNO2_total_BBWB24(temperature):
     """
     T = convert.celsius_to_kelvin(temperature)
     pk_HNO2 = 16084.01 / T + 50.17 * np.log(T) - 336.92
-    return 10**-pk_HNO2
+    return pk_HNO2
 
 
 @valid(temperature=[5, 35])
-def k_HNO2_nbs_BBWB24_freshwater(temperature):
+def pk_HNO2_nbs_BBWB24_freshwater(temperature):
     """Nitrous acid dissociation constant in freshwater following BBWB24.
 
-    Used when opt_k_HNO2 = 2.  Valid from 5 to 35 °C.
+    Used when opt_pk_HNO2 = 2.  Valid from 5 to 35 °C.
 
     Parameters
     ----------
@@ -1941,4 +1945,4 @@ def k_HNO2_nbs_BBWB24_freshwater(temperature):
     """
     T = convert.celsius_to_kelvin(temperature)
     pk_HNO2 = 16437.31 / T + 53.61 * np.log(T) - 357.43
-    return 10**-pk_HNO2
+    return pk_HNO2

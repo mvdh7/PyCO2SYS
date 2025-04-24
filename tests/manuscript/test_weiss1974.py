@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 
 import PyCO2SYS as pyco2
@@ -10,7 +11,7 @@ kCO2_W74 = data[1:, 1:]
 
 # Calculate kCO2 with PyCO2SYS
 kCO2_pyco2 = np.array(
-    np.round(pyco2.equilibria.p1atm.k_CO2_W74(temperature, salinity) * 1e2, 3)
+    np.round((10 ** -pyco2.equilibria.p1atm.pk_CO2_W74(temperature, salinity)) * 1e2, 3)
 )
 kCO2_pyco2[0, :2] = np.nan
 

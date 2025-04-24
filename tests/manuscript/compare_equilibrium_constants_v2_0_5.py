@@ -1,3 +1,4 @@
+# %%
 import warnings
 
 import numpy as np
@@ -39,17 +40,17 @@ matlab["opt_k_bisulfate"], matlab["opt_total_borate"] = options_old2new(
 
 def test_equilibrium_constants():
     m_to_p = (
-        ("K0", "k_CO2_1atm"),
-        ("K1", "k_H2CO3"),
-        ("K2", "k_HCO3"),
-        ("KW", "k_H2O"),
-        ("KP1", "k_H3PO4"),
-        ("KP2", "k_H2PO4"),
-        ("KP3", "k_HPO4"),
-        ("KF", "k_HF_free"),
-        ("KS", "k_HSO4_free"),
-        ("KSi", "k_Si"),
-        ("KB", "k_BOH3"),
+        ("K0", "pk_CO2_1atm"),
+        ("K1", "pk_H2CO3"),
+        ("K2", "pk_HCO3"),
+        ("KW", "pk_H2O"),
+        ("KP1", "pk_H3PO4"),
+        ("KP2", "pk_H2PO4"),
+        ("KP3", "pk_HPO4"),
+        ("KF", "pk_HF_free"),
+        ("KS", "pk_HSO4_free"),
+        ("KSi", "pk_Si"),
+        ("KB", "pk_BOH3"),
     )
     svars = [p for m, p in m_to_p]
     for g, group in matlab.groupby(
@@ -67,9 +68,9 @@ def test_equilibrium_constants():
             salinity=group.SAL.values,
         )
         opts = dict(
-            opt_k_carbonic=g[0],
+            opt_pk_carbonic=g[0],
             opt_pH_scale=g[1],
-            opt_k_HSO4=g[2],
+            opt_pk_HSO4=g[2],
             opt_total_borate=g[3],
             opt_gas_constant=1,
         )
@@ -77,7 +78,7 @@ def test_equilibrium_constants():
         if g[0] == 6:
             opts.update(
                 dict(
-                    opt_k_BOH3=2,
+                    opt_pk_BOH3=2,
                     opt_factor_k_BOH3=2,
                     opt_factor_k_H2CO3=2,
                     opt_factor_k_HCO3=2,
@@ -87,10 +88,10 @@ def test_equilibrium_constants():
             opts.update(
                 dict(
                     opt_fH=2,
-                    opt_k_BOH3=2,
-                    opt_k_H2O=2,
-                    opt_k_phosphate=2,
-                    opt_k_Si=2,
+                    opt_pk_BOH3=2,
+                    opt_pk_H2O=2,
+                    opt_pk_phosphate=2,
+                    opt_pk_Si=2,
                     opt_factor_k_BOH3=2,
                     opt_factor_k_H2CO3=2,
                     opt_factor_k_HCO3=2,
@@ -102,7 +103,7 @@ def test_equilibrium_constants():
             opts.update(
                 dict(
                     opt_fH=3,
-                    opt_k_H2O=3,
+                    opt_pk_H2O=3,
                     opt_factor_k_H2O=2,
                     opt_factor_k_H2CO3=3,
                     opt_factor_k_HCO3=3,
@@ -122,30 +123,30 @@ def test_equilibrium_constants():
                     -999.9,
                     -np.log10(group[m + "input"].values),
                 )
-                pk_python_in = np.where(sys_in[p] == 0, -999.9, -np.log10(sys_in[p]))
+                pk_python_in = np.where(sys_in[p] == 0, -999.9, sys_in[p])
                 pk_matlab_out = np.where(
                     group[m + "output"].values == 0,
                     -999.9,
                     -np.log10(group[m + "output"].values),
                 )
-                pk_python_out = np.where(sys_out[p] == 0, -999.9, -np.log10(sys_out[p]))
-                # These terms are not included when opt_k_carbonic == 6
+                pk_python_out = np.where(sys_out[p] == 0, -999.9, sys_out[p])
+                # These terms are not included when opt_pk_carbonic == 6
                 if g[0] == 6 and p in [
-                    "k_H2O",
-                    "k_H3PO4",
-                    "k_H2PO4",
-                    "k_HPO4",
-                    "k_Si",
+                    "pk_H2O",
+                    "pk_H3PO4",
+                    "pk_H2PO4",
+                    "pk_HPO4",
+                    "pk_Si",
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9
-                # These terms are not included when opt_k_carbonic == 8
+                # These terms are not included when opt_pk_carbonic == 8
                 if g[0] == 8 and p in [
-                    "k_H3PO4",
-                    "k_H2PO4",
-                    "k_HPO4",
-                    "k_Si",
-                    "k_BOH3",
+                    "pk_H3PO4",
+                    "pk_H2PO4",
+                    "pk_HPO4",
+                    "pk_Si",
+                    "pk_BOH3",
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9

@@ -22,7 +22,7 @@ values = dict(
 )
 values_init = dict(alkalinity=2300, dic=2100, **values)
 opts = dict(
-    opt_k_carbonic=10,
+    opt_pk_carbonic=10,
     opt_pH_scale=1,
     opt_total_borate=1,
 )
