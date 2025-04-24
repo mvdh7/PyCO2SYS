@@ -28,8 +28,7 @@ from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 
 jax.config.update("jax_enable_x64", True)
 
-# from .uncertainty import all_OEDG18 as uncertainty_OEDG18
-# from .engine.nd import CO2SYS as sys
-__all__ = ["CO2System", "hello", "sys", "uncertainty_OEDG18"]
+say_hello = hello  # for backwards compatibility
+__all__ = ["CO2System", "hello", "say_hello", "sys", "uncertainty_OEDG18"]
 __author__ = meta.authors
 __version__ = meta.version

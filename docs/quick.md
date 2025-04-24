@@ -123,7 +123,40 @@ co2s_2D = pyco2.sys(dic=dic, pCO2=np.vstack(pCO2))
 alkalinity_2D = co2s_2D["alkalinity"]  # this has the shape (3, 3)
 ```
 
-### Pandas DataFrames
+### Data structures
+
+Some common data structures can be provided to PyCO2SYS using the `data` kwarg.  In this case, the keys of the parameters within the data structure should match the kwargs expected by PyCO2SYS.  If they do not, you can provide the key as the corresponding kwarg (analagously to how this works in Matplotlib).  See the example in the [Dictionaries](#dictionaries) section below, although this works in the same way for pandas and xarray structures.
+
+#### Dictionaries
+
+If your data are in a `dict`, you can provide this as `data`:
+
+```python
+# Define known parameters
+df = {"dic": [2000, 2100, 2200], "pCO2": [400, 450, 485]}
+
+# Set up a CO2System, including an extra parameter that was not
+# in the df (total_silicate), and an optional setting
+co2s = pyco2.sys(data=df, total_silicate=1.5, opt_k_carbonic=9)
+```
+
+If some of the `dict` keys do not match the kwargs expected by PyCO2SYS, the correct keys can be given as the corresponding kwargs:
+
+```python
+# Define known parameters
+df = {"dic_calibrated": [2000, 2100, 2200], "pCO2_data": [400, 450, 485]}
+
+# Set up a CO2System
+co2s = pyco2.sys(
+    data=df,
+    dic="dic_calibrated",
+    pCO2="pCO2_data",
+    total_silicate=1.5,
+    opt_k_carbonic=9,
+)
+```
+
+#### Pandas DataFrames
 
 If your data are in a pandas `DataFrame`, you can provide this as `data`, and return the results as a pandas `Series` or `DataFrame` with consistent indexing:
 
@@ -143,7 +176,7 @@ df_results = co2s.to_pandas(["pH", "alkalinity"])
 
 Running `to_pandas` with no arguments will return a `DataFrame` containing all currently calculated parameters.
 
-### Xarray Datasets
+#### Xarray Datasets
 
 If your data are in an xarray `Dataset`, you can provide this as `data`, and return the results as an xarray `DataArray` or `Dataset` with consistent dimensions:
 

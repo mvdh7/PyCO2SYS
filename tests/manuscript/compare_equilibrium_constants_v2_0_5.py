@@ -6,11 +6,33 @@ import pandas as pd
 import PyCO2SYS as pyco2
 from PyCO2SYS import CO2System
 
+
+def options_old2new(KSO4CONSTANTS):
+    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
+    if np.shape(KSO4CONSTANTS) == ():
+        KSO4CONSTANTS = np.array([KSO4CONSTANTS])
+    only2KSO4 = {
+        1: 1,
+        2: 2,
+        3: 1,
+        4: 2,
+    }
+    only2BORON = {
+        1: 1,
+        2: 1,
+        3: 2,
+        4: 2,
+    }
+    KSO4CONSTANT = np.array([only2KSO4[K] for K in KSO4CONSTANTS.ravel()])
+    BORON = np.array([only2BORON[K] for K in KSO4CONSTANTS.ravel()])
+    return KSO4CONSTANT, BORON
+
+
 # Import MATLAB results and recalculate with PyCO2SYS
 matlab = pd.read_csv(
     "tests/manuscript/results/compare_equilibrium_constants_v2_0_5.csv"
 )
-matlab["opt_k_bisulfate"], matlab["opt_total_borate"] = pyco2.convert.options_old2new(
+matlab["opt_k_bisulfate"], matlab["opt_total_borate"] = options_old2new(
     matlab.KSO4CONSTANTS.values
 )
 

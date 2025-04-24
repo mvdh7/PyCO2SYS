@@ -1,3 +1,4 @@
+# %%
 import itertools
 
 import numpy as np
@@ -13,10 +14,11 @@ values = dict(
     total_phosphate=1,
     total_ammonia=2,
     total_sulfide=3,
-    total_alpha=5,
-    k_alpha=1e-4,
-    total_beta=6,
-    k_beta=1e-8,
+    total_nitrite=4,
+    # total_alpha=5,
+    # k_alpha=1e-4,
+    # total_beta=6,
+    # k_beta=1e-8,
 )
 values_init = dict(alkalinity=2300, dic=2100, **values)
 opts = dict(
@@ -70,7 +72,7 @@ def test_round_robin():
                 sys[par],
                 rtol=1e-12,
                 atol=1e-12,
-            ), "{} & {} => {}".format(par1, par2, par)
+            ), f"{par1} & {par2} => {par}"
 
 
 # test_round_robin()

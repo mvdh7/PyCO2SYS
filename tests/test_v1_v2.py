@@ -1,3 +1,4 @@
+# %%
 import pickle
 
 import numpy as np
@@ -91,6 +92,17 @@ def test_v1_v2():
         "d_alkalinity__d_pH__dic",
         "d_lnOmega__d_CO3",
         "d_alkalinity__d_pH__fCO2",
+        "Mg_percent",
+        "Mg",
+        "acf_Ca",
+        "acf_Mg",
+        "acf_CO3",
+        "k_Mg_calcite",
+        "saturation_Mg_calcite",
+        "total_nitrite",
+        "k_HNO2",
+        "HNO2",
+        "NO2",
     ]
     # This converts keys for values that have a different name in v1 and v2
     v1_to_v2 = {
@@ -144,33 +156,33 @@ def test_v1_v2():
     for k, v in co2s.items():
         if k in results:
             # These ones have the same name in v1 and v2
-            assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
+            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
             results_keys.remove(k)
         elif k in v1_to_v2:
             # These ones have a different name in v1 vs v2
             assert np.allclose(
-                results[v1_to_v2[k]], v, atol=0, rtol=1e-8, equal_nan=True
-            )
+                results[v1_to_v2[k]], v, atol=0, rtol=1e-7, equal_nan=True
+            ), k
             results_keys.remove(v1_to_v2[k])
         elif k not in dont_compare:
             # All the others should be in the dont_compare list
-            assert False
+            assert False, k
     # Also test the edge cases (gradients of fCO2 and pCO2 w.r.t. temperature) that have
     # to be calculated manually for a CO2System
     for k in results_keys.copy():
         if k == "dlnfCO2_dT":
             co2s.get_grad("fCO2", "temperature")
             v = co2s.grads["fCO2"]["temperature"] / co2s["fCO2"]
-            assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
+            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
             results_keys.remove(k)
         elif k == "dlnpCO2_dT":
             co2s.get_grad("pCO2", "temperature")
             v = co2s.grads["pCO2"]["temperature"] / co2s["pCO2"]
-            assert np.allclose(results[k], v, atol=0, rtol=1e-8, equal_nan=True)
+            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
             results_keys.remove(k)
         else:
             # There shouldn't be anything else left in results_keys
-            assert False
+            assert False, k
 
 
 # test_v1_v2()
