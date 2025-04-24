@@ -114,10 +114,9 @@ get_funcs = {
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
-    "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
     # TODO I would like these two options working
     # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
-    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm, 
+    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm,
     # for testing, can be deleted
     "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
     "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
