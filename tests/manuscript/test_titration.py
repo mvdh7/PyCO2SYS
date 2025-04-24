@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 
 from PyCO2SYS import CO2System
@@ -11,12 +12,12 @@ values = {
     "total_borate": 420,
     "total_fluoride": 70,
     "total_sulfate": 28240,
-    "k_BOH3": 1.78e-9,
-    "k_H2CO3": 1e-6,
-    "k_HCO3": 8.2e-16 / 1e-6,
-    "k_HF_free": 1 / 4.08e2,
-    "k_HSO4_free": 1 / 1.23e1,
-    "k_H2O": 4.32e-14,
+    "pk_BOH3": -np.log10(1.78e-9),
+    "pk_H2CO3": -np.log10(1e-6),
+    "pk_HCO3": -np.log10(8.2e-16 / 1e-6),
+    "pk_HF_free": -np.log10(1 / 4.08e2),
+    "pk_HSO4_free": -np.log10(1 / 1.23e1),
+    "pk_H2O": -np.log10(4.32e-14),
 }
 opts = {
     "opt_pH_scale": 3,
@@ -47,9 +48,9 @@ values_phosphate = values.copy()
 values_phosphate.update(
     {
         "total_phosphate": 10 * dilution_factor,
-        "k_H3PO4": 1 / 5.68e1,
-        "k_H2PO4": 8e-7,
-        "k_HPO4": 1.32e-15 / 8e-7,
+        "pk_H3PO4": -np.log10(1 / 5.68e1),
+        "pk_H2PO4": -np.log10(8e-7),
+        "pk_HPO4": -np.log10(1.32e-15 / 8e-7),
     }
 )
 sys_phosphate = CO2System(**values_phosphate, **opts)

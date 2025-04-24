@@ -3,7 +3,8 @@
 """
 PyCO2SYS.equilibria.pcx
 =======================
-Calculate presure-correction factors for equilibrium constants.
+Calculate presure-correction factors for equilibrium constants.  These should be
+multiplied by the raw K value (not pK) to convert.
 
 Functions
 ---------
@@ -12,15 +13,15 @@ pressure_factor
     the deltaV / kappa formulation.
 factor_k_BOH3_M79
     Calculate pressure-correction factor for k_BOH3 following M79.
-    Used when opt_factor_k_BOH3 = 1.
+    Used when opt_factor_pk_BOH3 = 1.
 factor_k_BOH3_GEOSECS
     Calculate pressure-correction factor for k_BOH3 following the GEOSECS approach.
-    Used when opt_factor_k_BOH3 = 2.
+    Used when opt_factor_pk_BOH3 = 2.
 factor_k_H2O
-    Calculate pressure-correction factor for k_H2O.  Used when opt_factor_k_H2O = 1.
+    Calculate pressure-correction factor for k_H2O.  Used when opt_factor_pk_H2O = 1.
 factor_k_H2O_fw
     Calculate pressure-correction factor for k_H2O in freshwater.
-    Used when opt_factor_k_H2O = 2.
+    Used when opt_factor_pk_H2O = 2.
 factor_k_H2S
     Calculate pressure-correction factor for k_H2S.
 factor_k_HSO4
@@ -37,22 +38,22 @@ factor_k_NH3
     Calculate pressure-correction factor for k_NH3.
 factor_k_H2CO3
     Calculate pressure-correction factor for k_H2CO3.
-    Used when opt_factor_k_H2CO3 = 1.
+    Used when opt_factor_pk_H2CO3 = 1.
 factor_k_H2CO3_GEOSECS
     Calculate pressure-correction factor for k_H2CO3 following GEOSECS.
-    Used when opt_factor_k_H2CO3 = 2.
+    Used when opt_factor_pk_H2CO3 = 2.
 factor_k_H2CO3_fw
     Calculate pressure-correction factor for k_H2CO3 in freshwater.
-    Used when opt_factor_k_H2CO3 = 3.
+    Used when opt_factor_pk_H2CO3 = 3.
 factor_k_H2CO3
     Calculate pressure-correction factor for k_HCO3.
-    Used when opt_factor_k_HCO3 = 1.
+    Used when opt_factor_pk_HCO3 = 1.
 factor_k_HCO3_GEOSECS
     Calculate pressure-correction factor for k_HCO3 following GEOSECS.
-    Used when opt_factor_k_HCO3 = 2.
+    Used when opt_factor_pk_HCO3 = 2.
 factor_k_HCO3_fw
     Calculate pressure-correction factor for k_HCO3 in freshwater.
-    Used when opt_factor_k_HCO3 = 3.
+    Used when opt_factor_pk_HCO3 = 3.
 factor_k_CO2
     Calculate the pressure-correction factor for k_CO2 following W74 eq. 5.
 """
@@ -242,7 +243,7 @@ def factor_k_HF(temperature, pressure, gas_constant):
 @valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_BOH3_M79(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_BOH3 following M79.
-    Used when opt_factor_k_BOH3 = 1.
+    Used when opt_factor_pk_BOH3 = 1.
 
     Parameters
     ----------
@@ -278,7 +279,7 @@ def factor_k_BOH3_M79(temperature, pressure, gas_constant):
 
 def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_BOH3 following the GEOSECS approach.
-    Used when opt_factor_k_BOH3 = 2.
+    Used when opt_factor_pk_BOH3 = 2.
 
     Parameters
     ----------
@@ -308,7 +309,7 @@ def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
 
 def factor_k_H2O_fw(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_H2O in freshwater.
-    Used when opt_factor_k_H2O = 2.
+    Used when opt_factor_pk_H2O = 2.
 
     Parameters
     ----------
@@ -333,7 +334,7 @@ def factor_k_H2O_fw(temperature, pressure, gas_constant):
 
 
 def factor_k_H2O(temperature, pressure, gas_constant):
-    """Calculate pressure-correction factor for k_H2O.  Used when opt_factor_k_H2O = 1.
+    """Calculate pressure-correction factor for k_H2O.  Used when opt_factor_pk_H2O = 1.
 
     Parameters
     ----------
@@ -484,7 +485,7 @@ def factor_k_NH3(temperature, pressure, gas_constant):
 @valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_H2CO3(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_H2CO3.
-    Used when opt_factor_k_H2CO3 = 1.
+    Used when opt_factor_pk_H2CO3 = 1.
 
     Parameters
     ----------
@@ -513,7 +514,7 @@ def factor_k_H2CO3(temperature, pressure, gas_constant):
 
 def factor_k_H2CO3_fw(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_H2CO3 in freshwater.
-    Used when opt_factor_k_H2CO3 = 2.
+    Used when opt_factor_pk_H2CO3 = 2.
 
     Parameters
     ----------
@@ -537,7 +538,7 @@ def factor_k_H2CO3_fw(temperature, pressure, gas_constant):
 
 def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_H2CO3 following GEOSECS.
-    Used when opt_factor_k_H2CO3 = 3.
+    Used when opt_factor_pk_H2CO3 = 3.
 
     Parameters
     ----------
@@ -573,7 +574,7 @@ def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
 @valid(temperature=[2, 25], pressure=[0, 10132.5])
 def factor_k_HCO3(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_HCO3.
-    Used when opt_factor_k_HCO3 = 1.
+    Used when opt_factor_pk_HCO3 = 1.
 
     Parameters
     ----------
@@ -603,7 +604,7 @@ def factor_k_HCO3(temperature, pressure, gas_constant):
 
 def factor_k_HCO3_fw(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_HCO3 in freshwater.
-    Used when opt_factor_k_HCO3 = 2.
+    Used when opt_factor_pk_HCO3 = 2.
 
     Parameters
     ----------
@@ -627,7 +628,7 @@ def factor_k_HCO3_fw(temperature, pressure, gas_constant):
 
 def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     """Calculate pressure-correction factor for k_HCO3 following GEOSECS.
-    Used when opt_factor_k_HCO3 = 3.
+    Used when opt_factor_pk_HCO3 = 3.
 
     Parameters
     ----------

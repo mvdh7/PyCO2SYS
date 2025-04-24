@@ -3,20 +3,20 @@
 """
 PyCO2SYS.convert
 ================
-Convert units and calculate conversion factors.
+Convert units and calculate conversions.
 
 pH scale conversions
 --------------------
 There is a function for every variant of pH_<scale1>_to_<scale2>, where <scale1>
 and <scale2> are any of free, total, sws and nbs.  Each function has a different
 set of arguments, depending on what is needed.  For example, to get the conversion
-factor to go from the total to the NBS scale, use:
+to go from the total to the NBS scale, use:
 
-  >>> factor = pyco2.convert.pH_tot_to_nbs(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
+  >>> converter = pyco2.convert.pH_tot_to_nbs(
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
       )
 
-``factor`` should be multiplied by [H+] or K value(s) on the total scale to convert
+``converter`` should be added to pH or pK value(s) on the total scale to convert
 to the NBS scale.
 
 CO2 conversions
@@ -62,14 +62,14 @@ def fCO2_to_xCO2(fCO2, fugacity_factor, vp_factor):
     return fCO2 / (fugacity_factor * vp_factor)
 
 
-def CO2aq_to_fCO2(CO2, k_CO2):
+def CO2aq_to_fCO2(CO2, pk_CO2):
     """Convert aqueous CO2 content to fugacity.
 
     Parameters
     ----------
     CO2 : float
         Aqueous CO2 content in µmol/kg-sw.
-    k_CO2 : float
+    pk_CO2 : float
         CO2 solubility constant.
 
     Returns
@@ -77,17 +77,17 @@ def CO2aq_to_fCO2(CO2, k_CO2):
     float
         Seawater fCO2 in µatm.
     """
-    return CO2 / k_CO2
+    return CO2 / 10**-pk_CO2
 
 
-def fCO2_to_CO2aq(fCO2, k_CO2):
+def fCO2_to_CO2aq(fCO2, pk_CO2):
     """Convert CO2 fugacity to aqueous content.
 
     Parameters
     ----------
     fCO2 : float
         Seawater fCO2 in µatm.
-    k_CO2 : float
+    pk_CO2 : float
         CO2 solubility constant.
 
     Returns
@@ -95,7 +95,7 @@ def fCO2_to_CO2aq(fCO2, k_CO2):
     float
         Aqueous CO2 content in µmol/kg-sw.
     """
-    return fCO2 * k_CO2
+    return fCO2 * 10**-pk_CO2
 
 
 def celsius_to_kelvin(temperature):
@@ -117,31 +117,32 @@ def bar_to_decibar(pressure_bar):
     """Convert pressure from bar to dbar."""
     return pressure_bar * 10.0
 
+
 def decibar_to_pascal(pressure):
     """Convert pressure from dbar to bar."""
     return pressure * 10000.0
 
 
-def pH_free_to_tot(total_sulfate, k_HSO4_free):
-    """Free to total pH scale conversion factor.
+def pH_free_to_tot(total_sulfate, pk_HSO4_free):
+    """Free to total pH scale conversion.
 
     Parameters
     ----------
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 + 1e-6 * total_sulfate / k_HSO4_free
+    return -np.log10(1 + 1e-6 * total_sulfate / 10**-pk_HSO4_free)
 
 
-def pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
-    """Free to seawater pH scale conversion factor.
+def pH_free_to_sws(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
+    """Free to seawater pH scale conversion.
 
     Parameters
     ----------
@@ -149,21 +150,25 @@ def pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 + 1e-6 * total_sulfate / k_HSO4_free + 1e-6 * total_fluoride / k_HF_free
+    return -np.log10(
+        1
+        + 1e-6 * total_sulfate / 10**-pk_HSO4_free
+        + 1e-6 * total_fluoride / 10**-pk_HF_free
+    )
 
 
-def pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
-    """Seawater to free pH scale conversion factor.
+def pH_sws_to_free(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
+    """Seawater to free pH scale conversion.
 
     Parameters
     ----------
@@ -171,21 +176,21 @@ def pH_sws_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_free_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
+    return -pH_free_to_sws(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free)
 
 
-def pH_sws_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
-    """Seawater to total pH scale conversion factor.
+def pH_sws_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
+    """Seawater to total pH scale conversion.
 
     Parameters
     ----------
@@ -193,41 +198,41 @@ def pH_sws_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
     return pH_sws_to_free(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
-    ) * pH_free_to_tot(total_sulfate, k_HSO4_free)
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
+    ) + pH_free_to_tot(total_sulfate, pk_HSO4_free)
 
 
-def pH_tot_to_free(total_sulfate, k_HSO4_free):
-    """Total to free pH scale conversion factor.
+def pH_tot_to_free(total_sulfate, pk_HSO4_free):
+    """Total to free pH scale conversion.
 
     Parameters
     ----------
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_free_to_tot(total_sulfate, k_HSO4_free)
+    return -pH_free_to_tot(total_sulfate, pk_HSO4_free)
 
 
-def pH_tot_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
-    """Total to seawater pH scale conversion factor.
+def pH_tot_to_sws(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
+    """Total to seawater pH scale conversion.
 
     Parameters
     ----------
@@ -235,21 +240,21 @@ def pH_tot_to_sws(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
 
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_sws_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free)
+    return -pH_sws_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free)
 
 
 def pH_sws_to_nbs(fH):
-    """Seawater to NBS pH scale conversion factor.
+    """Seawater to NBS pH scale conversion.
 
     Parameters
     ----------
@@ -259,13 +264,13 @@ def pH_sws_to_nbs(fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return fH
+    return -np.log10(fH)
 
 
 def pH_nbs_to_sws(fH):
-    """NBS to Seawater pH scale conversion factor.
+    """NBS to Seawater pH scale conversion.
 
     Parameters
     ----------
@@ -275,13 +280,13 @@ def pH_nbs_to_sws(fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_sws_to_nbs(fH)
+    return -pH_sws_to_nbs(fH)
 
 
-def pH_tot_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
-    """Total to NBS pH scale conversion factor.
+def pH_tot_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+    """Total to NBS pH scale conversion.
 
     Parameters
     ----------
@@ -289,9 +294,9 @@ def pH_tot_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
     fH : float
         Hydrogen ion activity coefficient.
@@ -299,15 +304,15 @@ def pH_tot_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
     return pH_tot_to_sws(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
-    ) * pH_sws_to_nbs(fH)
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
+    ) + pH_sws_to_nbs(fH)
 
 
-def pH_nbs_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
-    """NBS to Total pH scale conversion factor.
+def pH_nbs_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+    """NBS to Total pH scale conversion.
 
     Parameters
     ----------
@@ -315,9 +320,9 @@ def pH_nbs_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
     fH : float
         Hydrogen ion activity coefficient.
@@ -325,15 +330,13 @@ def pH_nbs_to_tot(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_tot_to_nbs(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
-    )
+    return -pH_tot_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH)
 
 
-def pH_free_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
-    """Free to NBS pH scale conversion factor.
+def pH_free_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+    """Free to NBS pH scale conversion.
 
     Parameters
     ----------
@@ -341,9 +344,9 @@ def pH_free_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
     fH : float
         Hydrogen ion activity coefficient.
@@ -351,15 +354,15 @@ def pH_free_to_nbs(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
     return pH_free_to_sws(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free
-    ) * pH_sws_to_nbs(fH)
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
+    ) + pH_sws_to_nbs(fH)
 
 
-def pH_nbs_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
-    """NBS to Free pH scale conversion factor.
+def pH_nbs_to_free(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+    """NBS to Free pH scale conversion.
 
     Parameters
     ----------
@@ -367,9 +370,9 @@ def pH_nbs_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
         Total fluoride (HF + F) in µmol/kg-sw.
     total_sulfate : float
         Total sulfate (HSO4 + SO4) in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         HSO4 dissociation constant on the free scale.
     fH : float
         Hydrogen ion activity coefficient.
@@ -377,11 +380,9 @@ def pH_nbs_to_free(total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH):
     Returns
     -------
     float
-        The conversion factor; multiply by [H+] to convert scale.
+        The conversion; add to pH or pK to convert scale.
     """
-    return 1.0 / pH_free_to_nbs(
-        total_fluoride, total_sulfate, k_HF_free, k_HSO4_free, fH
-    )
+    return -pH_free_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH)
 
 
 def fH_PTBO87(temperature, salinity):

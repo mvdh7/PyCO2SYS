@@ -148,7 +148,7 @@ def test_table2_OEDG18():
             v_orr = orr2_groups.loc[wrt][of]
             v_pyco2 = orr2.loc[wrt].loc["PyCO2SYS"][of]
             assert np.isclose(v_orr, v_pyco2, rtol=1e-3, atol=0), (
-                "Failed on {} / {}".format(of, wrt)
+                f"Failed on {of} / {wrt}"
             )
 
 
@@ -160,7 +160,7 @@ def test_table3_OEDG18():
             v_orr = orr3_groups.loc[wrt][of]
             v_pyco2 = orr3.loc[wrt].loc["PyCO2SYS"][of]
             assert np.isclose(v_orr, v_pyco2, rtol=1e-3, atol=0), (
-                "Failed on {} / {}".format(of, wrt)
+                f"Failed on {of} / {wrt}"
             )
 
 
@@ -172,10 +172,10 @@ def test_table4_OEDG18():
             v_orr = orr4_groups.loc[with_k][of]
             v_pyco2 = orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
             assert np.isclose(v_orr, v_pyco2, rtol=1e-4, atol=0), (
-                "Failed on {} / {}".format(of, wrt)
+                f"Failed on {of} / {wrt}"
             )
 
 
-# test_table2_OEDG18()
-# test_table3_OEDG18()
-# test_table4_OEDG18()
+test_table2_OEDG18()
+test_table3_OEDG18()
+test_table4_OEDG18()

@@ -27,10 +27,10 @@ def test_v1_v2():
                 "pressure_atmosphere",
             ]
         },
-        opt_k_carbonic=10,
+        opt_pk_carbonic=10,
     )
     co2s.solve()
-    # These values don't need to be compared because they weren't output by pyco2.sys
+    # These values don't need to be compared because they weren't output by v1
     dont_compare = [
         "H",
         "factor_k_CO2",
@@ -100,12 +100,18 @@ def test_v1_v2():
         "k_Mg_calcite",
         "saturation_Mg_calcite",
         "total_nitrite",
-        "k_HNO2",
         "HNO2",
         "NO2",
+        "kt_Mg_calcite_25C_1atm_minprep",
+        "kt_Mg_calcite_25C_1atm_biogenic",
+        "kt_Mg_calcite_25C_1atm_synthetic",
+        "kt_Mg_calcite_1atm_vantHoff",
+        "kt_Mg_calcite_1atm_PB82",
+        "kt_Mg_calcite_1atm_idealmix",
+        "pk_HNO2",
     ]
     # This converts keys for values that have a different name in v1 and v2
-    v1_to_v2 = {
+    v2_to_v1 = {
         "Ca": "total_calcium",
         "gamma_alkalinity": "gamma_alk",
         "beta_alkalinity": "beta_alk",
@@ -113,18 +119,19 @@ def test_v1_v2():
         "Q_isocap": "isocapnic_quotient",
         "Q_isocap_approx": "isocapnic_quotient_approx",
         "H_free": "Hfree",
-        "k_H2CO3": "k_carbonic_1",
-        "k_HCO3": "k_carbonic_2",
-        "k_H2O": "k_water",
-        "k_BOH3": "k_borate",
-        "k_HSO4_free": "k_bisulfate",
-        "k_HF_free": "k_fluoride",
-        "k_H3PO4": "k_phosphoric_1",
-        "k_H2PO4": "k_phosphoric_2",
-        "k_HPO4": "k_phosphoric_3",
-        "k_Si": "k_silicate",
-        "k_NH3": "k_ammonia",
-        "k_H2S": "k_sulfide",
+        "pk_H2CO3": "k_carbonic_1",
+        "pk_HCO3": "k_carbonic_2",
+        "pk_H2O": "k_water",
+        "pk_BOH3": "k_borate",
+        "pk_HSO4_free": "k_bisulfate",
+        "pk_HF_free": "k_fluoride",
+        "pk_H3PO4": "k_phosphoric_1",
+        "pk_H2PO4": "k_phosphoric_2",
+        "pk_HPO4": "k_phosphoric_3",
+        "pk_Si": "k_silicate",
+        "pk_NH3": "k_ammonia",
+        "pk_H2S": "k_sulfide",
+        "pk_CO2": "k_CO2",
     }
     # These are keys in the pyco2.sys that are no longer in sys.values
     results_keys = [
@@ -156,14 +163,26 @@ def test_v1_v2():
     for k, v in co2s.items():
         if k in results:
             # These ones have the same name in v1 and v2
-            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
+            a = results[k]
+            b = co2s[k]
+            if k in ["beta_dic", "gamma_dic", "omega_dic"]:
+                # These ones have NaNs in different places in v1 and v2, which makes
+                # allclose fail, so we need to make the NaNs match first
+                a = a.copy()
+                b = b.copy()
+                L = np.isnan(a) | np.isnan(b)
+                a[L] = np.nan
+                b[L] = np.nan
+            assert np.allclose(a, b, atol=0, rtol=1e-7, equal_nan=True), k
             results_keys.remove(k)
-        elif k in v1_to_v2:
+        elif k in v2_to_v1:
             # These ones have a different name in v1 vs v2
+            if k.startswith("pk_"):
+                v = 10**-v
             assert np.allclose(
-                results[v1_to_v2[k]], v, atol=0, rtol=1e-7, equal_nan=True
+                results[v2_to_v1[k]], v, atol=0, rtol=1e-7, equal_nan=True
             ), k
-            results_keys.remove(v1_to_v2[k])
+            results_keys.remove(v2_to_v1[k])
         elif k not in dont_compare:
             # All the others should be in the dont_compare list
             assert False, k

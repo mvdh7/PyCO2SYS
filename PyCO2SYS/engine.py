@@ -30,25 +30,25 @@ get_funcs = {
     "total_fluoride": salts.total_fluoride_R65,
     "total_sulfate": salts.total_sulfate_MR66,
     # Equilibrium constants at 1 atm and on reported pH scale
-    "k_CO2_1atm": equilibria.p1atm.k_CO2_W74,
-    "k_H2S_total_1atm": equilibria.p1atm.k_H2S_total_YM95,
+    "pk_CO2_1atm": equilibria.p1atm.pk_CO2_W74,
+    "pk_H2S_total_1atm": equilibria.p1atm.pk_H2S_total_YM95,
     # pH scale conversion factors at 1 atm
     "free_to_sws_1atm": lambda total_fluoride,
     total_sulfate,
-    k_HF_free_1atm,
-    k_HSO4_free_1atm: convert.pH_free_to_sws(
-        total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
+    pk_HF_free_1atm,
+    pk_HSO4_free_1atm: convert.pH_free_to_sws(
+        total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
     ),
     "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
     "tot_to_sws_1atm": lambda total_fluoride,
     total_sulfate,
-    k_HF_free_1atm,
-    k_HSO4_free_1atm: convert.pH_tot_to_sws(
-        total_fluoride, total_sulfate, k_HF_free_1atm, k_HSO4_free_1atm
+    pk_HF_free_1atm,
+    pk_HSO4_free_1atm: convert.pH_tot_to_sws(
+        total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
     ),
     # Equilibrium constants at 1 atm and on the seawater pH scale
-    "k_H2S_sws_1atm": lambda k_H2S_total_1atm, tot_to_sws_1atm: (
-        k_H2S_total_1atm * tot_to_sws_1atm
+    "pk_H2S_sws_1atm": lambda pk_H2S_total_1atm, tot_to_sws_1atm: (
+        pk_H2S_total_1atm + tot_to_sws_1atm
     ),
     # Pressure correction factors for equilibrium constants
     "factor_k_HSO4": equilibria.pcx.factor_k_HSO4,
@@ -62,49 +62,59 @@ get_funcs = {
     "factor_k_CO2": equilibria.pcx.factor_k_CO2,
     "factor_k_HNO2": lambda: 1.0,  # unknown!
     # Equilibrium constants at pressure and on the free pH scale
-    "k_HF_free": lambda k_HF_free_1atm, factor_k_HF: k_HF_free_1atm * factor_k_HF,
-    "k_HSO4_free": lambda k_HSO4_free_1atm, factor_k_HSO4: (
-        k_HSO4_free_1atm * factor_k_HSO4
+    "pk_HF_free": lambda pk_HF_free_1atm, factor_k_HF: (
+        pk_HF_free_1atm - np.log10(factor_k_HF)
+    ),
+    "pk_HSO4_free": lambda pk_HSO4_free_1atm, factor_k_HSO4: (
+        pk_HSO4_free_1atm - np.log10(factor_k_HSO4)
     ),
     # Equilibrium constants at pressure and on the seawater pH scale
-    "k_BOH3_sws": lambda k_BOH3_sws_1atm, factor_k_BOH3: (
-        k_BOH3_sws_1atm * factor_k_BOH3
+    "pk_BOH3_sws": lambda pk_BOH3_sws_1atm, factor_k_BOH3: (
+        pk_BOH3_sws_1atm - np.log10(factor_k_BOH3)
     ),
-    "k_H2O_sws": lambda k_H2O_sws_1atm, factor_k_H2O: k_H2O_sws_1atm * factor_k_H2O,
-    "k_H2S_sws": lambda k_H2S_sws_1atm, factor_k_H2S: k_H2S_sws_1atm * factor_k_H2S,
-    "k_H3PO4_sws": lambda k_H3PO4_sws_1atm, factor_k_H3PO4: (
-        k_H3PO4_sws_1atm * factor_k_H3PO4
+    "pk_H2O_sws": lambda pk_H2O_sws_1atm, factor_k_H2O: (
+        pk_H2O_sws_1atm - np.log10(factor_k_H2O)
     ),
-    "k_H2PO4_sws": lambda k_H2PO4_sws_1atm, factor_k_H2PO4: (
-        k_H2PO4_sws_1atm * factor_k_H2PO4
+    "pk_H2S_sws": lambda pk_H2S_sws_1atm, factor_k_H2S: (
+        pk_H2S_sws_1atm - np.log10(factor_k_H2S)
     ),
-    "k_HPO4_sws": lambda k_HPO4_sws_1atm, factor_k_HPO4: (
-        k_HPO4_sws_1atm * factor_k_HPO4
+    "pk_H3PO4_sws": lambda pk_H3PO4_sws_1atm, factor_k_H3PO4: (
+        pk_H3PO4_sws_1atm - np.log10(factor_k_H3PO4)
     ),
-    "k_Si_sws": lambda k_Si_sws_1atm, factor_k_Si: k_Si_sws_1atm * factor_k_Si,
-    "k_NH3_sws": lambda k_NH3_sws_1atm, factor_k_NH3: k_NH3_sws_1atm * factor_k_NH3,
-    "k_H2CO3_sws": lambda k_H2CO3_sws_1atm, factor_k_H2CO3: (
-        k_H2CO3_sws_1atm * factor_k_H2CO3
+    "pk_H2PO4_sws": lambda pk_H2PO4_sws_1atm, factor_k_H2PO4: (
+        pk_H2PO4_sws_1atm - np.log10(factor_k_H2PO4)
     ),
-    "k_HCO3_sws": lambda k_HCO3_sws_1atm, factor_k_HCO3: (
-        k_HCO3_sws_1atm * factor_k_HCO3
+    "pk_HPO4_sws": lambda pk_HPO4_sws_1atm, factor_k_HPO4: (
+        pk_HPO4_sws_1atm - np.log10(factor_k_HPO4)
     ),
-    "k_HNO2_sws": lambda k_HNO2_sws_1atm, factor_k_HNO2: (
-        k_HNO2_sws_1atm * factor_k_HNO2
+    "pk_Si_sws": lambda pk_Si_sws_1atm, factor_k_Si: (
+        pk_Si_sws_1atm - np.log10(factor_k_Si)
+    ),
+    "pk_NH3_sws": lambda pk_NH3_sws_1atm, factor_k_NH3: (
+        pk_NH3_sws_1atm - np.log10(factor_k_NH3)
+    ),
+    "pk_H2CO3_sws": lambda pk_H2CO3_sws_1atm, factor_k_H2CO3: (
+        pk_H2CO3_sws_1atm - np.log10(factor_k_H2CO3)
+    ),
+    "pk_HCO3_sws": lambda pk_HCO3_sws_1atm, factor_k_HCO3: (
+        pk_HCO3_sws_1atm - np.log10(factor_k_HCO3)
+    ),
+    "pk_HNO2_sws": lambda pk_HNO2_sws_1atm, factor_k_HNO2: (
+        pk_HNO2_sws_1atm - np.log10(factor_k_HNO2)
     ),
     # Equilibrium constants at pressure and on the requested pH scale
-    "k_CO2": lambda k_CO2_1atm, factor_k_CO2: k_CO2_1atm * factor_k_CO2,
-    "k_BOH3": lambda sws_to_opt, k_BOH3_sws: sws_to_opt * k_BOH3_sws,
-    "k_H2O": lambda sws_to_opt, k_H2O_sws: sws_to_opt * k_H2O_sws,
-    "k_H2S": lambda sws_to_opt, k_H2S_sws: sws_to_opt * k_H2S_sws,
-    "k_H3PO4": lambda sws_to_opt, k_H3PO4_sws: sws_to_opt * k_H3PO4_sws,
-    "k_H2PO4": lambda sws_to_opt, k_H2PO4_sws: sws_to_opt * k_H2PO4_sws,
-    "k_HPO4": lambda sws_to_opt, k_HPO4_sws: sws_to_opt * k_HPO4_sws,
-    "k_Si": lambda sws_to_opt, k_Si_sws: sws_to_opt * k_Si_sws,
-    "k_NH3": lambda sws_to_opt, k_NH3_sws: sws_to_opt * k_NH3_sws,
-    "k_H2CO3": lambda sws_to_opt, k_H2CO3_sws: sws_to_opt * k_H2CO3_sws,
-    "k_HCO3": lambda sws_to_opt, k_HCO3_sws: sws_to_opt * k_HCO3_sws,
-    "k_HNO2": lambda sws_to_opt, k_HNO2_sws: sws_to_opt * k_HNO2_sws,
+    "pk_CO2": lambda pk_CO2_1atm, factor_k_CO2: pk_CO2_1atm - np.log10(factor_k_CO2),
+    "pk_BOH3": lambda sws_to_opt, pk_BOH3_sws: sws_to_opt + pk_BOH3_sws,
+    "pk_H2O": lambda sws_to_opt, pk_H2O_sws: sws_to_opt + pk_H2O_sws,
+    "pk_H2S": lambda sws_to_opt, pk_H2S_sws: sws_to_opt + pk_H2S_sws,
+    "pk_H3PO4": lambda sws_to_opt, pk_H3PO4_sws: sws_to_opt + pk_H3PO4_sws,
+    "pk_H2PO4": lambda sws_to_opt, pk_H2PO4_sws: sws_to_opt + pk_H2PO4_sws,
+    "pk_HPO4": lambda sws_to_opt, pk_HPO4_sws: sws_to_opt + pk_HPO4_sws,
+    "pk_Si": lambda sws_to_opt, pk_Si_sws: sws_to_opt + pk_Si_sws,
+    "pk_NH3": lambda sws_to_opt, pk_NH3_sws: sws_to_opt + pk_NH3_sws,
+    "pk_H2CO3": lambda sws_to_opt, pk_H2CO3_sws: sws_to_opt + pk_H2CO3_sws,
+    "pk_HCO3": lambda sws_to_opt, pk_HCO3_sws: sws_to_opt + pk_HCO3_sws,
+    "pk_HNO2": lambda sws_to_opt, pk_HNO2_sws: sws_to_opt + pk_HNO2_sws,
     # Gasses
     "vp_factor": gas.vpfactor,
     # Mg-calcite solubility
@@ -338,7 +348,7 @@ for k, fc in get_funcs_core.items():
 
 # Chemical speciation functions can only be used if there is a pH value
 funcs_chemspec = {
-    "H": lambda pH: 10.0**-pH,
+    "H": lambda pH: 10**-pH,
     "H3PO4": solve.speciate.get_H3PO4,
     "H2PO4": solve.speciate.get_H2PO4,
     "HPO4": solve.speciate.get_HPO4,
@@ -395,199 +405,199 @@ get_funcs_opts["opt_fH"] = {
     2: dict(fH=convert.fH_PTBO87),
     3: dict(fH=lambda: 1.0),
 }
-get_funcs_opts["opt_k_carbonic"] = {
+get_funcs_opts["opt_pk_carbonic"] = {
     1: dict(
-        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_RRV93,
-        k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_RRV93,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
-            k_H2CO3_total_1atm * tot_to_sws_1atm
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_RRV93,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_RRV93,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
-            k_HCO3_total_1atm * tot_to_sws_1atm
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
     2: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_GP89,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_GP89,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_GP89,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_GP89,
     ),
     3: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_H73_DM87,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_H73_DM87,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_H73_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_H73_DM87,
     ),
     4: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_MCHP73_DM87,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_MCHP73_DM87,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MCHP73_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MCHP73_DM87,
     ),
     5: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_HM_DM87,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_HM_DM87,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_HM_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_HM_DM87,
     ),
     6: dict(
-        k_H2CO3_nbs_1atm=equilibria.p1atm.k_H2CO3_nbs_MCHP73,
-        k_HCO3_nbs_1atm=equilibria.p1atm.k_HCO3_nbs_MCHP73,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_nbs_1atm, nbs_to_sws: (
-            k_H2CO3_nbs_1atm * nbs_to_sws
+        pk_H2CO3_nbs_1atm=equilibria.p1atm.pk_H2CO3_nbs_MCHP73,
+        pk_HCO3_nbs_1atm=equilibria.p1atm.pk_HCO3_nbs_MCHP73,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_nbs_1atm, nbs_to_sws: (
+            pk_H2CO3_nbs_1atm + nbs_to_sws
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_nbs_1atm, nbs_to_sws: (
-            k_HCO3_nbs_1atm * nbs_to_sws
+        pk_HCO3_sws_1atm=lambda pk_HCO3_nbs_1atm, nbs_to_sws: (
+            pk_HCO3_nbs_1atm + nbs_to_sws
         ),
     ),
     # 7: same as 6; see note at end
     8: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_M79,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_M79,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_M79,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_M79,
     ),
     9: dict(
-        k_H2CO3_nbs_1atm=equilibria.p1atm.k_H2CO3_nbs_CW98,
-        k_HCO3_nbs_1atm=equilibria.p1atm.k_HCO3_nbs_CW98,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_nbs_1atm, nbs_to_sws: (
-            k_H2CO3_nbs_1atm * nbs_to_sws
+        pk_H2CO3_nbs_1atm=equilibria.p1atm.pk_H2CO3_nbs_CW98,
+        pk_HCO3_nbs_1atm=equilibria.p1atm.pk_HCO3_nbs_CW98,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_nbs_1atm, nbs_to_sws: (
+            pk_H2CO3_nbs_1atm + nbs_to_sws
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_nbs_1atm, nbs_to_sws: (
-            k_HCO3_nbs_1atm * nbs_to_sws
+        pk_HCO3_sws_1atm=lambda pk_HCO3_nbs_1atm, nbs_to_sws: (
+            pk_HCO3_nbs_1atm + nbs_to_sws
         ),
     ),
     10: dict(
-        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_LDK00,
-        k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_LDK00,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
-            k_H2CO3_total_1atm * tot_to_sws_1atm
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_LDK00,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_LDK00,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
-            k_HCO3_total_1atm * tot_to_sws_1atm
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
     11: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_MM02,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_MM02,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MM02,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MM02,
     ),
     12: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_MPL02,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_MPL02,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MPL02,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MPL02,
     ),
     13: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_MGH06,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_MGH06,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MGH06,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MGH06,
     ),
     14: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_M10,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_M10,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_M10,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_M10,
     ),
     15: dict(
-        k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
-        k_HCO3_sws_1atm=equilibria.p1atm.k_HCO3_sws_WMW14,
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_WMW14,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_WMW14,
     ),
     16: dict(
-        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_SLH20,
-        k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_SLH20,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
-            k_H2CO3_total_1atm * tot_to_sws_1atm
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_SLH20,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_SLH20,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
-            k_HCO3_total_1atm * tot_to_sws_1atm
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
     17: dict(
-        # k_H2CO3_sws_1atm=equilibria.p1atm.k_H2CO3_sws_WMW14,
+        # pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_WMW14,
         # ^ although the above should work, it gives slightly different answers
         #   than he conversion below, and below is consistent with the MATLAB
         #   implementation
-        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_WMW14,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
-            k_H2CO3_total_1atm * tot_to_sws_1atm
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_WMW14,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
         ),
-        k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_SB21,
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
-            k_HCO3_total_1atm * tot_to_sws_1atm
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_SB21,
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
     18: dict(
-        k_H2CO3_total_1atm=equilibria.p1atm.k_H2CO3_total_PLR18,
-        k_HCO3_total_1atm=equilibria.p1atm.k_HCO3_total_PLR18,
-        k_H2CO3_sws_1atm=lambda k_H2CO3_total_1atm, tot_to_sws_1atm: (
-            k_H2CO3_total_1atm * tot_to_sws_1atm
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_PLR18,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_PLR18,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
         ),
-        k_HCO3_sws_1atm=lambda k_HCO3_total_1atm, tot_to_sws_1atm: (
-            k_HCO3_total_1atm * tot_to_sws_1atm
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
 }
 # For historical reasons, these are the same as each other (one also gets the Peng
 # "correction", but that's handled elsewhere):
-get_funcs_opts["opt_k_carbonic"][7] = get_funcs_opts["opt_k_carbonic"][6].copy()
-get_funcs_opts["opt_k_phosphate"] = {
+get_funcs_opts["opt_pk_carbonic"][7] = get_funcs_opts["opt_pk_carbonic"][6].copy()
+get_funcs_opts["opt_pk_phosphate"] = {
     1: dict(
-        k_H3PO4_sws_1atm=equilibria.p1atm.k_H3PO4_sws_YM95,
-        k_H2PO4_sws_1atm=equilibria.p1atm.k_H2PO4_sws_YM95,
-        k_HPO4_sws_1atm=equilibria.p1atm.k_HPO4_sws_YM95,
+        pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_YM95,
+        pk_H2PO4_sws_1atm=equilibria.p1atm.pk_H2PO4_sws_YM95,
+        pk_HPO4_sws_1atm=equilibria.p1atm.pk_HPO4_sws_YM95,
     ),
     2: dict(
-        k_H3PO4_sws_1atm=equilibria.p1atm.k_H3PO4_sws_KP67,
-        k_H2PO4_nbs_1atm=equilibria.p1atm.k_H2PO4_nbs_KP67,
-        k_H2PO4_sws_1atm=lambda k_H2PO4_nbs_1atm, nbs_to_sws: (
-            k_H2PO4_nbs_1atm * nbs_to_sws
+        pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_KP67,
+        pk_H2PO4_nbs_1atm=equilibria.p1atm.pk_H2PO4_nbs_KP67,
+        pk_H2PO4_sws_1atm=lambda pk_H2PO4_nbs_1atm, nbs_to_sws: (
+            pk_H2PO4_nbs_1atm + nbs_to_sws
         ),
-        k_HPO4_nbs_1atm=equilibria.p1atm.k_HPO4_nbs_KP67,
-        k_HPO4_sws_1atm=lambda k_HPO4_nbs_1atm, nbs_to_sws: (
-            k_HPO4_nbs_1atm * nbs_to_sws
+        pk_HPO4_nbs_1atm=equilibria.p1atm.pk_HPO4_nbs_KP67,
+        pk_HPO4_sws_1atm=lambda pk_HPO4_nbs_1atm, nbs_to_sws: (
+            pk_HPO4_nbs_1atm + nbs_to_sws
         ),
     ),
 }
-get_funcs_opts["opt_k_BOH3"] = {
+get_funcs_opts["opt_pk_BOH3"] = {
     1: dict(
-        k_BOH3_total_1atm=equilibria.p1atm.k_BOH3_total_D90b,
-        k_BOH3_sws_1atm=lambda k_BOH3_total_1atm, tot_to_sws_1atm: (
-            k_BOH3_total_1atm * tot_to_sws_1atm
-        ),
-    ),
-    2: dict(
-        k_BOH3_nbs_1atm=equilibria.p1atm.k_BOH3_nbs_LTB69,
-        k_BOH3_sws_1atm=lambda k_BOH3_nbs_1atm, nbs_to_sws: (
-            k_BOH3_nbs_1atm * nbs_to_sws
-        ),
-    ),
-}
-get_funcs_opts["opt_k_H2O"] = {
-    1: dict(k_H2O_sws_1atm=equilibria.p1atm.k_H2O_sws_M95),
-    2: dict(k_H2O_sws_1atm=equilibria.p1atm.k_H2O_sws_M79),
-    3: dict(k_H2O_sws_1atm=equilibria.p1atm.k_H2O_sws_HO58_M79),
-}
-get_funcs_opts["opt_k_HF"] = {
-    1: dict(k_HF_free_1atm=equilibria.p1atm.k_HF_free_DR79),
-    2: dict(k_HF_free_1atm=equilibria.p1atm.k_HF_free_PF87),
-}
-get_funcs_opts["opt_k_HSO4"] = {
-    1: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_D90a),
-    2: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_KRCB77),
-    3: dict(k_HSO4_free_1atm=equilibria.p1atm.k_HSO4_free_WM13),
-}
-get_funcs_opts["opt_k_NH3"] = {
-    1: dict(
-        k_NH3_total_1atm=equilibria.p1atm.k_NH3_total_CW95,
-        k_NH3_sws_1atm=lambda k_NH3_total_1atm, tot_to_sws_1atm: (
-            k_NH3_total_1atm * tot_to_sws_1atm
-        ),
-    ),
-    2: dict(k_NH3_sws_1atm=equilibria.p1atm.k_NH3_sws_YM95),
-}
-get_funcs_opts["opt_k_Si"] = {
-    1: dict(k_Si_sws_1atm=equilibria.p1atm.k_Si_sws_YM95),
-    2: dict(
-        k_Si_nbs_1atm=equilibria.p1atm.k_Si_nbs_SMB64,
-        k_Si_sws_1atm=lambda k_Si_nbs_1atm, nbs_to_sws: (k_Si_nbs_1atm * nbs_to_sws),
-    ),
-}
-get_funcs_opts["opt_k_HNO2"] = {
-    1: dict(
-        k_HNO2_total_1atm=equilibria.p1atm.k_HNO2_total_BBWB24,
-        k_HNO2_sws_1atm=lambda k_HNO2_total_1atm, tot_to_sws_1atm: (
-            k_HNO2_total_1atm * tot_to_sws_1atm
+        pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_D90b,
+        pk_BOH3_sws_1atm=lambda pk_BOH3_total_1atm, tot_to_sws_1atm: (
+            pk_BOH3_total_1atm + tot_to_sws_1atm
         ),
     ),
     2: dict(
-        k_HNO2_nbs_1atm=equilibria.p1atm.k_HNO2_nbs_BBWB24_freshwater,
-        k_HNO2_sws_1atm=lambda k_HNO2_nbs_1atm, nbs_to_sws: (
-            k_HNO2_nbs_1atm * nbs_to_sws
+        pk_BOH3_nbs_1atm=equilibria.p1atm.pk_BOH3_nbs_LTB69,
+        pk_BOH3_sws_1atm=lambda pk_BOH3_nbs_1atm, nbs_to_sws: (
+            pk_BOH3_nbs_1atm + nbs_to_sws
+        ),
+    ),
+}
+get_funcs_opts["opt_pk_H2O"] = {
+    1: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M95),
+    2: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M79),
+    3: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_HO58_M79),
+}
+get_funcs_opts["opt_pk_HF"] = {
+    1: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_DR79),
+    2: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_PF87),
+}
+get_funcs_opts["opt_pk_HSO4"] = {
+    1: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_D90a),
+    2: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_KRCB77),
+    3: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_WM13),
+}
+get_funcs_opts["opt_pk_NH3"] = {
+    1: dict(
+        pk_NH3_total_1atm=equilibria.p1atm.pk_NH3_total_CW95,
+        pk_NH3_sws_1atm=lambda pk_NH3_total_1atm, tot_to_sws_1atm: (
+            pk_NH3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(pk_NH3_sws_1atm=equilibria.p1atm.pk_NH3_sws_YM95),
+}
+get_funcs_opts["opt_pk_Si"] = {
+    1: dict(pk_Si_sws_1atm=equilibria.p1atm.pk_Si_sws_YM95),
+    2: dict(
+        pk_Si_nbs_1atm=equilibria.p1atm.pk_Si_nbs_SMB64,
+        pk_Si_sws_1atm=lambda pk_Si_nbs_1atm, nbs_to_sws: (pk_Si_nbs_1atm + nbs_to_sws),
+    ),
+}
+get_funcs_opts["opt_pk_HNO2"] = {
+    1: dict(
+        pk_HNO2_total_1atm=equilibria.p1atm.pk_HNO2_total_BBWB24,
+        pk_HNO2_sws_1atm=lambda pk_HNO2_total_1atm, tot_to_sws_1atm: (
+            pk_HNO2_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        pk_HNO2_nbs_1atm=equilibria.p1atm.pk_HNO2_nbs_BBWB24_freshwater,
+        pk_HNO2_sws_1atm=lambda pk_HNO2_nbs_1atm, nbs_to_sws: (
+            pk_HNO2_nbs_1atm + nbs_to_sws
         ),
     ),
 }
@@ -599,14 +609,14 @@ get_funcs_opts["opt_pH_scale"] = {
         opt_to_nbs=convert.pH_tot_to_nbs,
     ),
     2: dict(  # sws
-        sws_to_opt=lambda: 1.0,
+        sws_to_opt=lambda: 0,
         opt_to_free=convert.pH_sws_to_free,
         opt_to_tot=convert.pH_sws_to_tot,
         opt_to_nbs=convert.pH_sws_to_nbs,
     ),
     3: dict(  # free
         sws_to_opt=convert.pH_sws_to_free,
-        opt_to_free=lambda: 1.0,
+        opt_to_free=lambda: 0,
         opt_to_tot=convert.pH_free_to_tot,
         opt_to_sws=convert.pH_free_to_sws,
         opt_to_nbs=convert.pH_free_to_nbs,
@@ -631,13 +641,13 @@ for o, funcs in get_funcs_opts["opt_pH_scale"].items():
     if o == 4:
         funcs.update(dict(pH_nbs=lambda pH: pH))
     if o in [2, 3, 4]:
-        funcs.update(dict(pH_total=lambda pH, opt_to_tot: pH - np.log10(opt_to_tot)))
+        funcs.update(dict(pH_total=lambda pH, opt_to_tot: pH + opt_to_tot))
     if o in [1, 3, 4]:
-        funcs.update(dict(pH_sws=lambda pH, opt_to_sws: pH - np.log10(opt_to_sws)))
+        funcs.update(dict(pH_sws=lambda pH, opt_to_sws: pH + opt_to_sws))
     if o in [1, 2, 4]:
-        funcs.update(dict(pH_free=lambda pH, opt_to_free: pH - np.log10(opt_to_free)))
+        funcs.update(dict(pH_free=lambda pH, opt_to_free: pH + opt_to_free))
     if o in [1, 2, 3]:
-        funcs.update(dict(pH_nbs=lambda pH, opt_to_nbs: pH - np.log10(opt_to_nbs)))
+        funcs.update(dict(pH_nbs=lambda pH, opt_to_nbs: pH + opt_to_nbs))
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
     2: dict(total_borate=salts.total_borate_LKB10),
@@ -793,16 +803,16 @@ opts_default = {
     "opt_gas_constant": 3,
     "opt_HCO3_root": 2,
     "opt_k_aragonite": 1,
-    "opt_k_BOH3": 1,
+    "opt_pk_BOH3": 1,
     "opt_k_calcite": 1,
-    "opt_k_carbonic": 10,
-    "opt_k_H2O": 1,
-    "opt_k_HF": 1,
-    "opt_k_HSO4": 1,
-    "opt_k_NH3": 1,
-    "opt_k_phosphate": 1,
-    "opt_k_Si": 1,
-    "opt_k_HNO2": 1,
+    "opt_pk_carbonic": 10,
+    "opt_pk_H2O": 1,
+    "opt_pk_HF": 1,
+    "opt_pk_HSO4": 1,
+    "opt_pk_NH3": 1,
+    "opt_pk_phosphate": 1,
+    "opt_pk_Si": 1,
+    "opt_pk_HNO2": 1,
     "opt_Mg_calcite_kt_Tdep": 1,
     "opt_Mg_calcite_type": 2,
     "opt_pH_scale": 1,
@@ -883,52 +893,52 @@ set_node_labels = {
     "HSO4": r"$[\mathrm{HSO}_4^–]$",
     "ionic_strength": "$I$",
     "k_aragonite": r"$K_\mathrm{a}^*$",
-    "k_BOH3_sws_1atm": r"$K_\mathrm{B}^\mathrm{S0}$",
-    "k_BOH3_sws": r"$K_\mathrm{B}^\mathrm{S}$",
-    "k_BOH3_total_1atm": r"$K_\mathrm{B}^\mathrm{T0}$",
-    "k_BOH3": r"$K_\mathrm{B}^*$",
+    "pk_BOH3_sws_1atm": r"p$K_\mathrm{B}^\mathrm{S0}$",
+    "pk_BOH3_sws": r"p$K_\mathrm{B}^\mathrm{S}$",
+    "pk_BOH3_total_1atm": r"p$K_\mathrm{B}^\mathrm{T0}$",
+    "pk_BOH3": r"p$K_\mathrm{B}^*$",
     "k_calcite": r"$K_\mathrm{c}^*$",
-    "k_CO2_1atm": "$K_0′^0$",
-    "k_CO2": "$K_0′$",
-    "k_H2CO3_sws_1atm": r"$K_1^\mathrm{S0}$",
-    "k_H2CO3_sws": "$K_1^s$",
-    "k_H2CO3_total_1atm": r"$K_1^\mathrm{T0}$",
-    "k_H2CO3": "$K_1^*$",
-    "k_H2O_sws_1atm": r"$K_w^\mathrm{S0}$",
-    "k_H2O_sws": r"$K_w^\mathrm{S}$",
-    "k_H2O": "$K_w^*$",
-    "k_H2PO4_sws_1atm": r"$K_\mathrm{P2}^\mathrm{S0}$",
-    "k_H2PO4_sws": r"$K_\mathrm{P2}^\mathrm{S}$",
-    "k_H2PO4": r"$K_\mathrm{P2}^*$",
-    "k_H2S_sws_1atm": r"$K_\mathrm{H_2S}^\mathrm{S0}$",
-    "k_H2S_sws": r"$K_\mathrm{H_2S}^\mathrm{S}$",
-    "k_H2S_total_1atm": r"$K_\mathrm{H_2S}^\mathrm{T0}$",
-    "k_H2S": r"$K_\mathrm{H_2S}^*$",
-    "k_H3PO4_sws_1atm": r"$K_\mathrm{P1}^\mathrm{S0}$",
-    "k_H3PO4_sws": r"$K_\mathrm{P1}^\mathrm{S}$",
-    "k_H3PO4": r"$K_\mathrm{P1}^*$",
-    "k_HCO3_sws_1atm": r"$K_2^\mathrm{S0}$",
-    "k_HCO3_sws": "$K_2^s$",
-    "k_HCO3_total_1atm": r"$K_2^\mathrm{T0}$",
-    "k_HCO3": "$K_2^*$",
-    "k_HF_free_1atm": r"$K_\mathrm{HF}^\mathrm{F0}$",
-    "k_HF_free": r"$K_\mathrm{HF}^\mathrm{F}$",
-    "k_HNO2_sws_1atm": r"$K_\mathrm{HNO_2}^\mathrm{S0}$",
-    "k_HNO2_sws": r"$K_\mathrm{HNO_2}^\mathrm{S}$",
-    "k_HNO2_total_1atm": r"$K_\mathrm{HNO_2}^\mathrm{T0}$",
-    "k_HNO2": r"$K_\mathrm{HNO_2}^*$",
-    "k_HPO4_sws_1atm": r"$K_\mathrm{P3}^\mathrm{S0}$",
-    "k_HPO4_sws": r"$K_\mathrm{P3}^\mathrm{S}$",
-    "k_HPO4": r"$K_\mathrm{P3}^*$",
-    "k_HSO4_free_1atm": r"$K_\mathrm{HSO_4}^\mathrm{F0}$",
-    "k_HSO4_free": r"$K_\mathrm{HSO_4}^\mathrm{F}$",
-    "k_NH3_sws_1atm": r"$K_\mathrm{NH_3}^\mathrm{S0}$",
-    "k_NH3_sws": r"$K_\mathrm{NH_3}^\mathrm{S}$",
-    "k_NH3_total_1atm": r"$K_\mathrm{NH_3}^\mathrm{T0}$",
-    "k_NH3": r"$K_\mathrm{NH_3}^*$",
-    "k_Si_sws_1atm": r"$K_\mathrm{Si}^\mathrm{S0}$",
-    "k_Si_sws": r"$K_\mathrm{Si}^\mathrm{S}$",
-    "k_Si": r"$K_\mathrm{Si}^*$",
+    "pk_CO2_1atm": "$pK_0′^0$",
+    "pk_CO2": "$pK_0′$",
+    "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
+    "pk_H2CO3_sws": "$pK_1^s$",
+    "pk_H2CO3_total_1atm": r"p$K_1^\mathrm{T0}$",
+    "pk_H2CO3": "$pK_1^*$",
+    "pk_H2O_sws_1atm": r"p$K_w^\mathrm{S0}$",
+    "pk_H2O_sws": r"p$K_w^\mathrm{S}$",
+    "pk_H2O": "$pK_w^*$",
+    "pk_H2PO4_sws_1atm": r"p$K_\mathrm{P2}^\mathrm{S0}$",
+    "pk_H2PO4_sws": r"p$K_\mathrm{P2}^\mathrm{S}$",
+    "pk_H2PO4": r"p$K_\mathrm{P2}^*$",
+    "pk_H2S_sws_1atm": r"p$K_\mathrm{H_2S}^\mathrm{S0}$",
+    "pk_H2S_sws": r"p$K_\mathrm{H_2S}^\mathrm{S}$",
+    "pk_H2S_total_1atm": r"p$K_\mathrm{H_2S}^\mathrm{T0}$",
+    "pk_H2S": r"p$K_\mathrm{H_2S}^*$",
+    "pk_H3PO4_sws_1atm": r"p$K_\mathrm{P1}^\mathrm{S0}$",
+    "pk_H3PO4_sws": r"p$K_\mathrm{P1}^\mathrm{S}$",
+    "pk_H3PO4": r"p$K_\mathrm{P1}^*$",
+    "pk_HCO3_sws_1atm": r"p$K_2^\mathrm{S0}$",
+    "pk_HCO3_sws": "$pK_2^s$",
+    "pk_HCO3_total_1atm": r"p$K_2^\mathrm{T0}$",
+    "pk_HCO3": "$pK_2^*$",
+    "pk_HF_free_1atm": r"p$K_\mathrm{HF}^\mathrm{F0}$",
+    "pk_HF_free": r"p$K_\mathrm{HF}^\mathrm{F}$",
+    "pk_HNO2_sws_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{S0}$",
+    "pk_HNO2_sws": r"p$K_\mathrm{HNO_2}^\mathrm{S}$",
+    "pk_HNO2_total_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{T0}$",
+    "pk_HNO2": r"p$K_\mathrm{HNO_2}^*$",
+    "pk_HPO4_sws_1atm": r"p$K_\mathrm{P3}^\mathrm{S0}$",
+    "pk_HPO4_sws": r"p$K_\mathrm{P3}^\mathrm{S}$",
+    "pk_HPO4": r"p$K_\mathrm{P3}^*$",
+    "pk_HSO4_free_1atm": r"p$K_\mathrm{HSO_4}^\mathrm{F0}$",
+    "pk_HSO4_free": r"p$K_\mathrm{HSO_4}^\mathrm{F}$",
+    "pk_NH3_sws_1atm": r"p$K_\mathrm{NH_3}^\mathrm{S0}$",
+    "pk_NH3_sws": r"p$K_\mathrm{NH_3}^\mathrm{S}$",
+    "pk_NH3_total_1atm": r"p$K_\mathrm{NH_3}^\mathrm{T0}$",
+    "pk_NH3": r"p$K_\mathrm{NH_3}^*$",
+    "pk_Si_sws_1atm": r"p$K_\mathrm{Si}^\mathrm{S0}$",
+    "pk_Si_sws": r"p$K_\mathrm{Si}^\mathrm{S}$",
+    "pk_Si": r"p$K_\mathrm{Si}^*$",
     "Mg_percent": "Mg%",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
     "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
@@ -1113,7 +1123,7 @@ class CO2System(UserDict):
     ):
         """Initialise a `CO2System`.
 
-        For advanced users only - use `pyco2.sys` instead.
+        For advanced users only - in general, use `pyco2.sys` instead.
 
         Initialising the system directly requires that all kwargs are correctly
         formatted as scalar floats or NumPy arrays with dtype `float`.
@@ -1132,7 +1142,7 @@ class CO2System(UserDict):
         CO2System
         """
         super().__init__()
-        opts = {k: v for k, v in kwargs.items() if k.startswith("opt_")}
+        opts = {k: v for k, v in kwargs.items() if k in opts_default}
         data = {k: v for k, v in kwargs.items() if k not in opts}
         # Get icase
         core_known = np.array([v in data for v in parameters_core])
@@ -1353,20 +1363,20 @@ class CO2System(UserDict):
 
                 Key | Description
         ----------: | :--------------------------------------------------------
-              k_CO2 | Henry's constant for CO2.
-            k_H2CO3 | First dissociation constant for carbonic acid.
-             k_HCO3 | Second dissociation constant for carbonic acid.
-              k_H2O | Water dissociation constant.
-             k_BOH3 | Boric acid equilibrium constant.
-          k_HF_free | HF dissociation constant (always free scale).
-        k_HSO4_free | Bisulfate dissociation constant (always free scale).
-            k_H3PO4 | First dissociation constant for phosphoric acid.
-            k_H2PO4 | Second dissociation constant for phosphoric acid.
-             k_HPO4 | Third dissociation constant for phosphoric acid.
-               k_Si | Silicic acid dissociation constant.
-              k_NH3 | Ammonia equilibrium constant.
-              k_H2S | Hydrogen sulfide dissociation constant.
-             k_HNO2 | Nitrous acid dissociation constant.
+              pk_CO2 | Henry's constant for CO2.
+            pk_H2CO3 | First dissociation constant for carbonic acid.
+             pk_HCO3 | Second dissociation constant for carbonic acid.
+              pk_H2O | Water dissociation constant.
+             pk_BOH3 | Boric acid equilibrium constant.
+          pk_HF_free | HF dissociation constant (always free scale).
+        pk_HSO4_free | Bisulfate dissociation constant (always free scale).
+            pk_H3PO4 | First dissociation constant for phosphoric acid.
+            pk_H2PO4 | Second dissociation constant for phosphoric acid.
+             pk_HPO4 | Third dissociation constant for phosphoric acid.
+               pk_Si | Silicic acid dissociation constant.
+              pk_NH3 | Ammonia equilibrium constant.
+              pk_H2S | Hydrogen sulfide dissociation constant.
+             pk_HNO2 | Nitrous acid dissociation constant.
 
         Other results
         -------------
@@ -1419,8 +1429,8 @@ class CO2System(UserDict):
                         # factors, and a few selected others
                         store_steps == 1
                         and not p.startswith("factor_k_")
-                        and not (p.startswith("k_") and p.endswith("_sws"))
-                        and not (p.startswith("k_") and p.endswith("_sws__pre"))
+                        and not (p.startswith("pk_") and p.endswith("_sws"))
+                        and not (p.startswith("pk_") and p.endswith("_sws__pre"))
                         and not p.endswith("_1atm")
                         and not p.endswith("_1atm__pre")
                         and p
@@ -1921,8 +1931,8 @@ class CO2System(UserDict):
         for k, v in kwargs.items():
             assert (
                 k in self.nodes_original
-                or k.startswith("pk_")  # TODO revise these!
-                or k.startswith("k_")
+                or k.startswith("ppk_")  # TODO revise these!
+                or k.startswith("pk_")
                 or k.endswith("__f")
             ), "Uncertainty can be assigned only for user-provided parameters."
             self.uncertainty[k] = v
@@ -1990,7 +2000,7 @@ class CO2System(UserDict):
             self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
-                is_pk = var_from.startswith("pk_")
+                is_pk = var_from.startswith("ppk_")
                 if is_pk:
                     # If the uncertainty is given in terms of a pK value, we do
                     # the calculations as if it were a K value, and convert at
@@ -2184,7 +2194,7 @@ class CO2System(UserDict):
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
         if mode == "valid" and not self.checked_valid:
-            self.check_valid()
+            self.checpk_valid()
         graph_to_plot = self.get_graph_to_plot(
             exclude_nodes=exclude_nodes,
             show_tsp=show_tsp,
@@ -2269,7 +2279,7 @@ class CO2System(UserDict):
         """
         return tuple(self.graph.nodes)
 
-    def check_valid(self, ignore=None):
+    def checpk_valid(self, ignore=None):
         """Check which parameters are valid."""
         if ignore is None:
             ignore = []
@@ -2482,7 +2492,7 @@ def sys(data=None, **kwargs):
 
     Carbonic acid dissociation
     --------------------------
-    opt_k_carbonic: parameterisation for carbonic acid dissociation (K1 and
+    opt_pk_carbonic: parameterisation for carbonic acid dissociation (K1 and
     K2).
          1: RRV93.
          2: GP89.
@@ -2515,31 +2525,31 @@ def sys(data=None, **kwargs):
 
     Other equilibrium constants
     ---------------------------
-    opt_k_BOH3: parameterisation for boric acid equilibrium.
+    opt_pk_BOH3: parameterisation for boric acid equilibrium.
         1: D90b [DEFAULT].
         2: LTB69 (GEOSECS).
-    opt_k_H2O: parameterisation for water dissociation.
+    opt_pk_H2O: parameterisation for water dissociation.
         1: M95 [DEFAULT].
         2: M79 (GEOSECS).
         3: HO58 refit by M79 (freshwater).
-    opt_k_HF: parameterisation for hydrogen fluoride dissociation.
+    opt_pk_HF: parameterisation for hydrogen fluoride dissociation.
         1: DR79 [DEFAULT].
         2: PF87.
-    opt_k_HNO2: parameterisation for nitrous acid dissociation.
+    opt_pk_HNO2: parameterisation for nitrous acid dissociation.
         1: BBWB24 for seawater [DEFAULT].
         2: BBWB24 for freshwater.
-    opt_k_HSO4: parameterisation for bisulfate dissociation.
+    opt_pk_HSO4: parameterisation for bisulfate dissociation.
         1: D90a [DEFAULT].
         2: KRCB77.
         3: WM13/WMW14.
-    opt_k_NH3: parameterisation for ammonium dissociation.
+    opt_pk_NH3: parameterisation for ammonium dissociation.
         1: CW95 [DEFAULT].
         2: YM95.
-    opt_k_phosphate: parameterisation for the phosphoric acid dissocation
+    opt_pk_phosphate: parameterisation for the phosphoric acid dissocation
     constants.
         1: YM95 [DEFAULT].
         2: KP67 (GEOSECS).
-    opt_k_Si: parameterisation for bisulfate dissociation.
+    opt_pk_Si: parameterisation for bisulfate dissociation.
         1: YM95 [DEFAULT].
         2: SMB64 (GEOSECS).
     opt_k_aragonite: parameterisation for aragonite solubility product.
@@ -2670,7 +2680,7 @@ def sys(data=None, **kwargs):
         if isinstance(kwargs[k], list):
             kwargs[k] = np.array(kwargs[k])
         # If opts are scalar, only take first value
-        if k.startswith("opt_"):
+        if k in opts_default:
             if np.isscalar(kwargs[k]):
                 if isinstance(kwargs[k], ArrayImpl):
                     kwargs[k] = kwargs[k].item()

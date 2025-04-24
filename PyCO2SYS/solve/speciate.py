@@ -3,7 +3,7 @@
 """Calculate chemical speciation."""
 
 
-def get_HCO3(dic, H, k_H2CO3, k_HCO3):
+def get_HCO3(dic, H, pk_H2CO3, pk_HCO3):
     """Calculate bicarbonate ion from dissolved inorganic carbon and [H+].
 
     Parameters
@@ -12,7 +12,7 @@ def get_HCO3(dic, H, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     H : float
         [H+] content in mol/kg-sw.
-    k_H2CO3, k_HCO3 : float
+    pk_H2CO3, pk_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -20,10 +20,12 @@ def get_HCO3(dic, H, k_H2CO3, k_HCO3):
     float
         Bicarbonate ion content in µmol/kg-sw.
     """
-    return dic * k_H2CO3 * H / (H**2 + k_H2CO3 * H + k_H2CO3 * k_HCO3)
+    K1 = 10**-pk_H2CO3
+    K2 = 10**-pk_HCO3
+    return dic * K1 * H / (H**2 + K1 * H + K1 * K2)
 
 
-def get_CO3(dic, H, k_H2CO3, k_HCO3):
+def get_CO3(dic, H, pk_H2CO3, pk_HCO3):
     """Calculate carbonate ion from dissolved inorganic carbon and [H+].
 
     Based on CalculateCarbfromdicpH, version 01.0, 06-12-2019, by Denis Pierrot.
@@ -34,7 +36,7 @@ def get_CO3(dic, H, k_H2CO3, k_HCO3):
         DIC in µmol/kg-sw.
     H : float
         [H+] in mol/kg-sw.
-    k_H2CO3, k_HCO3 : float
+    pk_H2CO3, pk_HCO3 : float
         Carbonic acid dissociation constants.
 
     Returns
@@ -42,10 +44,12 @@ def get_CO3(dic, H, k_H2CO3, k_HCO3):
     float
         Carbonate ion content in µmol/kg-sw.
     """
-    return dic * k_H2CO3 * k_HCO3 / (H**2 + k_H2CO3 * H + k_H2CO3 * k_HCO3)
+    K1 = 10**-pk_H2CO3
+    K2 = 10**-pk_HCO3
+    return dic * K1 * K2 / (H**2 + K1 * H + K1 * K2)
 
 
-def get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
+def get_PO4(total_phosphate, H, pk_H3PO4, pk_H2PO4, pk_HPO4):
     """Phosphate content in µmol/kg-sw.
 
     Parameters
@@ -54,7 +58,7 @@ def get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
         Total phosphate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H3PO4, k_H2PO4, k_HPO4 : float
+    pk_H3PO4, pk_H2PO4, pk_HPO4 : float
         Phosphoric acid dissociation constants on opt_pH_scale.
 
     Returns
@@ -62,7 +66,9 @@ def get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     float
         [PO₄³⁻] in µmol/kg-sw.
     """
-    KP1, KP2, KP3 = k_H3PO4, k_H2PO4, k_HPO4
+    KP1 = 10**-pk_H3PO4
+    KP2 = 10**-pk_H2PO4
+    KP3 = 10**-pk_HPO4
     return (
         total_phosphate
         * KP1
@@ -72,7 +78,7 @@ def get_PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     )
 
 
-def get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
+def get_HPO4(total_phosphate, H, pk_H3PO4, pk_H2PO4, pk_HPO4):
     """Hydrogen phosphate content in µmol/kg-sw.
 
     Parameters
@@ -81,7 +87,7 @@ def get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
         Total phosphate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H3PO4, k_H2PO4, k_HPO4 : float
+    pk_H3PO4, pk_H2PO4, pk_HPO4 : float
         Phosphoric acid dissociation constants on opt_pH_scale.
 
     Returns
@@ -89,7 +95,9 @@ def get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     float
         [HPO₄²⁻] in µmol/kg-sw.
     """
-    KP1, KP2, KP3 = k_H3PO4, k_H2PO4, k_HPO4
+    KP1 = 10**-pk_H3PO4
+    KP2 = 10**-pk_H2PO4
+    KP3 = 10**-pk_HPO4
     return (
         total_phosphate
         * KP1
@@ -99,7 +107,7 @@ def get_HPO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     )
 
 
-def get_H2PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
+def get_H2PO4(total_phosphate, H, pk_H3PO4, pk_H2PO4, pk_HPO4):
     """Dihydrogen phosphate content in µmol/kg-sw.
 
     Parameters
@@ -108,7 +116,7 @@ def get_H2PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
         Total phosphate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H3PO4, k_H2PO4, k_HPO4 : float
+    pk_H3PO4, pk_H2PO4, pk_HPO4 : float
         Phosphoric acid dissociation constants on opt_pH_scale.
 
     Returns
@@ -116,7 +124,9 @@ def get_H2PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     float
         [H₂PO₄⁻] in µmol/kg-sw.
     """
-    KP1, KP2, KP3 = k_H3PO4, k_H2PO4, k_HPO4
+    KP1 = 10**-pk_H3PO4
+    KP2 = 10**-pk_H2PO4
+    KP3 = 10**-pk_HPO4
     return (
         total_phosphate
         * KP1
@@ -125,7 +135,7 @@ def get_H2PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     )
 
 
-def get_H3PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
+def get_H3PO4(total_phosphate, H, pk_H3PO4, pk_H2PO4, pk_HPO4):
     """Undissociated phosphoric acid content in µmol/kg-sw.
 
     Parameters
@@ -134,7 +144,7 @@ def get_H3PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
         Total phosphate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H3PO4, k_H2PO4, k_HPO4 : float
+    pk_H3PO4, pk_H2PO4, pk_HPO4 : float
         Phosphoric acid dissociation constants on opt_pH_scale.
 
     Returns
@@ -142,13 +152,15 @@ def get_H3PO4(total_phosphate, H, k_H3PO4, k_H2PO4, k_HPO4):
     float
         [H₃PO₄] in µmol/kg-sw.
     """
-    KP1, KP2, KP3 = k_H3PO4, k_H2PO4, k_HPO4
+    KP1 = 10**-pk_H3PO4
+    KP2 = 10**-pk_H2PO4
+    KP3 = 10**-pk_HPO4
     return (
         total_phosphate * H**3 / (H**3 + KP1 * H**2 + KP1 * KP2 * H + KP1 * KP2 * KP3)
     )
 
 
-def get_BOH4(total_borate, H, k_BOH3):
+def get_BOH4(total_borate, H, pk_BOH3):
     """Tetrahydroxyborate content in µmol/kg-sw.
 
     Parameters
@@ -157,7 +169,7 @@ def get_BOH4(total_borate, H, k_BOH3):
         Total borate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_BOH3 : float
+    pk_BOH3 : float
         Boric acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -165,10 +177,10 @@ def get_BOH4(total_borate, H, k_BOH3):
     float
         [B(OH)₄⁻] in µmol/kg-sw.
     """
-    return total_borate * k_BOH3 / (k_BOH3 + H)
+    return total_borate * 10**-pk_BOH3 / (10**-pk_BOH3 + H)
 
 
-def get_BOH3(total_borate, H, k_BOH3):
+def get_BOH3(total_borate, H, pk_BOH3):
     """Undissociated boric acid content in µmol/kg-sw.
 
     Parameters
@@ -177,7 +189,7 @@ def get_BOH3(total_borate, H, k_BOH3):
         Total borate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_BOH3 : float
+    pk_BOH3 : float
         Boric acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -185,17 +197,17 @@ def get_BOH3(total_borate, H, k_BOH3):
     float
         [B(OH)₃] in µmol/kg-sw.
     """
-    return total_borate * H / (k_BOH3 + H)
+    return total_borate * H / (10**-pk_BOH3 + H)
 
 
-def get_OH(H, k_H2O):
+def get_OH(H, pk_H2O):
     """Hydroxide ion content in µmol/kg-sw.
 
     Parameters
     ----------
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H2O : float
+    pk_H2O : float
         Water dissociation constant on opt_pH_scale.
 
     Returns
@@ -203,7 +215,7 @@ def get_OH(H, k_H2O):
     float
         [OH⁻] in µmol/kg-sw.
     """
-    return 1e6 * k_H2O / H
+    return 1e6 * 10**-pk_H2O / H
 
 
 def get_H_free(H, opt_to_free):
@@ -213,7 +225,7 @@ def get_H_free(H, opt_to_free):
     ----------
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H2O : float
+    pk_H2O : float
         Water dissociation constant on opt_pH_scale.
 
     Returns
@@ -221,10 +233,10 @@ def get_H_free(H, opt_to_free):
     float
         [H⁺] in µmol/kg-sw.
     """
-    return 1e6 * H * opt_to_free
+    return 1e6 * H * 10**-opt_to_free
 
 
-def get_H3SiO4(total_silicate, H, k_Si):
+def get_H3SiO4(total_silicate, H, pk_Si):
     """Trihydrogen orthosilicate content in µmol/kg-sw.
 
     Parameters
@@ -233,7 +245,7 @@ def get_H3SiO4(total_silicate, H, k_Si):
         Total silicate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_Si : float
+    pk_Si : float
         Orthosilicic acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -241,10 +253,10 @@ def get_H3SiO4(total_silicate, H, k_Si):
     float
         [H₃SiO₄⁻] in µmol/kg-sw.
     """
-    return total_silicate * k_Si / (k_Si + H)
+    return total_silicate * 10**-pk_Si / (10**-pk_Si + H)
 
 
-def get_H4SiO4(total_silicate, H, k_Si):
+def get_H4SiO4(total_silicate, H, pk_Si):
     """Undissociated orthosilicic acid content in µmol/kg-sw.
 
     Parameters
@@ -253,7 +265,7 @@ def get_H4SiO4(total_silicate, H, k_Si):
         Total silicate in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_Si : float
+    pk_Si : float
         Orthosilicic acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -261,10 +273,10 @@ def get_H4SiO4(total_silicate, H, k_Si):
     float
         [H₄SiO₄] in µmol/kg-sw.
     """
-    return total_silicate * H / (k_Si + H)
+    return total_silicate * H / (10**-pk_Si + H)
 
 
-def get_HSO4(total_sulfate, H_free, k_HSO4_free):
+def get_HSO4(total_sulfate, H_free, pk_HSO4_free):
     """Bisulfate ion content in µmol/kg-sw.
 
     Parameters
@@ -273,7 +285,7 @@ def get_HSO4(total_sulfate, H_free, k_HSO4_free):
         Total sulfate in µmol/kg-sw.
     H_free : float
         [H⁺] on the free scale in µmol/kg-sw.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         Bisulfate dissociation constant on the free scale.
 
     Returns
@@ -282,10 +294,10 @@ def get_HSO4(total_sulfate, H_free, k_HSO4_free):
         [HSO₄⁻] in µmol/kg-sw.
     """
     H_free_molkg = H_free * 1e-6
-    return total_sulfate * H_free_molkg / (H_free_molkg + k_HSO4_free)
+    return total_sulfate * H_free_molkg / (H_free_molkg + 10**-pk_HSO4_free)
 
 
-def get_SO4(total_sulfate, H_free, k_HSO4_free):
+def get_SO4(total_sulfate, H_free, pk_HSO4_free):
     """Sulfate ion content in µmol/kg-sw.
 
     Parameters
@@ -294,7 +306,7 @@ def get_SO4(total_sulfate, H_free, k_HSO4_free):
         Total sulfate in µmol/kg-sw.
     H_free : float
         [H⁺] on the free scale in µmol/kg-sw.
-    k_HSO4_free : float
+    pk_HSO4_free : float
         Bisulfate dissociation constant on the free scale.
 
     Returns
@@ -303,10 +315,10 @@ def get_SO4(total_sulfate, H_free, k_HSO4_free):
         [SO₄²⁻] in µmol/kg-sw.
     """
     H_free_molkg = H_free * 1e-6
-    return total_sulfate * k_HSO4_free / (H_free_molkg + k_HSO4_free)
+    return total_sulfate * 10**-pk_HSO4_free / (H_free_molkg + 10**-pk_HSO4_free)
 
 
-def get_HF(total_fluoride, H_free, k_HF_free):
+def get_HF(total_fluoride, H_free, pk_HF_free):
     """Undissociated HF content in µmol/kg-sw.
 
     Parameters
@@ -315,7 +327,7 @@ def get_HF(total_fluoride, H_free, k_HF_free):
         Total fluoride in µmol/kg-sw.
     H_free : float
         [H⁺] on the free scale in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
 
     Returns
@@ -324,10 +336,10 @@ def get_HF(total_fluoride, H_free, k_HF_free):
         [HF] in µmol/kg-sw.
     """
     H_free_molkg = H_free * 1e-6
-    return total_fluoride * H_free_molkg / (H_free_molkg + k_HF_free)
+    return total_fluoride * H_free_molkg / (H_free_molkg + 10**-pk_HF_free)
 
 
-def get_F(total_fluoride, H_free, k_HF_free):
+def get_F(total_fluoride, H_free, pk_HF_free):
     """Fluoride ion content in µmol/kg-sw.
 
     Parameters
@@ -336,7 +348,7 @@ def get_F(total_fluoride, H_free, k_HF_free):
         Total fluoride in µmol/kg-sw.
     H_free : float
         [H⁺] on the free scale in µmol/kg-sw.
-    k_HF_free : float
+    pk_HF_free : float
         HF dissociation constant on the free scale.
 
     Returns
@@ -345,10 +357,10 @@ def get_F(total_fluoride, H_free, k_HF_free):
         [F⁻] in µmol/kg-sw.
     """
     H_free_molkg = H_free * 1e-6
-    return total_fluoride * k_HF_free / (H_free_molkg + k_HF_free)
+    return total_fluoride * 10**-pk_HF_free / (H_free_molkg + 10**-pk_HF_free)
 
 
-def get_NH3(total_ammonia, H, k_NH3):
+def get_NH3(total_ammonia, H, pk_NH3):
     """Ammonia content in µmol/kg-sw.
 
     Parameters
@@ -357,7 +369,7 @@ def get_NH3(total_ammonia, H, k_NH3):
         Total fluoride in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_NH3_free : float
+    pk_NH3_free : float
         Ammonia association constant on opt_pH_scale.
 
     Returns
@@ -365,10 +377,10 @@ def get_NH3(total_ammonia, H, k_NH3):
     float
         [NH₃] in µmol/kg-sw.
     """
-    return total_ammonia * k_NH3 / (H + k_NH3)
+    return total_ammonia * 10**-pk_NH3 / (H + 10**-pk_NH3)
 
 
-def get_NH4(total_ammonia, H, k_NH3):
+def get_NH4(total_ammonia, H, pk_NH3):
     """Ammonium content in µmol/kg-sw.
 
     Parameters
@@ -377,7 +389,7 @@ def get_NH4(total_ammonia, H, k_NH3):
         Total fluoride in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_NH3_free : float
+    pk_NH3_free : float
         Ammonia association constant on opt_pH_scale.
 
     Returns
@@ -385,10 +397,10 @@ def get_NH4(total_ammonia, H, k_NH3):
     float
         [NH₄] in µmol/kg-sw.
     """
-    return total_ammonia * H / (H + k_NH3)
+    return total_ammonia * H / (H + 10**-pk_NH3)
 
 
-def get_HS(total_sulfide, H, k_H2S):
+def get_HS(total_sulfide, H, pk_H2S):
     """Hydrogen sulfide content in µmol/kg-sw.
 
     Parameters
@@ -397,7 +409,7 @@ def get_HS(total_sulfide, H, k_H2S):
         Total sulfide in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H2S : float
+    pk_H2S : float
         Hydrogen disulfide dissociation constant on opt_pH_scale.
 
     Returns
@@ -405,10 +417,10 @@ def get_HS(total_sulfide, H, k_H2S):
     float
         [HS⁻] in µmol/kg-sw.
     """
-    return total_sulfide * k_H2S / (H + k_H2S)
+    return total_sulfide * 10**-pk_H2S / (H + 10**-pk_H2S)
 
 
-def get_H2S(total_sulfide, H, k_H2S):
+def get_H2S(total_sulfide, H, pk_H2S):
     """Undissociated hydrogen disulfide content in µmol/kg-sw.
 
     Parameters
@@ -417,7 +429,7 @@ def get_H2S(total_sulfide, H, k_H2S):
         Total sulfide in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H2S : float
+    pk_H2S : float
         Hydrogen disulfide dissociation constant on opt_pH_scale.
 
     Returns
@@ -425,10 +437,10 @@ def get_H2S(total_sulfide, H, k_H2S):
     float
         [H₂S] in µmol/kg-sw.
     """
-    return total_sulfide * H / (H + k_H2S)
+    return total_sulfide * H / (H + 10**-pk_H2S)
 
 
-def get_NO2(total_nitrite, H, k_HNO2):
+def get_NO2(total_nitrite, H, pk_HNO2):
     """Nitrite content in µmol/kg-sw.
 
     Parameters
@@ -437,7 +449,7 @@ def get_NO2(total_nitrite, H, k_HNO2):
         Total nitrite in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_H2S : float
+    pk_H2S : float
         Nitrous acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -445,10 +457,10 @@ def get_NO2(total_nitrite, H, k_HNO2):
     float
         [NO₂⁻] in µmol/kg-sw.
     """
-    return total_nitrite * k_HNO2 / (H + k_HNO2)
+    return total_nitrite * 10**-pk_HNO2 / (H + 10**-pk_HNO2)
 
 
-def get_HNO2(total_nitrite, H, k_HNO2):
+def get_HNO2(total_nitrite, H, pk_HNO2):
     """Undissociated nitrous acide content in µmol/kg-sw.
 
     Parameters
@@ -457,7 +469,7 @@ def get_HNO2(total_nitrite, H, k_HNO2):
         Total nitrite in µmol/kg-sw.
     H : float
         [H⁺] on opt_pH_scale in mol/kg-sw.
-    k_HNO2 : float
+    pk_HNO2 : float
         Nitrous acid dissociation constant on opt_pH_scale.
 
     Returns
@@ -465,7 +477,7 @@ def get_HNO2(total_nitrite, H, k_HNO2):
     float
         [HNO₂] in µmol/kg-sw.
     """
-    return total_nitrite * H / (H + k_HNO2)
+    return total_nitrite * H / (H + 10**-pk_HNO2)
 
 
 def sum_alkalinity(
