@@ -224,4 +224,4 @@ def Mg_reference_composition(salinity):
     float
         Magnesium in µmol/kg-sw following the reference composition.
     """
-    return 0.0547421 * salinity / 35
+    return 1e6 * 0.0547421 * salinity / 35

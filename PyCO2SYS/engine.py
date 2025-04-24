@@ -114,6 +114,17 @@ get_funcs = {
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
+    "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
+    # TODO I would like these two options working
+    # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
+    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm, 
+    # for testing, can be deleted
+    "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
+    "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
+    "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
+    "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
+    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
+    "kt_Mg_calcite_1atm_idealmix": solubility.get_kt_Mg_calcite_1atm_idealmix,
 }
 
 # Define functions for calculations that depend on icase:
@@ -676,9 +687,11 @@ get_funcs_opts["opt_Mg_calcite_type"] = {
     2: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_biogenic),
     3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
 }
+
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
     1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
     2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
+    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
