@@ -28,6 +28,7 @@ get_funcs = {
     # Total salt contents
     "ionic_strength": salts.ionic_strength_DOE94,
     "total_fluoride": salts.total_fluoride_R65,
+    "cf_total_sulfate": salts.coeffs_total_sulfate_MR66,
     "total_sulfate": salts.total_sulfate_MR66,
     # Equilibrium constants at 1 atm and on reported pH scale
     "pk_CO2_1atm": equilibria.p1atm.pk_CO2_W74,

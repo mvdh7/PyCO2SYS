@@ -32,6 +32,8 @@ Ca_C65
     Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 """
 
+from jax import numpy as np
+
 from .meta import valid
 
 
@@ -152,7 +154,13 @@ def total_fluoride_R65(salinity):
     return 1e6 * (0.000067 / 18.998) * salinity / 1.80655
 
 
-def total_sulfate_MR66(salinity):
+def coeffs_total_sulfate_MR66():
+    slope = 1e6 * (0.14 / 96.062) / 1.80655
+    intercept = 0
+    return np.array([slope, intercept])
+
+
+def total_sulfate_MR66(salinity, cf_total_sulfate):
     """Total sulfate in µmol/kg-sw following MR66.
 
     Parameters
@@ -168,7 +176,8 @@ def total_sulfate_MR66(salinity):
     # === CO2SYS.m comments: =======
     # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
     # this is .02824*Sali/35. = .0008067*Sali; in mol/kg-SW.
-    return 1e6 * (0.14 / 96.062) * salinity / 1.80655
+    slope, intercept = cf_total_sulfate
+    return intercept + slope * salinity
 
 
 def Ca_RT67(salinity):
