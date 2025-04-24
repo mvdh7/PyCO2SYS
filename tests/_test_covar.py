@@ -61,8 +61,6 @@ co2s = (
     .propagate()
 )
 testfunc = co2s._get_func_of("k_H2CO3")
-
-
 tf = make_positional(testfunc)
 
 co2a = co2s.adjust(temperature=12)
@@ -70,7 +68,10 @@ co2a = co2s.adjust(temperature=12)
 # New adjust approach, retaining old graph
 # TODO incorporate into engine
 # TODO make version for the fCO2-pCO2-xCO2-CO2aq-only icases
-kwargs_adjust = {"temperature": 12, "pressure": 1000}
+kwargs_adjust = {
+    "temperature": 12,
+    # "pressure": 1000,
+}
 # TODO ^ this needs to come automatically from kwargs to adjust
 
 # To adjust to a different temperature/pressure, we need to know alkalinity
