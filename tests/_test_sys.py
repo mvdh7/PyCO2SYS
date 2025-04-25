@@ -7,9 +7,13 @@ import xarray as xr
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
 
-co2s = pyco2.sys(dic=2100, alkalinity=2250).solve(
-    ["pH", "saturation_calcite", "saturation_aragonite"]
-)
+co2s = (
+    pyco2.sys(dic=2100, alkalinity=2250)
+    .solve(["pH", "saturation_calcite", "saturation_aragonite"])
+    .set_uncertainty(**pyco2.uncertainty.pKs_OEDG18, dic=2)
+    .propagate("pH")
+).set_uncertainty(total_borate__f=0.02)
+co2s.uncertainty
 
 # %%
 data = pd.DataFrame({"dic": [2000, 2100], "pH": 8.1, "temperature_2": "1"})
