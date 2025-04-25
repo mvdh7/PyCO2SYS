@@ -2,6 +2,8 @@
 # Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define standard uncertainties for propagation."""
 
+from jax import numpy as np
+
 # Define default uncertainties in pK values following OEDG18
 pKs_OEDG18 = {
     "pk_CO2": 0.002,
@@ -15,3 +17,11 @@ pKs_OEDG18 = {
 # OEDG18 with fractional uncertainty in total_borate too
 all_OEDG18 = pKs_OEDG18.copy()
 all_OEDG18.update({"total_borate__f": 0.02})
+
+# Total salts
+u_cf_total_sulfate = np.array(
+    [
+        [(1e6 * (0.00023 / 96.062) / 1.80655) ** 2, 0],
+        [0, 0],
+    ]
+)

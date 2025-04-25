@@ -6,6 +6,7 @@ from collections import UserDict
 from inspect import signature
 
 import networkx as nx
+from jax import jacfwd
 from jax import numpy as np
 from jaxlib.xla_extension import ArrayImpl
 
@@ -28,7 +29,6 @@ get_funcs = {
     # Total salt contents
     "ionic_strength": salts.ionic_strength_DOE94,
     "total_fluoride": salts.total_fluoride_R65,
-    "cf_total_sulfate": salts.coeffs_total_sulfate_MR66,
     "total_sulfate": salts.total_sulfate_MR66,
     # Equilibrium constants at 1 atm and on reported pH scale
     "pk_CO2_1atm": equilibria.p1atm.pk_CO2_W74,
@@ -790,6 +790,7 @@ values_default = {
     "total_silicate": 0.0,  # µmol/kg-sw
     "total_sulfide": 0.0,  # µmol/kg-sw
     "total_nitrite": 0.0,  # µmol/kg-sw
+    "cf_total_sulfate": salts.coeffs_total_sulfate_MR66(),
 }
 
 opts_default = {
@@ -838,6 +839,7 @@ condition_independent = (
     "total_sulfate",
     "total_sulfide",
     "total_nitrite",
+    "cf_total_sulfate",
 )
 
 # Define labels for parameter plotting
@@ -981,6 +983,14 @@ set_node_labels = {
     "total_silicate": r"$T_\mathrm{Si}$",
     "total_sulfate": r"$T_\mathrm{SO_4}$",
     "total_sulfide": r"$T_\mathrm{H_2S}$",
+    "cf_total_ammonia": r"$c(T_\mathrm{NH_3})$",
+    "cf_total_borate": r"$c(T_\mathrm{B})$",
+    "cf_total_fluoride": r"$c(T_\mathrm{F})$",
+    "cf_total_nitrite": r"$c(T_\mathrm{HNO_2})$",
+    "cf_total_phosphate": r"$c(T_\mathrm{P})$",
+    "cf_total_silicate": r"$c(T_\mathrm{Si})$",
+    "cf_total_sulfate": r"$c(T_\mathrm{SO_4})$",
+    "cf_total_sulfide": r"$c(T_\mathrm{H_2S})$",
     "upsilon": r"$\upsilon$",
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
@@ -1860,6 +1870,11 @@ class CO2System(UserDict):
         get_value_of_from_wrt = self._get_func_of_from_wrt(get_value_of, var_wrt)
         return meta.egrad(get_value_of_from_wrt)
 
+    def get_jac_func(self, var_of, var_wrt):
+        get_value_of = self._get_func_of(var_of)
+        get_value_of_from_wrt = self._get_func_of_from_wrt(get_value_of, var_wrt)
+        return jacfwd(get_value_of_from_wrt)
+
     def get_grad(self, var_of, var_wrt):
         """Compute the derivative of `var_of` with respect to `var_wrt` and
         store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
@@ -1932,8 +1947,8 @@ class CO2System(UserDict):
         for k, v in kwargs.items():
             assert (
                 k in self.nodes_original
-                or k.startswith("ppk_")  # TODO revise these!
                 or k.startswith("pk_")
+                or k.startswith("k_")
                 or k.endswith("__f")
             ), "Uncertainty can be assigned only for user-provided parameters."
             self.uncertainty[k] = v
@@ -2001,7 +2016,7 @@ class CO2System(UserDict):
             self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
-                is_pk = var_from.startswith("ppk_")
+                is_pk = var_from.startswith("pk_")
                 if is_pk:
                     # If the uncertainty is given in terms of a pK value, we do
                     # the calculations as if it were a K value, and convert at

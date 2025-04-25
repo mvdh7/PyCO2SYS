@@ -155,6 +155,7 @@ def total_fluoride_R65(salinity):
 
 
 def coeffs_total_sulfate_MR66():
+    """Coefficients for the total sulfate parameterisation of MR66."""
     slope = 1e6 * (0.14 / 96.062) / 1.80655
     intercept = 0
     return np.array([slope, intercept])
@@ -167,6 +168,8 @@ def total_sulfate_MR66(salinity, cf_total_sulfate):
     ----------
     salinity : float
         Practical salinity.
+    cf_total_sulfate : np.array
+        The (slope, intercept) of the linear regression with salinity.
 
     Returns
     -------

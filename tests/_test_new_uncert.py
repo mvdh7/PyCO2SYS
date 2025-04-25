@@ -22,10 +22,23 @@ tso4 = get_tso4(coeffs, salinity=salinity)
 
 get_tso4_grad = co2s.get_grad_func("total_sulfate", "cf_total_sulfate")
 
+get_tso4_jac = co2s.get_jac_func("total_sulfate", "cf_total_sulfate")
+
 tso4_grad = egrad(get_tso4)(coeffs, salinity=salinity)
 tso4_jac = jax.jacfwd(get_tso4)(coeffs, salinity=salinity)
 # tso4_grad = co2s.get_grad("total_sulfate", "cf_total_sulfate")
 
+# %%
+get_tso4 = co2s._get_func_of("total_sulfate")
+get_tso4 = co2s._get_func_of_from_wrt(get_tso4, "salinity")
+tso4 = get_tso4(salinity, cf_total_sulfate=coeffs)
+
+
+tso4_grad = egrad(get_tso4)(salinity, cf_total_sulfate=coeffs)
+tso4_jac = jax.jacfwd(get_tso4)(salinity, cf_total_sulfate=coeffs)
+
+
+# %%
 u_cf_total_sulfate = np.array(
     [
         [0.02, -0.02],
