@@ -7,7 +7,9 @@ import xarray as xr
 import PyCO2SYS as pyco2
 from PyCO2SYS import convert
 
-co2s = pyco2.sys(dic=2100, alkalinity=2250).solve("pH")
+co2s = pyco2.sys(dic=2100, alkalinity=2250).solve(
+    ["pH", "saturation_calcite", "saturation_aragonite"]
+)
 
 # %%
 data = pd.DataFrame({"dic": [2000, 2100], "pH": 8.1, "temperature_2": "1"})

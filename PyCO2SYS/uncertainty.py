@@ -9,8 +9,8 @@ pKs_OEDG18 = {
     "pk_HCO3": 0.015,
     "pk_BOH3": 0.01,
     "pk_H2O": 0.01,
-    "k_aragonite": 0.02,
-    "k_calcite": 0.02,
+    "pk_aragonite": 0.02,
+    "pk_calcite": 0.02,
 }
 # OEDG18 with fractional uncertainty in total_borate too
 all_OEDG18 = pKs_OEDG18.copy()
