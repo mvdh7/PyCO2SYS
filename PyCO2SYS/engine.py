@@ -666,13 +666,13 @@ get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
     1: dict(pH=solve.inorganic.pH_from_dic_HCO3_lo),
     2: dict(pH=solve.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
 }
-get_funcs_opts["opt_k_calcite"] = {
-    1: dict(k_calcite=solubility.k_calcite_M83),
-    2: dict(k_calcite=solubility.k_calcite_I75),  # for GEOSECS
+get_funcs_opts["opt_pk_calcite"] = {
+    1: dict(pk_calcite=solubility.pk_calcite_M83),
+    2: dict(pk_calcite=solubility.pk_calcite_I75),  # for GEOSECS
 }
-get_funcs_opts["opt_k_aragonite"] = {
-    1: dict(k_aragonite=solubility.k_aragonite_M83),
-    2: dict(k_aragonite=solubility.k_aragonite_GEOSECS),  # for GEOSECS
+get_funcs_opts["opt_pk_aragonite"] = {
+    1: dict(pk_aragonite=solubility.pk_aragonite_M83),
+    2: dict(pk_aragonite=solubility.pk_aragonite_GEOSECS),  # for GEOSECS
 }
 # TODO option 1 below can only be added if there is an fCO2 value accessible
 # (see also similar TODO above about pH)
@@ -802,9 +802,9 @@ opts_default = {
     "opt_fugacity_factor": 1,
     "opt_gas_constant": 3,
     "opt_HCO3_root": 2,
-    "opt_k_aragonite": 1,
+    "opt_pk_aragonite": 1,
     "opt_pk_BOH3": 1,
-    "opt_k_calcite": 1,
+    "opt_pk_calcite": 1,
     "opt_pk_carbonic": 10,
     "opt_pk_H2O": 1,
     "opt_pk_HF": 1,
@@ -892,12 +892,12 @@ set_node_labels = {
     "HS": r"$[\mathrm{HS}^–]$",
     "HSO4": r"$[\mathrm{HSO}_4^–]$",
     "ionic_strength": "$I$",
-    "k_aragonite": r"$K_\mathrm{a}^*$",
+    "pk_aragonite": r"p$K_\mathrm{a}^*$",
     "pk_BOH3_sws_1atm": r"p$K_\mathrm{B}^\mathrm{S0}$",
     "pk_BOH3_sws": r"p$K_\mathrm{B}^\mathrm{S}$",
     "pk_BOH3_total_1atm": r"p$K_\mathrm{B}^\mathrm{T0}$",
     "pk_BOH3": r"p$K_\mathrm{B}^*$",
-    "k_calcite": r"$K_\mathrm{c}^*$",
+    "pk_calcite": r"p$K_\mathrm{c}^*$",
     "pk_CO2_1atm": "$pK_0′^0$",
     "pk_CO2": "$pK_0′$",
     "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
@@ -1931,8 +1931,8 @@ class CO2System(UserDict):
         for k, v in kwargs.items():
             assert (
                 k in self.nodes_original
-                or k.startswith("ppk_")  # TODO revise these!
                 or k.startswith("pk_")
+                or k.startswith("k_")
                 or k.endswith("__f")
             ), "Uncertainty can be assigned only for user-provided parameters."
             self.uncertainty[k] = v
@@ -2000,7 +2000,7 @@ class CO2System(UserDict):
             self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
-                is_pk = var_from.startswith("ppk_")
+                is_pk = var_from.startswith("pk_")
                 if is_pk:
                     # If the uncertainty is given in terms of a pK value, we do
                     # the calculations as if it were a K value, and convert at
@@ -2552,10 +2552,10 @@ def sys(data=None, **kwargs):
     opt_pk_Si: parameterisation for bisulfate dissociation.
         1: YM95 [DEFAULT].
         2: SMB64 (GEOSECS).
-    opt_k_aragonite: parameterisation for aragonite solubility product.
+    opt_pk_aragonite: parameterisation for aragonite solubility product.
         1: M83 [DEFAULT].
         2: ICHP73 (GEOSECS).
-    opt_k_calcite: parameterisation for calcite solubility product.
+    opt_pk_calcite: parameterisation for calcite solubility product.
         1: M83 [DEFAULT].
         2: I75 (GEOSECS).
 

@@ -17,7 +17,7 @@ def _deltaKappaCalcite_I75(temperature):
     return deltaVKCa, KappaKCa
 
 
-def k_calcite_M83(temperature, salinity, pressure, gas_constant):
+def pk_calcite_M83(temperature, salinity, pressure, gas_constant):
     """Calcite solubility following M83."""
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
@@ -33,10 +33,10 @@ def k_calcite_M83(temperature, salinity, pressure, gas_constant):
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(temperature)
     lnKCafac = (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (gas_constant * TempK)
     KCa = KCa * np.exp(lnKCafac)
-    return KCa
+    return -np.log10(KCa)
 
 
-def k_aragonite_M83(temperature, salinity, pressure, gas_constant):
+def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
     """Aragonite solubility following M83 with pressure correction of I75."""
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
@@ -56,23 +56,26 @@ def k_aragonite_M83(temperature, salinity, pressure, gas_constant):
     KappaKAr = KappaKCa
     lnKArfac = (-deltaVKAr + 0.5 * KappaKAr * Pbar) * Pbar / (gas_constant * TempK)
     KAr = KAr * np.exp(lnKArfac)
-    return KAr
+    return -np.log10(KAr)
 
 
-def k_calcite_P0_I75(temperature, salinity):
+def pk_calcite_P0_I75(temperature, salinity):
     """Calcite solubility constant following ICHP73/I75 with no pressure correction.
     For use with GEOSECS constants.
     """
     TempK = convert.celsius_to_kelvin(temperature)
-    return 0.0000001 * (
-        -34.452
-        - 39.866 * salinity ** (1 / 3)
-        + 110.21 * np.log10(salinity)
-        - 0.0000075752 * TempK**2
+    return -np.log10(
+        0.0000001
+        * (
+            -34.452
+            - 39.866 * salinity ** (1 / 3)
+            + 110.21 * np.log10(salinity)
+            - 0.0000075752 * TempK**2
+        )
     )
 
 
-def k_calcite_I75(temperature, salinity, pressure, gas_constant):
+def pk_calcite_I75(temperature, salinity, pressure, gas_constant):
     """Calcite solubility constant following ICHP73/I75 with pressure correction.
     For use with GEOSECS constants.
     """
@@ -85,7 +88,7 @@ def k_calcite_I75(temperature, salinity, pressure, gas_constant):
     # but the fit is actually from Ingle, Marine Chemistry 3:301-319, 1975).
     # This is in (mol/kg-SW)^2
     # ==============================
-    KCa = k_calcite_P0_I75(temperature, salinity)
+    pKCa = pk_calcite_P0_I75(temperature, salinity)
     # Now add pressure correction
     # === CO2SYS.m comments: =======
     # Culberson and Pytkowicz, Limnology and Oceanography 13:403-417, 1968
@@ -94,11 +97,11 @@ def k_calcite_I75(temperature, salinity, pressure, gas_constant):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     # ==============================
-    KCa = KCa * np.exp((36 - 0.2 * temperature) * Pbar / (gas_constant * TempK))
-    return KCa
+    KCa = 10**-pKCa * np.exp((36 - 0.2 * temperature) * Pbar / (gas_constant * TempK))
+    return -np.log10(KCa)
 
 
-def k_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
+def pk_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     """Aragonite solubility following ICHP73 with no pressure correction.
     For use with GEOSECS constants.
     """
@@ -108,8 +111,8 @@ def k_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     # *** CalculateKArforGEOSECS:
     # Berner, R. A., American Journal of Science 276:713-730, 1976:
     # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
-    KCa = k_calcite_P0_I75(temperature, salinity)
-    KAr = 1.45 * KCa  # this is in (mol/kg-SW)^2
+    pKCa = pk_calcite_P0_I75(temperature, salinity)
+    KAr = 1.45 * 10**-pKCa  # this is in (mol/kg-SW)^2
     # Berner (p. 722) states that he uses 1.48.
     # It appears that 1.45 was used in the GEOSECS calculations
     # Now add pressure correction
@@ -120,27 +123,27 @@ def k_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     KAr = KAr * np.exp((33.3 - 0.22 * temperature) * Pbar / (gas_constant * TempK))
-    return KAr
+    return -np.log10(KAr)
 
 
-def OC_from_CO3(CO3, Ca, k_calcite):
+def OC_from_CO3(CO3, Ca, pk_calcite):
     """Calculate [CO3] given saturation state w.r.t. calcite."""
-    return 1e-12 * CO3 * Ca / k_calcite
+    return 1e-12 * CO3 * Ca / 10**-pk_calcite
 
 
-def OA_from_CO3(CO3, Ca, k_aragonite):
+def OA_from_CO3(CO3, Ca, pk_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
-    return 1e-12 * CO3 * Ca / k_aragonite
+    return 1e-12 * CO3 * Ca / 10**-pk_aragonite
 
 
-def CO3_from_OC(saturation_calcite, Ca, k_calcite):
+def CO3_from_OC(saturation_calcite, Ca, pk_calcite):
     """Calculate [CO3] given saturation state w.r.t. calcite."""
-    return 1e12 * saturation_calcite * k_calcite / Ca
+    return 1e12 * saturation_calcite * 10**-pk_calcite / Ca
 
 
-def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
+def CO3_from_OA(saturation_aragonite, Ca, pk_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
-    return 1e12 * saturation_aragonite * k_aragonite / Ca
+    return 1e12 * saturation_aragonite * 10**-pk_aragonite / Ca
 
 
 @valid(Mg_percent=[0, 22])
