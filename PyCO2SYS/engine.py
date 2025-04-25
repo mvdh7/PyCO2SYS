@@ -1932,12 +1932,16 @@ class CO2System(UserDict):
             assert (
                 k in self.nodes_original
                 or k.startswith("pk_")
-                or k.startswith("k_")
-                or k.endswith("__f")
-            ), "Uncertainty can be assigned only for user-provided parameters."
-            self.uncertainty[k] = v
+                or k.startswith("total_")
+            ), (
+                "Uncertainty can be assigned only for user-provided parameters, "
+                + "pK values and total salt contents."
+            )
+            self.uncertainty.update({k: v})
         # Recalculate any uncertainties that have already been propagated
-        self.propagate(self.uncertainty)
+        self.propagate([k for k, v in self.uncertainty.items() if isinstance(v, dict)])
+        # ^ if it's not a dict, then it's an uncertainty that was defined by the user,
+        #   rather than one that's been propagated
         return self
 
     def propagate(self, uncertainty_into=None):
@@ -1949,8 +1953,8 @@ class CO2System(UserDict):
             co2s = (
                 pyco2.sys(dic=2100, alkalinity=2300)
                 .set_uncertainty(dic=2, alkalinity=1.5)
+                .propagate("pH)
             )
-            co2s.propagate("pH")
             co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
             co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
 
@@ -1962,7 +1966,7 @@ class CO2System(UserDict):
             solved for is used.
         """
         uncertainty_from = {
-            k: self.uncertainty[k] for k in self.nodes_original if k in self.uncertainty
+            k: v for k, v in self.uncertainty.items() if not isinstance(v, dict)
         }
         self._propagate(uncertainty_into, uncertainty_from)
         return self
@@ -2000,15 +2004,9 @@ class CO2System(UserDict):
             self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
             u_total = self.uncertainty[var_in]["total"]
             for var_from, u_from in uncertainty_from.items():
-                is_pk = var_from.startswith("pk_")
-                if is_pk:
-                    # If the uncertainty is given in terms of a pK value, we do
-                    # the calculations as if it were a K value, and convert at
-                    # the end
-                    var_from = var_from[1:]
                 is_fractional = var_from.endswith("__f")
                 if is_fractional:
-                    # If the uncertainty is fractional, multiply through by this
+                    # If the uncertainty is fractional, multiply through
                     var_from = var_from[:-3]
                     u_from = self.data[var_from] * u_from
                 if var_from in self.nodes_original:
@@ -2024,10 +2022,6 @@ class CO2System(UserDict):
                     sys = CO2System(**data, **self.opts)
                     sys.get_grad(var_in, var_from)
                     u_part = np.abs(sys.grads[var_in][var_from] * u_from)
-                # Add the p back and convert value, if necessary
-                if is_pk:
-                    u_part = u_part * np.log(10) * np.abs(sys.data[var_from])
-                    var_from = "p" + var_from
                 if is_fractional:
                     var_from += "__f"
                 self.uncertainty[var_in][var_from] = u_part
