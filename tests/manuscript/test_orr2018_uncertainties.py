@@ -26,7 +26,7 @@ values_orr2 = dict(
     total_silicate=0,
 )
 opts_orr2 = dict(
-    opt_k_carbonic=10,
+    opt_pk_carbonic=10,
     opt_total_borate=2,
 )
 sys2 = CO2System(**values_orr2, **opts_orr2)
@@ -61,7 +61,7 @@ values_orr3 = dict(
     total_silicate=60,
 )
 opts_orr3 = dict(
-    opt_k_carbonic=10,
+    opt_pk_carbonic=10,
     opt_total_borate=2,
 )
 grads_wrt = ["total_phosphate", "total_silicate"]
@@ -94,7 +94,7 @@ values_orr4 = dict(
     total_silicate=60,
 )
 opts_orr4 = dict(
-    opt_k_carbonic=10,
+    opt_pk_carbonic=10,
     opt_total_borate=1,  # note this is different from Tables 2 and 3!
 )
 uncertainty_into = [
@@ -176,6 +176,6 @@ def test_table4_OEDG18():
             )
 
 
-test_table2_OEDG18()
-test_table3_OEDG18()
-test_table4_OEDG18()
+# test_table2_OEDG18()
+# test_table3_OEDG18()
+# test_table4_OEDG18()

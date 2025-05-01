@@ -10,9 +10,9 @@ from .meta import egrad
 ilog10e = -1 / np.log10(np.exp(1))  # multiplier to convert pH to ln(H)
 
 
-def d_lnOmega__d_CO3(CO3, Ca, k_calcite):
+def d_lnOmega__d_CO3(CO3, Ca, pk_calcite):
     """Function for d[ln(Omega)]/d[CO3].  Identical for calcite and aragonite."""
-    return egrad(lambda CO3: np.log(solubility.OC_from_CO3(CO3, Ca, k_calcite)))(CO3)
+    return egrad(lambda CO3: np.log(solubility.OC_from_CO3(CO3, Ca, pk_calcite)))(CO3)
 
 
 def d_dic__d_pH__alkalinity(

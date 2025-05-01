@@ -167,7 +167,7 @@ def test_total_salts():
         # Set up arguments dicts
         values = dict(salinity=group.SAL.values)
         opts = dict(
-            opt_k_carbonic=g[0],
+            opt_pk_carbonic=g[0],
             opt_total_borate=g[1],
         )
         # Deal with GEOSECS and freshwater weirdness
@@ -181,11 +181,11 @@ def test_total_salts():
         # Compare MATLAB with Python
         for m, p in m_to_p:
             python = sys[p]
-            # These terms are not included when opt_k_carbonic == 8
+            # These terms are not included when opt_pk_carbonic == 8
             if g[0] == 8 and p in ["total_sulfate", "total_fluoride", "total_borate"]:
                 python[:] = 0.0
             assert np.all(np.isclose(group[m].values, python, rtol=1e-12, atol=1e-16))
 
 
-test_equilibrium_constants()
-test_total_salts()
+# test_equilibrium_constants()
+# test_total_salts()

@@ -132,6 +132,8 @@ def test_v1_v2():
         "pk_NH3": "k_ammonia",
         "pk_H2S": "k_sulfide",
         "pk_CO2": "k_CO2",
+        'pk_aragonite': 'k_aragonite',
+        'pk_calcite': 'k_calcite',
     }
     # These are keys in the pyco2.sys that are no longer in sys.values
     results_keys = [
