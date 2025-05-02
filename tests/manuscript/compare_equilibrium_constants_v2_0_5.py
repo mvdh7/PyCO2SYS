@@ -68,9 +68,9 @@ def test_equilibrium_constants():
             salinity=group.SAL.values,
         )
         opts = dict(
-            opt_pk_carbonic=g[0],
+            opt_k_carbonic=g[0],
             opt_pH_scale=g[1],
-            opt_pk_HSO4=g[2],
+            opt_k_HSO4=g[2],
             opt_total_borate=g[3],
             opt_gas_constant=1,
         )
@@ -78,7 +78,7 @@ def test_equilibrium_constants():
         if g[0] == 6:
             opts.update(
                 dict(
-                    opt_pk_BOH3=2,
+                    opt_k_BOH3=2,
                     opt_factor_k_BOH3=2,
                     opt_factor_k_H2CO3=2,
                     opt_factor_k_HCO3=2,
@@ -88,10 +88,10 @@ def test_equilibrium_constants():
             opts.update(
                 dict(
                     opt_fH=2,
-                    opt_pk_BOH3=2,
-                    opt_pk_H2O=2,
-                    opt_pk_phosphate=2,
-                    opt_pk_Si=2,
+                    opt_k_BOH3=2,
+                    opt_k_H2O=2,
+                    opt_k_phosphate=2,
+                    opt_k_Si=2,
                     opt_factor_k_BOH3=2,
                     opt_factor_k_H2CO3=2,
                     opt_factor_k_HCO3=2,
@@ -103,7 +103,7 @@ def test_equilibrium_constants():
             opts.update(
                 dict(
                     opt_fH=3,
-                    opt_pk_H2O=3,
+                    opt_k_H2O=3,
                     opt_factor_k_H2O=2,
                     opt_factor_k_H2CO3=3,
                     opt_factor_k_HCO3=3,
@@ -130,7 +130,7 @@ def test_equilibrium_constants():
                     -np.log10(group[m + "output"].values),
                 )
                 pk_python_out = np.where(sys_out[p] == 0, -999.9, sys_out[p])
-                # These terms are not included when opt_pk_carbonic == 6
+                # These terms are not included when opt_k_carbonic == 6
                 if g[0] == 6 and p in [
                     "pk_H2O",
                     "pk_H3PO4",
@@ -140,7 +140,7 @@ def test_equilibrium_constants():
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9
-                # These terms are not included when opt_pk_carbonic == 8
+                # These terms are not included when opt_k_carbonic == 8
                 if g[0] == 8 and p in [
                     "pk_H3PO4",
                     "pk_H2PO4",

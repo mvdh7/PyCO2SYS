@@ -405,7 +405,7 @@ get_funcs_opts["opt_fH"] = {
     2: dict(fH=convert.fH_PTBO87),
     3: dict(fH=lambda: 1.0),
 }
-get_funcs_opts["opt_pk_carbonic"] = {
+get_funcs_opts["opt_k_carbonic"] = {
     1: dict(
         pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_RRV93,
         pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_RRV93,
@@ -524,8 +524,8 @@ get_funcs_opts["opt_pk_carbonic"] = {
 }
 # For historical reasons, these are the same as each other (one also gets the Peng
 # "correction", but that's handled elsewhere):
-get_funcs_opts["opt_pk_carbonic"][7] = get_funcs_opts["opt_pk_carbonic"][6].copy()
-get_funcs_opts["opt_pk_phosphate"] = {
+get_funcs_opts["opt_k_carbonic"][7] = get_funcs_opts["opt_k_carbonic"][6].copy()
+get_funcs_opts["opt_k_phosphate"] = {
     1: dict(
         pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_YM95,
         pk_H2PO4_sws_1atm=equilibria.p1atm.pk_H2PO4_sws_YM95,
@@ -543,7 +543,7 @@ get_funcs_opts["opt_pk_phosphate"] = {
         ),
     ),
 }
-get_funcs_opts["opt_pk_BOH3"] = {
+get_funcs_opts["opt_k_BOH3"] = {
     1: dict(
         pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_D90b,
         pk_BOH3_sws_1atm=lambda pk_BOH3_total_1atm, tot_to_sws_1atm: (
@@ -557,21 +557,21 @@ get_funcs_opts["opt_pk_BOH3"] = {
         ),
     ),
 }
-get_funcs_opts["opt_pk_H2O"] = {
+get_funcs_opts["opt_k_H2O"] = {
     1: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M95),
     2: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M79),
     3: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_HO58_M79),
 }
-get_funcs_opts["opt_pk_HF"] = {
+get_funcs_opts["opt_k_HF"] = {
     1: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_DR79),
     2: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_PF87),
 }
-get_funcs_opts["opt_pk_HSO4"] = {
+get_funcs_opts["opt_k_HSO4"] = {
     1: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_D90a),
     2: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_KRCB77),
     3: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_WM13),
 }
-get_funcs_opts["opt_pk_NH3"] = {
+get_funcs_opts["opt_k_NH3"] = {
     1: dict(
         pk_NH3_total_1atm=equilibria.p1atm.pk_NH3_total_CW95,
         pk_NH3_sws_1atm=lambda pk_NH3_total_1atm, tot_to_sws_1atm: (
@@ -580,14 +580,14 @@ get_funcs_opts["opt_pk_NH3"] = {
     ),
     2: dict(pk_NH3_sws_1atm=equilibria.p1atm.pk_NH3_sws_YM95),
 }
-get_funcs_opts["opt_pk_Si"] = {
+get_funcs_opts["opt_k_Si"] = {
     1: dict(pk_Si_sws_1atm=equilibria.p1atm.pk_Si_sws_YM95),
     2: dict(
         pk_Si_nbs_1atm=equilibria.p1atm.pk_Si_nbs_SMB64,
         pk_Si_sws_1atm=lambda pk_Si_nbs_1atm, nbs_to_sws: (pk_Si_nbs_1atm + nbs_to_sws),
     ),
 }
-get_funcs_opts["opt_pk_HNO2"] = {
+get_funcs_opts["opt_k_HNO2"] = {
     1: dict(
         pk_HNO2_total_1atm=equilibria.p1atm.pk_HNO2_total_BBWB24,
         pk_HNO2_sws_1atm=lambda pk_HNO2_total_1atm, tot_to_sws_1atm: (
@@ -666,11 +666,11 @@ get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
     1: dict(pH=solve.inorganic.pH_from_dic_HCO3_lo),
     2: dict(pH=solve.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
 }
-get_funcs_opts["opt_pk_calcite"] = {
+get_funcs_opts["opt_k_calcite"] = {
     1: dict(pk_calcite=solubility.pk_calcite_M83),
     2: dict(pk_calcite=solubility.pk_calcite_I75),  # for GEOSECS
 }
-get_funcs_opts["opt_pk_aragonite"] = {
+get_funcs_opts["opt_k_aragonite"] = {
     1: dict(pk_aragonite=solubility.pk_aragonite_M83),
     2: dict(pk_aragonite=solubility.pk_aragonite_GEOSECS),  # for GEOSECS
 }
@@ -802,17 +802,17 @@ opts_default = {
     "opt_fugacity_factor": 1,
     "opt_gas_constant": 3,
     "opt_HCO3_root": 2,
-    "opt_pk_aragonite": 1,
-    "opt_pk_BOH3": 1,
-    "opt_pk_calcite": 1,
-    "opt_pk_carbonic": 10,
-    "opt_pk_H2O": 1,
-    "opt_pk_HF": 1,
-    "opt_pk_HSO4": 1,
-    "opt_pk_NH3": 1,
-    "opt_pk_phosphate": 1,
-    "opt_pk_Si": 1,
-    "opt_pk_HNO2": 1,
+    "opt_k_aragonite": 1,
+    "opt_k_BOH3": 1,
+    "opt_k_calcite": 1,
+    "opt_k_carbonic": 10,
+    "opt_k_H2O": 1,
+    "opt_k_HF": 1,
+    "opt_k_HSO4": 1,
+    "opt_k_NH3": 1,
+    "opt_k_phosphate": 1,
+    "opt_k_Si": 1,
+    "opt_k_HNO2": 1,
     "opt_Mg_calcite_kt_Tdep": 1,
     "opt_Mg_calcite_type": 2,
     "opt_pH_scale": 1,
@@ -2486,7 +2486,7 @@ def sys(data=None, **kwargs):
 
     Carbonic acid dissociation
     --------------------------
-    opt_pk_carbonic: parameterisation for carbonic acid dissociation (K1 and
+    opt_k_carbonic: parameterisation for carbonic acid dissociation (K1 and
     K2).
          1: RRV93.
          2: GP89.
@@ -2519,37 +2519,37 @@ def sys(data=None, **kwargs):
 
     Other equilibrium constants
     ---------------------------
-    opt_pk_BOH3: parameterisation for boric acid equilibrium.
+    opt_k_BOH3: parameterisation for boric acid equilibrium.
         1: D90b [DEFAULT].
         2: LTB69 (GEOSECS).
-    opt_pk_H2O: parameterisation for water dissociation.
+    opt_k_H2O: parameterisation for water dissociation.
         1: M95 [DEFAULT].
         2: M79 (GEOSECS).
         3: HO58 refit by M79 (freshwater).
-    opt_pk_HF: parameterisation for hydrogen fluoride dissociation.
+    opt_k_HF: parameterisation for hydrogen fluoride dissociation.
         1: DR79 [DEFAULT].
         2: PF87.
-    opt_pk_HNO2: parameterisation for nitrous acid dissociation.
+    opt_k_HNO2: parameterisation for nitrous acid dissociation.
         1: BBWB24 for seawater [DEFAULT].
         2: BBWB24 for freshwater.
-    opt_pk_HSO4: parameterisation for bisulfate dissociation.
+    opt_k_HSO4: parameterisation for bisulfate dissociation.
         1: D90a [DEFAULT].
         2: KRCB77.
         3: WM13/WMW14.
-    opt_pk_NH3: parameterisation for ammonium dissociation.
+    opt_k_NH3: parameterisation for ammonium dissociation.
         1: CW95 [DEFAULT].
         2: YM95.
-    opt_pk_phosphate: parameterisation for the phosphoric acid dissocation
+    opt_k_phosphate: parameterisation for the phosphoric acid dissocation
     constants.
         1: YM95 [DEFAULT].
         2: KP67 (GEOSECS).
-    opt_pk_Si: parameterisation for bisulfate dissociation.
+    opt_k_Si: parameterisation for bisulfate dissociation.
         1: YM95 [DEFAULT].
         2: SMB64 (GEOSECS).
-    opt_pk_aragonite: parameterisation for aragonite solubility product.
+    opt_k_aragonite: parameterisation for aragonite solubility product.
         1: M83 [DEFAULT].
         2: ICHP73 (GEOSECS).
-    opt_pk_calcite: parameterisation for calcite solubility product.
+    opt_k_calcite: parameterisation for calcite solubility product.
         1: M83 [DEFAULT].
         2: I75 (GEOSECS).
 

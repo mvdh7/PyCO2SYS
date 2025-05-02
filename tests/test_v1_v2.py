@@ -27,7 +27,7 @@ def test_v1_v2():
                 "pressure_atmosphere",
             ]
         },
-        opt_pk_carbonic=10,
+        opt_k_carbonic=10,
     )
     co2s.solve()
     # These values don't need to be compared because they weren't output by v1
