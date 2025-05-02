@@ -1,13 +1,18 @@
 # Arguments and results
 
-This page provides a comprehensive overview of all possible arguments to PyCO2SYS and the results it can compute.  It assumes familiarity with the basic syntax of `pyco2.sys` (see the [Quick-start guide](quick.md)).
+This page provides a comprehensive overview of the keyword arguments that can be provided to `pyco2.sys` and the results it can compute.
 
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
+!!! tip "Lowercase or uppercase?"
+    All keywords and results keys are lowercase except for chemical formulae, which are always written in their correct case, including if the chemical formula is only a part of the complete key.
+
 ## Keyword arguments
 
 Each argument to `pyco2.sys` can be either a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
+
+Pandas `DataFrame`s and xarray `Dataset`s can be provided using the `data` kwarg (see [User guide / Quick-start guide / Data structures](quick.md/#data-structures)).
 
 ### Carbonate system parameters
 
@@ -224,9 +229,13 @@ These settings are ignored if [their values are provided as arguments](#nutrient
 
 ### Equilibrium constants
 
+!!! tip "p<i>K</i>, not <i>K</i>"
+    All equilibrium constants are provided and returned as p<i>K</i> values, where p<i>K</i> = –log<sub>10</sub> <i>K</i>.
+
 All of the equilibrium constants needed by PyCO2SYS are calculated internally from temperature, salinity and pressure, and returned in the results.  However, values for any of these constants can be provided instead when calling `pyco2.sys`.  They should be provided on the pH scale indicated by [`opt_pH_scale`](#ph-scale).
 
-To do this, the arguments should have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide a custom water dissociation constant value of p<i>K</i> 14, use `k_H2O=1e-14`.
+To do this, the arguments should have the same keywords as the corresponding [results dict keys](#equilibrium-constants).  For example, to provide a custom water dissociation constant value of p<i>K</i><sup>*</sup> 14, use `pk_H2O=14`.
+
 
 <!--If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.-->
 
@@ -240,11 +249,10 @@ All [keyword arguments](#keyword-arguments) that can be provided to `pyco2.sys` 
 
 Settings arguments can be found at `co2s.opts`.  They should not be modified there - doing so will have unpredictable consequences for future calculations.
 
-### pH
+### pH scales
 
-!!! Outputs "pH"
+!!! Outputs "pH scales"
 
-    * `pH`: **pH** on the scale specified by `opt_pH_scale`.
     * `pH_total`: pH on the **total scale**.
     * `pH_sws`: pH on the **seawater scale**.
     * `pH_free`: pH on the **free scale**.
@@ -279,14 +287,6 @@ Settings arguments can be found at `co2s.opts`.  They should not be modified the
     * `HNO2`: **nitrous acid** $[\mathrm{HNO}_2]$ in μmol&nbsp;kg<sup>–1</sup>.
     * `NO2`: **nitrite** $[\mathrm{NO}_2^-]$ in μmol&nbsp;kg<sup>–1</sup>.
 
-
-### Carbonate mineral saturation
-
-!!! outputs "Carbonate mineral saturation"
-
-    * `saturation_calcite`: **saturation state** with respect to **calcite**.
-    * `saturation_aragonite`: **saturation state** with respect to **aragonite**.
-
 ### Chemical buffer factors
 
 Buffer factors are evaluated using automatic differentiation of the complete alkalinity equation.
@@ -309,24 +309,26 @@ Buffer factors are evaluated using automatic differentiation of the complete alk
      
 ### Equilibrium constants
 
-All equilibrium constants are returned on the pH scale of `opt_pH_scale` except for `k_HF_free` and `k_HSO4_free`, which are always on the free scale.  They are all stoichiometric constants, i.e., defined in terms of reactant contents rather than activities, with the exception of `k_CO2`, which is a hybrid constant.
+All equilibrium constants are returned on the pH scale of `opt_pH_scale` except for `pk_HF_free` and `pk_HSO4_free`, which are always on the free scale.  They are all stoichiometric constants, i.e., defined in terms of reactant contents rather than activities, with the exception of `pk_CO2`, which is a hybrid constant.
 
 !!! outputs "Equilibrium constants"
 
-    * `k_CO2`: **Henry's constant for CO<sub>2</sub>**.
-    * `k_H2CO3`: **first carbonic acid** dissociation constant.
-    * `k_HCO3`: **second carbonic acid** dissociation constant.
-    * `k_H2O`: **water** dissociation constant.
-    * `k_BOH3`: **boric acid** dissociation constant.
-    * `k_HF_free`: **hydrogen fluoride** dissociation constant.
-    * `k_HSO4_free`: **bisulfate** dissociation constant.
-    * `k_H3PO4`: **first phosphoric acid** dissociation constant.
-    * `k_H2PO4`: **second phosphoric acid** dissociation constant.
-    * `k_HPO4`: **third phosphoric acid** dissociation constant.
-    * `k_Si`: **silicic acid** dissociation constant.
-    * `k_NH3`: **ammonia** equilibrium constant.
-    * `k_H2S`: **hydrogen sulfide** dissociation constant.
-    * `k_HNO2`: **nitrous acid** dissociation constant.
+    * `pk_CO2`: **Henry's constant for CO<sub>2</sub>**.
+    * `pk_H2CO3`: **first carbonic acid** dissociation constant.
+    * `pk_HCO3`: **second carbonic acid** dissociation constant.
+    * `pk_H2O`: **water** dissociation constant.
+    * `pk_BOH3`: **boric acid** dissociation constant.
+    * `pk_HF_free`: **hydrogen fluoride** dissociation constant.
+    * `pk_HSO4_free`: **bisulfate** dissociation constant.
+    * `pk_H3PO4`: **first phosphoric acid** dissociation constant.
+    * `pk_H2PO4`: **second phosphoric acid** dissociation constant.
+    * `pk_HPO4`: **third phosphoric acid** dissociation constant.
+    * `pk_Si`: **silicic acid** dissociation constant.
+    * `pk_NH3`: **ammonia** equilibrium constant.
+    * `pk_H2S`: **hydrogen sulfide** dissociation constant.
+    * `pk_HNO2`: **nitrous acid** dissociation constant.
+    * `pk_calcite`: solubility product for **calcite**.
+    * `pk_aragonite`: solubility product for **aragonite**.
     <!--* `k_alpha`: **HA** equilibrium constant.-->
     <!--* `k_beta`: **HB** equilibrium constant.-->
 

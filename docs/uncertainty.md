@@ -4,17 +4,14 @@ PyCO2SYS provides tools to propagate uncertainties in all arguments through to a
 
 ## Independent uncertainties
 
-If the uncertainty in each [argument](detail.md/#keyword-arguments) is independent – i.e. there is no covariance between the uncertainties in different parameters – then you can use the `propagate` method to propagate the parameter uncertainties through into any [result](detail.md/#results).
+If the uncertainty in each [argument](detail.md/#keyword-arguments) is independent – i.e. there is no covariance between the uncertainties in different parameters – then you can use the `set_uncertainty` and `propagate` methods to propagate the parameter uncertainties through into any [result](detail.md/#results).
 
 ### Syntax
 
-Uncertainty propagation can be performed with the `propagate` method, which has the syntax:
-
 ```python
-co2s.propagate(uncertainty_from, uncertainty_into)
+co2s.set_uncertainty(uncertainty_from)
+co2s.propagate(uncertainty_into)
 ```
-
-where `co2s` is a `CO2System`.
 
 #### Arguments
 

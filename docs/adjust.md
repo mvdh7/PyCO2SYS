@@ -1,6 +1,6 @@
 # Adjust conditions
 
-To adjust the system to a different set of temperature and/or pressure conditions, use `adjust`:
+Use `adjust` to adjust the system to a different set of temperature and/or pressure conditions:
 
 ```python
 co2s_adj = co2s.adjust(
@@ -14,6 +14,8 @@ co2s_adj = co2s.adjust(
 ```
 
 The result `co2s_adj` is a new `CO2System` with all values at the new conditions (above, temperature of 25 °C and hydrostatic pressure of 1000 dbar).
+
+If the original `co2s` was set up with the `data` kwarg from a pandas `DataFrame` or xarray `Dataset`, then the `temperature` and `pressure` provided to `adjust` can be pandas `Series`s or xarray `DataArrays` as long as their index or dimensions are consistent with the original `data`.
 
 For more on the `store_steps` kwarg, see [Advanced results access](results.md/#solve-without-returning).
 
