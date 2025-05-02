@@ -9,7 +9,7 @@ def test_pressured_differences():
     # Open file from MATLAB (created by Jon Sharp on 2023-01-19)
     mlp = pd.read_csv("tests/data/test_pressured_kCO2_pressured_jds.csv", index_col=0)
     partypes = {1: "alkalinity", 2: "dic", 3: "pH", 4: "pCO2", 5: "fCO2"}
-    opts = dict(opt_pk_carbonic=10)
+    opts = dict(opt_k_carbonic=10)
     solve_out = [
         "pH",
         "pCO2",
