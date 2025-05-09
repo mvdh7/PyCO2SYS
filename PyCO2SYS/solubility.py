@@ -141,24 +141,29 @@ def CO3_from_OA(saturation_aragonite, Ca, k_aragonite):
     """Calculate [CO3] given saturation state w.r.t. aragonite."""
     return 1e12 * saturation_aragonite * k_aragonite / Ca
 
-@valid(Mg_percent=[0,22])
+#@valid(Mg_percent=[0,22])
 def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):
     # curve 3
     a, b, c, d = -1.04700900e-05,  8.41626295e-04, -1.06073211e-03, -8.50230163e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
-@valid(Mg_percent=[0,45])
+#@valid(Mg_percent=[0,45])
 def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):
     # curve 2
     a, b, c, d = -9.56525687e-06,  6.34456760e-04,  2.18346079e-03, -8.37659138e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
 
-@valid(Mg_percent=[0,27])
+#@valid(Mg_percent=[0,27])
 def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):
     # curve 1
     a, b, c, d = -2.34131949e-04,  8.57477879e-03, -1.61786329e-02, -8.51219119e+00
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
+
+def get_kt_Mg_calcite_25C_1atm_fish(Mg_percent):
+    # fish (Woosley et al. (2012))
+    return 1.0450525594039642e-08
+
 
 
 
@@ -335,8 +340,8 @@ def get_k_Mg_calcite(
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
     deltaV_Ca, deltaK_Ca = _deltaKappaCalcite_I75(temperature)  # from PyCO2Sys
-    # get ∆V for Mg content
-    deltaV_Mg_calcite = deltaV_Ca + 0.1022 * Mg_percent  # sources for this fit: RB62, PR90, A77
+    # get ∆V for Mg content 
+    deltaV_Mg_calcite = deltaV_Ca + 0.0892 * Mg_percent  # sources for this fit: B85, RB62, PR90, A77
     # get ∆K
     deltaK_Mg_calcite = deltaK_Ca
     # calculate pressure dependence

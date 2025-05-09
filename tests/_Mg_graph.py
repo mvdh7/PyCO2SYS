@@ -12,10 +12,11 @@ import numpy as np
 co2s = pyco2.sys(
     dic=2300,
     alkalinity=2350,
-    opt_Mg_calcite_type=2,
-    Mg_percent=32,
+    opt_Mg_calcite_type=4,
+    Mg_percent=48,
     opt_Mg_calcite_kt_Tdep=2,
     temperature=25,
+    salinity=36.5,
     pressure=0,
 )
 
@@ -23,6 +24,8 @@ co2s = pyco2.sys(
 co2s.solve(["kt_Mg_calcite_25C_1atm_minprep",
             "kt_Mg_calcite_25C_1atm_biogenic",
             "kt_Mg_calcite_25C_1atm_synthetic",
+            "kt_Mg_calcite_25C_1atm_fish",
+            'kt_Mg_calcite_1atm',
             "kt_Mg_calcite_1atm_vantHoff",
             "kt_Mg_calcite_1atm_PB82",
             "kt_Mg_calcite_1atm_idealmix",
@@ -33,6 +36,7 @@ co2s.solve(["kt_Mg_calcite_25C_1atm_minprep",
 print('C1',np.log10(co2s.kt_Mg_calcite_25C_1atm_minprep))
 print('C2',np.log10(co2s.kt_Mg_calcite_25C_1atm_biogenic))
 print('C3',np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic))
+print('Fish',np.log10(co2s.kt_Mg_calcite_25C_1atm_fish))
 print('IAP',co2s.kt_Mg_calcite_25C_1atm_synthetic)
 print('IAP',np.log10(co2s.kt_Mg_calcite_25C_1atm))
 print()
