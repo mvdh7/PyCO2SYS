@@ -17,7 +17,7 @@ nav:
     - Adjust conditions (temperature and pressure): adjust.md
     - Uncertainty propagation: uncertainty.md
     - Advanced results access: results.md
-  - Switching from v1 to v2: v1_to_v2.md
+    - Switching from v1 to v2: v1_to_v2.md
   # - Visualisation:
   #   - Validity range checker: validity.md
   # - API reference: api.md

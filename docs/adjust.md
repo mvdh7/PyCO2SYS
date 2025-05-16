@@ -3,14 +3,29 @@
 Use `adjust` to adjust the system to a different set of temperature and/or pressure conditions:
 
 ```python
+import PyCO2SYS as pyco2
+
+# Set up an initial CO2System
+co2s = pyco2.sys(
+    alkalinity=2250,
+    pH=8.1,
+    temperature=25,
+    salinity=32,
+)
+
+# Create a new CO2System at a different temperature & pressure
 co2s_adj = co2s.adjust(
     temperature=25,
     pressure=1000,
+# Advanced kwargs, usually not needed:
     store_steps=1,
     method_fCO2=1,
     opt_which_fCO2_insitu=1,
     bh_upsilon=None,
 )
+
+# Calculate pCO2 at the adjusted conditions
+pCO2_adj = co2s_adj["pCO2"]
 ```
 
 The result `co2s_adj` is a new `CO2System` with all values at the new conditions (above, temperature of 25 °C and hydrostatic pressure of 1000 dbar).
@@ -20,7 +35,6 @@ If the original `co2s` was set up with the `data` kwarg from a pandas `DataFrame
 For more on the `store_steps` kwarg, see [Advanced results access](results.md/#solve-without-returning).
 
 The `adjust` method can be used if any two carbonate system parameters are known, but also if only one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub> is known.  In this case, `adjust` can take additional kwargs:
-
 
   * `method_fCO2`: how to do the temperature conversion.
     * **`1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](refs.md/#h) (default)**. 

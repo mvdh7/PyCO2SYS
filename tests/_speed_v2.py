@@ -5,13 +5,10 @@ import warnings
 from datetime import datetime
 from sys import path
 
+import jax
 import numpy as np
 
 import PyCO2SYS as pyco2
-
-ppath = "/Users/matthew/github/PyCO2SYS"
-if ppath not in path:
-    path.append(ppath)
 
 rng = np.random.default_rng(1)
 shape = (1000, 1000)
@@ -56,6 +53,37 @@ with warnings.catch_warnings(action="ignore"):
     print(datetime.now() - start)
     print(memory_end)
     print(f"Number of elements in results: {len(results)}")
+
+# %% Try get_func_of approach
+with warnings.catch_warnings(action="ignore"):
+    tracemalloc.start()
+    memory_start = tracemalloc.get_traced_memory()
+    print("Initial memory:")
+    print(f" -  now: {memory_start[0] / (1024 * 1024):.1f} MB")
+    print(f" - peak: {memory_start[1] / (1024 * 1024):.1f} MB")
+    start = datetime.now()
+    get_pH = results._get_func_of("pH")
+    get_pH_kwargs = kwargs.copy()
+    get_pH_kwargs.update(dict(total_ammonia=0, total_sulfide=0, total_nitrite=0))
+    memory_init = tracemalloc.get_traced_memory()
+    print("Memory after initialising:")
+    print(f" -  now: {memory_init[0] / (1024 * 1024):.1f} MB")
+    print(
+        f" - peak: {memory_init[1] / (1024 * 1024):.1f} MB"
+        + f" (now × {memory_init[1] / memory_init[0]:.1f})"
+    )
+    pH = get_pH(**get_pH_kwargs)
+    memory_end = tracemalloc.get_traced_memory()
+    print("Memory after solving:")
+    print(f" -  now: {memory_end[0] / (1024 * 1024):.1f} MB")
+    print(
+        f" - peak: {memory_end[1] / (1024 * 1024):.1f} MB"
+        + f" (now × {memory_end[1] / memory_end[0]:.1f})"
+    )
+    tracemalloc.stop()
+    print("Time to run pyco2.sys:")
+    print(datetime.now() - start)
+    print(memory_end)
 
 # %% Results of tests run on 2025-02-11
 memory = np.array(

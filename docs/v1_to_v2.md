@@ -129,10 +129,6 @@ In v1, a second set of temperature and/or pressure conditions could be specified
     co2s_adj = co2s.adjust(
         temperature=25,
         pressure=1000,
-        store_steps=1,
-        method_fCO2=1,
-        opt_which_fCO2_insitu=1,
-        bh_upsilon=None,
     )
 
     # Get fCO2 at the adjusted conditions
@@ -165,7 +161,7 @@ The result `co2s_adj` is a separate `CO2System` at the requested temperature and
 
 There are three main differences regarding uncertainty propagation:
 
-  1.  Uncertainty propagation is carried out by using the `propagate` method in v2.0, instead of by including `uncertainty_into` and `uncertainty_from` kwargs in the main `pyco2.sys` call. 
+  1.  Uncertainty propagation is carried out by using the `set_uncertainty` and `propagate` methods in v2.0, instead of by including `uncertainty_into` and `uncertainty_from` kwargs in the main `pyco2.sys` call. 
 
   2.  Uncertainty results are stored in nested dicts in `co2s.uncertainty` in v2.0, instead of as additional key-value pairs in `co2s` as in v1.8.
 
@@ -187,8 +183,9 @@ An example:
         opt_k_carbonic=10,
     )
 
-    # Propagate uncertainties
-    co2s.propagate("dic", {"alkalinity": 2.1, "pH": 0.02})
+    # Set and propagate uncertainties
+    co2s.set_uncertainty(alkalinity=2.1, pH=0.02)
+    co2s.propagate("dic")
 
     # Retrieve uncertainties and their components
     dic_uncertainty = co2s.uncertainty["dic"]["total"]
