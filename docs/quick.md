@@ -18,12 +18,13 @@ co2s = pyco2.sys(alkalinity=2250, dic=2100, temperature=15, salinity=34)
 pH = co2s["pH"]
 
 # Solve for and return pCO2 and fCO2 at the same time
+# (`results` is a dict with the keys "pCO2" and "fCO2")
 results = co2s[["pCO2", "fCO2"]]
 ```
 
-Results can be calculated and accessed with square brackets, as if `co2s` were a dict.  It isn't a dict, it's a `CO2System`, so it can do some other things too.
+As seen above, results can be calculated and accessed with square brackets, as if `co2s` were a dict.  It isn't a dict, it's a `CO2System`, so it can do some other things too.
 
-Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, which are DIC, total alkalinity, pH, <i>p</i>CO<sub>2</sub>, <i>f</i>CO<sub>2</sub>, <i>x</i>CO<sub>2</sub>, (bi)carbonate ion content, and the saturation state of aragonite and calcite.
+Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, which are DIC (`dic`), total alkalinity (`alkalinity`), pH (`pH`), <i>p</i>CO<sub>2</sub> (`pCO2`), <i>f</i>CO<sub>2</sub> (`fCO2`), <i>x</i>CO<sub>2</sub> (`xCO2`), (bi)carbonate ion content (`HCO3` and `CO3`), and the saturation state of aragonite (`saturation_aragonite`) and calcite (`saturation_calcite`).
 
 !!! tip "Find out more"
 
@@ -73,7 +74,7 @@ For example, to calculate the saturation state with respect to aragonite under i
 
 ```python
 # Set up the initial CO2System under lab conditions
-co2s_lab = pyco2.sys(alkalinity=2250, pH=8.1, temperature=25)
+co2s_lab = pyco2.sys(alkalinity=2250, pH=8.1, temperature=25, salinity=32)
 
 # Adjust to in situ conditions (10 °C and 1500 dbar hydrostatic pressure)
 co2s_insitu = co2s_lab.adjust(temperature=10, pressure=1500)
@@ -181,7 +182,7 @@ co2s = pyco2.sys(
 
 #### Pandas DataFrames
 
-!!! warning "`DataFrames` not `Series`"
+!!! warning "`DataFrame` not `Series`"
     Pandas data must be collected into a `DataFrame` and passed together through the `data` kwarg.  It's not possible to pass individual pandas `Series`s separately as kwargs to `pyco2.sys`.  If this is necessary, then each `Series` must first be converted into a NumPy array.
 
 If data are in a pandas `DataFrame`, this can be provided as `data`, and results returned as a pandas `Series` or `DataFrame` with consistent indexing:

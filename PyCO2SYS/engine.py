@@ -1180,7 +1180,7 @@ class CO2System(UserDict):
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
         self.c_state = {
-            0: "xkcd:grey",  # unknown
+            0: "xkcd:grey",  # not calculated
             1: "xkcd:grass",  # provided by user i.e. known but not calculated
             2: "xkcd:azure",  # calculated en route to a user-requested parameter
             3: "xkcd:tangerine",  # calculated after direct user request
@@ -1352,8 +1352,8 @@ class CO2System(UserDict):
         ---------------------
         All are returned on the pH scale specified by `opt_pH_scale`.
 
-                Key | Description
-        ----------: | :--------------------------------------------------------
+                 Key | Description
+        -----------: | :-------------------------------------------------------
               pk_CO2 | Henry's constant for CO2.
             pk_H2CO3 | First dissociation constant for carbonic acid.
              pk_HCO3 | Second dissociation constant for carbonic acid.
@@ -1963,24 +1963,6 @@ class CO2System(UserDict):
         return self
 
     def _propagate(self, uncertainty_into, uncertainty_from):
-        """Propagate independent uncertainties through the calculations.
-        Covariances are not accounted for.
-
-        New entries are added in the `uncertainty` attribute, for example:
-
-            co2s = pyco2.sys(dic=2100, alkalinity=2300)
-            co2s.propagate("pH", {"dic": 2, "alkalinity": 2})
-            co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
-            co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
-
-        Parameters
-        ----------
-        uncertainty_into : list
-            The parameters to calculate the uncertainty in.
-        uncertainty_from : dict
-            The parameters to propagate the uncertainty from (keys) and their
-            uncertainties (values).
-        """
         if uncertainty_into is None:
             uncertainty_into = self.requested
         elif isinstance(uncertainty_into, str):
@@ -2179,7 +2161,7 @@ class CO2System(UserDict):
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
         if mode == "valid" and not self.checked_valid:
-            self.checpk_valid()
+            self.check_valid()
         graph_to_plot = self.get_graph_to_plot(
             exclude_nodes=exclude_nodes,
             show_tsp=show_tsp,
@@ -2218,7 +2200,7 @@ class CO2System(UserDict):
             node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
         else:
             warnings.warn(
-                f'mode "{mode}" not recognised, options are "state", "valid".'
+                f'mode "{mode}" not recognised, options are "state" or "valid".'
             )
             node_colour = "xkcd:grey"
             edge_colour = "xkcd:grey"
@@ -2264,7 +2246,7 @@ class CO2System(UserDict):
         """
         return tuple(self.graph.nodes)
 
-    def checpk_valid(self, ignore=None):
+    def check_valid(self, ignore=None):
         """Check which parameters are valid."""
         if ignore is None:
             ignore = []
