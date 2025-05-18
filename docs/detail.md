@@ -5,8 +5,10 @@ This page provides a comprehensive overview of the keyword arguments that can be
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
-!!! tip "Lowercase or uppercase?"
+!!! tip "Lowercase or uppercase?"    
     All keywords and results keys are lowercase except for chemical formulae, which are always written in their correct case, including if the chemical formula is only a part of the complete key.
+
+    However, when using `pyco2.sys`, all keywords and results keys are **case-insensitive** in practice.
 
 ## Keyword arguments
 

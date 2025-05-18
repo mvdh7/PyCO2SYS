@@ -1,9 +1,9 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
 import itertools
-import warnings
 from collections import UserDict
 from inspect import signature
+from warnings import warn
 
 import networkx as nx
 from jax import numpy as np
@@ -831,6 +831,8 @@ condition_independent = (
 )
 
 # Define labels for parameter plotting
+# NOTE this list is also used as the basis for the shortcuts,
+#      so every possible parameter must appear here!
 set_node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
     "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
@@ -865,6 +867,7 @@ set_node_labels = {
     "factor_k_NH3": r"$P_\mathrm{NH_3}$",
     "factor_k_Si": r"$P_\mathrm{Si}$",
     "fCO2": "fCO$_2$",
+    "fH": "r$\gamma_\mathrm{H}$(NBS)",
     "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
     "fugacity_factor": "$ƒ$",
     "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
@@ -880,9 +883,11 @@ set_node_labels = {
     "HCO3": "[HCO$_3^–$]",
     "HF": "[HF]",
     "HPO4": r"$[\mathrm{HPO}_4^{2–}]$",
+    "HNO2": r"$[\mathrm{HNO}_2]$",
     "HS": r"$[\mathrm{HS}^–]$",
     "HSO4": r"$[\mathrm{HSO}_4^–]$",
     "ionic_strength": "$I$",
+    "NO2": r"$[\mathrm{NO}_2^-]$",
     "pk_aragonite": r"p$K_\mathrm{a}^*$",
     "pk_BOH3_sws_1atm": r"p$K_\mathrm{B}^\mathrm{S0}$",
     "pk_BOH3_sws": r"p$K_\mathrm{B}^\mathrm{S}$",
@@ -974,12 +979,67 @@ set_node_labels = {
     "upsilon": r"$\upsilon$",
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
+    # TODO below not formatted
+    "k_Mg_calcite_1atm": "k_Mg_calcite_1atm",
+    "kt_Mg_calcite_1atm": "kt_Mg_calcite_1atm",
+    "kt_Mg_calcite_25C_1atm_minprep": "kt_Mg_calcite_25C_1atm_minprep",
+    "kt_Mg_calcite_25C_1atm_biogenic": "kt_Mg_calcite_25C_1atm_biogenic",
+    "kt_Mg_calcite_25C_1atm_synthetic": "kt_Mg_calcite_25C_1atm_synthetic",
+    "kt_Mg_calcite_1atm_vantHoff": "kt_Mg_calcite_1atm_vantHoff",
+    "kt_Mg_calcite_1atm_PB82": "kt_Mg_calcite_1atm_PB82",
+    "kt_Mg_calcite_1atm_idealmix": "kt_Mg_calcite_1atm_idealmix",
+    "k_Mg_calcite": "k_Mg_calcite",
+    "kt_Mg_calcite_25C_1atm": "kt_Mg_calcite_25C_1atm",
+    "d_dic__d_pH__alkalinity": "d_dic__d_pH__alkalinity",
+    "d_lnCO2__d_pH__alkalinity": "d_lnCO2__d_pH__alkalinity",
+    "d_alkalinity__d_pH__dic": "d_alkalinity__d_pH__dic",
+    "d_lnCO2__d_pH__dic": "d_lnCO2__d_pH__dic",
+    "d_CO3__d_pH__alkalinity": "d_CO3__d_pH__alkalinity",
+    "d_CO3__d_pH__dic": "d_CO3__d_pH__dic",
+    "d_alkalinity__d_pH__fCO2": "d_alkalinity__d_pH__fCO2",
+    "d_dic__d_pH__fCO2": "d_dic__d_pH__fCO2",
+    "d_fCO2__d_pH__alkalinity": "d_fCO2__d_pH__alkalinity",
+    "d_fCO2__d_pH__dic": "d_fCO2__d_pH__dic",
 }
 set_node_labels.update(
     {
         k + "__pre": r"$^\pi$" + v
         for k, v in set_node_labels.items()
         if k not in condition_independent
+    }
+)
+
+# Define shortcuts, which must all be lowercase
+shortcuts = {k.lower(): k for k in set_node_labels}
+shortcuts.update({k.lower(): k for k in opts_default})
+shortcuts.update(
+    {
+        "tco2": "dic",
+        "talk": "alkalinity",
+        "ss_calc": "saturation_calcite",
+        "ss_arag": "saturation_aragonite",
+        "oc": "saturation_calcite",
+        "oa": "saturation_aragonite",
+        "ammonia": "total_ammonia",
+        "borate": "total_borate",
+        "fluoride": "total_fluoride",
+        "nitrite": "total_nitrite",
+        "phosphate": "total_phosphate",
+        "silicate": "total_silicate",
+        "sulfate": "total_sulfate",
+        "sulfide": "total_sulfide",
+        "tnh3": "total_ammonia",
+        "tb": "total_borate",
+        "tf": "total_fluoride",
+        "tno2": "total_nitrite",
+        "tp": "total_phosphate",
+        "tsi": "total_silicate",
+        "tso4": "total_sulfate",
+        "th2s": "total_sulfide",
+        "sir": "substrate_inhibitor_ratio",
+        "pk0": "pk_CO2",
+        "pk1": "pk_H2CO3",
+        "pk2": "pk_HCO3",
     }
 )
 
@@ -1094,6 +1154,8 @@ class CO2System(UserDict):
         If `data` was a pandas `DataFrame`, this contains its index.
     requested : list
         Which parameters have been directly requested for solving.
+    shortcuts : dict
+        Alternative key mapper.
     xr_dims : tuple
         If `data` was an xarray `Dataset`, this contains all its dimensions.
     xr_shape : tuple
@@ -1152,7 +1214,7 @@ class CO2System(UserDict):
                 assert np.isscalar(v)
                 assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
             else:
-                warnings.warn(f"'{k}' not recognised - it will be ignored.")
+                warn(f"'{k}' not recognised - it will be ignored.")
                 opts.pop(k)
         self.opts.update(opts)
         # Deal with tricky special cases
@@ -1200,11 +1262,11 @@ class CO2System(UserDict):
         if isinstance(key, list):
             # If the user provides a list of keys to solve for, return all of
             # them as a dict
-            return {k: self.data[k] for k in key}
+            return {k: self.data[shortcuts[k.lower()]] for k in key}
         else:
             # If a single key is requested, return the corresponding value(s)
             # directly
-            return self.data[key]
+            return self.data[shortcuts[key.lower()]]
 
     def __getattr__(self, attr):
         # This allows solved parameter values to be accessed with dot notation,
@@ -1219,7 +1281,7 @@ class CO2System(UserDict):
             try:
                 # ... return the corresponding parameter value, if it's already
                 # been solved for...
-                return self.data[attr]
+                return self.data[shortcuts[attr.lower()]]
             except KeyError:
                 # ... but it if hasn't been solved for, throw an error.  The
                 # user needs to use the normal dict notation (or solve method)
@@ -1247,7 +1309,7 @@ class CO2System(UserDict):
         for k in to_remove:
             data.pop(k)
         if len(to_remove) > 0:
-            warnings.warn(
+            warn(
                 "Some parameters were not recognised or not valid for this"
                 + " combination of known carbonate system parameters and are"
                 + " being ignored (see `CO2System.ignored`)"
@@ -1386,6 +1448,7 @@ class CO2System(UserDict):
         elif isinstance(parameters, str):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
+        parameters = [shortcuts[p.lower()] for p in parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
         self_data = self.data.copy()  # what was already known before solving
@@ -1494,7 +1557,7 @@ class CO2System(UserDict):
                     }
                 )
         except ImportError:
-            warnings.warn("pandas could not be imported.")
+            warn("pandas could not be imported.")
 
     def _get_xr_ndims(self, parameter):
         ndims = []
@@ -1545,7 +1608,7 @@ class CO2System(UserDict):
                     }
                 )
         except ImportError:
-            warnings.warn("xarray could not be imported.")
+            warn("xarray could not be imported.")
 
     def _get_expUps(
         self,
@@ -1739,7 +1802,7 @@ class CO2System(UserDict):
             )
             data = {"fCO2": core["fCO2"] * expUps}
         else:
-            warnings.warn(
+            warn(
                 "Single-parameter temperature adjustments are possible only "
                 + "if the known parameter is one of pCO2, fCO2, xCO2 and CO2."
             )
@@ -1919,18 +1982,34 @@ class CO2System(UserDict):
         return {k: self.data[k] for k in self.nodes_original}
 
     def set_uncertainty(self, **kwargs):
+        uset = []
         for k, v in kwargs.items():
+            if k.endswith("__f"):
+                skl = shortcuts[k.lower()[:-3]] + "__f"
+            else:
+                skl = shortcuts[k.lower()]
+            if skl in uset:
+                raise SyntaxError(
+                    f"keyword argument repeated, possibly with a different alias: {k}"
+                )
+            uset.append(skl)
             assert (
-                k in self.nodes_original
-                or k.startswith("pk_")
-                or k.startswith("total_")
+                skl in self.nodes_original
+                or skl.startswith("pk_")
+                or skl.startswith("total_")
             ), (
                 "Uncertainty can be assigned only for user-provided parameters, "
                 + "pK values and total salt contents."
             )
-            self.uncertainty.update({k: v})
+            self.uncertainty.update({skl: v})
         # Recalculate any uncertainties that have already been propagated
-        self.propagate([k for k, v in self.uncertainty.items() if isinstance(v, dict)])
+        self.propagate(
+            [
+                shortcuts[k.lower()]
+                for k, v in self.uncertainty.items()
+                if isinstance(v, dict)
+            ]
+        )
         # ^ if it's not a dict, then it's an uncertainty that was defined by the user,
         #   rather than one that's been propagated
         return self
@@ -1959,7 +2038,10 @@ class CO2System(UserDict):
         uncertainty_from = {
             k: v for k, v in self.uncertainty.items() if not isinstance(v, dict)
         }
-        self._propagate(uncertainty_into, uncertainty_from)
+        self._propagate(
+            uncertainty_into,
+            uncertainty_from,
+        )
         return self
 
     def _propagate(self, uncertainty_into, uncertainty_from):
@@ -1967,7 +2049,11 @@ class CO2System(UserDict):
             uncertainty_into = self.requested
         elif isinstance(uncertainty_into, str):
             uncertainty_into = [uncertainty_into]
-        uncertainty_into = [k for k in uncertainty_into if k not in self.nodes_original]
+        uncertainty_into = [
+            shortcuts[k.lower()]
+            for k in uncertainty_into
+            if k not in self.nodes_original
+        ]
         self.solve(uncertainty_into)
         for var_in in uncertainty_into:
             # This should always be reset to zero and all values wiped, even if
@@ -2199,9 +2285,7 @@ class CO2System(UserDict):
             ]
             node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
         else:
-            warnings.warn(
-                f'mode "{mode}" not recognised, options are "state" or "valid".'
-            )
+            warn(f'mode "{mode}" not recognised, options are "state" or "valid".')
             node_colour = "xkcd:grey"
             edge_colour = "xkcd:grey"
         node_labels = {k: k for k in graph_to_plot.nodes}
@@ -2572,8 +2656,8 @@ def sys(data=None, **kwargs):
     for more detail.
     """
     # Check for double precision
-    if np.array(1.0).dtype is np.dtype("float32"):
-        warnings.warn(
+    if np.array(1.0).dtype == np.dtype("float32"):
+        warn(
             "JAX does not appear to be using double precision - "
             + "set the environment variable `JAX_ENABLE_X64=True`."
         )
@@ -2582,89 +2666,125 @@ def sys(data=None, **kwargs):
     xr_dims = None
     xr_shape = None
     data_is_dict = False
+    kwargs_data = {}
     if data is not None:
-        for k in kwargs:
-            if k in data:
-                warnings.warn(
+        for k, v in kwargs.items():
+            if k in data and not isinstance(v, str):
+                warn(
                     f'"{k}" found in both `data` and `kwargs` - the value in '
-                    + "`data` will be used."
+                    + "`kwargs` will be used."
                 )
         data_is_dict = isinstance(data, dict)
         # Any kwargs other than `data` provided as strings will be interpreted
-        # as being the keys for the corresponding values
+        # as being the keys for the corresponding values.  The `renamer` dict
+        # maps from the string keys to the correct kwarg.
         renamer = {}
         for k, v in kwargs.items():
             if isinstance(v, str):
                 if v in renamer:
+                    # can't repeat keys e.g. `data=df, dic="var", pH="var"`
                     raise Exception(
                         f'"{v}" cannot be used for {k}'
                         + f" because it is already being used for {renamer[v]}!"
                     )
                 else:
                     renamer[v] = k
+        # If `data` is a dict, we just need to rename any keys that were
+        # provided as strings
         if data_is_dict:
             for k, v in data.items():
                 if k in renamer:
-                    kwargs[renamer[k]] = v
+                    kwargs_data[renamer[k]] = v
                 else:
-                    kwargs[k] = v
+                    kwargs_data[k] = v
+        # If `data` isn't a dict, it might be a pandas df or an xarray ds
         else:
             data_is_pandas = False
             try:
                 import pandas as pd
 
                 data_is_pandas = isinstance(data, pd.DataFrame)
+                # If `data` is a pandas df, we need to rename string keys,
+                # convert Series to numpy arrays, and save the df index
                 if data_is_pandas:
                     pd_index = data.index.copy()
                     for c in data.columns:
                         if c in renamer:
-                            kwargs[renamer[c]] = data[c].to_numpy()
+                            kwargs_data[renamer[c]] = data[c].to_numpy()
                         else:
-                            kwargs[c] = data[c].to_numpy()
+                            kwargs_data[c] = data[c].to_numpy()
             except ImportError:
-                warnings.warn("pandas could not be imported - ignoring `data`.")
+                warn("pandas could not be imported - ignoring `data`.")
             data_is_xarray = False
             if not data_is_pandas:
                 try:
                     import xarray as xr
 
                     data_is_xarray = isinstance(data, xr.Dataset)
+                    # If `data` is an xarray ds, we need to rename string keys,
+                    # convert DataArrays to numpy arrays, and store all the
+                    # dimensions
                     if data_is_xarray:
                         xr_dims = list(data.sizes.keys())
                         xr_shape = list(data.sizes.values())
                         for k, v in data.items():
                             if k in renamer:
-                                kwargs[renamer[k]] = da_to_array(v, xr_dims)
+                                kwargs_data[renamer[k]] = da_to_array(v, xr_dims)
                             else:
-                                kwargs[k] = da_to_array(v, xr_dims)
+                                kwargs_data[k] = da_to_array(v, xr_dims)
                 except ImportError:
-                    warnings.warn("xarray could not be imported - ignoring `data`.")
+                    warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:
-                    warnings.warn("Type of `data` not recognised - it will be ignored.")
+                    # If we reach this point, `data` is neither dict nor
+                    # pandas df nor xarray ds, so it's ignored
+                    warn("Type of `data` not recognised - it will be ignored.")
+    # Check there aren't any duplicate kwargs with different aliases, and drop
+    # any kwargs that are strings (used to identify `data` columns)
+    kwargs_nodups = {}
+    for k, v in kwargs_data.items():
+        if shortcuts[k.lower()] in kwargs_nodups:
+            raise SyntaxError(
+                f"keyword argument repeated, possibly with a different alias: {k}"
+            )
+        else:
+            kwargs_nodups[shortcuts[k.lower()]] = v
+    kwargs_user_nodups = {}
+    for k, v in kwargs.items():
+        if shortcuts[k.lower()] in kwargs_user_nodups:
+            raise SyntaxError(
+                f"keyword argument repeated, possibly with a different alias: {k}"
+            )
+        elif not isinstance(v, str):
+            kwargs_user_nodups[shortcuts[k.lower()]] = v
+    # Merge data and user kwargs
+    kwargs_nodups.update(kwargs_user_nodups)
     # Parse kwargs
-    for k in kwargs:
+    for k, v in kwargs_nodups.items():
         # Convert lists to numpy arrays
-        if isinstance(kwargs[k], list):
-            kwargs[k] = np.array(kwargs[k])
+        if isinstance(kwargs_nodups[k], list):
+            kwargs_nodups[k] = np.array(kwargs_nodups[k])
         # If opts are scalar, only take first value
         if k in opts_default:
-            if np.isscalar(kwargs[k]):
-                if isinstance(kwargs[k], ArrayImpl):
-                    kwargs[k] = kwargs[k].item()
+            if np.isscalar(kwargs_nodups[k]):
+                if isinstance(kwargs_nodups[k], ArrayImpl):
+                    kwargs_nodups[k] = kwargs_nodups[k].item()
             else:
-                kwargs[k] = np.ravel(np.array(kwargs[k]))[0].item()
-                warnings.warn(
-                    f"`{k}` is not scalar, so only the first value will be used."
-                )
-            if isinstance(kwargs[k], float):
-                kwargs[k] = int(kwargs[k])
-        # Convert ints to floats
+                kwargs_nodups[k] = np.ravel(np.array(kwargs_nodups[k]))[0].item()
+                warn(f"`{k}` is not scalar, so only the first value will be used.")
+            if isinstance(kwargs_nodups[k], float):
+                kwargs_nodups[k] = int(kwargs_nodups[k])
+        # Convert ints to floats for non-opts
         else:
-            if isinstance(kwargs[k], int):
-                kwargs[k] = float(kwargs[k])
-            elif hasattr(kwargs[k], "dtype"):
+            if isinstance(kwargs_nodups[k], int):
+                kwargs_nodups[k] = float(kwargs_nodups[k])
+            elif hasattr(kwargs_nodups[k], "dtype"):
                 try:
-                    kwargs[k] = kwargs[k].astype(float)
+                    kwargs_nodups[k] = kwargs_nodups[k].astype(float)
                 except ValueError:
                     pass
-    return CO2System(pd_index=pd_index, xr_dims=xr_dims, xr_shape=xr_shape, **kwargs)
+    return CO2System(
+        pd_index=pd_index,
+        xr_dims=xr_dims,
+        xr_shape=xr_shape,
+        **kwargs_nodups,
+    )
