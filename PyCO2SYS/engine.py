@@ -1346,7 +1346,7 @@ class CO2System(UserDict):
                   Q_isocap_approx | Approximate isocapnic quotient from HDW18.
                        dlnfCO2_dT | temperature sensitivity of ln(fCO2).
                        dlnpCO2_dT | temperature sensitivity of ln(pCO2).
-        substrate_inhibitor_ratio | HCO3/H_free, from B15.
+        substrate_inhibitor_ratio | HCO3/H_free, substrate:inhibitor from B15.
 
         Equilibrium constants
         ---------------------
