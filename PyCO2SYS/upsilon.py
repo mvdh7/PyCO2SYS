@@ -29,23 +29,26 @@ def inverse(temperature, gas_constant, bh):
     return 100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
 
 
-def expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh):
+def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
     """Calculate exp(Υ) using the van 't Hoff form of Humphreys (2024) with a variable
     bh coefficient.
 
     Parameters
     ----------
+    temperature__pre : array-like
+        Starting temperature (t0) in °C.
     temperature : array-like
-        Temperature in °C.
+        Adjusted temperature (t1) in °C.
     gas_constant : float
         The universal gas constant in ml / (bar mol K).
 
     Returns
     -------
-        υ in % / °C.
+    array-like
+        The adjustment factor exp(Υ).
     """
     return np.exp(
-        (1 / (temperature + constants.Tzero) - 1 / (temperature_out + constants.Tzero))
+        (1 / (temperature__pre + constants.Tzero) - 1 / (temperature + constants.Tzero))
         * bh
         / (gas_constant * 0.1)
     )
@@ -118,6 +121,40 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
     return inverse(temperature, gas_constant, bh)
 
 
+def expUps_parameterised_H24_t0_insitu(
+    temperature__pre,
+    temperature,
+    salinity,
+    fCO2__pre,
+    gas_constant,
+):
+    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
+    with a constant bh coefficient based on a parameterisation with the OceanSODA-ETZH
+    data product.
+
+    Parameters
+    ----------
+    temperature__pre : array-like
+        Starting temperature (t0) in °C.
+    temperature : array-like
+        Adjusted temperature (t1) in °C.
+    salinity : array-like
+        Practical salinity.
+    fCO2 : array-like
+        Seawater CO2 fugacity at the input condition (t0).
+    gas_constant : array-like
+        Universal gas constant.
+
+    Returns
+    -------
+    array-like
+        The adjustment factor exp(Υ).
+    """
+    # Calculate bh from the input conditions
+    bh = get_bh_H24(temperature__pre, salinity, fCO2__pre)
+    return expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh)
+
+
 def expUps_parameterised_H24(
     temperature,
     temperature_out,
@@ -180,7 +217,7 @@ def ups_enthalpy_H24(temperature, gas_constant):
     return inverse(temperature, gas_constant, bh_enthalpy_H24)
 
 
-def expUps_enthalpy_H24(temperature, temperature_out, gas_constant):
+def expUps_enthalpy_H24(temperature__pre, temperature, gas_constant):
     """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
     with a constant bh coefficient based on the approximation with standard enthalpies
     of reaction.
@@ -197,7 +234,7 @@ def expUps_enthalpy_H24(temperature, temperature_out, gas_constant):
     array-like
         The adjustment factor exp(Υ).
     """
-    return expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh_enthalpy_H24)
+    return expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh_enthalpy_H24)
 
 
 def ups_TOG93_H24(temperature, gas_constant):
@@ -218,7 +255,7 @@ def ups_TOG93_H24(temperature, gas_constant):
     return inverse(temperature, gas_constant, bh_TOG93_H24)
 
 
-def expUps_TOG93_H24(temperature, temperature_out, gas_constant):
+def expUps_TOG93_H24(temperature__pre, temperature, gas_constant):
     """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
     with a constant bh coefficient fitted to the Takahashi et al. (1993) dataset.
 
@@ -234,7 +271,7 @@ def expUps_TOG93_H24(temperature, temperature_out, gas_constant):
     array-like
         The adjustment factor exp(Υ).
     """
-    return expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh_TOG93_H24)
+    return expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh_TOG93_H24)
 
 
 def ups_linear_TOG93():
@@ -256,15 +293,15 @@ def quadratic(temperature, aq, bq):
     return 100 * (2 * aq * temperature + bq)
 
 
-def expUps_linear_TOG93(temperature, temperature_out):
+def expUps_linear_TOG93(temperature__pre, temperature):
     """Calculate adjustment factor exp(Υ) with the linear fit of Takahashi et al.
     (1993).
 
     Parameters
     ----------
-    temperature : array-like
+    temperature__pre : array-like
         Starting temperature (t0) in °C or K.
-    temperature_out : array-like
+    temperature : array-like
         Adjusted temperature (t1) in °C or K.
 
     Returns
@@ -272,7 +309,7 @@ def expUps_linear_TOG93(temperature, temperature_out):
     array-like
         The adjustment factor exp(Υ).
     """
-    return np.exp(bl_TOG93 * (temperature_out - temperature))
+    return np.exp(bl_TOG93 * (temperature - temperature__pre))
 
 
 def ups_quadratic_TOG93(temperature):
@@ -290,15 +327,15 @@ def ups_quadratic_TOG93(temperature):
     return 2 * aq_TOG93 * temperature + bq_TOG93
 
 
-def expUps_quadratic_TOG93(temperature, temperature_out):
+def expUps_quadratic_TOG93(temperature__pre, temperature):
     """Calculate adjustment factor exp(Υ) with the quadratic fit of Takahashi et al.
     (1993).
 
     Parameters
     ----------
-    temperature : array-like
+    temperature__pre : array-like
         Starting temperature (t0) in °C.
-    temperature_out : array-like
+    temperature : array-like
         Adjusted temperature (t1) in °C.
 
     Returns
@@ -307,6 +344,6 @@ def expUps_quadratic_TOG93(temperature, temperature_out):
         The adjustment factor exp(Υ).
     """
     return np.exp(
-        aq_TOG93 * (temperature_out**2 - temperature**2)
-        + bq_TOG93 * (temperature_out - temperature)
+        aq_TOG93 * (temperature**2 - temperature__pre**2)
+        + bq_TOG93 * (temperature - temperature__pre)
     )

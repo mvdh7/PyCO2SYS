@@ -7,6 +7,7 @@ from jax import grad
 from jax import numpy as np
 
 import PyCO2SYS as pyco2
+from PyCO2SYS import upsilon
 from PyCO2SYS.engine import (
     CO2System,
     assemble_graph,
@@ -17,6 +18,27 @@ from PyCO2SYS.engine import (
 jax.config.update("jax_enable_x64", True)
 
 
+co2x = (
+    pyco2.sys(ph=8, pco2=400)
+    .set_uncertainty(ph=0.01, pco2=5)
+    ._adjust_2p(temperature=12)
+    .solve("oa")
+    .propagate("oa")
+)
+co2x.plot_graph(prog_graphviz="dot")
+
+co2y = (
+    pyco2.sys(pco2=400)
+    .set_uncertainty(pco2=5, temperature=0.2)
+    ._adjust_1p(temperature=12)
+    .set_uncertainty(temperature=0.2)
+    .solve("fco2")
+    .propagate("fco2")
+)
+co2y.plot_graph(prog_graphviz="dot")
+
+
+# %%
 def dic_from_ph_alkalinity(ph, alkalinity, temperature):
     return alkalinity * ph / temperature
 
@@ -60,12 +82,12 @@ co2s = (
     .solve(["dic", "alkalinity"])
     .propagate()
 )
-testfunc = co2s._get_func_of("k_H2CO3")
+testfunc = co2s._get_func_of("pk_H2CO3")
 tf = make_positional(testfunc)
 
 co2a = co2s.adjust(temperature=12)
 
-# New adjust approach, retaining old graph
+# %% New adjust approach, retaining old graph
 # TODO incorporate into engine
 # TODO make version for the fCO2-pCO2-xCO2-CO2aq-only icases
 kwargs_adjust = {
@@ -113,7 +135,7 @@ for k, v in data_pre.copy().items():
     if k not in no_pre:
         data_pre[k + "__pre"] = data_pre.pop(k)
 co2t = CO2System(graph=graph_adj, **data_pre, **kwargs_adjust)
-# Parameters that have already been solved for in the original system will be
+# Parameters that have already been solved for in the original system are
 # copied across, so that they don't need solving for again.
 for k, v in co2s.data.items():
     if k not in co2t:
@@ -140,3 +162,124 @@ co2t.adjusted = True
 
 co2t.solve("pH").propagate()
 co2t.plot_graph(prog_graphviz="dot", mode="state")
+
+# %% Now for the one-parameter version!
+co2s = pyco2.sys(pco2=500)
+temperature = 5.0
+method_fCO2 = 6
+bh = 30000
+which_fCO2_insitu = 1
+
+# To adjust to a different temperature/pressure, we need to know fCO2 for the
+# original system.  First, we get the subgraph from the original system that
+# contains just fCO2 and all its ancestors.
+graph_pre = co2s.graph.subgraph(nx.ancestors(co2s.graph, "fCO2") | {"fCO2"})
+# All of the nodes in graph_pre that are not condition-independent are now
+# renamed with "__pre" appended, to keep the distinct from the same nodes under
+# the adjusted conditions.  Pressure is also considered to be condition-
+# independent as it cannot currently be adjusted.
+no_pre = [*condition_independent, "pressure"]
+graph_pre = nx.relabel_nodes(
+    graph_pre,
+    {n: n if n in no_pre else n + "__pre" for n in graph_pre.nodes},
+)
+args = {}
+for node, attrs in graph_pre.nodes.items():
+    if "func" in attrs:
+        args[node] = [
+            k if k in no_pre else k + "__pre"
+            for k in signature(attrs["func"]).parameters.keys()
+        ]
+nx.set_node_attributes(graph_pre, args, name="args")
+# graph_pre can now be merged with a new graph to compute everything from
+# fCO2.  The original system's `opts` are retained.
+graph_adj = nx.compose(graph_pre, assemble_graph(5, co2s.opts))
+# The new system will have the same set of user-provided parameter values as
+# the original, but the ones that are condition-dependent get renamed with
+# "__pre" appended.
+data_pre = co2s[co2s.nodes_original]
+for k, v in data_pre.copy().items():
+    if k not in no_pre:
+        data_pre[k + "__pre"] = data_pre.pop(k)
+# Here we add the functions that convert fCO2 across temperatures to
+# `graph_adj`, depending on the conversion option.
+cfuncs = {"fCO2": lambda fCO2__pre, exp_upsilon: fCO2__pre * exp_upsilon}
+if method_fCO2 == 1:
+    assert which_fCO2_insitu in [1, 2]
+    if which_fCO2_insitu == 1:
+        cfuncs["bh"] = lambda temperature__pre, salinity, fCO2__pre: upsilon.get_bh_H24(
+            temperature__pre, salinity, fCO2__pre
+        )
+    elif which_fCO2_insitu == 2:
+        cfuncs["bh"] = (
+            lambda temperature__pre,
+            temperature,
+            salinity,
+            fCO2__pre,
+            gas_constant: upsilon.get_bh_H24(
+                temperature__pre,
+                salinity,
+                fCO2__pre
+                * upsilon.expUps_TOG93_H24(
+                    temperature__pre,
+                    temperature,
+                    gas_constant,
+                ),
+            )
+        )
+    cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
+elif method_fCO2 == 2:
+    cfuncs["bh"] = lambda: upsilon.bh_TOG93_H24
+    cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
+elif method_fCO2 == 3:
+    cfuncs["bh"] = lambda: upsilon.bh_enthalpy_H24
+    cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
+elif method_fCO2 == 4:
+    assert bh is not None, "A `bh` value must be provided for `method_fCO2=4`."
+    data_pre["bh"] = bh
+    no_pre.append("bh")
+    cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
+elif method_fCO2 == 5:
+    cfuncs["exp_upsilon"] = upsilon.expUps_linear_TOG93
+elif method_fCO2 == 6:
+    cfuncs["exp_upsilon"] = upsilon.expUps_quadratic_TOG93
+for k, func in cfuncs.items():
+    for f in signature(func).parameters.keys():
+        graph_adj.add_edge(f, k)
+nx.set_node_attributes(graph_adj, cfuncs, name="func")
+args = {}
+for node, attrs in graph_adj.nodes.items():
+    if node in cfuncs:
+        args[node] = list(signature(attrs["func"]).parameters)
+nx.set_node_attributes(graph_adj, args, name="args")
+# Now we can create the new CO2System
+co2a = CO2System(graph=graph_adj, **data_pre, temperature=temperature)
+# Parameters that have already been solved for in the original system are
+# copied across, so that they don't need solving for again.
+for k, v in co2s.data.items():
+    if k not in co2a:
+        if k in no_pre:
+            co2a.data[k] = v
+        else:
+            co2a.data[k + "__pre"] = v
+# Uncertainties that were assigned in the original system are copied across.
+uncertainty_pre = {}
+for k, v in co2s.uncertainty.items():
+    if not isinstance(v, dict):
+        if k in no_pre:
+            uncertainty_pre[k] = v
+        else:
+            uncertainty_pre[k + "__pre"] = v
+co2a.set_uncertainty(**uncertainty_pre)
+# Final housekeeping: the new CO2System will usually get its icase wrong,
+# because it doesn't recognise parameters with keys ending "__pre".  Adjusted
+# systems will get assigned whichever icase the original system had.  This
+# doesn't affect any calculations, but it does affect __str__ and __repr__.
+# TODO make it actually affect __str__ and __repr__
+co2a.icase = co2s.icase
+co2a.adjusted = True
+
+co2s.solve("fco2")
+co2a.solve("fco2")
+# co2s.plot_graph(prog_graphviz="dot")
+co2a.plot_graph(prog_graphviz="dot")
