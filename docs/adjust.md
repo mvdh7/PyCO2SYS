@@ -1,36 +1,70 @@
 # Adjust conditions
 
-Use `adjust` to adjust the system to a different set of temperature and/or pressure conditions:
+The `adjust` method can be used to adjust a `CO2System` to a different set of temperature and/or pressure conditions.  How the adjustment is done depends on how many core carbonate system parameters are known.
+
+## Two parameters known
 
 ```python
 import PyCO2SYS as pyco2
 
-# Set up an initial CO2System
-co2s = pyco2.sys(
-    alkalinity=2250,
-    pH=8.1,
-    temperature=25,
-    salinity=32,
-)
+# Set up the initial CO2System (e.g. under lab conditions for pH)
+co2s_lab = pyco2.sys(dic=2100, pH=8.1, temperature=25, pressure=0, salinity=32)
 
-# Create a new CO2System at a different temperature & pressure
-co2s_adj = co2s.adjust(
-    temperature=25,
-    pressure=1000,
-# Advanced kwargs, usually not needed:
-    store_steps=1,
-    method_fCO2=1,
-    opt_which_fCO2_insitu=1,
-    bh_upsilon=None,
-)
+# Adjust to a different temperature and pressure (e.g. in situ conditions)
+co2s_insitu = co2s_lab.adjust(temperature=10.5, pressure=1500)
 
-# Calculate pCO2 at the adjusted conditions
-pCO2_adj = co2s_adj["pCO2"]
+# Solve for and return fCO2 under the lab and in situ conditions
+fCO2_lab = co2s_lab["fCO2"]
+fCO2_insitu = co2s_insitu["fCO2"]
 ```
 
-The result `co2s_adj` is a new `CO2System` with all values at the new conditions (above, temperature of 25 °C and hydrostatic pressure of 1000 dbar).
+Both `co2s_lab` and `co2s_insitu` are fully functional and independent `CO2System`s.
 
-If the original `co2s` was set up with the `data` kwarg from a pandas `DataFrame` or xarray `Dataset`, then the `temperature` and `pressure` provided to `adjust` can be pandas `Series`s or xarray `DataArrays` as long as their index or dimensions are consistent with the original `data`.
+!!! inputs "Allowed kwargs for `adjust` with two known parameters"
+
+      * `temperature`: the temperature to adjust to in °C.
+      * `pressure`: the hydrostatic pressure to adjust to in dbar.
+
+    If either `temperature` or `pressure` is not provided or `None`, then the 
+
+    If the original `co2s` was set up with the `data` kwarg from a pandas `DataFrame` or xarray `Dataset`, then the `temperature` and `pressure` provided to `adjust` can be pandas `Series`s or xarray `DataArray`s, as long as their index or dimensions are consistent with the original `data`.
+
+    Any other system properties (e.g. `salinity`, total salt contents, optional settings) must be defined when creating the original, unadjusted `CO2System`.  They cannot be added in during the `adjust` step.
+
+`co2s_insitu` retains the minimum set of values under initial conditions that are needed to make the adjustment.  These pre-adjustment values all have the suffix `"__pre"` within the `CO2System`:
+
+```python
+# Get the pre-adjustment pH value in the adjusted CO2System
+pH_lab = co2s_insitu["pH__pre"]  # same as co2s_lab["pH"]
+
+# Solve for and return the adjusted pH value
+pH_insitu = co2s_insitu["pH"]
+```
+
+Any uncertainties that were defined for these values are carried across to the new system.
+
+!!! info "How it works"
+
+    To go from an initial to and adjusted set of temperature and/or pressure conditions, we
+
+      1. Solve *for* DIC and alkalinity under the initial conditions, and then
+      2. Solve *from* DIC and alkalinity under the adjusted conditions.
+
+### DIC and alkalinity known
+
+In this case, `adjust` is not needed.  DIC and alkalinity are not sensitive to temperature nor pressure.
+
+So `adjust` will work, but the result will be the same as just putting the temperature and pressure of interest directly into `pyco2.sys`.
+
+### Two T/P-sensitive parameters at different T/P known
+
+There is not currently a built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
+
+## One parameter known
+
+
+
+
 
 For more on the `store_steps` kwarg, see [Advanced results access](results.md/#solve-without-returning).
 
