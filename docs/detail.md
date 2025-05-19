@@ -9,6 +9,8 @@ This page provides a comprehensive overview of the keyword arguments that can be
     All keywords and results keys are lowercase except for chemical formulae, which are always written in their correct case, including if the chemical formula is only a part of the complete key.
 
     However, when using `pyco2.sys`, all keywords and results keys are **case-insensitive** in practice.
+    
+    Some keys also have alternative "shortcuts" - for example, you can use `pk1` and `pk2` instead of `pk_H2CO3` and `pk_HCO3`.
 
 ## Keyword arguments
 
@@ -24,8 +26,8 @@ Up to two carbonate system parameters can be provided.
 
     If two parameters are provided, these can be any pair of:
 
-    * `alkalinity`: **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
-    * `dic`: **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
+    * `alkalinity`: **total alkalinity** in μmol&nbsp;kg<sup>–1</sup> (s/c: `talk`).
+    * `dic`: **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup> (s/c: `tco2`).
     * `pH`: **pH** on the total, seawater, free or NBS scale.  Which scale is given by `opt_pH_scale`.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * Any one of:
@@ -35,8 +37,8 @@ Up to two carbonate system parameters can be provided.
         * `xCO2`: **dry-air mole fraction of CO<sub>2</sub>** in ppm.
     * Any one of:
         * `CO3`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>,
-        * `saturation_calcite`: **saturation state with respect to calcite**, or
-        * `saturation_aragonite`: **saturation state with respect to aragonite**.
+        * `saturation_calcite`: **saturation state with respect to calcite** (s/c: `oc`), or
+        * `saturation_aragonite`: **saturation state with respect to aragonite** (s/c: `oa`).
 
 If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter can be any of:
 
