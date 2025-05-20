@@ -16,7 +16,7 @@ nav:
     - Arguments and results: detail.md
     - Adjust conditions (temperature and pressure): adjust.md
     - Uncertainty propagation: uncertainty.md
-    - Advanced results access: results.md
+    - Advanced tips and tricks: advanced.md
     - Switching from v1 to v2: v1_to_v2.md
   # - Visualisation:
   #   - Validity range checker: validity.md
