@@ -1026,6 +1026,8 @@ shortcuts.update(
     {
         "tco2": "dic",
         "talk": "alkalinity",
+        "alk": "alkalinity",
+        "ta": "alkalinity",
         "ss_calc": "saturation_calcite",
         "ss_arag": "saturation_aragonite",
         "oc": "saturation_calcite",
@@ -1050,8 +1052,17 @@ shortcuts.update(
         "pk0": "pk_CO2",
         "pk1": "pk_H2CO3",
         "pk2": "pk_HCO3",
+        "pkw": "pk_H2O",
         "method_fco2": "method_fCO2",
         "which_fco2_insitu": "which_fCO2_insitu",
+        "sal": "salinity",
+        "temp": "temperature",
+        "pres": "pressure",
+        "s": "salinity",
+        "t": "temperature",
+        "p": "pressure",
+        "revelle": "revelle_factor",
+        "q": "Q_isocap",
     }
 )
 
@@ -1686,122 +1697,6 @@ class CO2System(UserDict):
                     temperature,
                 )
 
-    def adjust_old(
-        self,
-        temperature=None,
-        pressure=None,
-        data=None,
-        store_steps=1,
-        method_fCO2=1,
-        opt_which_fCO2_insitu=1,
-        bh_upsilon=None,
-    ):
-        """Adjust the system to a different temperature and/or pressure.
-
-        Parameters
-        ----------
-        temperature : float, optional
-            Temperature in °C to adjust to.  If `None`, temperature is not
-            adjusted.
-        pressure : float, optional
-            Hydrostatic pressure in dbar to adjust to.  If `None`, pressure is
-            not adjusted.
-        store_steps : int, optional
-            Whether/which non-requested parameters calculated during
-            intermediate calculation steps should be stored.  The options are:
-
-              - `0`: Store only the requested parameters.
-              - `1`: Store the requested and most commonly used set of
-              intermediate parameters (default).
-              - `2`: Store the requested and complete set of intermediate
-              parameters.
-        method_fCO2 : int, optional
-            If this is a single-parameter system, which method to use for the
-            adjustment.  The options are:
-
-              - `1`: parameterisation of H24 (default).
-              - `2`: constant bh fitted to TOG93 dataset by H24.
-              - `3`: constant theoretical bh of H24.
-              - `4`: user-specified bh with the equations of H24.
-              - `5`: linear fit of TOG93.
-              - `6`: quadratic fit of TOG93.
-        opt_which_fCO2_insitu : int, optional
-            If this is a single-parameter system and `method_fCO2` is `1`,
-            whether:
-              - `1` the input condition (starting; default) or
-              - `2` output condition (adjusted) temperature
-            should be used to calculate $b_h$.
-        bh_upsilon : float, optional
-            If this is a single-parameter system and `method_fCO2` is `4`, then
-            the value of $b_h$ in J/mol must be specified here.
-
-        Returns
-        -------
-        CO2System
-            A new `CO2System` with all values adjusted to the requested
-            temperature(s) and/or pressure(s).
-        """
-        temperature = self._adjust_prep(temperature)
-        pressure = self._adjust_prep(pressure)
-        # Arguments have been wrangled - now let's get down to business
-        if self.icase > 100:
-            # If we know (any) two MCS parameters, solve for alkalinity and DIC
-            # under the "input" conditions
-            self.solve(parameters=["alkalinity", "dic"], store_steps=store_steps)
-            core = {k: self[k] for k in ["alkalinity", "dic"]}
-            data = {}
-        elif self.icase in [4, 5, 8, 9]:
-            assert pressure is None, (
-                "Cannot adjust pressure for a single-parameter system!"
-            )
-            # If we know only one of pCO2, fCO2, xCO2 or CO2(aq), first get
-            # fCO2 under the "input" conditions
-            self.solve(parameters="fCO2", store_steps=store_steps)
-            core = {"fCO2": self.fCO2}
-            # Then, convert this to the value at the new temperature using the
-            # requested method
-            assert method_fCO2 in range(1, 7), (
-                "`method_fCO2` must be an integer from 1-6."
-            )
-            expUps = self._get_expUps(
-                method_fCO2,
-                temperature,
-                bh_upsilon=bh_upsilon,
-                opt_which_fCO2_insitu=opt_which_fCO2_insitu,
-            )
-            data = {"fCO2": core["fCO2"] * expUps}
-        else:
-            warn(
-                "Single-parameter temperature adjustments are possible only "
-                + "if the known parameter is one of pCO2, fCO2, xCO2 and CO2."
-            )
-        # Copy all parameters that are T/P independent into new data dict
-        for k in condition_independent:
-            if k in self.nodes_original:
-                data[k] = self.data[k]
-            elif k in core:
-                data[k] = core[k]
-        # Set temperature and/or pressure to adjusted value(s), unless they are
-        # `None`, in which case, don't adjust
-        if temperature is not None:
-            data["temperature"] = temperature
-        else:
-            data["temperature"] = self.data["temperature"]
-        if pressure is not None:
-            data["pressure"] = pressure
-        else:
-            data["pressure"] = self.data["pressure"]
-        # Create and solve the new CO2System
-        sys = CO2System(
-            **data,
-            **self.opts,
-            pd_index=self.pd_index,
-            xr_dims=self.xr_dims,
-            xr_shape=self.xr_shape,
-        )
-        sys.solve(parameters=self.data)
-        return sys
-
     def _adjust_prep(self, param):
         # Convert temperature and/or pressure from pandas Series to NumPy
         # arrays, if necessary.  The checks to see if they are Series are
@@ -1905,6 +1800,7 @@ class CO2System(UserDict):
         # TODO make ^ actually affect __str__ and __repr__
         co2a.icase = self.icase
         co2a.adjusted = True
+        co2a.solve(self.requested)
         return co2a
 
     def _adjust_1p(
@@ -2029,9 +1925,65 @@ class CO2System(UserDict):
         # TODO make it actually affect __str__ and __repr__
         co2a.icase = self.icase
         co2a.adjusted = True
+        co2a.solve(self.requested)
         return co2a
 
     def adjust(self, **kwargs):
+        """Adjust the `CO2System` to a different temperature and/or pressure.
+
+        Works differently depending on whether one or two core marine carbonate
+        system (MCS) parameters are known.
+
+        If the original `CO2System` was created from a pandas `DataFrame` or
+        xarray `Dataset` using the `data` kwarg, then the `temperature` and
+        `pressure` provided to `adjust` can be pandas `Series`s or xarray
+        `DataArray`s, as long as their index or dimensions are consistent with
+        the original `data`.
+
+        Any other system properties (e.g. `salinity`, total salt contents,
+        optional settings) must be defined when creating the original,
+        unadjusted `CO2System`.  They cannot be added in during the `adjust`
+        step.
+
+        Parameters when two core MCS parameters are known
+        -------------------------------------------------
+        temperature : array-like, optional
+            The temperature to adjust to in °C, by default `None`, in which
+            case temperature is not adjusted.
+        pressure : array-like, optional
+            The pressure to adjust to in °C, by default `None`, in which case
+            pressure is not adjusted.
+
+        Parameters when one core MCS parameter is known
+        -----------------------------------------------
+        temperature : array-like
+            The temperature to adjust to in °C.
+        method_fCO2 : int
+            How to do the temperature conversion:
+              `1`: using the parameterised υh equation of H24 (default).
+              `2`: using the constant υh fitted to the TOG93 dataset by H24.
+              `3`: using the constant theoretical υx of H24.
+              `4`: following the H24 approach, but using a user-provided `bh`.
+              `5`: using the linear fit of TOG93.
+              `6`: using the quadratic fit of TOG93.
+
+        Additional parameter when `method_fCO2` is `1`
+        ----------------------------------------------
+        * `which_fCO2_insitu`: whether the input- (`1`, default) or output-
+        (`2`) condition pCO2, fCO2, [CO2(aq)] and/or xCO2 values are at in situ
+        conditions, for determining bh with the parameterisation of H24.
+
+        Additional parameter when `method_fCO2` is `4`
+        ----------------------------------------------
+        bh : array-like
+            bh of H24 in J/mol.
+
+        Returns
+        -------
+        CO2System
+            A separate `CO2System` adjusted to the requested temperature and/or
+            pressure.
+        """
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
         if self.icase > 100:
             return self._adjust_2p(**kwargs)
@@ -2230,7 +2182,7 @@ class CO2System(UserDict):
             co2s = (
                 pyco2.sys(dic=2100, alkalinity=2300)
                 .set_uncertainty(dic=2, alkalinity=1.5)
-                .propagate("pH)
+                .propagate("pH")
             )
             co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
             co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
@@ -2245,10 +2197,7 @@ class CO2System(UserDict):
         uncertainty_from = {
             k: v for k, v in self.uncertainty.items() if not isinstance(v, dict)
         }
-        self._propagate(
-            uncertainty_into,
-            uncertainty_from,
-        )
+        self._propagate(uncertainty_into, uncertainty_from)
         return self
 
     def _propagate(self, uncertainty_into, uncertainty_from):

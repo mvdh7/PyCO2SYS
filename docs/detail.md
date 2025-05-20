@@ -5,12 +5,32 @@ This page provides a comprehensive overview of the keyword arguments that can be
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
-!!! tip "Lowercase or uppercase?"    
-    All keywords and results keys are lowercase except for chemical formulae, which are always written in their correct case, including if the chemical formula is only a part of the complete key.
+!!! tip annotate "Lowercase or uppercase?"    
+    Formally, all keyword arguments and results keys for `pyco2.sys` are lowercase except for chemical formulae, which are always written in their correct case.
 
-    However, when using `pyco2.sys`, all keywords and results keys are **case-insensitive** in practice.
+    But you don't need to remember this - all keyword arguments and results keys are **case-insensitive**!
     
-    Some keys also have alternative "shortcuts" - for example, you can use `pk1` and `pk2` instead of `pk_H2CO3` and `pk_HCO3`.
+    Some keys also have alternative "shortcuts" - click on the (1) symbol next to the parameter names.  These shortcuts can be used both when creating a `CO2System` with `pyco2.sys` and when accessing results from it.  Shortcut keys are stored in a dict at `pyco2.engine.shortcuts`.
+
+1.  Shortcuts!
+
+!!! warning "Shortcuts not yet fully implemented"
+
+    Shortcuts can be used with the following:
+
+    * `pyco2.sys` function
+    * `adjust` method
+    * `set_uncertainty` method
+    * `solve` method
+    * accessing results keys with square brackets or dot notation
+
+    Shortcuts have not yet been implemented for:
+
+    * `propagate` method
+    * `get_grads` method
+    * `uncertainty` attribute
+
+    For these, the complete "formal" kwargs in the correct case must be used, as shown on this page.
 
 ## Keyword arguments
 
@@ -22,12 +42,12 @@ Pandas `DataFrame`s and xarray `Dataset`s can be provided using the `data` kwarg
 
 Up to two carbonate system parameters can be provided.
 
-!!! inputs "Carbonate system parameters"
+!!! inputs annotate "Carbonate system parameters"
 
     If two parameters are provided, these can be any pair of:
 
-    * `alkalinity`: **total alkalinity** in μmol&nbsp;kg<sup>–1</sup> (s/c: `talk`).
-    * `dic`: **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup> (s/c: `tco2`).
+    * `alkalinity`(1): **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
+    * `dic`(2): **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
     * `pH`: **pH** on the total, seawater, free or NBS scale.  Which scale is given by `opt_pH_scale`.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * Any one of:
@@ -37,8 +57,13 @@ Up to two carbonate system parameters can be provided.
         * `xCO2`: **dry-air mole fraction of CO<sub>2</sub>** in ppm.
     * Any one of:
         * `CO3`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>,
-        * `saturation_calcite`: **saturation state with respect to calcite** (s/c: `oc`), or
-        * `saturation_aragonite`: **saturation state with respect to aragonite** (s/c: `oa`).
+        * `saturation_calcite`(3): **saturation state with respect to calcite**, or
+        * `saturation_aragonite`(4): **saturation state with respect to aragonite**.
+
+1.  Shortcuts: `talk`, `alk`, `ta`
+2.  Shortcut: `tco2`
+3.  Shortcut: `oc`
+4.  Shortcut: `oa`
 
 If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter can be any of:
 
@@ -51,35 +76,50 @@ If no carbonate system parameters are provided, then all equilibrium constants a
 
 If not provided, these revert to default values.
 
-!!! inputs "Hydrographic conditions"
+!!! inputs annotate "Hydrographic conditions"
 
-    * `salinity`: **practical salinity** (default 35).
-    * `temperature`: **temperature** in °C (default 25 °C) at which the carbonate system parameters are provided.
-    * `pressure`: **hydrostatic pressure** in dbar (default 0 dbar) at which the carbonate system parameters are provided.
+    * `salinity`(1): **practical salinity** (default 35).
+    * `temperature`(2): **temperature** in °C (default 25 °C) at which the carbonate system parameters are provided.
+    * `pressure`(3): **hydrostatic pressure** in dbar (default 0 dbar) at which the carbonate system parameters are provided.
     * `pressure_atmosphere`: **atmospheric pressure** in atm (default 1 atm).
+
+    As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
+
+1.  Shortcuts: `sal`, `s`
+2.  Shortcuts: `temp`, `t`
+3.  Shortcuts: `pres`, `p`
 
 ### Nutrients and other solutes
 
 Nutrients default to zero if not provided, while other solutes are calculated from salinity.
 
-!!! inputs "Nutrients and other solutes"
+!!! inputs annotate "Nutrients and other solutes"
 
     Some default to zero if not provided:
 
-    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)}_3^-]$).
-    * `total_phosphate`: **total phosphate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]$).
-    * `total_ammonia`: **total ammonia** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{NH}_3] + [\mathrm{NH}_4^+]$).
-    * `total_sulfide`: **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]$).
-    * `total_nitrite`: **total nitrite** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{HNO}_2] + [\mathrm{NO}_2^-]$).
+    * `total_silicate`(1): **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)}_3^-]$).
+    * `total_phosphate`(2): **total phosphate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]$).
+    * `total_ammonia`(3): **total ammonia** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{NH}_3] + [\mathrm{NH}_4^+]$).
+    * `total_sulfide`(4): **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]$).
+    * `total_nitrite`(5): **total nitrite** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{HNO}_2] + [\mathrm{NO}_2^-]$).
 
     Others are calculated from salinity if not provided:
 
-    * `total_borate`: **total borate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{B(OH)}_3] + [\mathrm{B(OH)}_4^-]$).
-    * `total_fluoride`: **total fluoride** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HF}] + [\mathrm{F}^-]$).
-    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^{2-}]$).
+    * `total_borate`(6): **total borate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{B(OH)}_3] + [\mathrm{B(OH)}_4^-]$).
+    * `total_fluoride`(7): **total fluoride** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HF}] + [\mathrm{F}^-]$).
+    * `total_sulfate`(8): **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^{2-}]$).
     * `Ca`: **dissolved calcium** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{Ca}^{2+}]$).
 
     If these are provided then their [parameterisation settings](#settings) are ignored.
+
+1.  Shortcuts: `silicate`, `tsi`
+2.  Shortcuts: `phosphate`, `tp`
+3.  Shortcuts: `ammonia`, `tnh3`
+4.  Shortcuts: `sulfide`, `th2s`
+5.  Shortcuts: `nitrite`, `tno2`
+6.  Shortcuts: `borate`, `tb`
+7.  Shortcuts: `fluoride`, `tf`
+8.  Shortcuts: `sulfate`, `tso4`
 
 ### Settings
 
@@ -225,11 +265,11 @@ These settings are ignored if [their values are provided as arguments](#nutrient
         * `1`: find the low-pH solution.
         * **`2`: find the high-pH solution (default)**. 
 
-    * `opt_fCO2_temperature`: how to calculate the **temperature-sensitivity of fCO<sub>2</sub>** (`upsilon`) when only one marine carbonate system parameter is known:
-        * **`1`: [H24](refs.md/#h) parameterisation (default).**
-        * `2`: [TOG93](refs.md/#t) linear fit.
-        * `3`: [TOG93](refs.md/#t) quadratic fit.
-    If `1` is selected, then the [H24](refs.md/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs.md/#t) dataset is used instead (see [H24](refs.md/#h)).
+<!-- * `opt_fCO2_temperature`: how to calculate the **temperature-sensitivity of fCO<sub>2</sub>** (`upsilon`) when only one marine carbonate system parameter is known:
+  * **`1`: [H24](refs.md/#h) parameterisation (default).**
+  * `2`: [TOG93](refs.md/#t) linear fit.
+  * `3`: [TOG93](refs.md/#t) quadratic fit.
+If `1` is selected, then the [H24](refs.md/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs.md/#t) dataset is used instead (see [H24](refs.md/#h)). -->
 
 ### Equilibrium constants
 
@@ -295,9 +335,9 @@ Settings arguments can be found at `co2s.opts`.  They should not be modified the
 
 Buffer factors are evaluated using automatic differentiation of the complete alkalinity equation.
 
-!!! outputs "Buffer factors"
+!!! outputs annotate "Buffer factors"
 
-    * `revelle_factor`: **Revelle factor**.
+    * `revelle_factor`(1): **Revelle factor**.
     * `psi`: *ψ* of [FCG94](refs.md/#f).
     * `gamma_dic`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](refs.md/#e).
     * `beta_dic`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](refs.md/#e).
@@ -305,22 +345,26 @@ Buffer factors are evaluated using automatic differentiation of the complete alk
     * `gamma_alkalinity`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](refs.md/#e).
     * `beta_alkalinity`: **buffer factor *β*<sub>TA</sub>** of [ESM10](refs.md/#e).
     * `omega_alkalinity`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](refs.md/#e).
-    * `Q_isocap`: **isocapnic quotient** of [HDW18](refs.md/#h).
+    * `Q_isocap`(2): **isocapnic quotient** of [HDW18](refs.md/#h).
     * `Q_isocap_approx`: **isocapnic quotient approximation** of [HDW18](refs.md/#h).
     * `dlnfCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
     * `dlnpCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
-    * `substrate_inhibitor_ratio`: **substrate:inhibitor ratio** of [B15](refs.md/#b) in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+    * `substrate_inhibitor_ratio`(3): **substrate:inhibitor ratio** of [B15](refs.md/#b) in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
      
+1.  Shortcut: `revelle`
+2.  Shortcut: `q`
+3.  Shortcut: `sir`
+
 ### Equilibrium constants
 
 All equilibrium constants are returned on the pH scale of `opt_pH_scale` except for `pk_HF_free` and `pk_HSO4_free`, which are always on the free scale.  They are all stoichiometric constants, i.e., defined in terms of reactant contents rather than activities, with the exception of `pk_CO2`, which is a hybrid constant.
 
-!!! outputs "Equilibrium constants"
+!!! outputs annotate "Equilibrium constants"
 
-    * `pk_CO2`: **Henry's constant for CO<sub>2</sub>**.
-    * `pk_H2CO3`: **first carbonic acid** dissociation constant.
-    * `pk_HCO3`: **second carbonic acid** dissociation constant.
-    * `pk_H2O`: **water** dissociation constant.
+    * `pk_CO2`(1): **Henry's constant for CO<sub>2</sub>**.
+    * `pk_H2CO3`(2): **first carbonic acid** dissociation constant.
+    * `pk_HCO3`(3): **second carbonic acid** dissociation constant.
+    * `pk_H2O`(4): **water** dissociation constant.
     * `pk_BOH3`: **boric acid** dissociation constant.
     * `pk_HF_free`: **hydrogen fluoride** dissociation constant.
     * `pk_HSO4_free`: **bisulfate** dissociation constant.
@@ -336,11 +380,17 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
     <!--* `k_alpha`: **HA** equilibrium constant.-->
     <!--* `k_beta`: **HB** equilibrium constant.-->
 
+1.  Shortcut: `pk0`
+2.  Shortcut: `pk1`
+3.  Shortcut: `pk2`
+4.  Shortcut: `pkw`
+
 ### Other results
 
 !!! outputs "Other results"
 
-    * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`.
     * `fugacity_factor`: **fugacity factor** for converting between CO<sub>2</sub> partial pressure and fugacity.
     * `vp_factor`: **vapour pressure factor** for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.    
     * `gas_constant`: **ideal gas constant** in ml bar<sup>−1</sup> mol<sup>−1</sup> K<sup>−1</sup> (note the unusual unit).
+
+<!-- * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`. -->

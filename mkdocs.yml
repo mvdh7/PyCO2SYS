@@ -49,10 +49,15 @@ theme:
     - navigation.footer
     - content.code.copy
     - navigation.expand
+    - content.tooltips
+  icon:
+    annotation: material/plus-circle
 
 # Extensions
 markdown_extensions:
+  - abbr
   - admonition
+  - attr_list
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
@@ -63,9 +68,11 @@ markdown_extensions:
       permalink: true
   - footnotes
   - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.arithmatex:
       generic: true
   - tables
+  - md_in_html
 extra_javascript:
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
