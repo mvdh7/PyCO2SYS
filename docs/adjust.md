@@ -50,34 +50,50 @@ Any uncertainties that were defined for these values are carried across to the n
       1. Solve *for* DIC and alkalinity under the initial conditions, and then
       2. Solve *from* DIC and alkalinity under the adjusted conditions.
 
-### DIC and alkalinity known
+### DIC and total alkalinity
 
-In this case, `adjust` is not needed.  DIC and alkalinity are not sensitive to temperature nor pressure.
+In this case, `adjust` is not needed.  DIC and alkalinity are sensitive to neither temperature nor pressure.
 
-So `adjust` will work, but the result will be the same as just putting the temperature and pressure of interest directly into `pyco2.sys`.
+So `adjust` will work, but the result will be the same as putting the temperature and pressure of interest directly into `pyco2.sys`.
 
-### Two T/P-sensitive parameters at different T/P known
+### Two T/P-sensitive parameters at different T/P
 
-There is not currently a built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
+As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
 
 ## One parameter known
 
+The `adjust` method can also be used to adjust temperature (but not pressure) if only one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub> is known.
 
+```python
+import PyCO2SYS as pyco2
 
+# Set up the initial CO2System (e.g. under lab conditions for xCO2)
+co2s_lab = pyco2.sys(xCO2=425, temperature=25, pressure=0, salinity=32)
 
+# Adjust to a different temperature (e.g. in situ conditions)
+co2s_insitu = co2s_lab.adjust(temperature=10.5)
 
-For more on the `store_steps` kwarg, see [Advanced results access](results.md/#solve-without-returning).
+# Solve for and return fCO2 under the lab and in situ conditions
+fCO2_lab = co2s_lab["fCO2"]
+fCO2_insitu = co2s_insitu["fCO2"]
+```
 
-The `adjust` method can be used if any two carbonate system parameters are known, but also if only one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub> is known.  In this case, `adjust` can take additional kwargs:
+!!! inputs "Allowed kwargs for `adjust` with one known parameter"
 
-  * `method_fCO2`: how to do the temperature conversion.
-    * **`1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](refs.md/#h) (default)**. 
-    * `2`: using the constant <i>υ<sub>h</sub></i> fitted to the [TOG93](refs.md/#t) dataset by [H24](refs.md/#h).
-    * `3`: using the constant theoretical <i>υ<sub>x</sub></i> of [H24](refs.md/#h).
-    * `4`: following the [H24](refs.md/#h) approach but using a user-provided $b_h$ value (given with the additional kwarg `bh_upsilon`).
-    * `5`: using the linear fit of [TOG93](refs.md/#t).
-    * `6`: using the quadratic fit of [TOG93](refs.md/#t) (default before v1.8.3).
+    * `temperature`: the temperature to adjust to in °C.
+
+    * `method_fCO2`: how to do the temperature conversion:
+        * **`1`: using the parameterised <i>υ<sub>h</sub></i> equation of [H24](refs.md/#h) (default)**. 
+        * `2`: using the constant <i>υ<sub>h</sub></i> fitted to the [TOG93](refs.md/#t) dataset by [H24](refs.md/#h).
+        * `3`: using the constant theoretical <i>υ<sub>x</sub></i> of [H24](refs.md/#h).
+        * `4`: following the [H24](refs.md/#h) approach, but using a user-provided $b_h$ value (see `bh` below).
+        * `5`: using the linear fit of [TOG93](refs.md/#t).
+        * `6`: using the quadratic fit of [TOG93](refs.md/#t).
   
-  * `opt_which_fCO2_insitu`: whether the **input (`1`, default)** or output (`2`) condition pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining $b_h$ with the parameterisation of [H24](refs.md/#h).  Only applies when `method_fCO2` is `1`.
+    Only when `method_fCO2` is `1`:
 
-  * `bh_upsilon`: If this is a single-parameter system and `method_fCO2` is `4`, then the value of $b_h$ in J/mol must be specified here.
+    * `which_fCO2_insitu`: whether the **input (`1`, default)** or output (`2`) condition pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining $b_h$ with the parameterisation of [H24](refs.md/#h).
+  
+    Only when `method_fCO2` is `4`:
+
+    * `bh`: $b_h$ in J/mol.
