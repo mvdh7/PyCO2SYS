@@ -19,16 +19,17 @@ This page provides a comprehensive overview of the keyword arguments that can be
     Shortcuts can be used with the following:
 
     * `pyco2.sys` function
+    * `solve` method
     * `adjust` method
     * `set_uncertainty` method
-    * `solve` method
+    * `propagate` method
     * accessing results keys with square brackets or dot notation
 
     Shortcuts have not yet been implemented for:
 
-    * `propagate` method
-    * `get_grads` method
     * `uncertainty` attribute
+    * `get_grads` method
+    * `grads` attribute
 
     For these, the complete "formal" kwargs in the correct case must be used, as shown on this page.
 
