@@ -12,19 +12,19 @@
 
     This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
 
+!!! tip "JAX double precision"
+
+    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which will adversely affect the results.  If a warning about this appears when running code, or to be on the safe side, set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, for example:
+
+        conda env config vars set JAX_ENABLE_X64=True
+
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 
 ## Installation
 
 !!! warning "Don't follow the instructions below"
 
-    The installation instructions below are not yet active - see the box above if you're here to test PyCO2SYS v2!
-
-!!! tip "JAX double precision"
-
-    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which will adversely affect the results.  If a warning about this appears when running code, or to be on the safe side, set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, for example:
-
-        conda env config vars set JAX_ENABLE_X64=True
+    The installation instructions below are not yet active - see the boxes above if you're here to test PyCO2SYS v2!
 
 ### With pip
 
@@ -36,7 +36,7 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 
 !!! warning "Use pip on Windows"
 
-    PyCO2SYS v2 cannot currently be installed through conda on Windows – use pip instead.
+    PyCO2SYS cannot currently be installed through conda on Windows – use pip instead.
 
 Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
 
@@ -72,7 +72,7 @@ Adding your notebooks showcasing PyCO2SYS to [PyCO2SYS-examples](https://github.
 
 ## About
 
-PyCO2SYS is maintained primarily by [Dr Matthew Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) of NIOZ Royal Netherlands Institute for Sea Research (Texel) with support from the main developers of all previous versions of CO2SYS.
+PyCO2SYS is maintained primarily by [Dr Matthew P. Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) of NIOZ Royal Netherlands Institute for Sea Research (Texel) with support from the main developers of all previous versions of CO2SYS.
 
 ### Citation
 
