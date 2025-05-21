@@ -6,7 +6,7 @@ on:
       - docs/**
       - PyCO2SYS/**
     branches:
-      - jax
+      - v2-beta-dev
 permissions:
   contents: write
 jobs:
