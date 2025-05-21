@@ -7,8 +7,8 @@ from functools import wraps
 import jax
 from jax import numpy as np
 
-version = "2.0.0-alpha"
-version_xyz = "2.0.0-alpha"
+version = "2.0.0-b1"
+version_xyz = "2.0.0-b1"
 authorlist = [
     "Humphreys, Matthew P.",
     "Schiller, Abigail J.",
