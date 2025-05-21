@@ -1,6 +1,8 @@
 # %%
 from collections import UserDict
 
+import PyCO2SYS as pyco2
+
 
 class DotDict(UserDict):
     def __init__(self, **kwargs):
@@ -34,3 +36,10 @@ uncert.assign(dic=2, temperature=0.1)
 # Stuff below would be done by propagate()
 uncert.components["pH"] = DotDict(dic=0.03, temperature=0.04)
 uncert["pH"] = 0.05
+
+# Check if it works
+co2s = pyco2.sys(dic=2100, fco2=400).set_uncertainty(t=1, s=1).propagate("ph")
+co2a = co2s.adjust(t=10)  # .propagate()
+co2s.requested
+# set_uncertainty(t=1, s=1).propagate("ph")
+# co2a = co2s.adjust(t=10).propagate()

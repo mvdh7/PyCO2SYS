@@ -188,8 +188,8 @@ An example:
     co2s.propagate("dic")
 
     # Retrieve uncertainties and their components
-    dic_uncertainty = co2s.uncertainty["dic"]["total"]
-    dic_uncertainty_from_pH = co2s.uncertainty["dic"]["pH"]
+    dic_uncertainty = co2s.uncertainty["dic"]
+    dic_uncertainty_from_pH = co2s.uncertainty.parts["dic"]["pH"]
     ```
 
 === "v1.8"

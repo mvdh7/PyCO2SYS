@@ -1056,6 +1056,20 @@ shortcuts.update(
         "q": "Q_isocap",
     }
 )
+# This needs to be the penultimate step of constructing `shortcuts`:
+#   append __pre to all shortcuts that need it and don't yet have it
+for k, v in shortcuts.copy().items():
+    if (
+        not k.endswith("__pre")
+        and k + "__pre" not in shortcuts
+        and k not in condition_independent
+    ):
+        shortcuts[k + "__pre"] = v + "__pre"
+# This needs to be the very final step of constructing `shortcuts`:
+#   append __f to all shortcuts
+for k, v in shortcuts.copy().items():
+    if not k.endswith("__f"):
+        shortcuts[k + "__f"] = v + "__f"
 
 
 def _remove_jax_overhead(d):
@@ -1106,6 +1120,31 @@ def assemble_graph(icase, opts):
             args[node] = list(signature(attrs["func"]).parameters)
     nx.set_node_attributes(graph, args, name="args")
     return graph
+
+
+class DotDict(UserDict):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def __getattr__(self, attr):
+        try:
+            return object.__getattribute__(self, attr)
+        except AttributeError:
+            try:
+                return self.data[shortcuts[attr.lower()]]
+            except KeyError:
+                raise AttributeError(attr)
+
+
+class Uncertainties(DotDict):
+    def __init__(self):
+        super().__init__()
+        self.assigned = DotDict()
+        self.parts = DotDict()
+
+    def assign(self, **uncertainties):
+        for k, v in uncertainties.items():
+            self.assigned[shortcuts[k.lower()]] = v
 
 
 class CO2System(UserDict):
@@ -1244,7 +1283,8 @@ class CO2System(UserDict):
             self.graph = graph.copy()
         self._parse_data(data)
         self.grads = {}
-        self.uncertainty = {}
+        self.uncertainty = Uncertainties()
+        self.u = self.uncertainty
         self.requested = set()  # keep track of all requested parameters
         self.pd_index = pd_index
         if xr_dims is not None:
@@ -1267,6 +1307,8 @@ class CO2System(UserDict):
         }
         self.checked_valid = False
         self.adjusted = False
+        self.set_u = self.set_uncertainty
+        self.prop = self.propagate
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -1776,12 +1818,11 @@ class CO2System(UserDict):
         # Uncertainties that were assigned in the original system are copied
         # across.
         uncertainty_pre = {}
-        for k, v in self.uncertainty.items():
-            if not isinstance(v, dict):
-                if k in no_pre:
-                    uncertainty_pre[k] = v
-                else:
-                    uncertainty_pre[k + "__pre"] = v
+        for k, v in self.uncertainty.assigned.items():
+            if k in no_pre:
+                uncertainty_pre[k] = v
+            else:
+                uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
         # Final housekeeping: the new CO2System will usually get its icase
         # wrong, because it doesn't recognise parameters with keys ending
@@ -1901,12 +1942,11 @@ class CO2System(UserDict):
         # Uncertainties that were assigned in the original system are copied
         # across.
         uncertainty_pre = {}
-        for k, v in self.uncertainty.items():
-            if not isinstance(v, dict):
-                if k in no_pre:
-                    uncertainty_pre[k] = v
-                else:
-                    uncertainty_pre[k + "__pre"] = v
+        for k, v in self.uncertainty.assigned.items():
+            if k in no_pre:
+                uncertainty_pre[k] = v
+            else:
+                uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
         # Final housekeeping: the new CO2System will usually get its icase
         # wrong, because it doesn't recognise parameters with keys ending
@@ -1975,13 +2015,17 @@ class CO2System(UserDict):
             A separate `CO2System` adjusted to the requested temperature and/or
             pressure.
         """
+        self_requested = self.requested.copy()
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
         if self.icase > 100:
-            return self._adjust_2p(**kwargs)
+            self_adjusted = self._adjust_2p(**kwargs)
         elif self.icase in [4, 5, 8, 9]:
-            return self._adjust_1p(**kwargs)
+            self_adjusted = self._adjust_1p(**kwargs)
         else:
             warn("This system cannot be adjusted.")
+            self_adjusted = self
+        self.requested = self_requested
+        return self_adjusted
 
     def _get_func_of(self, var_of):
         """Create a function to compute `var_of` directly from an input set
@@ -2132,6 +2176,7 @@ class CO2System(UserDict):
         return {k: self.data[k] for k in self.nodes_original}
 
     def set_uncertainty(self, **kwargs):
+        # TODO docstring
         uset = []
         for k, v in kwargs.items():
             if k.endswith("__f"):
@@ -2151,47 +2196,34 @@ class CO2System(UserDict):
                 "Uncertainty can be assigned only for user-provided parameters, "
                 + "pK values and total salt contents."
             )
-            self.uncertainty.update({skl: v})
+            self.uncertainty.assign(**{skl: v})
         # Recalculate any uncertainties that have already been propagated
-        self.propagate(
-            [
-                shortcuts[k.lower()]
-                for k, v in self.uncertainty.items()
-                if isinstance(v, dict)
-            ]
-        )
-        # ^ if it's not a dict, then it's an uncertainty that was defined by the user,
-        #   rather than one that's been propagated
+        self.propagate([shortcuts[k.lower()] for k in self.uncertainty])
         return self
 
     def propagate(self, uncertainty_into=None):
         """Propagate independent uncertainties through the calculations.
         Covariances are not accounted for.
 
-        New entries are added in the `uncertainty` attribute, for example:
+        New entries are added in the `uncertainty` attribute (for which `u`
+        can be used as a shortcut), for example:
 
             co2s = (
                 pyco2.sys(dic=2100, alkalinity=2300)
                 .set_uncertainty(dic=2, alkalinity=1.5)
                 .propagate("pH")
             )
-            co2s.uncertainty["pH"]["total"]  # total uncertainty in pH
-            co2s.uncertainty["pH"]["dic"]  # component of ^ due to DIC uncertainty
+            co2s.u["pH"]  # total uncertainty in pH
+            co2s.u.parts["pH"]["dic"]  # component of ^ due to DIC uncertainty
 
         Parameters
         ----------
-        uncertainty_into : list or str
+        uncertainty_into : list or str, optional
             The parameter(s) to calculate the uncertainty in.  If `None`
             (default), then the list of all parameters that have been directly
             solved for is used.
         """
-        uncertainty_from = {
-            k: v for k, v in self.uncertainty.items() if not isinstance(v, dict)
-        }
-        self._propagate(uncertainty_into, uncertainty_from)
-        return self
-
-    def _propagate(self, uncertainty_into, uncertainty_from):
+        # Parse uncertainty_into
         if uncertainty_into is None:
             uncertainty_into = self.requested
         elif isinstance(uncertainty_into, str):
@@ -2202,13 +2234,18 @@ class CO2System(UserDict):
             if k not in self.nodes_original
         ]
         self.solve(uncertainty_into)
+        # Propagate uncertainties
+        self._propagate(uncertainty_into, self.uncertainty.assigned)
+        return self
+
+    def _propagate(self, uncertainty_into, uncertainty_from):
         for var_in in uncertainty_into:
             # This should always be reset to zero and all values wiped, even if
             # it already exists (so you don't end up with old uncertainty_from
             # components from a previous calculation which are no longer part of
             # the total)
-            self.uncertainty[var_in] = {"total": np.zeros_like(self.data[var_in])}
-            u_total = self.uncertainty[var_in]["total"]
+            self.uncertainty[var_in] = np.zeros_like(self.data[var_in])
+            u_total = self.uncertainty[var_in]
             for var_from, u_from in uncertainty_from.items():
                 is_fractional = var_from.endswith("__f")
                 if is_fractional:
@@ -2230,9 +2267,11 @@ class CO2System(UserDict):
                     u_part = np.abs(sys.grads[var_in][var_from] * u_from)
                 if is_fractional:
                     var_from += "__f"
-                self.uncertainty[var_in][var_from] = u_part
+                if var_in not in self.uncertainty.parts:
+                    self.uncertainty.parts[var_in] = DotDict()
+                self.uncertainty.parts[var_in][var_from] = u_part
                 u_total = u_total + u_part**2
-            self.uncertainty[var_in]["total"] = np.sqrt(u_total)
+            self.uncertainty[var_in] = np.sqrt(u_total)
         return self
 
     def get_graph_to_plot(
