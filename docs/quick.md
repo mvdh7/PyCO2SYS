@@ -30,7 +30,7 @@ Each call of `pyco2.sys` may include up to two known core marine carbonate syste
 
     See [User guide / Arguments and results](detail.md) for the full sets of keyword arguments that can be provided to `pyco2.sys` and the results parameters that can be calculated.
 
-    See [User guide / Advanced results access](results.md) for a more detailed overview of how results can be solved for and accessed from a `CO2System`.
+    See [User guide / Advanced tips and tricks](advanced.md) for a more detailed overview of how results can be solved for and accessed from a `CO2System`.
 
 A few common examples are given below.
 
@@ -122,10 +122,10 @@ co2s.set_uncertainty(alkalinity=2, dic=2)
 co2s.propagate("pH")
 
 # Retrieve total uncertainty in pH
-pH_uncertainty = co2s.uncertainty["pH"]["total"]
+pH_uncertainty = co2s.uncertainty["pH"]
 
 # Retrieve component of pH uncertainty due to DIC
-pH_uncertainty = co2s.uncertainty["pH"]["dic"]
+pH_uncertainty = co2s.uncertainty.parts["pH"]["dic"]
 ```
 
 ## Multidimensional data
