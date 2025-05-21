@@ -46,7 +46,7 @@ On the surface, v2 looks similar to v1.  For example:
 
 The most obvious change above is that the known marine carbonate system parameters `alkalinity` and `pH` are provided directly as kwargs, instead of using the old approach with `par1`, `par2`, `par1_type` and `par2_type`.
 
-This does mean that it's no longer possible to have multiple different parameter types within a single call to `pyco2.sys`.  Similarly, all settings parameters (anything beginning with `opt_`) can no longer be provided as arrays – each call to `pyco2.sys` can only have one combination of settings.
+This does mean that it's no longer possible to have multiple different parameter types within a single call to `pyco2.sys`.  Similarly, all settings parameters (anything beginning with `opt_`) can no longer be provided as arrays – each call to `pyco2.sys` can have only one combination of settings.
 
 However, as before, all other parameters (e.g., `alkalinity`, `pH`, `temperature` and `salinity`) can be scalars or NumPy arrays of any shape, as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) together.
 
@@ -111,7 +111,7 @@ This will throw an error if the requested parameter is not already available.
 
 ## Input and output conditions
 
-In v1, a second set of temperature and/or pressure conditions could be specified as 'output' conditions with the suffix `_out` for their arguments and results.  In v2, each `CO2System` can only have one set of temperature and pressure conditions.  To adjust to a different set of conditions, use the `adjust` method:
+In v1, a second set of temperature and/or pressure conditions could be specified as 'output' conditions with the suffix `_out` for their arguments and results.  In v2, each `CO2System` can have only one set of temperature and pressure conditions.  To adjust to a different set of conditions, use the `adjust` method:
 
 === "v2.0"
 
