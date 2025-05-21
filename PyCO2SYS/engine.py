@@ -2185,7 +2185,15 @@ class CO2System(UserDict):
         return {k: self.data[k] for k in self.nodes_original}
 
     def set_uncertainty(self, **kwargs):
-        # TODO docstring
+        """Assign independent uncertainties for parameters.
+
+        The same set of kwargs can be provided as for `pyco2.sys`, excepting
+        the optional settings (kwargs beginning with `opt_`).
+
+        The values should be the 1-sigma independent uncertainty in each
+        parameter.  These can be single scalar values, or arrays of the same
+        shape as the corresponding parameter.
+        """
         uset = []
         for k, v in kwargs.items():
             if k.endswith("__f"):
