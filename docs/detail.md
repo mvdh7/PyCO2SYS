@@ -267,7 +267,11 @@ To do this, the arguments should have the same keywords as the corresponding [re
 
 ## Results
 
-See [Advanced results access](results.md) for a more detailed overview of the different ways that the results keys in the sections below can be solved for and accessed from a `CO2System`.
+See [Advanced tips and tricks](advanced.md) for a more detailed overview of the different ways that the results keys in the sections below can be solved for and accessed from a `CO2System`.
+
+!!! tip "Find all possible results keys"
+
+    `co2s.keys()` returns an iterable of all results that have currently been solved for, and `co2s.keys_all()` returns all keys that could possibly be solved for, in a given `CO2System`.
 
 ### `pyco2.sys` arguments
 

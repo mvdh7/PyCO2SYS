@@ -56,7 +56,7 @@ before moving on to
 
 If you're really interested, also look at
 
-  * [Advanced results access](results.md).
+  * [Advanced tips and tricks](advanced.md).
 
 If you're already familiar with PyCO2SYS v1, then
 
