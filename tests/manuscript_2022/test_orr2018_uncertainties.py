@@ -13,7 +13,9 @@ renamer = {
 }
 
 # Prepare for comparison with Orr et al. (2018) Table 2
-orr2 = pd.read_csv("tests/manuscript/data/orr2018-table2.csv").rename(columns=renamer)
+orr2 = pd.read_csv("tests/manuscript_2022/data/orr2018-table2.csv").rename(
+    columns=renamer
+)
 grads_of = [c for c in orr2.columns if c not in ["wrt", "program"]]
 grads_of.append("pH")
 grads_wrt = ["alkalinity", "dic", "temperature", "salinity"]
@@ -51,7 +53,9 @@ orr2_groups = orr2_groups.groupby("wrt").mean()
 orr2.set_index(["wrt", "program"], inplace=True)
 
 # Prepare for comparison with Orr et al. (2018) Table 3
-orr3 = pd.read_csv("tests/manuscript/data/orr2018-table3.csv").rename(columns=renamer)
+orr3 = pd.read_csv("tests/manuscript_2022/data/orr2018-table3.csv").rename(
+    columns=renamer
+)
 values_orr3 = dict(
     alkalinity=2300,
     dic=2000,
@@ -84,7 +88,9 @@ orr3_groups = orr3_groups.groupby("wrt").mean()
 orr3.set_index(["wrt", "program"], inplace=True)
 
 # Prepare for comparison with Orr et al. (2018) Table 4
-orr4 = pd.read_csv("tests/manuscript/data/orr2018-table4.csv").rename(columns=renamer)
+orr4 = pd.read_csv("tests/manuscript_2022/data/orr2018-table4.csv").rename(
+    columns=renamer
+)
 values_orr4 = dict(
     alkalinity=2300,
     dic=2000,

@@ -58,12 +58,12 @@ pH_phosphate = sys_phosphate["pH"]
 
 # Compare with D81's tables
 d81_pH = np.genfromtxt(
-    "tests/manuscript/data/Dickson-1981-pH-no_phosphate.dat",
+    "tests/manuscript_2022/data/Dickson-1981-pH-no_phosphate.dat",
     delimiter="\t",
     skip_header=2,
 )[:, 1]
 d81_pH_phosphate = np.genfromtxt(
-    "tests/manuscript/data/Dickson-1981-pH-with_phosphate.dat",
+    "tests/manuscript_2022/data/Dickson-1981-pH-with_phosphate.dat",
     delimiter="\t",
     skip_header=2,
 )[:, 1]

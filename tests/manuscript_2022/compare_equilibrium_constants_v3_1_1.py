@@ -8,7 +8,7 @@ from PyCO2SYS import CO2System
 
 # Import MATLAB results and recalculate with PyCO2SYS
 matlab = pd.read_csv(
-    "tests/manuscript/results/compare_equilibrium_constants_v3_2_0.csv"
+    "tests/manuscript_2022/results/compare_equilibrium_constants_v3_1_1.csv"
 )
 
 
