@@ -110,12 +110,12 @@ uncertainty_from = {
 sys4 = CO2System(**values_orr4, **opts_orr4).set_uncertainty(**uncertainty_from)
 sys4.propagate(uncertainty_into)
 
-u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
+u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "no"}
 )
 for into in uncertainty_into:
-    nrow[into] = sys4.uncertainty[into]["total"]
+    nrow[into] = sys4.uncertainty[into]
     if into == "H_free":
         nrow[into] = u_Hfree_manual * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
@@ -124,14 +124,12 @@ uncertainty_from.update(pyco2.uncertainty_OEDG18)
 sys4.set_uncertainty(**uncertainty_from)
 sys4.propagate(uncertainty_into)
 
-u_Hfree_manual_pks = (
-    np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"]["total"] * 1e6
-)
+u_Hfree_manual_pks = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
 nrow = pd.DataFrame(
     {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
 )
 for into in uncertainty_into:
-    nrow[into] = sys4.uncertainty[into]["total"]
+    nrow[into] = sys4.uncertainty[into]
     if into == "H_free":
         nrow[into] = u_Hfree_manual_pks * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)

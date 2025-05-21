@@ -5,7 +5,7 @@ This page provides a comprehensive overview of the keyword arguments that can be
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
-!!! tip annotate "Lowercase or uppercase?"    
+!!! tip annotate "Keyword shortcuts"    
     Formally, all keyword arguments and results keys for `pyco2.sys` are lowercase except for chemical formulae, which are always written in their correct case.
 
     But you don't need to remember this - all keyword arguments and results keys are **case-insensitive**!
@@ -13,25 +13,6 @@ This page provides a comprehensive overview of the keyword arguments that can be
     Some keys also have alternative "shortcuts" - click on the (1) symbol next to the parameter names.  These shortcuts can be used both when creating a `CO2System` with `pyco2.sys` and when accessing results from it.  Shortcut keys are stored in a dict at `pyco2.engine.shortcuts`.
 
 1.  Shortcuts!
-
-!!! warning "Shortcuts not yet fully implemented"
-
-    Shortcuts can be used with the following:
-
-    * `pyco2.sys` function
-    * `solve` method
-    * `adjust` method
-    * `set_uncertainty` method
-    * `propagate` method
-    * accessing results keys with square brackets or dot notation
-
-    Shortcuts have not yet been implemented for:
-
-    * `uncertainty` attribute
-    * `get_grads` method
-    * `grads` attribute
-
-    For these, the complete "formal" kwargs in the correct case must be used, as shown on this page.
 
 ## Keyword arguments
 

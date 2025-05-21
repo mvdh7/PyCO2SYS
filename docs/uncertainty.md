@@ -35,6 +35,10 @@ co2s.set_uncertainty(**pyco2.uncertainty_OEDG18)
 
 If `set_uncertainty` is run multiple times on the same `CO2System`, each successive call adds to the existing set of uncertainties, overwriting where an uncertainty for that parameter was already declared.
 
+!!! warn "`set_uncertainty` after `propagate`"
+
+    If `set_uncertainty` is run after running `propagate` on a system, then `propagate` will automatically be run again with the new set uncertainties, so that the values in `co2s.uncertainty` are all correct for the current set of assigned uncertainties.
+
 ## Propagate independent uncertainties
 
 ```python
@@ -42,7 +46,7 @@ If `set_uncertainty` is run multiple times on the same `CO2System`, each success
 co2s.propagate(["pH", "fCO2"])
 
 # Access uncertainty results
-uncert_fCO2 = co2s.uncertainty["fCO2"]["total"]
+uncert_fCO2 = co2s.uncertainty["fCO2"]
 uncert_pH_due_to_dic = co2s.uncertainty["pH"]["dic"]
 ```
 
@@ -56,14 +60,15 @@ The total uncertainties are the Pythagorean sum of all the components.  This cal
 
 !!! outputs "`propagate` results"
 
-    The uncertainty results are stored in `co2s.uncertainty`.
+    The uncertainty results are stored in `co2s.uncertainty`, for which `co2s.u` can be used as a shortcut.
 
     * For each result `into` in `uncertainty_into`, there is a new sub-dict `co2s.uncertainty[into]` containing the total and component uncertainties in that result.
   
-    * The total uncertainty is in `co2s.uncertainty[into]["total"]`.
+    * The total uncertainty is in `co2s.uncertainty[into]`.
   
     * The uncertainties from each argument `from` that has had an uncertainty defined with `set_uncertainty` are also in the sub-dict with the corresponding keys: `co2s.uncertainty[into][from]`.
 
+    All `into` and `from` values can be accessed with dot notation instead of with square brackets, and the [shortcuts](detail.md/#arguments-and-results) can be used.
 
 ## Uncertainties with covariances
 
@@ -87,3 +92,7 @@ dpH_dalk = co2s.grads["pH"]["alkalinity"]
 !!! outputs "`get_grads` results"
 
     For each result `of` in `grads_of` and argument `wrt` in `grads_wrt`, the corresponding derivative is stored in `co2s.grads[of][wrt]`.
+
+!!! warning "No shortcuts here"
+
+    The shortcuts cannot be used in the arguments `grads_of` and `grads_wrt` in the `get_grads` function, nor when accessing keys from `co2s.grads`.
