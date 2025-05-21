@@ -6,7 +6,7 @@ on:
       - docs/**
       - PyCO2SYS/**
     branches:
-      - v2-beta-dev
+      - v2-beta-release
 permissions:
   contents: write
 jobs:
