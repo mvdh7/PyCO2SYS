@@ -1234,6 +1234,7 @@ class CO2System(UserDict):
         pd_index=None,
         xr_dims=None,
         xr_shape=None,
+        ignored=None,
         **kwargs,
     ):
         """Initialise a `CO2System`.
@@ -1290,6 +1291,9 @@ class CO2System(UserDict):
         else:
             assert isinstance(graph, nx.DiGraph)
             self.graph = graph.copy()
+        if ignored is None:
+            ignored = []
+        self.ignored = ignored
         self._parse_data(data)
         self.grads = {}
         self.uncertainty = Uncertainties()
@@ -1378,7 +1382,7 @@ class CO2System(UserDict):
                 + " combination of known carbonate system parameters and are"
                 + " being ignored (see `CO2System.ignored`)"
             )
-        self.ignored = to_remove.copy()
+        self.ignored += to_remove
         # Assign default values
         for k, v in values_default.items():
             if k not in data and k in self.graph.nodes:
@@ -2862,45 +2866,53 @@ def sys(data=None, **kwargs):
     if np.array(1.0).dtype == np.dtype("float32"):
         warn(
             "JAX does not appear to be using double precision - "
-            + "set the environment variable `JAX_ENABLE_X64=True`."
+            + "set the environment variable `JAX_ENABLE_X64=True`"
         )
     # Merge data with kwargs
     pd_index = None
     xr_dims = None
     xr_shape = None
-    data_is_dict = False
+    data_is_dict = isinstance(data, dict)
+    keys_ignored = []
     kwargs_data = {}
     if data is not None:
-        for k, v in kwargs.items():
-            if k in data and not isinstance(v, str):
-                warn(
-                    f'"{k}" found in both `data` and `kwargs` - the value in '
-                    + "`kwargs` will be used."
-                )
-        data_is_dict = isinstance(data, dict)
-        # Any kwargs other than `data` provided as strings will be interpreted
-        # as being the keys for the corresponding values.  The `renamer` dict
-        # maps from the string keys to the correct kwarg.
-        renamer = {}
+        # First, check for string kwargs, which indicate keys in data that need
+        # renaming
+        renamer_user = {}
         for k, v in kwargs.items():
             if isinstance(v, str):
-                if v in renamer:
-                    # can't repeat keys e.g. `data=df, dic="var", pH="var"`
+                if v in renamer_user:
+                    # Can't repeat keys e.g. `data=df, dic="var", pH="var"`
                     raise Exception(
-                        f'"{v}" cannot be used for {k}'
-                        + f" because it is already being used for {renamer[v]}!"
+                        f'"{v}" cannot be used for {k} because'
+                        + f" it is already being used for {renamer_user[v]}"
                     )
                 else:
-                    renamer[v] = k
-        # If `data` is a dict, we just need to rename any keys that were
-        # provided as strings
+                    renamer_user[v] = shortcuts[k.lower()]
+        # Next, go through keys of data and get shortcuts or renames for them
+        renamer_data = {}
+        for k in data:
+            if k in renamer_user:
+                renamer_data[k] = renamer_user[k]
+            elif k in shortcuts:
+                renamer_data[k] = shortcuts[k.lower()]
+            else:
+                keys_ignored.append(k)
+        # Check for duplicates
+        renamer_values = []
+        for v in renamer_data.values():
+            if v in renamer_values:
+                raise SyntaxError(
+                    f"`data` contains multiple keys corresponding to `{v}`, "
+                    + "possibly under different shortcuts"
+                )
+            else:
+                renamer_values.append(v)
+        # Rename keys if data is a dict
         if data_is_dict:
-            for k, v in data.items():
-                if k in renamer:
-                    kwargs_data[renamer[k]] = v
-                else:
-                    kwargs_data[k] = v
-        # If `data` isn't a dict, it might be a pandas df or an xarray ds
+            for k, v in renamer_data.items():
+                kwargs_data[v] = data[k]
+        # If `data` isn't a dict, it might be a pandas df
         else:
             data_is_pandas = False
             try:
@@ -2912,10 +2924,8 @@ def sys(data=None, **kwargs):
                 if data_is_pandas:
                     pd_index = data.index.copy()
                     for c in data.columns:
-                        if c in renamer:
-                            kwargs_data[renamer[c]] = data[c].to_numpy()
-                        else:
-                            kwargs_data[c] = data[c].to_numpy()
+                        if c in renamer_data:
+                            kwargs_data[renamer_data[c]] = data[c].to_numpy()
             except ImportError:
                 warn("pandas could not be imported - ignoring `data`.")
             data_is_xarray = False
@@ -2931,63 +2941,67 @@ def sys(data=None, **kwargs):
                         xr_dims = list(data.sizes.keys())
                         xr_shape = list(data.sizes.values())
                         for k, v in data.items():
-                            if k in renamer:
-                                kwargs_data[renamer[k]] = da_to_array(v, xr_dims)
-                            else:
-                                kwargs_data[k] = da_to_array(v, xr_dims)
+                            if k in renamer_data:
+                                kwargs_data[renamer_data[k]] = da_to_array(v, xr_dims)
                 except ImportError:
                     warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:
                     # If we reach this point, `data` is neither dict nor
                     # pandas df nor xarray ds, so it's ignored
                     warn("Type of `data` not recognised - it will be ignored.")
+                    keys_ignored.append("data")
     # Check there aren't any duplicate kwargs with different aliases, and drop
     # any kwargs that are strings (used to identify `data` columns)
     kwargs_nodups = {}
-    for k, v in kwargs_data.items():
-        if shortcuts[k.lower()] in kwargs_nodups:
-            raise SyntaxError(
-                f"keyword argument repeated, possibly with a different alias: {k}"
-            )
-        else:
-            kwargs_nodups[shortcuts[k.lower()]] = v
-    kwargs_user_nodups = {}
     for k, v in kwargs.items():
-        if shortcuts[k.lower()] in kwargs_user_nodups:
-            raise SyntaxError(
-                f"keyword argument repeated, possibly with a different alias: {k}"
-            )
-        elif not isinstance(v, str):
-            kwargs_user_nodups[shortcuts[k.lower()]] = v
+        try:
+            skl = shortcuts[k.lower()]
+            if skl in kwargs_nodups:
+                raise SyntaxError(
+                    f"Repeated kwarg, possibly under a different shortcut: {k}"
+                )
+            elif not isinstance(v, str):
+                kwargs_nodups[skl] = v
+                if skl in kwargs_data:
+                    warn(
+                        f"{skl} found in both `data` and `kwargs`, possibly under "
+                        + "different shortcuts - using the `kwargs` value"
+                    )
+        except KeyError:
+            keys_ignored.append(k)
     # Merge data and user kwargs
-    kwargs_nodups.update(kwargs_user_nodups)
+    kwargs_data.update(kwargs_nodups)
     # Parse kwargs
-    for k, v in kwargs_nodups.items():
+    for k, v in kwargs_data.copy().items():
         # Convert lists to numpy arrays
-        if isinstance(kwargs_nodups[k], list):
-            kwargs_nodups[k] = np.array(kwargs_nodups[k])
+        if isinstance(kwargs_data[k], list):
+            kwargs_data[k] = np.array(kwargs_data[k])
+        # Convert None to np.nan
+        if kwargs_data[k] is None:
+            kwargs_data[k] = np.nan
         # If opts are scalar, only take first value
         if k in opts_default:
-            if np.isscalar(kwargs_nodups[k]):
-                if isinstance(kwargs_nodups[k], ArrayImpl):
-                    kwargs_nodups[k] = kwargs_nodups[k].item()
+            if np.isscalar(kwargs_data[k]):
+                if isinstance(kwargs_data[k], ArrayImpl):
+                    kwargs_data[k] = kwargs_data[k].item()
             else:
-                kwargs_nodups[k] = np.ravel(np.array(kwargs_nodups[k]))[0].item()
+                kwargs_data[k] = np.ravel(np.array(kwargs_data[k]))[0].item()
                 warn(f"`{k}` is not scalar, so only the first value will be used.")
-            if isinstance(kwargs_nodups[k], float):
-                kwargs_nodups[k] = int(kwargs_nodups[k])
+            if isinstance(kwargs_data[k], float):
+                kwargs_data[k] = int(kwargs_data[k])
         # Convert ints to floats for non-opts
         else:
-            if isinstance(kwargs_nodups[k], int):
-                kwargs_nodups[k] = float(kwargs_nodups[k])
-            elif hasattr(kwargs_nodups[k], "dtype"):
+            if isinstance(kwargs_data[k], int):
+                kwargs_data[k] = float(kwargs_data[k])
+            elif hasattr(kwargs_data[k], "dtype"):
                 try:
-                    kwargs_nodups[k] = kwargs_nodups[k].astype(float)
+                    kwargs_data[k] = kwargs_data[k].astype(float)
                 except ValueError:
                     pass
     return CO2System(
         pd_index=pd_index,
         xr_dims=xr_dims,
         xr_shape=xr_shape,
-        **kwargs_nodups,
+        ignored=keys_ignored,
+        **kwargs_data,
     )
