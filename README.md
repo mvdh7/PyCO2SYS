@@ -9,9 +9,9 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Public beta testing for PyCO2SYS v2 is now live!**
-
-See the v2 docs at [mvdh.xyz/PyCO2SYS](https://mvdh7.xyz/PyCO2SYS) for instructions and please [provide feedback](https://github.com/mvdh7/PyCO2SYS/issues)!
+> **Public beta testing for PyCO2SYS v2 is now live!**
+>
+> See the v2 docs at [mvdh.xyz/PyCO2SYS](https://mvdh7.xyz/PyCO2SYS) for instructions and please [provide feedback](https://github.com/mvdh7/PyCO2SYS/issues)!
 
 <!-- TOC -->
 
