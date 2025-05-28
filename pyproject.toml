@@ -10,7 +10,7 @@ description = "PyCO2SYS: marine carbonate system calculations in Python"
 readme = "README.md"
 requires-python = ">= 3.10"
 dependencies = [
-    "jax=0.6.0",
+    "jax == 0.6.0",
     "networkx",
 ]
 classifiers = [
