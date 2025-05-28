@@ -8,7 +8,7 @@
 
     **If you are here to test PyCO2SYS v2**, then create a test environment with Python v3.10 or greater, and then in that environment run
 
-        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b1
+        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b2
 
     This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
 
