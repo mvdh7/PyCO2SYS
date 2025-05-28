@@ -1,10 +1,21 @@
 # %%
 import glodap
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 import PyCO2SYS as pyco2
 
+t = xr.DataArray([5, 10, 15], dims="d1")
+s = xr.DataArray([30, 35, 40], dims="d2")
+ds = xr.Dataset({"trAa": t, "s": s, "oops": 3})
+
+ds = pd.DataFrame({"trAa": 5, "s": 35, "oops": [1, 2]})
+
+co2s = pyco2.sys(data=ds, temp="trAa", s=22, schoop=5)
+print(co2s)
+
+# %%
 co2s = pyco2.sys(
     dic=[2100, 2150, 2200],
     ta=[2300, 2325, 2350],
@@ -38,7 +49,8 @@ co2s_insitu = (
 # Adjust fCO2 etc to different temperature
 co2s = pyco2.sys(fco2=400, t=25).adjust(t=5).solve("fco2")
 
-# pyco2.sys(dic=2100, ta=2250).adjust(t=15, p=1000).solve("pH")  # warn bug with __pre terms
+# pyco2.sys(dic=2100, ta=2250).adjust(t=15, p=1000).solve("pH")
+# BUG ^ warn bug with __pre terms
 pyco2.sys(dic=2100, ta=2250, t=15, p=1000).solve("pH")
 
 # Propagate uncertainties
@@ -56,21 +68,26 @@ co2s = (
     .prop("ta")
 )
 # co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="valid")
-# pKs coming up orange in state graph?
+# BUG ^ pKs coming up orange in state graph?
+
+# %%
+gatl = glodap.atlantic().drop(columns="fco2")
+co2s = pyco2.sys(data=gatl, nitrite=0)  # .solve("pH")
 
 
-gatl = glodap.atlantic()
-gatl = gatl[["talk", "tco2", "salinity", "temperature", "pressure", "silicate"]]
+# co2s = pyco2.sys(data=gatl, t="theta", nitrite=0)  # .solve("pH")
+# BUG should this be allowed? ^^^^^^^^^
+
+# gatl = gatl[["talk", "tco2", "salinity", "temperature", "pressure", "silicate"]]
 # %%
 # gatl["wtf"] = gatl.tco2.copy()
 # gatl = gatl.drop(columns="tco2")
 co2s = pyco2.sys(temperature=gatl.temperature)
-# ^ should reject Series / DataArrays at this point
+# BUG ^ should reject Series / DataArrays at this point
 
 # %%
 t = xr.DataArray([5, 10, 15], dims="t")
 s = xr.DataArray([30, 35, 40], dims="s")
-# shortcuts not implemented for xr datasets!!!
-ds = xr.Dataset({"temperature": t, "salinity": s})
+ds = xr.Dataset({"t": t, "s": s})
 
 co2s = pyco2.sys(data=ds).solve("pk1")
