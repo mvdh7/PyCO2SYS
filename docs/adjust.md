@@ -54,7 +54,17 @@ Any uncertainties that were defined for these values are carried across to the n
 
 In this case, `adjust` is not needed.  DIC and alkalinity are sensitive to neither temperature nor pressure.
 
-So `adjust` will work, but the result will be the same as putting the temperature and pressure of interest directly into `pyco2.sys`.
+Running `adjust` in this case will therefore raise an exception.  To solve at a different temperature and/or pressure, create a new `CO2System` with `pyco2.sys`, providing the different values directly.
+
+```python
+import PyCO2SYS as pyco2
+
+# Solve from DIC and alkalinity at a given T/P
+co2s = pyco2.sys(dic=2100, alkalinity=2250, temperature=25, pressure=0)
+
+# Solve again at a different T/P
+co2a = pyco2.sys(dic=2100, alkalinity=2250, temperature=10.5, pressure=1500)
+```
 
 ### Two T/P-sensitive parameters at different T/P
 
