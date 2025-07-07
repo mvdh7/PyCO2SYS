@@ -1361,34 +1361,31 @@ class CO2System(UserDict):
         raise RuntimeError("Item assignment is not supported.")
 
     def _parse_data(self, data):
-        # Save arguments
-        to_remove = []
+        # Ignore unrecognised arguments
+        to_ignore = []
         for k, v in data.items():
             if v is not None:
                 if k in self.graph.nodes:
                     # state 1 means that the value was provided as an argument
                     nx.set_node_attributes(self.graph, {k: 1}, name="state")
                 else:
-                    # TODO need to rethink how it is judged whether a value is
-                    # allowed here --- things that are not part of the graph
-                    # but that could be added as an isolated element should be
-                    # kept?
-                    to_remove.append(k)
-        for k in to_remove:
+                    to_ignore.append(k)
+        for k in to_ignore:
             data.pop(k)
-        if len(to_remove) > 0:
+        if len(to_ignore) > 0:
             warn(
                 "Some parameters were not recognised or not valid for this"
                 + " combination of known carbonate system parameters and are"
                 + " being ignored (see `CO2System.ignored`)"
             )
-        self.ignored += to_remove
+        self.ignored += to_ignore
         # Assign default values
         for k, v in values_default.items():
             if k not in data and k in self.graph.nodes:
                 data[k] = v
                 nx.set_node_attributes(self.graph, {k: 1}, name="state")
         self.nodes_original = list(k for k, v in data.items() if v is not None)
+        # Store provided data
         self.data = data
 
     def solve(self, parameters=None, store_steps=1):
@@ -1771,6 +1768,13 @@ class CO2System(UserDict):
             param = da_to_array(param, self.xr_dims)
         return param
 
+    def _adjust_102(self, temperature=None, pressure=None):
+        raise Exception(
+            "A CO2System with known alkalinity and DIC cannot be adjusted"
+            + " - instead, provide the new temperature(s) and/or pressure(s)"
+            + " directly when creating the CO2System."
+        )
+
     def _adjust_2p(self, temperature=None, pressure=None):
         temperature = self._adjust_prep(temperature)
         pressure = self._adjust_prep(pressure)
@@ -1839,7 +1843,7 @@ class CO2System(UserDict):
         co2a.set_uncertainty(**uncertainty_pre)
         # Final housekeeping: the new CO2System will usually get its icase
         # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  Adjusted systems will get assigned whichever icase the
+        # "__pre".  So adjusted systems here get assigned whichever icase the
         # original system had.  This doesn't affect any calculations, but it
         # does affect __str__ and __repr__.
         # TODO make ^ actually affect __str__ and __repr__
@@ -2030,7 +2034,9 @@ class CO2System(UserDict):
         """
         self_requested = self.requested.copy()
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
-        if self.icase > 100:
+        if self.icase == 102:
+            self_adjusted = self._adjust_102(**kwargs)
+        elif self.icase > 100:
             self_adjusted = self._adjust_2p(**kwargs)
         elif self.icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
