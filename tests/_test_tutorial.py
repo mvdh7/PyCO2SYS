@@ -49,9 +49,6 @@ co2s_insitu = (
 # Adjust fCO2 etc to different temperature
 co2s = pyco2.sys(fco2=400, t=25).adjust(t=5).solve("fco2")
 
-pyco2.sys(dic=2100, ta=2250).adjust(t=15, p=1000).solve("pH")
-# BUG ^ warn bug with __pre terms
-
 
 # %%
 pyco2.sys(dic=2100, ta=2250, t=15, p=1000).solve("pH")
