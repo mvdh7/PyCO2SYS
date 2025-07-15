@@ -6,13 +6,13 @@ def test_IAP_curves():
     co2s.solve(["kt_Mg_calcite_25C_1atm_minprep",
             "kt_Mg_calcite_25C_1atm_biogenic",
             "kt_Mg_calcite_25C_1atm_synthetic",], store_steps=2)
-    #  curve 1
+    #  category 1
     assert np.all(np.isclose(np.log10(co2s.kt_Mg_calcite_25C_1atm_minprep), 
                              [-8.51219119, -8.05063159, -7.27890792]))
-    # curve 2
+    # category 2
     assert np.all(np.isclose(np.log10(co2s.kt_Mg_calcite_25C_1atm_biogenic), 
                              [-8.37659138, -8.30087635, -8.15566151]))
-    # curve 3
+    # category 3
     assert np.all(np.isclose(np.log10(co2s.kt_Mg_calcite_25C_1atm_synthetic), 
                              [-8.50230163, -8.43921642, -8.27062648]))
 

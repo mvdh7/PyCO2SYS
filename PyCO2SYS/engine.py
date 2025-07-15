@@ -130,6 +130,7 @@ get_funcs = {
     "Mg": salts.Mg_reference_composition,
     "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
     # TODO I would like these two options working as well
+    # (note from myself later: whyyyyy????)
     # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
     # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm, 
     # for testing, CAN BE DELETED
@@ -650,10 +651,10 @@ get_funcs_opts["opt_Mg_calcite_type"] = {
     1: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_minprep),
     2: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_biogenic),
     3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
-    4: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_fish),
+    4: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_fish), # TODO remove
 }
 
-get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
+get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = { # TODO order? 
     1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
     2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
     3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
@@ -747,8 +748,8 @@ opts_default = {
     "opt_k_calcite": 1,
     "opt_k_aragonite": 1,
     "opt_fCO2_temperature": 1,
-    "opt_Mg_calcite_type": 2,
-    "opt_Mg_calcite_kt_Tdep": 1,
+    "opt_Mg_calcite_type": 2, # TODO does it need a default at all?
+    "opt_Mg_calcite_kt_Tdep": 1, # TODO should be ideal mixing
 }
 
 # Define labels for parameter plotting
