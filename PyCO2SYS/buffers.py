@@ -26,6 +26,7 @@ def d_dic__d_pH__alkalinity(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -38,6 +39,7 @@ def d_dic__d_pH__alkalinity(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     alkalinity, pH = np.broadcast_arrays(
         alkalinity,
@@ -50,6 +52,7 @@ def d_dic__d_pH__alkalinity(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_H2O,
         k_H2CO3,
         k_HCO3,
@@ -62,6 +65,7 @@ def d_dic__d_pH__alkalinity(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: solve.inorganic.dic_from_alkalinity_pH(
@@ -75,6 +79,7 @@ def d_dic__d_pH__alkalinity(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             k_H2O,
             k_H2CO3,
             k_HCO3,
@@ -87,6 +92,7 @@ def d_dic__d_pH__alkalinity(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )
     )(pH)
 
@@ -102,6 +108,7 @@ def d_alkalinity__d_pH__dic(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -114,6 +121,7 @@ def d_alkalinity__d_pH__dic(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     dic, pH = np.broadcast_arrays(
         dic,
@@ -126,6 +134,7 @@ def d_alkalinity__d_pH__dic(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_H2O,
         k_H2CO3,
         k_HCO3,
@@ -138,6 +147,7 @@ def d_alkalinity__d_pH__dic(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: solve.inorganic.alkalinity_from_dic_pH(
@@ -151,6 +161,7 @@ def d_alkalinity__d_pH__dic(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             k_H2O,
             k_H2CO3,
             k_HCO3,
@@ -163,6 +174,7 @@ def d_alkalinity__d_pH__dic(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )
     )(pH)
 
@@ -178,6 +190,7 @@ def d_lnCO2__d_pH__alkalinity(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_CO2,
     k_H2O,
     k_H2CO3,
@@ -191,6 +204,7 @@ def d_lnCO2__d_pH__alkalinity(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     alkalinity, pH = np.broadcast_arrays(
         alkalinity,
@@ -203,6 +217,7 @@ def d_lnCO2__d_pH__alkalinity(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_CO2,
         k_H2O,
         k_H2CO3,
@@ -216,6 +231,7 @@ def d_lnCO2__d_pH__alkalinity(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: np.log(
@@ -231,6 +247,7 @@ def d_lnCO2__d_pH__alkalinity(
                 total_sulfide,
                 total_sulfate,
                 total_fluoride,
+                total_nitrite,
                 k_CO2,
                 k_H2O,
                 k_H2CO3,
@@ -244,6 +261,7 @@ def d_lnCO2__d_pH__alkalinity(
                 k_H2S,
                 k_HSO4_free,
                 k_HF_free,
+                k_HNO2,
             )
         )
     )(pH)
@@ -269,6 +287,7 @@ def d_CO3__d_pH__alkalinity(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_H2O,
     k_H2CO3,
     k_HCO3,
@@ -281,6 +300,7 @@ def d_CO3__d_pH__alkalinity(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     alkalinity, pH = np.broadcast_arrays(
         alkalinity,
@@ -293,6 +313,7 @@ def d_CO3__d_pH__alkalinity(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_H2O,
         k_H2CO3,
         k_HCO3,
@@ -305,6 +326,7 @@ def d_CO3__d_pH__alkalinity(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: solve.inorganic.CO3_from_alkalinity_pH(
@@ -318,6 +340,7 @@ def d_CO3__d_pH__alkalinity(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             k_H2O,
             k_H2CO3,
             k_HCO3,
@@ -330,6 +353,7 @@ def d_CO3__d_pH__alkalinity(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )
     )(pH)
 
@@ -376,6 +400,7 @@ def d_alkalinity__d_pH__fCO2(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_CO2,
     k_H2O,
     k_H2CO3,
@@ -389,6 +414,7 @@ def d_alkalinity__d_pH__fCO2(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     pH, fCO2 = np.broadcast_arrays(
         pH,
@@ -401,6 +427,7 @@ def d_alkalinity__d_pH__fCO2(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_CO2,
         k_H2O,
         k_H2CO3,
@@ -414,6 +441,7 @@ def d_alkalinity__d_pH__fCO2(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: solve.inorganic.alkalinity_from_pH_fCO2(
@@ -427,6 +455,7 @@ def d_alkalinity__d_pH__fCO2(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             k_CO2,
             k_H2O,
             k_H2CO3,
@@ -440,6 +469,7 @@ def d_alkalinity__d_pH__fCO2(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )
     )(pH)
 
@@ -477,6 +507,7 @@ def d_fCO2__d_pH__alkalinity(
     total_sulfide,
     total_sulfate,
     total_fluoride,
+    total_nitrite,
     k_CO2,
     k_H2O,
     k_H2CO3,
@@ -490,6 +521,7 @@ def d_fCO2__d_pH__alkalinity(
     k_H2S,
     k_HSO4_free,
     k_HF_free,
+    k_HNO2,
 ):
     alkalinity, pH = np.broadcast_arrays(
         alkalinity,
@@ -502,6 +534,7 @@ def d_fCO2__d_pH__alkalinity(
         total_sulfide,
         total_sulfate,
         total_fluoride,
+        total_nitrite,
         k_CO2,
         k_H2O,
         k_H2CO3,
@@ -515,6 +548,7 @@ def d_fCO2__d_pH__alkalinity(
         k_H2S,
         k_HSO4_free,
         k_HF_free,
+        k_HNO2,
     )[:2]
     return egrad(
         lambda pH: solve.inorganic.fCO2_from_alkalinity_pH(
@@ -528,6 +562,7 @@ def d_fCO2__d_pH__alkalinity(
             total_sulfide,
             total_sulfate,
             total_fluoride,
+            total_nitrite,
             k_CO2,
             k_H2O,
             k_H2CO3,
@@ -541,6 +576,7 @@ def d_fCO2__d_pH__alkalinity(
             k_H2S,
             k_HSO4_free,
             k_HF_free,
+            k_HNO2,
         )
     )(pH)
 

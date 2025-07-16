@@ -33,6 +33,8 @@ Switches from Autograd to JAX for automatic differentiation.  Internal mechanism
 
 !!! new-version "Changes in v2.0"
 
+    * Validity range checker implemented.
+    * Nitrous acid equilibrium at 1 atm pressure included.
     * Calculations performed only when needed for specifically requested parameters.
     * Only one combination of known marine carbonate system parameters allowed per calculation.
     * Only one combination of optional settings allowed per calculation.

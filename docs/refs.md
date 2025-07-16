@@ -10,6 +10,9 @@ Click on each reference to see more details.
 ??? note "B76: Berner (1976) *Am. J. Sci.*"
     Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. *American Journal of Science* 276, 713–730. [doi:10.2475/ajs.276.6.713](https://doi.org/10.2475/ajs.276.6.713).
 
+??? note "BBWB24: Borer et al. (2024) *Limnol. Oceanogr.*"
+    Borer, B., Bi, E., Woosley, R. J., and Babbin, A. R. (2024).  Apparent nitrous acid dissociation across environmentally relevant temperatures in freshwater and seawater.  *Limnology and Oceanography* 69, 2859–2866.  [doi:10.1002/lno.12714](https://doi.org/10.1002/lno.12714).
+
 ??? note "BTSP79: Broecker et al. (1979) *Science*"
     Broecker, W. S., Takahashi, T., Simpson, H. J., and Peng, T.-H. (1979). Fate of Fossil Fuel Carbon Dioxide and the Global Carbon Budget. *Science* 206, 409–418. [doi:10.1126/science.206.4417.409](https://doi.org/10.1126/science.206.4417.409).
 
@@ -22,7 +25,7 @@ Click on each reference to see more details.
     Culberson, C., and Pytkowicz, R. M. (1968). Effect of pressure on carbonic acid, boric acid, and the <i>p</i>H in seawater. *Limnology and Oceanography* 13, 403–417. [doi:10.4319/lo.1968.13.3.0403](https://doi.org/10.4319/lo.1968.13.3.0403).
 
 ??? note "CW95: Clegg & Whitfield (1995) *Geochim. Cosmochim. Acta*"
-    Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. *Geochimica et Cosmochimica Acta* 59, 2403–2421. <a href='https://doi.org/10.1016/0016-7037(95)00135-2'>doi:10.1016/0016-7037(95)00135-2</a>.
+    Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. *Geochimica et Cosmochimica Acta* 59, 2403–2421. [doi:10.1016/0016-7037(95)00135-2](https://doi.org/10.1016/0016-7037(95)00135-2).
 
 ??? note "CW98: Cai & Wang (1998) *Limnol. Oceanogr.*"
     Cai, W.-J., and Wang, Y. (1998). The chemistry, fluxes, and sources of carbon dioxide in the estuarine waters of the Satilla and Altamaha Rivers, Georgia. *Limnology and Oceanography* 43, 657–668. [doi:10.4319/lo.1998.43.4.0657](https://doi.org/10.4319/lo.1998.43.4.0657).
@@ -42,7 +45,7 @@ Click on each reference to see more details.
     DOE (1994). *Handbook of methods for the analysis of the various parameters of the carbon dioxide system in sea water, version 2.* ORNL/CDIAC-74.
 
 ??? note "DR79: Dickson & Riley (1979) *Mar. Chem.*"
-    Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. II. The dissociation of phosphoric acid. *Marine Chemistry* 7, 101–109. <a href='https://doi.org/10.1016/0304-4203(79)90002-1'>doi:10.1016/0304-4203(79)90002-1</a>.
+    Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. I. The ionic product of water - K<sub>w</sub>. *Marine Chemistry* 7(2), 89-99. [doi:10.1016/0304-4203(79)90001-X](https://doi.org/10.1016/0304-4203(79)90001-X).
 
 ### E
 

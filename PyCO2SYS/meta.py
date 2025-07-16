@@ -2,6 +2,8 @@
 # Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
+from functools import wraps
+
 import jax
 from jax import numpy as np
 
@@ -22,7 +24,7 @@ authors = " and ".join(authorlist)
 
 def hello():
     print(
-        """
+        f"""
                M.P. Humphreys, A.J. Schiller, D.E. Sandborn,
                 L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
                         E.R. Lewis & D.W.R. Wallace
@@ -30,7 +32,7 @@ def hello():
                              ~~~ present ~~~
 
         PyCO2SYS: marine carbonate system calculations in Python.
-               Version {} :: doi:10.5281/zenodo.3744275
+               Version {version_xyz} :: doi:10.5281/zenodo.3744275
 
 
   Py  CCCC       OOOOO        222        SSS      YY      YY      SSS
@@ -45,7 +47,7 @@ def hello():
    Lasciate ogni speranza, voi ch' entrate!
                                     Dante, Inferno iii, 9
                                     sign on the entrance gates of hell
-""".format(version_xyz)
+"""
     )  # (All hope abandon, ye who enter here!)
 
 
@@ -58,3 +60,18 @@ def egrad(g):
         return x_bar
 
     return wrapped
+
+
+def valid(**kwargs):
+    """Assign valid ranges of arguments."""
+
+    def decorator(func):
+        func.valid = kwargs
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator

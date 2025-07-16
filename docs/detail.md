@@ -57,16 +57,17 @@ Nutrients default to zero if not provided, while other solutes are calculated fr
 
     Some default to zero if not provided:
 
-    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)_3}^-]$).
+    * `total_silicate`: **total silicate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)}_3^-]$).
     * `total_phosphate`: **total phosphate** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]$).
     * `total_ammonia`: **total ammonia** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{NH}_3] + [\mathrm{NH}_4^+]$).
     * `total_sulfide`: **total hydrogen sulfide** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]$).
+    * `total_nitrite`: **total nitrite** in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) ($[\mathrm{HNO}_2] + [\mathrm{NO}_2^-]$).
 
     Others are calculated from salinity if not provided:
 
     * `total_borate`: **total borate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{B(OH)}_3] + [\mathrm{B(OH)}_4^-]$).
     * `total_fluoride`: **total fluoride** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HF}] + [\mathrm{F}^-]$).
-    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^2-]$).
+    * `total_sulfate`: **total sulfate** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{HSO}_4^-] + [\mathrm{SO}_4^{2-}]$).
     * `Ca`: **dissolved calcium** in μmol&nbsp;kg<sup>–1</sup> ($[\mathrm{Ca}^{2+}]$).
 
     If these are provided then their [parameterisation settings](#settings) are ignored.
@@ -166,6 +167,10 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
         * **`1`: [M95](refs.md/#m) (default).**
         * `2`: [M79](refs.md/#m), for GEOSECS compatibility.
         * `3`: [HO58](refs.md/#h) refit by [M79](refs.md/#m), for freshwater.
+    
+    * `opt_k_HNO2`: which parameterisation to use for **nitrous acid dissociation**:
+        * **`1`: [BBWB24](refs.md/#b) for seawater (default).** 
+        * `2`: [BBWB24](refs.md/#b) for freshwater.
 
 #### Other dissociation constant pressure corrections
 
@@ -215,6 +220,7 @@ These settings are ignored if [their values are provided as arguments](#nutrient
         * **`1`: [H24](refs.md/#h) parameterisation (default).**
         * `2`: [TOG93](refs.md/#t) linear fit.
         * `3`: [TOG93](refs.md/#t) quadratic fit.
+    If `1` is selected, then the [H24](refs.md/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs.md/#t) dataset is used instead (see [H24](refs.md/#h)).
 
 ### Equilibrium constants
 
@@ -254,22 +260,24 @@ Settings arguments can be found at `co2s.opts`.  They should not be modified the
     * `CO3`: **carbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * `CO2`: **aqueous CO<sub>2</sub>** in μmol&nbsp;kg<sup>–1</sup>.
-    * `BOH4`: **tetrahydroxyborate** $[\text{B(OH)}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `BOH3`: **boric acid** $[\text{B(OH)}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H3PO4`: **phosphoric acid** $[\text{H}_3\text{PO}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H2PO4`: **dihydrogen phosphate** $[\text{H}_2\text{PO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HPO4`: **monohydrogen phosphate** $[\text{HPO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `PO4`: **phosphate** $[\text{PO}_4^{3-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H4SiO4`: **orthosilicic acid** $[\text{Si(OH)}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H3SiO4`: **trihydrogen orthosilicate** $[\text{SiO(OH)}_3^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `NH3`: **ammonia** $[\text{NH}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `NH4`: **ammonium** $[\text{NH}_4^+]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HS`: **bisulfide** $[\text{HS}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `H2S`: **hydrogen sulfide** $[\text{H}_2\text{S}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HSO4`: **bisulfate** $[\text{HSO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `SO4`: **sulfate** $[\text{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `HF`: **hydrofluoric acid** $[\text{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
-    * `F`: **fluoride** $[\text{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `BOH4`: **tetrahydroxyborate** $[\mathrm{B(OH)}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `BOH3`: **boric acid** $[\mathrm{B(OH)}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H3PO4`: **phosphoric acid** $[\mathrm{H}_3\mathrm{PO}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H2PO4`: **dihydrogen phosphate** $[\mathrm{H}_2\mathrm{PO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HPO4`: **monohydrogen phosphate** $[\mathrm{HPO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `PO4`: **phosphate** $[\mathrm{PO}_4^{3-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H4SiO4`: **orthosilicic acid** $[\mathrm{Si(OH)}_4]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H3SiO4`: **trihydrogen orthosilicate** $[\mathrm{SiO(OH)}_3^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NH3`: **ammonia** $[\mathrm{NH}_3]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NH4`: **ammonium** $[\mathrm{NH}_4^+]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HS`: **bisulfide** $[\mathrm{HS}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `H2S`: **hydrogen sulfide** $[\mathrm{H}_2\mathrm{S}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HSO4`: **bisulfate** $[\mathrm{HSO}_4^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `SO4`: **sulfate** $[\mathrm{SO}_4^{2-}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HF`: **hydrofluoric acid** $[\mathrm{HF}]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `F`: **fluoride** $[\mathrm{F}^-]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `HNO2`: **nitrous acid** $[\mathrm{HNO}_2]$ in μmol&nbsp;kg<sup>–1</sup>.
+    * `NO2`: **nitrite** $[\mathrm{NO}_2^-]$ in μmol&nbsp;kg<sup>–1</sup>.
 
 
 ### Carbonate mineral saturation
@@ -317,7 +325,8 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
     * `k_HPO4`: **third phosphoric acid** dissociation constant.
     * `k_Si`: **silicic acid** dissociation constant.
     * `k_NH3`: **ammonia** equilibrium constant.
-    * `k_H2S`: **hydrogen sulfide** equilibrium constant.
+    * `k_H2S`: **hydrogen sulfide** dissociation constant.
+    * `k_HNO2`: **nitrous acid** dissociation constant.
     <!--* `k_alpha`: **HA** equilibrium constant.-->
     <!--* `k_beta`: **HB** equilibrium constant.-->
 
@@ -325,6 +334,7 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
 
 !!! outputs "Other results"
 
+    * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`.
     * `fugacity_factor`: **fugacity factor** for converting between CO<sub>2</sub> partial pressure and fugacity.
     * `vp_factor`: **vapour pressure factor** for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.    
     * `gas_constant`: **ideal gas constant** in ml bar<sup>−1</sup> mol<sup>−1</sup> K<sup>−1</sup> (note the unusual unit).

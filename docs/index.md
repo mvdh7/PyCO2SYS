@@ -16,9 +16,9 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 ## Installation
 
-!!! warning "Don't follow these instructions"
+!!! warning "Don't follow the instructions below"
 
-    The installation instructions below are not yet active - see the box above if you're here to test PyCO2SYS!
+    The installation instructions below are not yet active - see the box above if you're here to test PyCO2SYS v2!
 
 !!! tip "JAX double precision"
 
@@ -107,6 +107,6 @@ PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](ht
 
 Suggestions for new features, bug reports and contributions to PyCO2SYS are very welcome.  Please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md).
 
-To add a notebook to PyCO2SYS-examples, please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS-examples#contributing) of that repo.
+To add a notebook to PyCO2SYS-examples, please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS-examples#contributing) for that repo.
 
 [^1]: For CO2SYS for MATLAB refer to [LW98](refs.md/#l), [HPR11](refs.md/#h) and [OEDG18](refs.md/#o).
