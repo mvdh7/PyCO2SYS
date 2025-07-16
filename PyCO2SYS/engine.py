@@ -124,7 +124,6 @@ get_funcs = {
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
-    "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
 }
 
 # Define functions for calculations that depend on icase:
@@ -1529,7 +1528,10 @@ class CO2System(UserDict):
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
                 attrs = self.graph.nodes[p]
-                self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                try:
+                    self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                except KeyError:
+                    raise Exception(f"{p} has no associated function in the graph")
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
