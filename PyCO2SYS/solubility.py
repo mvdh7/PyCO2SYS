@@ -149,21 +149,21 @@ def CO3_from_OA(saturation_aragonite, Ca, pk_aragonite):
 @valid(Mg_fraction=[0, 0.22])
 def get_pkt_Mg_calcite_25C_1atm_synthetic(Mg_fraction):
     # Category 3
-    a, b, c, d = -10.47, 8.416, -0.1061, -8.502
+    a, b, c, d = -10.47008999, 8.41626295, -0.10607321, -8.50230163
     return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
 @valid(Mg_fraction=[0, 0.45])
 def get_pkt_Mg_calcite_25C_1atm_biogenic(Mg_fraction):
     # Category 2
-    a, b, c, d = -20.13, 14.02, -1.277, -8.294
+    a, b, c, d = -20.12671951, 14.0201507111, -1.27685236, -8.29393478
     return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
 @valid(Mg_fraction=[0, 0.27])
 def get_pkt_Mg_calcite_25C_1atm_minprep(Mg_fraction):
     # Category 1
-    a, b, c, d = -234.1, 85.75, -1.618, -8.512
+    a, b, c, d = -234.13194855, 85.74778794, -1.61786329, -8.51219119
     return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
