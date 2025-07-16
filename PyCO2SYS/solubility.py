@@ -167,10 +167,6 @@ def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent): # rename?
     # a, b, c, d = -234.1, 85.75, -1.618, -8.512
     return 10 ** (a * Mg_percent**3 + b*Mg_percent**2 + c * Mg_percent + d)
 
-# TODO delete because not officially implemented
-def get_kt_Mg_calcite_25C_1atm_fish(Mg_percent):
-    # fish (Woosley et al. (2012))
-    return 1.0450525594039642e-08
 
 
 
