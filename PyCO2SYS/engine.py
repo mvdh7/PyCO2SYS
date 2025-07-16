@@ -121,8 +121,8 @@ get_funcs = {
     "acf_Ca": solubility.get_activity_coefficient_Ca,
     "acf_Mg": solubility.get_activity_coefficient_Mg,
     "acf_CO3": solubility.get_activity_coefficient_CO3,
-    "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
-    "k_Mg_calcite": solubility.get_k_Mg_calcite,
+    "pk_Mg_calcite_1atm": solubility.get_pk_Mg_calcite_1atm,
+    "pk_Mg_calcite": solubility.get_pk_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
 }
 
@@ -682,15 +682,15 @@ get_funcs_opts["opt_k_aragonite"] = {
 #     ),
 # }
 get_funcs_opts["opt_Mg_calcite_type"] = {
-    1: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_minprep),
-    2: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_biogenic),
-    3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
+    1: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep),
+    2: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_biogenic),
+    3: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_synthetic),
 }
 
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
-    1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
-    2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
-    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
+    1: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_idealmix),
+    2: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_PB82),
+    3: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_vantHoff),
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
@@ -980,16 +980,10 @@ set_node_labels = {
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
     # TODO below not formatted
-    "k_Mg_calcite_1atm": "k_Mg_calcite_1atm",
-    "kt_Mg_calcite_1atm": "kt_Mg_calcite_1atm",
-    "kt_Mg_calcite_25C_1atm_minprep": "kt_Mg_calcite_25C_1atm_minprep",
-    "kt_Mg_calcite_25C_1atm_biogenic": "kt_Mg_calcite_25C_1atm_biogenic",
-    "kt_Mg_calcite_25C_1atm_synthetic": "kt_Mg_calcite_25C_1atm_synthetic",
-    "kt_Mg_calcite_1atm_vantHoff": "kt_Mg_calcite_1atm_vantHoff",
-    "kt_Mg_calcite_1atm_PB82": "kt_Mg_calcite_1atm_PB82",
-    "kt_Mg_calcite_1atm_idealmix": "kt_Mg_calcite_1atm_idealmix",
-    "k_Mg_calcite": "k_Mg_calcite",
-    "kt_Mg_calcite_25C_1atm": "kt_Mg_calcite_25C_1atm",
+    "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
+    "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
+    "pk_Mg_calcite": "pk_Mg_calcite",
+    "pkt_Mg_calcite_25C_1atm": "pkt_Mg_calcite_25C_1atm",
     "d_dic__d_pH__alkalinity": "d_dic__d_pH__alkalinity",
     "d_lnCO2__d_pH__alkalinity": "d_lnCO2__d_pH__alkalinity",
     "d_alkalinity__d_pH__dic": "d_alkalinity__d_pH__dic",

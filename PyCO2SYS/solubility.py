@@ -147,24 +147,24 @@ def CO3_from_OA(saturation_aragonite, Ca, pk_aragonite):
 
 
 @valid(Mg_fraction=[0, 0.22])
-def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_fraction):
+def get_pkt_Mg_calcite_25C_1atm_synthetic(Mg_fraction):
     # Category 3
     a, b, c, d = -10.47, 8.416, -0.1061, -8.502
-    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
+    return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
 @valid(Mg_fraction=[0, 0.45])
-def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_fraction):
+def get_pkt_Mg_calcite_25C_1atm_biogenic(Mg_fraction):
     # Category 2
     a, b, c, d = -20.13, 14.02, -1.277, -8.294
-    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
+    return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
 @valid(Mg_fraction=[0, 0.27])
-def get_kt_Mg_calcite_25C_1atm_minprep(Mg_fraction):
+def get_pkt_Mg_calcite_25C_1atm_minprep(Mg_fraction):
     # Category 1
     a, b, c, d = -234.1, 85.75, -1.618, -8.512
-    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
+    return -(a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
 def _get_deltaH_Mg_calcite(Mg_fraction):
@@ -183,29 +183,27 @@ def _get_Cp_Mg_calcite(Mg_fraction):
     return cp_c_25 - (cp_c_25 - cp_mag_25) * Mg_fraction
 
 
-def _get_kt_calcite_1atm_PB82(temperature):
+def _get_pkt_calcite_1atm_PB82(temperature):
     TempK = convert.celsius_to_kelvin(temperature)
     # temperature dependence of K_calcite according to PB82
-    return 10 ** (
-        -171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK)
-    )
+    return -(-171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK))
 
 
-def _get_kt_magnesite_1atm_B11(temperature):
+def _get_pkt_magnesite_1atm_B11(temperature):
     TempK = convert.celsius_to_kelvin(temperature)
     # temperature dependence of K_magnesite according to B11
-    return 10 ** (7.267 - 1476.604 / TempK - 0.033918 * TempK)
+    return -(7.267 - 1476.604 / TempK - 0.033918 * TempK)
 
 
-def _get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction):
-    ideal_mix = np.log10(_get_kt_magnesite_1atm_B11(temperature)) * Mg_fraction + (
-        np.log10(_get_kt_calcite_1atm_PB82(temperature)) * (1 - Mg_fraction)
+def _get_pkt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction):
+    ideal_mix = _get_pkt_magnesite_1atm_B11(temperature) * Mg_fraction + (
+        _get_pkt_calcite_1atm_PB82(temperature) * (1 - Mg_fraction)
     )
-    return 10 ** (ideal_mix)
+    return ideal_mix
 
 
-def get_kt_Mg_calcite_1atm_vantHoff(
-    temperature, Mg_fraction, gas_constant, kt_Mg_calcite_25C_1atm
+def get_pkt_Mg_calcite_1atm_vantHoff(
+    temperature, Mg_fraction, gas_constant, pkt_Mg_calcite_25C_1atm
 ):
     GasR = gas_constant / 10
     TempK = convert.celsius_to_kelvin(temperature)
@@ -221,32 +219,29 @@ def get_kt_Mg_calcite_1atm_vantHoff(
             / GasR
             * (np.log(TempK / T0) + T0 / TempK - 1)
         )
-        * kt_Mg_calcite_25C_1atm
+        * 10**-pkt_Mg_calcite_25C_1atm
     )
-    return kt_Mg_calcite_1atm
+    return -np.log10(kt_Mg_calcite_1atm)
 
 
-def get_kt_Mg_calcite_1atm_idealmix(temperature, kt_Mg_calcite_25C_1atm, Mg_fraction):
+def get_pkt_Mg_calcite_1atm_idealmix(temperature, pkt_Mg_calcite_25C_1atm, Mg_fraction):
     # uses temperature dependence of logK(calcite) from PB82
     # uses temperature dependence of logK(magnesite) from B11
     # assumes ideal solid solution
-    delta = np.log10(_get_kt_calcite_magnesite_idealmix_1atm(25, Mg_fraction)) - (
-        np.log10(kt_Mg_calcite_25C_1atm)
+    delta = pkt_Mg_calcite_25C_1atm - _get_pkt_calcite_magnesite_idealmix_1atm(
+        25, Mg_fraction
     )
-    kt_Mg_calcite_1atm = 10 ** (
-        np.log10(_get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction))
-        - delta
+    pkt_Mg_calcite_1atm = (
+        _get_pkt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction) + delta
     )
-    return kt_Mg_calcite_1atm
+    return pkt_Mg_calcite_1atm
 
 
-def get_kt_Mg_calcite_1atm_PB82(temperature, kt_Mg_calcite_25C_1atm):
+def get_pkt_Mg_calcite_1atm_PB82(temperature, pkt_Mg_calcite_25C_1atm):
     # uses temperature dependence of logK(calcite) from PB82
-    delta = np.log10(_get_kt_calcite_1atm_PB82(25)) - (np.log10(kt_Mg_calcite_25C_1atm))
-    kt_Mg_calcite_1atm = 10 ** (
-        np.log10(_get_kt_calcite_1atm_PB82(temperature)) - delta
-    )
-    return kt_Mg_calcite_1atm
+    delta = pkt_Mg_calcite_25C_1atm - _get_pkt_calcite_1atm_PB82(25)
+    pkt_Mg_calcite_1atm = _get_pkt_calcite_1atm_PB82(temperature) + delta
+    return pkt_Mg_calcite_1atm
 
 
 # parameters for different ions,
@@ -328,16 +323,16 @@ def get_activity_coefficient_CO3(salinity, temperature):
     return _get_activity_coefficient(salinity, temperature, acf_params_CO3)
 
 
-def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_fraction, kt_Mg_calcite_1atm):
+def get_pk_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_fraction, pkt_Mg_calcite_1atm):
     # calculate stoichiometric K*
-    k_Mg_calcite_1atm = kt_Mg_calcite_1atm / (
+    k_Mg_calcite_1atm = 10**-pkt_Mg_calcite_1atm / (
         acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
     )
-    return k_Mg_calcite_1atm
+    return -np.log10(k_Mg_calcite_1atm)
 
 
-def get_k_Mg_calcite(
-    pressure, temperature, Mg_fraction, gas_constant, k_Mg_calcite_1atm
+def get_pk_Mg_calcite(
+    pressure, temperature, Mg_fraction, gas_constant, pk_Mg_calcite_1atm
 ):
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
@@ -354,9 +349,11 @@ def get_k_Mg_calcite(
         * Pbar
         / (gas_constant * TempK)
     )
-    k_Mg_calcite = k_Mg_calcite_1atm * np.exp(ln_K_K)
-    return k_Mg_calcite
+    k_Mg_calcite = 10**-pk_Mg_calcite_1atm * np.exp(ln_K_K)
+    return -np.log10(k_Mg_calcite)
 
 
-def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_fraction, k_Mg_calcite):
-    return 1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / k_Mg_calcite
+def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_fraction, pk_Mg_calcite):
+    return (
+        1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / 10**-pk_Mg_calcite
+    )

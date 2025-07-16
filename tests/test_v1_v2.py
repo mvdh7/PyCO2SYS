@@ -97,17 +97,11 @@ def test_v1_v2():
         "acf_Ca",
         "acf_Mg",
         "acf_CO3",
-        "k_Mg_calcite",
+        "pk_Mg_calcite",
         "saturation_Mg_calcite",
         "total_nitrite",
         "HNO2",
         "NO2",
-        "kt_Mg_calcite_25C_1atm_minprep",
-        "kt_Mg_calcite_25C_1atm_biogenic",
-        "kt_Mg_calcite_25C_1atm_synthetic",
-        "kt_Mg_calcite_1atm_vantHoff",
-        "kt_Mg_calcite_1atm_PB82",
-        "kt_Mg_calcite_1atm_idealmix",
         "pk_HNO2",
     ]
     # This converts keys for values that have a different name in v1 and v2
