@@ -115,17 +115,6 @@ get_funcs = {
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
     "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
-    # TODO I would like these two options working as well
-    # (note from myself later: whyyyyy????)
-    # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
-    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm,
-    # for testing, CAN BE DELETED
-    "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
-    "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
-    "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
-    "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
-    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
-    "kt_Mg_calcite_1atm_idealmix": solubility.get_kt_Mg_calcite_1atm_idealmix,
 }
 
 # Define functions for calculations that depend on icase:
