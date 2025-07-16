@@ -31,7 +31,7 @@ def options_old2new(KSO4CONSTANTS):
 
 # Import MATLAB results and recalculate with PyCO2SYS
 matlab = pd.read_csv(
-    "tests/manuscript/results/compare_equilibrium_constants_v2_0_5.csv"
+    "tests/manuscript_2022/results/compare_equilibrium_constants_v2_0_5.csv"
 )
 matlab["opt_k_bisulfate"], matlab["opt_total_borate"] = options_old2new(
     matlab.KSO4CONSTANTS.values
