@@ -124,16 +124,6 @@ get_funcs = {
     "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
     "k_Mg_calcite": solubility.get_k_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
-    # TODO I would like these two options working
-    # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
-    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm,
-    # for testing, can be deleted
-    "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
-    "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
-    "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
-    "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
-    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
-    "kt_Mg_calcite_1atm_idealmix": solubility.get_kt_Mg_calcite_1atm_idealmix,
 }
 
 # Define functions for calculations that depend on icase:
@@ -698,9 +688,9 @@ get_funcs_opts["opt_Mg_calcite_type"] = {
 }
 
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
-    1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
+    1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
     2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
-    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
+    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
@@ -1538,7 +1528,10 @@ class CO2System(UserDict):
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
                 attrs = self.graph.nodes[p]
-                self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                try:
+                    self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                except KeyError:
+                    raise Exception(f"{p} has no associated function in the graph")
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
