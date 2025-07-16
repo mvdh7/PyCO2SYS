@@ -1,5 +1,6 @@
 # %%
 import glodap
+import networkx as nx
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -48,12 +49,10 @@ co2s_insitu = (
 
 # Adjust fCO2 etc to different temperature
 co2s = pyco2.sys(fco2=400, t=25).adjust(t=5).solve("fco2")
-
-
-# %%
 pyco2.sys(dic=2100, ta=2250, t=15, p=1000).solve("pH")
 
-# Propagate uncertainties
+
+# %% Propagate uncertainties
 co2s = (
     pyco2.sys(
         dic=2100,
@@ -64,11 +63,13 @@ co2s = (
         total_borate=300,
     )
     .set_u(dic=2, ph=0.005, **pyco2.uncertainty_OEDG18)
-    # .solve("pco2")
+    # .solve("ta")
     .prop("ta")
 )
-co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="valid")
+co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="state")
 # BUG ^ pKs coming up orange in state graph?
+# co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="valid")
+# # BUG ^ ionic_strength KeyError
 
 # %%
 gatl = glodap.atlantic().drop(columns="fco2")
