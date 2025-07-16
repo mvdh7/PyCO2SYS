@@ -4,7 +4,7 @@ import PyCO2SYS as pyco2
 
 
 def test_IAP_curves():
-    co2s = pyco2.sys(Mg_percent=[0, 10, 20])
+    co2s = pyco2.sys(Mg_fraction=[0, 0.1, 0.2])
     co2s.solve(
         [
             "kt_Mg_calcite_25C_1atm_minprep",
@@ -39,7 +39,7 @@ def test_IAP_curves():
 def test_temperature_correction():
     # TODO add ideal_mix tests
     # which temperature correction leads to higher solubility at same T?
-    co2s = pyco2.sys(Mg_percent=15, temperature=[20, 30], opt_Mg_calcite_type=3)
+    co2s = pyco2.sys(Mg_fraction=0.15, temperature=[20, 30], opt_Mg_calcite_type=3)
     co2s.solve(
         ["kt_Mg_calcite_1atm_vantHoff", "kt_Mg_calcite_1atm_PB82"], store_steps=2
     )
@@ -50,7 +50,7 @@ def test_temperature_correction():
         co2s.kt_Mg_calcite_1atm_PB82[1]
     )
     # how does van't Hoff compare to the PB82 calcite line?
-    co2s = pyco2.sys(Mg_percent=3, temperature=[17, 21], opt_Mg_calcite_type=3)
+    co2s = pyco2.sys(Mg_fraction=0.03, temperature=[17, 21], opt_Mg_calcite_type=3)
     co2s.solve(
         ["kt_Mg_calcite_1atm_vantHoff", "kt_Mg_calcite_1atm_PB82"], store_steps=2
     )
@@ -64,7 +64,7 @@ def test_temperature_correction():
     ) < -171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK)
     # same value at 298.15K?
     co2s = pyco2.sys(
-        Mg_percent=np.arange(0, 20, 2), temperature=[25], opt_Mg_calcite_type=2
+        Mg_fraction=np.arange(0, 0.2, 0.02), temperature=[25], opt_Mg_calcite_type=2
     )
     co2s.solve(
         ["kt_Mg_calcite_1atm_vantHoff", "kt_Mg_calcite_1atm_PB82"], store_steps=2
@@ -80,7 +80,7 @@ def test_activity_coefficients():
         dic=2000,
         alkalinity=2200,
         opt_Mg_calcite_type=2,
-        Mg_percent=20,
+        Mg_fraction=0.2,
         opt_Mg_calcite_kt_Tdep=2,
         temperature=[0, 30, 0, 30],
         salinity=[20, 20, 40, 40],
@@ -118,7 +118,7 @@ def test_pressure_correction():
         dic=2100,
         alkalinity=2200,
         opt_Mg_calcite_type=3,
-        Mg_percent=0,
+        Mg_fraction=0,
         opt_Mg_calcite_kt_Tdep=2,
         temperature=5,
         salinity=35,

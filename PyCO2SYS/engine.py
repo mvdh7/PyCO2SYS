@@ -769,7 +769,7 @@ parameters_core = (
 )
 
 values_default = {
-    "Mg_percent": 0.0,  # %
+    "Mg_fraction": 0.0,
     "pressure_atmosphere": 1.0,  # atm
     "pressure": 0.0,  # dbar
     "salinity": 35.0,
@@ -816,7 +816,7 @@ condition_independent = (
     "dic",
     "gas_constant",
     "ionic_strength",
-    "Mg_percent",
+    "Mg_fraction",
     "pressure_atmosphere",
     "salinity",
     "total_ammonia",
@@ -935,7 +935,7 @@ set_node_labels = {
     "pk_Si_sws_1atm": r"p$K_\mathrm{Si}^\mathrm{S0}$",
     "pk_Si_sws": r"p$K_\mathrm{Si}^\mathrm{S}$",
     "pk_Si": r"p$K_\mathrm{Si}^*$",
-    "Mg_percent": "Mg%",
+    "Mg_fraction": "Mg fraction",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
     "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "NH3": r"$[\mathrm{NH}_3]$",

@@ -146,50 +146,41 @@ def CO3_from_OA(saturation_aragonite, Ca, pk_aragonite):
     return 1e12 * saturation_aragonite * 10**-pk_aragonite / Ca
 
 
-@valid(Mg_percent=[0, 22])
-def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):  # rename?
+@valid(Mg_fraction=[0, 0.22])
+def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_fraction):
     # Category 3
-    # TODO currently not like in paper (Mg content instead of fraction)
-    a, b, c, d = -1.04700900e-05, 8.41626295e-04, -1.06073211e-03, -8.50230163e00
-    # fractions
-    # a, b, c, d = -10.47, 8.416, -0.1061, -8.502
-    return 10 ** (a * Mg_percent**3 + b * Mg_percent**2 + c * Mg_percent + d)
+    a, b, c, d = -10.47, 8.416, -0.1061, -8.502
+    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
-@valid(Mg_percent=[0, 45])
-def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):  # rename?
+@valid(Mg_fraction=[0, 0.45])
+def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_fraction):
     # Category 2
-    a, b, c, d = -9.56525687e-06, 6.34456760e-04, 2.18346079e-03, -8.37659138e00
-    # TODO for fraction (also slightly different... I wonder why?)
-    # a, b, c, d = -20.13, 14.02, -1.277, -8.294
-    return 10 ** (a * Mg_percent**3 + b * Mg_percent**2 + c * Mg_percent + d)
+    a, b, c, d = -20.13, 14.02, -1.277, -8.294
+    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
-@valid(Mg_percent=[0, 27])
-def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):  # rename?
+@valid(Mg_fraction=[0, 0.27])
+def get_kt_Mg_calcite_25C_1atm_minprep(Mg_fraction):
     # Category 1
-    a, b, c, d = -2.34131949e-04, 8.57477879e-03, -1.61786329e-02, -8.51219119e00
-    # TODO for fractions
-    # a, b, c, d = -234.1, 85.75, -1.618, -8.512
-    return 10 ** (a * Mg_percent**3 + b * Mg_percent**2 + c * Mg_percent + d)
+    a, b, c, d = -234.1, 85.75, -1.618, -8.512
+    return 10 ** (a * Mg_fraction**3 + b * Mg_fraction**2 + c * Mg_fraction + d)
 
 
-def _get_deltaH_Mg_calcite(Mg_percent):
+def _get_deltaH_Mg_calcite(Mg_fraction):
     # enthalpy deltaH based on Mg content
     # ideal solid solution line between dH_calcite (0% Mg) and dH_magnesite (100% Mg)
-    # TODO fraction
     deltaH_c_25 = -13.07  # RH95
     deltaH_mag_25 = -28.9  # RH95
-    return deltaH_c_25 - (deltaH_c_25 - deltaH_mag_25) / 100 * Mg_percent
+    return deltaH_c_25 - (deltaH_c_25 - deltaH_mag_25) * Mg_fraction
 
 
-def _get_Cp_Mg_calcite(Mg_percent):
+def _get_Cp_Mg_calcite(Mg_fraction):
     # heat capacity Cp based on Mg content
     # ideal solid solution line between Cp of calcite and Cp of Magnesite at 25C
-    # TODO fraction
     cp_c_25 = 81.88  # NBS
     cp_mag_25 = 75.52  # NBS
-    return cp_c_25 - (cp_c_25 - cp_mag_25) / 100 * Mg_percent
+    return cp_c_25 - (cp_c_25 - cp_mag_25) * Mg_fraction
 
 
 def _get_kt_calcite_1atm_PB82(temperature):
@@ -206,29 +197,27 @@ def _get_kt_magnesite_1atm_B11(temperature):
     return 10 ** (7.267 - 1476.604 / TempK - 0.033918 * TempK)
 
 
-def _get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_percent):
-    # TODO fraction
-    ideal_mix = np.log10(_get_kt_magnesite_1atm_B11(temperature)) * Mg_percent / 100 + (
-        np.log10(_get_kt_calcite_1atm_PB82(temperature)) * (1 - (Mg_percent / 100))
+def _get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction):
+    ideal_mix = np.log10(_get_kt_magnesite_1atm_B11(temperature)) * Mg_fraction + (
+        np.log10(_get_kt_calcite_1atm_PB82(temperature)) * (1 - Mg_fraction)
     )
     return 10 ** (ideal_mix)
 
 
 def get_kt_Mg_calcite_1atm_vantHoff(
-    temperature, Mg_percent, gas_constant, kt_Mg_calcite_25C_1atm
+    temperature, Mg_fraction, gas_constant, kt_Mg_calcite_25C_1atm
 ):
-    # TODO fraction
     GasR = gas_constant / 10
     TempK = convert.celsius_to_kelvin(temperature)
     T0 = 298.15  # standard temperature is 25C
     kt_Mg_calcite_1atm = (
         np.exp(
             (
-                (-_get_deltaH_Mg_calcite(Mg_percent) * 1000)
+                (-_get_deltaH_Mg_calcite(Mg_fraction) * 1000)
                 / GasR
                 * (1 / (TempK) - 1 / (T0))
             )
-            - _get_Cp_Mg_calcite(Mg_percent)
+            - _get_Cp_Mg_calcite(Mg_fraction)
             / GasR
             * (np.log(TempK / T0) + T0 / TempK - 1)
         )
@@ -237,16 +226,15 @@ def get_kt_Mg_calcite_1atm_vantHoff(
     return kt_Mg_calcite_1atm
 
 
-def get_kt_Mg_calcite_1atm_idealmix(temperature, kt_Mg_calcite_25C_1atm, Mg_percent):
+def get_kt_Mg_calcite_1atm_idealmix(temperature, kt_Mg_calcite_25C_1atm, Mg_fraction):
     # uses temperature dependence of logK(calcite) from PB82
     # uses temperature dependence of logK(magnesite) from B11
     # assumes ideal solid solution
-    # TODO fraction
-    delta = np.log10(_get_kt_calcite_magnesite_idealmix_1atm(25, Mg_percent)) - (
+    delta = np.log10(_get_kt_calcite_magnesite_idealmix_1atm(25, Mg_fraction)) - (
         np.log10(kt_Mg_calcite_25C_1atm)
     )
     kt_Mg_calcite_1atm = 10 ** (
-        np.log10(_get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_percent))
+        np.log10(_get_kt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction))
         - delta
     )
     return kt_Mg_calcite_1atm
@@ -340,10 +328,8 @@ def get_activity_coefficient_CO3(salinity, temperature):
     return _get_activity_coefficient(salinity, temperature, acf_params_CO3)
 
 
-def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1atm):
+def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_fraction, kt_Mg_calcite_1atm):
     # calculate stoichiometric K*
-    # TODO fraction?
-    Mg_fraction = Mg_percent / 100
     k_Mg_calcite_1atm = kt_Mg_calcite_1atm / (
         acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
     )
@@ -351,15 +337,14 @@ def get_k_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_percent, kt_Mg_calcite_1at
 
 
 def get_k_Mg_calcite(
-    pressure, temperature, Mg_percent, gas_constant, k_Mg_calcite_1atm
+    pressure, temperature, Mg_fraction, gas_constant, k_Mg_calcite_1atm
 ):
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
     deltaV_Ca, deltaK_Ca = _deltaKappaCalcite_I75(temperature)  # from PyCO2Sys
     # get ∆V for Mg content
-    # TODO change to fraction??
     deltaV_Mg_calcite = (
-        deltaV_Ca + 0.0892 * Mg_percent
+        deltaV_Ca + 8.92 * Mg_fraction
     )  # sources for this fit: B85, RB62, PR90, A77
     # get ∆K
     deltaK_Mg_calcite = deltaK_Ca
@@ -373,6 +358,5 @@ def get_k_Mg_calcite(
     return k_Mg_calcite
 
 
-def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_percent, k_Mg_calcite):
-    Mg_fraction = Mg_percent / 100
+def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_fraction, k_Mg_calcite):
     return 1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / k_Mg_calcite

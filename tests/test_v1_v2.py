@@ -92,7 +92,7 @@ def test_v1_v2():
         "d_alkalinity__d_pH__dic",
         "d_lnOmega__d_CO3",
         "d_alkalinity__d_pH__fCO2",
-        "Mg_percent",
+        "Mg_fraction",
         "Mg",
         "acf_Ca",
         "acf_Mg",
