@@ -118,7 +118,7 @@ get_funcs = {
     # TODO I would like these two options working as well
     # (note from myself later: whyyyyy????)
     # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
-    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm, 
+    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm,
     # for testing, CAN BE DELETED
     "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
     "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
@@ -689,7 +689,7 @@ get_funcs_opts["opt_Mg_calcite_type"] = {
     3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
 }
 
-get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = { 
+get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
     1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
     2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
     3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
@@ -809,8 +809,6 @@ opts_default = {
     "opt_Mg_calcite_type": 2,
     "opt_pH_scale": 1,
     "opt_total_borate": 1,
-    "opt_Mg_calcite_type": 2,
-    "opt_Mg_calcite_kt_Tdep": 1, # TODO should be ideal mixing
 }
 
 # Parameters that do not change between input and output conditions
