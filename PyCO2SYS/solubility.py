@@ -146,7 +146,7 @@ def CO3_from_OA(saturation_aragonite, Ca, pk_aragonite):
     return 1e12 * saturation_aragonite * 10**-pk_aragonite / Ca
 
 
-# @valid(Mg_percent=[0,22])
+@valid(Mg_percent=[0, 22])
 def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):  # rename?
     # Category 3
     # TODO currently not like in paper (Mg content instead of fraction)
@@ -156,7 +156,7 @@ def get_kt_Mg_calcite_25C_1atm_synthetic(Mg_percent):  # rename?
     return 10 ** (a * Mg_percent**3 + b * Mg_percent**2 + c * Mg_percent + d)
 
 
-# @valid(Mg_percent=[0,45])
+@valid(Mg_percent=[0, 45])
 def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):  # rename?
     # Category 2
     a, b, c, d = -9.56525687e-06, 6.34456760e-04, 2.18346079e-03, -8.37659138e00
@@ -165,7 +165,7 @@ def get_kt_Mg_calcite_25C_1atm_biogenic(Mg_percent):  # rename?
     return 10 ** (a * Mg_percent**3 + b * Mg_percent**2 + c * Mg_percent + d)
 
 
-# @valid(Mg_percent=[0,27])
+@valid(Mg_percent=[0, 27])
 def get_kt_Mg_calcite_25C_1atm_minprep(Mg_percent):  # rename?
     # Category 1
     a, b, c, d = -2.34131949e-04, 8.57477879e-03, -1.61786329e-02, -8.51219119e00
