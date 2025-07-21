@@ -1490,13 +1490,17 @@ class CO2System(UserDict):
            gas_constant | Universal gas constant (ml/bar/mol/K).
         """
         # Parse user-provided parameters (if there are any)
+        parameters_user = None
         if parameters is None:
             # If no parameters are provided, then we solve for everything
             # possible
             parameters = list(self.graph.nodes)
+            parameters_user = []
         elif isinstance(parameters, str):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
+        if parameters_user is None:
+            parameters_user = parameters.copy()
         parameters = [shortcuts[p.lower()] for p in parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
@@ -1539,19 +1543,20 @@ class CO2System(UserDict):
                         and not (p.startswith("pk_") and p.endswith("_sws__pre"))
                         and not p.endswith("_1atm")
                         and not p.endswith("_1atm__pre")
-                        and p
-                        not in [
-                            "sws_to_opt",
-                            "sws_to_opt__pre",
-                            "opt_to_free",
-                            "opt_to_free__pre",
-                            "ionic_strength",
-                        ]
+                        and (
+                            p
+                            not in [
+                                "sws_to_opt",
+                                "sws_to_opt__pre",
+                                "opt_to_free",
+                                "opt_to_free__pre",
+                            ]
+                        )
                     )
                     # If store_steps is 2, store everything
                     | (store_steps == 2)
                     # If p is in the list of requested parameters, store it
-                    | (p in parameters)
+                    | (p in parameters_user)
                 )
                 if store_here:
                     store_parameters.append(p)
