@@ -2984,8 +2984,20 @@ def sys(data=None, **kwargs):
                 warn(f"`{k}` is not scalar, so only the first value will be used.")
             if isinstance(kwargs_data[k], float):
                 kwargs_data[k] = int(kwargs_data[k])
-        # Convert ints to floats for non-opts
+        # For non-opts
         else:
+            # Downgrade pd.Series and xr.DataArray to numpy arrays without
+            # importing pandas or xarray---but the user should avoid doing this
+            # because it doesn't take care of indices properly
+            try:
+                _ = kwargs_data[k].values
+                raise Exception(
+                    f"`{k}` provided as a `pd.Series` or `xr.DataArray`, "
+                    + "which is not allowed."
+                )
+            except AttributeError:
+                pass
+            # Convert ints to floats
             if isinstance(kwargs_data[k], int):
                 kwargs_data[k] = float(kwargs_data[k])
             elif hasattr(kwargs_data[k], "dtype"):
@@ -3000,7 +3012,7 @@ def sys(data=None, **kwargs):
                 and not k.startswith("pk_")
                 and not k.startswith("pkt_")
             ):
-                kwargs_data[k] = np.where(v < 0, np.nan, v)
+                kwargs_data[k] = np.where(kwargs_data[k] < 0, np.nan, kwargs_data[k])
     return CO2System(
         pd_index=pd_index,
         xr_dims=xr_dims,

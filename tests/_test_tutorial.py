@@ -84,7 +84,6 @@ co2s = pyco2.sys(data=gatl, nitrite=0)  # .solve("pH")
 # gatl["wtf"] = gatl.tco2.copy()
 # gatl = gatl.drop(columns="tco2")
 co2s = pyco2.sys(temperature=gatl.temperature)
-# BUG ^ should reject Series / DataArrays at this point
 
 # %%
 t = xr.DataArray([5, 10, 15], dims="t")
