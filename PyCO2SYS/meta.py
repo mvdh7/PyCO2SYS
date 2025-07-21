@@ -7,10 +7,11 @@ from functools import wraps
 import jax
 from jax import numpy as np
 
-version = "2.0.0-b2"
-version_xyz = "2.0.0-b2"
+version = "2.0.0-b3"
+version_xyz = "2.0.0-b3"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Cala, Ben A.",
     "Schiller, Abigail J.",
     "Sandborn, Daniel E.",
     "Gregor, Luke",
@@ -25,7 +26,7 @@ authors = " and ".join(authorlist)
 def hello():
     print(
         f"""
-               M.P. Humphreys, A.J. Schiller, D.E. Sandborn,
+          M.P. Humphreys, B.A. Cala, A.J. Schiller, D.E. Sandborn,
                 L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
                         E.R. Lewis & D.W.R. Wallace
 

@@ -121,19 +121,9 @@ get_funcs = {
     "acf_Ca": solubility.get_activity_coefficient_Ca,
     "acf_Mg": solubility.get_activity_coefficient_Mg,
     "acf_CO3": solubility.get_activity_coefficient_CO3,
-    "k_Mg_calcite_1atm": solubility.get_k_Mg_calcite_1atm,
-    "k_Mg_calcite": solubility.get_k_Mg_calcite,
+    "pk_Mg_calcite_1atm": solubility.get_pk_Mg_calcite_1atm,
+    "pk_Mg_calcite": solubility.get_pk_Mg_calcite,
     "Mg": salts.Mg_reference_composition,
-    # TODO I would like these two options working
-    # "kt_Mg_calcite_25C_1atm": solubility.kt_Mg_calcite_25C_1atm,
-    # "kt_Mg_calcite_1atm": solubility.kt_Mg_calcite_1atm,
-    # for testing, can be deleted
-    "kt_Mg_calcite_25C_1atm_minprep": solubility.get_kt_Mg_calcite_25C_1atm_minprep,
-    "kt_Mg_calcite_25C_1atm_biogenic": solubility.get_kt_Mg_calcite_25C_1atm_biogenic,
-    "kt_Mg_calcite_25C_1atm_synthetic": solubility.get_kt_Mg_calcite_25C_1atm_synthetic,
-    "kt_Mg_calcite_1atm_vantHoff": solubility.get_kt_Mg_calcite_1atm_vantHoff,
-    "kt_Mg_calcite_1atm_PB82": solubility.get_kt_Mg_calcite_1atm_PB82,
-    "kt_Mg_calcite_1atm_idealmix": solubility.get_kt_Mg_calcite_1atm_idealmix,
 }
 
 # Define functions for calculations that depend on icase:
@@ -692,15 +682,15 @@ get_funcs_opts["opt_k_aragonite"] = {
 #     ),
 # }
 get_funcs_opts["opt_Mg_calcite_type"] = {
-    1: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_minprep),
-    2: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_biogenic),
-    3: dict(kt_Mg_calcite_25C_1atm=solubility.get_kt_Mg_calcite_25C_1atm_synthetic),
+    1: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep),
+    2: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_biogenic),
+    3: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_synthetic),
 }
 
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
-    1: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_vantHoff),
-    2: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_PB82),
-    3: dict(kt_Mg_calcite_1atm=solubility.get_kt_Mg_calcite_1atm_idealmix),
+    1: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_idealmix),
+    2: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_PB82),
+    3: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_vantHoff),
 }
 
 # Automatically set up graph for calculations that depend neither on icase nor opts
@@ -779,7 +769,7 @@ parameters_core = (
 )
 
 values_default = {
-    "Mg_percent": 0.0,  # %
+    "Mg_fraction": 0.0,
     "pressure_atmosphere": 1.0,  # atm
     "pressure": 0.0,  # dbar
     "salinity": 35.0,
@@ -826,7 +816,7 @@ condition_independent = (
     "dic",
     "gas_constant",
     "ionic_strength",
-    "Mg_percent",
+    "Mg_fraction",
     "pressure_atmosphere",
     "salinity",
     "total_ammonia",
@@ -945,7 +935,7 @@ set_node_labels = {
     "pk_Si_sws_1atm": r"p$K_\mathrm{Si}^\mathrm{S0}$",
     "pk_Si_sws": r"p$K_\mathrm{Si}^\mathrm{S}$",
     "pk_Si": r"p$K_\mathrm{Si}^*$",
-    "Mg_percent": "Mg%",
+    "Mg_fraction": "Mg fraction",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
     "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "NH3": r"$[\mathrm{NH}_3]$",
@@ -990,16 +980,10 @@ set_node_labels = {
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
     # TODO below not formatted
-    "k_Mg_calcite_1atm": "k_Mg_calcite_1atm",
-    "kt_Mg_calcite_1atm": "kt_Mg_calcite_1atm",
-    "kt_Mg_calcite_25C_1atm_minprep": "kt_Mg_calcite_25C_1atm_minprep",
-    "kt_Mg_calcite_25C_1atm_biogenic": "kt_Mg_calcite_25C_1atm_biogenic",
-    "kt_Mg_calcite_25C_1atm_synthetic": "kt_Mg_calcite_25C_1atm_synthetic",
-    "kt_Mg_calcite_1atm_vantHoff": "kt_Mg_calcite_1atm_vantHoff",
-    "kt_Mg_calcite_1atm_PB82": "kt_Mg_calcite_1atm_PB82",
-    "kt_Mg_calcite_1atm_idealmix": "kt_Mg_calcite_1atm_idealmix",
-    "k_Mg_calcite": "k_Mg_calcite",
-    "kt_Mg_calcite_25C_1atm": "kt_Mg_calcite_25C_1atm",
+    "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
+    "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
+    "pk_Mg_calcite": "pk_Mg_calcite",
+    "pkt_Mg_calcite_25C_1atm": "pkt_Mg_calcite_25C_1atm",
     "d_dic__d_pH__alkalinity": "d_dic__d_pH__alkalinity",
     "d_lnCO2__d_pH__alkalinity": "d_lnCO2__d_pH__alkalinity",
     "d_alkalinity__d_pH__dic": "d_alkalinity__d_pH__dic",
@@ -1361,34 +1345,31 @@ class CO2System(UserDict):
         raise RuntimeError("Item assignment is not supported.")
 
     def _parse_data(self, data):
-        # Save arguments
-        to_remove = []
+        # Ignore unrecognised arguments
+        to_ignore = []
         for k, v in data.items():
             if v is not None:
                 if k in self.graph.nodes:
                     # state 1 means that the value was provided as an argument
                     nx.set_node_attributes(self.graph, {k: 1}, name="state")
                 else:
-                    # TODO need to rethink how it is judged whether a value is
-                    # allowed here --- things that are not part of the graph
-                    # but that could be added as an isolated element should be
-                    # kept?
-                    to_remove.append(k)
-        for k in to_remove:
+                    to_ignore.append(k)
+        for k in to_ignore:
             data.pop(k)
-        if len(to_remove) > 0:
+        if len(to_ignore) > 0:
             warn(
                 "Some parameters were not recognised or not valid for this"
                 + " combination of known carbonate system parameters and are"
                 + " being ignored (see `CO2System.ignored`)"
             )
-        self.ignored += to_remove
+        self.ignored += to_ignore
         # Assign default values
         for k, v in values_default.items():
             if k not in data and k in self.graph.nodes:
                 data[k] = v
                 nx.set_node_attributes(self.graph, {k: 1}, name="state")
         self.nodes_original = list(k for k, v in data.items() if v is not None)
+        # Store provided data
         self.data = data
 
     def solve(self, parameters=None, store_steps=1):
@@ -1509,13 +1490,17 @@ class CO2System(UserDict):
            gas_constant | Universal gas constant (ml/bar/mol/K).
         """
         # Parse user-provided parameters (if there are any)
+        parameters_user = None
         if parameters is None:
             # If no parameters are provided, then we solve for everything
             # possible
             parameters = list(self.graph.nodes)
+            parameters_user = []
         elif isinstance(parameters, str):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
+        if parameters_user is None:
+            parameters_user = list(parameters).copy()
         parameters = [shortcuts[p.lower()] for p in parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
@@ -1541,31 +1526,37 @@ class CO2System(UserDict):
             priors = self.graph.pred[p]
             if len(priors) == 0 or all([r in self_data for r in priors]):
                 attrs = self.graph.nodes[p]
-                self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                try:
+                    self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                except KeyError:
+                    raise Exception(f"{p} has no associated function in the graph")
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
+                    # If store_steps is 1, store all but the equilibrium constants
+                    # on the seawater scale, at 1 atm and their pressure-correction
+                    # factors, and a few selected others
                     | (
-                        # If store_steps is 1, store all but the equilibrium constants
-                        # on the seawater scale, at 1 atm and their pressure-correction
-                        # factors, and a few selected others
                         store_steps == 1
                         and not p.startswith("factor_k_")
                         and not (p.startswith("pk_") and p.endswith("_sws"))
                         and not (p.startswith("pk_") and p.endswith("_sws__pre"))
                         and not p.endswith("_1atm")
                         and not p.endswith("_1atm__pre")
-                        and p
-                        not in [
-                            "sws_to_opt",
-                            "sws_to_opt__pre",
-                            "opt_to_free",
-                            "opt_to_free__pre",
-                            "ionic_strength",
-                        ]
+                        and (
+                            p
+                            not in [
+                                "sws_to_opt",
+                                "sws_to_opt__pre",
+                                "opt_to_free",
+                                "opt_to_free__pre",
+                            ]
+                        )
                     )
-                    |  # If store_steps is 2, store everything
-                    (store_steps == 2)
+                    # If store_steps is 2, store everything
+                    | (store_steps == 2)
+                    # If p is in the list of requested parameters, store it
+                    | (p in parameters_user)
                 )
                 if store_here:
                     store_parameters.append(p)
@@ -1771,6 +1762,13 @@ class CO2System(UserDict):
             param = da_to_array(param, self.xr_dims)
         return param
 
+    def _adjust_102(self, temperature=None, pressure=None):
+        raise Exception(
+            "A CO2System with known alkalinity and DIC cannot be adjusted"
+            + " - instead, provide the new temperature(s) and/or pressure(s)"
+            + " directly when creating the CO2System."
+        )
+
     def _adjust_2p(self, temperature=None, pressure=None):
         temperature = self._adjust_prep(temperature)
         pressure = self._adjust_prep(pressure)
@@ -1839,7 +1837,7 @@ class CO2System(UserDict):
         co2a.set_uncertainty(**uncertainty_pre)
         # Final housekeeping: the new CO2System will usually get its icase
         # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  Adjusted systems will get assigned whichever icase the
+        # "__pre".  So adjusted systems here get assigned whichever icase the
         # original system had.  This doesn't affect any calculations, but it
         # does affect __str__ and __repr__.
         # TODO make ^ actually affect __str__ and __repr__
@@ -2030,7 +2028,9 @@ class CO2System(UserDict):
         """
         self_requested = self.requested.copy()
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
-        if self.icase > 100:
+        if self.icase == 102:
+            self_adjusted = self._adjust_102(**kwargs)
+        elif self.icase > 100:
             self_adjusted = self._adjust_2p(**kwargs)
         elif self.icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
@@ -2989,8 +2989,20 @@ def sys(data=None, **kwargs):
                 warn(f"`{k}` is not scalar, so only the first value will be used.")
             if isinstance(kwargs_data[k], float):
                 kwargs_data[k] = int(kwargs_data[k])
-        # Convert ints to floats for non-opts
+        # For non-opts
         else:
+            # Downgrade pd.Series and xr.DataArray to numpy arrays without
+            # importing pandas or xarray---but the user should avoid doing this
+            # because it doesn't take care of indices properly
+            try:
+                _ = kwargs_data[k].values
+                raise Exception(
+                    f"`{k}` provided as a `pd.Series` or `xr.DataArray`, "
+                    + "which is not allowed."
+                )
+            except AttributeError:
+                pass
+            # Convert ints to floats
             if isinstance(kwargs_data[k], int):
                 kwargs_data[k] = float(kwargs_data[k])
             elif hasattr(kwargs_data[k], "dtype"):
@@ -2998,6 +3010,14 @@ def sys(data=None, **kwargs):
                     kwargs_data[k] = kwargs_data[k].astype(float)
                 except ValueError:
                     pass
+            # Turn not-allowed negatives to NaN
+            if (
+                k not in ["alkalinity", "pH", "temperature"]
+                and not k.startswith("pH_")
+                and not k.startswith("pk_")
+                and not k.startswith("pkt_")
+            ):
+                kwargs_data[k] = np.where(kwargs_data[k] < 0, np.nan, kwargs_data[k])
     return CO2System(
         pd_index=pd_index,
         xr_dims=xr_dims,
