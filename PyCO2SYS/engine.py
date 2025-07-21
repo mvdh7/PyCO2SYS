@@ -1529,10 +1529,10 @@ class CO2System(UserDict):
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
+                    # If store_steps is 1, store all but the equilibrium constants
+                    # on the seawater scale, at 1 atm and their pressure-correction
+                    # factors, and a few selected others
                     | (
-                        # If store_steps is 1, store all but the equilibrium constants
-                        # on the seawater scale, at 1 atm and their pressure-correction
-                        # factors, and a few selected others
                         store_steps == 1
                         and not p.startswith("factor_k_")
                         and not (p.startswith("pk_") and p.endswith("_sws"))
@@ -1548,8 +1548,10 @@ class CO2System(UserDict):
                             "ionic_strength",
                         ]
                     )
-                    |  # If store_steps is 2, store everything
-                    (store_steps == 2)
+                    # If store_steps is 2, store everything
+                    | (store_steps == 2)
+                    # If p is in the list of requested parameters, store it
+                    | (p in parameters)
                 )
                 if store_here:
                     store_parameters.append(p)
