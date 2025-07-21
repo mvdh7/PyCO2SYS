@@ -1,3 +1,11 @@
+!!! danger "PyCO2SYS v2 beta"
+
+    These are the docs for the beta release of PyCO2SYS v2!
+
+    If you're here to test it, then thank you! and please report any issues via [the GitHub repo](https://github.com/mvdh7/PyCO2SYS/issues).
+
+    **These instructions will not work for the current version 1.8** that can be installed through `pip` and `conda` - please see [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) for documentation for the latest stable release.
+
 # Switching from v1 to v2
 
 This explanation is designed as a detailed overview of differences for those who are already familiar with using PyCO2SYS with the `pyco2.sys` syntax from v1.  New or casual users may find the [general instructions for v2](detail.md) more helpful.
@@ -221,9 +229,9 @@ This affects only `opt_k_carbonic` values `6`, `7`, and `8`, i.e., the GEOSECS a
 
 <!-- ## Summary of differences
 
-| v1 | v2 |
-| - | - |
-| All possible parameters are always calculated. | Only the requested parameters and the required intermediates are calculated. |
-| Settings (kwargs beginning `opt_`) can be multidimensional. | Settings (`opts`) must all be scalars. |
+| v1                                                                                                                                 | v2                                                                                            |
+| ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| All possible parameters are always calculated.                                                                                     | Only the requested parameters and the required intermediates are calculated.                  |
+| Settings (kwargs beginning `opt_`) can be multidimensional.                                                                        | Settings (`opts`) must all be scalars.                                                        |
 | Known marine carbonate system parameters are provided as `par1` and `par2`, with their types given by `par1_type` and `par2_type`. | Known marine carbonate system core parameters are provided as `alkalinity`, `dic`, `pH`, etc. |
-| Multiple different combinations of `par1_type` and `par2_type` can be provided. | Each `CO2System` instance can only contain one particular combination of core parameters. | -->
+| Multiple different combinations of `par1_type` and `par2_type` can be provided.                                                    | Each `CO2System` instance can only contain one particular combination of core parameters.     | --> |

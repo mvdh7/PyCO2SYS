@@ -1,3 +1,11 @@
+!!! danger "PyCO2SYS v2 beta"
+
+    These are the docs for the beta release of PyCO2SYS v2!
+
+    If you're here to test it, then thank you! and please report any issues via [the GitHub repo](https://github.com/mvdh7/PyCO2SYS/issues).
+
+    **These instructions will not work for the current version 1.8** that can be installed through `pip` and `conda` - please see [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/) for documentation for the latest stable release.
+
 # Quick-start guide
 
 All the code examples assume the following import convention:
