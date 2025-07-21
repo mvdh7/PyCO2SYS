@@ -1,3 +1,10 @@
+!!! example "Try out PyCO2SYS v2!"
+    PyCO2SYS v2 is currently in beta testing.  The v2 docs and installation instructions are at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS/).  For now, installing via `pip` or `conda` still gets you v1.8.3, matching the docs here ([PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/)).
+
+    Please try it out and report any issues you encounter via [the GitHub repo](https://github.com/mvdh7/PyCO2SYS/issues)!
+    
+    The API has been kept as similar as possible to v1, but there are some breaking changes.  The v2 code runs significantly faster with lower memory overhead and is designed to be more intuitive to use.
+
 # Should you trust PyCO2SYS?
 
 There are no "certified" results of marine carbonate system calculations against which software like PyCO2SYS can be unambiguously validated.  But we can evaluate its performance by testing its internal consistency and by comparing its outputs with those from other programs.
