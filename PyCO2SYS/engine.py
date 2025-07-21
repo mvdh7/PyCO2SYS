@@ -2991,6 +2991,14 @@ def sys(data=None, **kwargs):
                     kwargs_data[k] = kwargs_data[k].astype(float)
                 except ValueError:
                     pass
+        # Turn not-allowed negatives to NaN
+        if (
+            k not in ["alkalinity", "pH", "temperature"]
+            and not k.startswith("pH_")
+            and not k.startswith("pk_")
+            and not k.startswith("pkt_")
+        ):
+            kwargs_data[k] = np.where(v < 0, np.nan, v)
     return CO2System(
         pd_index=pd_index,
         xr_dims=xr_dims,
