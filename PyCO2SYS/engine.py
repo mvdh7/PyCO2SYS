@@ -1500,7 +1500,7 @@ class CO2System(UserDict):
             # Allow user to provide a string if only one parameter is desired
             parameters = [parameters]
         if parameters_user is None:
-            parameters_user = parameters.copy()
+            parameters_user = list(parameters).copy()
         parameters = [shortcuts[p.lower()] for p in parameters]
         parameters = set(parameters)  # get rid of duplicates
         self.requested |= parameters
