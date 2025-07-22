@@ -1351,8 +1351,10 @@ class CO2System(UserDict):
         for k, v in data.items():
             if v is not None:
                 if k in self.graph.nodes:
-                    # state 1 means that the value was provided as an argument
+                    # State 1 means that the value was provided as an argument
                     nx.set_node_attributes(self.graph, {k: 1}, name="state")
+                    # In which case, we want to remove the parent edges from
+                    # the graph
                     if "args" in self.graph.nodes[k]:
                         for arg in self.graph.nodes[k]["args"]:
                             self.graph.remove_edge(arg, k)
