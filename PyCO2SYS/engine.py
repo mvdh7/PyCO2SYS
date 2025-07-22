@@ -1115,7 +1115,7 @@ def assemble_graph(icase, opts):
     return graph
 
 
-class DotDict(UserDict):
+class ShortcutDotDict(UserDict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -1129,11 +1129,11 @@ class DotDict(UserDict):
                 raise AttributeError(attr)
 
 
-class Uncertainties(DotDict):
+class Uncertainties(ShortcutDotDict):
     def __init__(self):
         super().__init__()
-        self.assigned = DotDict()
-        self.parts = DotDict()
+        self.assigned = ShortcutDotDict()
+        self.parts = ShortcutDotDict()
 
     def assign(self, **uncertainties):
         for k, v in uncertainties.items():
@@ -1306,6 +1306,7 @@ class CO2System(UserDict):
         self.adjusted = False
         self.set_u = self.set_uncertainty
         self.prop = self.propagate
+        self.valid = ShortcutDotDict()
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -1352,6 +1353,12 @@ class CO2System(UserDict):
                 if k in self.graph.nodes:
                     # state 1 means that the value was provided as an argument
                     nx.set_node_attributes(self.graph, {k: 1}, name="state")
+                    if "args" in self.graph.nodes[k]:
+                        for arg in self.graph.nodes[k]["args"]:
+                            self.graph.remove_edge(arg, k)
+                        del self.graph.nodes[k]["args"]
+                    if "func" in self.graph.nodes[k]:
+                        del self.graph.nodes[k]["func"]
                 else:
                     to_ignore.append(k)
         for k in to_ignore:
@@ -2289,7 +2296,7 @@ class CO2System(UserDict):
                 if is_fractional:
                     var_from += "__f"
                 if var_in not in self.uncertainty.parts:
-                    self.uncertainty.parts[var_in] = DotDict()
+                    self.uncertainty.parts[var_in] = ShortcutDotDict()
                 self.uncertainty.parts[var_in][var_from] = u_part
                 u_total = u_total + u_part**2
             self.uncertainty[var_in] = np.sqrt(u_total)
@@ -2406,6 +2413,7 @@ class CO2System(UserDict):
         edge_kwargs=None,
         label_kwargs=None,
         mode="state",
+        nan_invalid=False,
     ):
         """Draw a graph showing the relationships between the different parameters.
 
@@ -2454,7 +2462,7 @@ class CO2System(UserDict):
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
         if mode == "valid" and not self.checked_valid:
-            self.check_valid()
+            self.check_valid(nan_invalid=nan_invalid)
         graph_to_plot = self.get_graph_to_plot(
             exclude_nodes=exclude_nodes,
             show_tsp=show_tsp,
@@ -2537,7 +2545,7 @@ class CO2System(UserDict):
         """
         return tuple(self.graph.nodes)
 
-    def check_valid(self, ignore=None):
+    def check_valid(self, ignore=None, nan_invalid=False):
         """Check which parameters are valid."""
         if ignore is None:
             ignore = []
@@ -2551,12 +2559,16 @@ class CO2System(UserDict):
                 and n not in ignore
                 and hasattr(self.graph.nodes[n]["func"], "valid")
             ):
+                self.valid[n] = ShortcutDotDict()
                 n_valid = []
                 for p, p_range in self.graph.nodes[n]["func"].valid.items():
                     # If all predecessor parameters fall within valid ranges, it's valid
-                    if np.all(
-                        (self.data[p] >= p_range[0]) & (self.data[p] <= p_range[1])
-                    ):
+                    self.valid[n][p] = (self.data[p] >= p_range[0]) & (
+                        self.data[p] <= p_range[1]
+                    )
+                    if not nan_invalid:
+                        self.valid[n][p] |= np.isnan(self.data[p])
+                    if np.all(self.valid[n][p]):
                         n_valid.append(1)
                         nx.set_edge_attributes(
                             self.graph,
