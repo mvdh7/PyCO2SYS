@@ -830,8 +830,9 @@ condition_independent = (
 )
 
 # Define labels for parameter plotting
-# NOTE this list is also used as the basis for the shortcuts,
+# NOTE This dict's keys are also used as the basis for the shortcuts,
 #      so every possible parameter must appear here!
+#      (except those with __pre suffixes - they're added automatically).
 set_node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
     "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
@@ -868,7 +869,6 @@ set_node_labels = {
     "factor_k_Si": r"$P_\mathrm{Si}$",
     "fCO2": "fCO$_2$",
     "fH": r"$\gamma_\mathrm{H}$(NBS)",
-    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
     "fugacity_factor": "$ƒ$",
     "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
     "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
@@ -937,15 +937,11 @@ set_node_labels = {
     "pk_Si": r"p$K_\mathrm{Si}^*$",
     "Mg_fraction": "Mg fraction",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
-    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "NH3": r"$[\mathrm{NH}_3]$",
     "NH4": r"$[\mathrm{NH}_4^+]$",
     "OH": r"$[\mathrm{OH}^–]$",
     "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
     "omega_dic": r"$\omega_{C_\mathrm{T}}$",
-    "opt_to_free": r"$_*^\mathrm{F}Y$",
-    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
-    "opt_to_sws": r"$_*^\mathrm{S}Y$",
     "pCO2": r"$p\mathrm{CO}_2$",
     "pH": "pH",
     "pH_free": r"pH$_\mathrm{F}$",
@@ -965,9 +961,7 @@ set_node_labels = {
     "saturation_Mg_calcite": r"$Ω_\mathrm{c(Mg)}$",
     "SO4": r"$[\mathrm{SO}_4^{2–}]$",
     "substrate_inhibitor_ratio": "SIR",
-    "sws_to_opt": r"$_\mathrm{S}^*Y$",
     "temperature": "$t$",
-    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "total_ammonia": r"$T_\mathrm{NH_3}$",
     "total_borate": r"$T_\mathrm{B}$",
     "total_fluoride": r"$T_\mathrm{F}$",
@@ -979,6 +973,26 @@ set_node_labels = {
     "upsilon": r"$\upsilon$",
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
+    # pH scale conversions
+    "free_to_opt": r"$_\mathrm{F}^*Y$",
+    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
+    "nbs_to_free": r"$_\mathrm{N}^\mathrm{F}Y$",
+    "nbs_to_opt": r"$_\mathrm{N}^*Y$",
+    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
+    "nbs_to_tot": r"$_\mathrm{N}^\mathrm{T}Y$",
+    "opt_to_free": r"$_*^\mathrm{F}Y$",
+    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
+    "opt_to_sws": r"$_*^\mathrm{S}Y$",
+    "opt_to_tot": r"$_*^\mathrm{T}Y$",
+    "sws_to_free": r"$_\mathrm{S}^\mathrm{F}Y$",
+    "sws_to_nbs": r"$_\mathrm{S}^\mathrm{N}Y$",
+    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "sws_to_tot": r"$_\mathrm{S}^\mathrm{T}Y$",
+    "tot_to_free": r"$_\mathrm{T}^\mathrm{F}Y$",
+    "tot_to_nbs": r"$_\mathrm{T}^\mathrm{N}Y$",
+    "tot_to_opt": r"$_\mathrm{T}^*Y$",
+    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "tot_to_sws": r"$_\mathrm{T}^\mathrm{S}Y$",
     # TODO below not formatted
     "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
     "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
@@ -1002,6 +1016,67 @@ set_node_labels.update(
         if k not in condition_independent
     }
 )
+
+# This is the list of parameters that will NOT be stored internally when
+# store_steps == 1
+exclude_on_store_steps_1 = [
+    "factor_k_BOH3",
+    "factor_k_CO2",
+    "factor_k_H2CO3",
+    "factor_k_H2O",
+    "factor_k_H2PO4",
+    "factor_k_H2S",
+    "factor_k_H3PO4",
+    "factor_k_HCO3",
+    "factor_k_HF",
+    "factor_k_HNO2",
+    "factor_k_HPO4",
+    "factor_k_HSO4",
+    "factor_k_NH3",
+    "factor_k_Si",
+    "free_to_sws_1atm",
+    "fugacity_factor",
+    "nbs_to_opt",
+    "opt_to_free",
+    "opt_to_nbs",
+    "opt_to_sws",
+    "pk_BOH3_sws_1atm",
+    "pk_BOH3_sws",
+    "pk_BOH3_total_1atm",
+    "pk_CO2_1atm",
+    "pk_H2CO3_sws_1atm",
+    "pk_H2CO3_sws",
+    "pk_H2CO3_total_1atm",
+    "pk_H2O_sws_1atm",
+    "pk_H2O_sws",
+    "pk_H2PO4_sws_1atm",
+    "pk_H2PO4_sws",
+    "pk_H2S_sws_1atm",
+    "pk_H2S_sws",
+    "pk_H2S_total_1atm",
+    "pk_H3PO4_sws_1atm",
+    "pk_H3PO4_sws",
+    "pk_HCO3_sws_1atm",
+    "pk_HCO3_sws",
+    "pk_HCO3_total_1atm",
+    "pk_HF_free_1atm",
+    "pk_HNO2_sws_1atm",
+    "pk_HNO2_sws",
+    "pk_HNO2_total_1atm",
+    "pk_HPO4_sws_1atm",
+    "pk_HPO4_sws",
+    "pk_HSO4_free_1atm",
+    "pk_Mg_calcite_1atm",
+    "pk_NH3_sws_1atm",
+    "pk_NH3_total_1atm",
+    "pk_Si_sws_1atm",
+    "pk_Si_sws",
+    "pkt_Mg_calcite_1atm",
+    "pkt_Mg_calcite_25C_1atm",
+    "sws_to_opt",
+    "tot_to_opt",
+    "tot_to_sws_1atm",
+]
 
 # Define shortcuts, which must all be lowercase
 shortcuts = {k.lower(): k for k in set_node_labels}
@@ -1545,23 +1620,7 @@ class CO2System(UserDict):
                     # If store_steps is 1, store all but the equilibrium constants
                     # on the seawater scale, at 1 atm and their pressure-correction
                     # factors, and a few selected others
-                    | (
-                        store_steps == 1
-                        and not p.startswith("factor_k_")
-                        and not (p.startswith("pk_") and p.endswith("_sws"))
-                        and not (p.startswith("pk_") and p.endswith("_sws__pre"))
-                        and not p.endswith("_1atm")
-                        and not p.endswith("_1atm__pre")
-                        and (
-                            p
-                            not in [
-                                "sws_to_opt",
-                                "sws_to_opt__pre",
-                                "opt_to_free",
-                                "opt_to_free__pre",
-                            ]
-                        )
-                    )
+                    | (store_steps == 1 and p not in exclude_on_store_steps_1)
                     # If store_steps is 2, store everything
                     | (store_steps == 2)
                     # If p is in the list of requested parameters, store it
@@ -2231,7 +2290,7 @@ class CO2System(UserDict):
         self.propagate([shortcuts[k.lower()] for k in self.uncertainty])
         return self
 
-    def propagate(self, uncertainty_into=None):
+    def propagate(self, uncertainty_into=None, store_steps=1):
         """Propagate independent uncertainties through the calculations.
         Covariances are not accounted for.
 
@@ -2263,7 +2322,7 @@ class CO2System(UserDict):
             for k in uncertainty_into
             if k not in self.nodes_original
         ]
-        self.solve(uncertainty_into)
+        self.solve(uncertainty_into, store_steps=store_steps)
         # Propagate uncertainties
         self._propagate(uncertainty_into, self.uncertainty.assigned)
         return self
