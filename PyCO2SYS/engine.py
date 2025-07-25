@@ -1215,6 +1215,12 @@ class Uncertainties(ShortcutDotDict):
             self.assigned[shortcuts[k.lower()]] = v
 
 
+class Validity(ShortcutDotDict):
+    def __init__(self):
+        super().__init__()
+        self.parts = ShortcutDotDict()
+
+
 class CO2System(UserDict):
     """An equilibrium model of the marine carbonate system.
 
@@ -1387,7 +1393,7 @@ class CO2System(UserDict):
         self.adjusted = False
         self.set_u = self.set_uncertainty
         self.prop = self.propagate
-        self.valid = ShortcutDotDict()
+        self.valid = Validity()
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -2466,7 +2472,18 @@ class CO2System(UserDict):
         return tuple(self.graph.nodes)
 
     def check_valid(self, ignore=None, nan_invalid=False):
-        """Check which parameters are valid."""
+        """Check if any parameters are invalid.
+
+        Updates the contents of `CO2System.valid` and `CO2System.valid.parts`.
+
+        Parameters
+        ----------
+        ignore : list | str, optional
+            Parameters to ignore when assessing validity (i.e., to consider
+            to be always valid).
+        nan_invalid : bool, optional
+            Whether to consider NaN values as invalid, by default `False`.
+        """
         if ignore is None:
             ignore = []
         if isinstance(ignore, str):
@@ -2479,16 +2496,18 @@ class CO2System(UserDict):
                 and n not in ignore
                 and hasattr(self.graph.nodes[n]["func"], "valid")
             ):
-                self.valid[n] = ShortcutDotDict()
+                self.valid[n] = True
+                self.valid.parts[n] = ShortcutDotDict()
                 n_valid = []
                 for p, p_range in self.graph.nodes[n]["func"].valid.items():
                     # If all predecessor parameters fall within valid ranges, it's valid
-                    self.valid[n][p] = (self.data[p] >= p_range[0]) & (
-                        self.data[p] <= p_range[1]
-                    )
+                    sdp = self.data[p]
+                    L_valid = (sdp >= p_range[0]) & (sdp <= p_range[1])
                     if not nan_invalid:
-                        self.valid[n][p] |= np.isnan(self.data[p])
-                    if np.all(self.valid[n][p]):
+                        L_valid |= np.isnan(sdp)
+                    self.valid.parts[n][p] = L_valid
+                    self.valid[n] &= L_valid
+                    if np.all(L_valid):
                         n_valid.append(1)
                         nx.set_edge_attributes(
                             self.graph,
@@ -2503,6 +2522,13 @@ class CO2System(UserDict):
                             {(p, n): -1},
                             name="valid",
                         )
+                # `self.valid` starts off with
+                #   - zeros where none of the inputs are out of range
+                #   - ones where at least one input is out of range
+                self.valid[n] = np.array(~self.valid[n]).astype(int)
+                # The "valid" node attribute starts off with
+                #   - ones where none of the inputs are out of range,
+                #   - negative ones where at least one input is out of range.
                 nx.set_node_attributes(
                     self.graph,
                     {n: min(n_valid)},
@@ -2510,7 +2536,11 @@ class CO2System(UserDict):
                 )
             # Next, assign inherited validity
             # (shown by node edge colour on the graph plot)
+            # If any ancestors are invalid for whatever reason:
+            #   - the "valid" node attribute gets turned to -1,
+            #   - `self.valid` gets += 2.
             n_valid_p = []
+            L_valid_p = False
             for p in self.graph.predecessors(n):
                 p_attrs = self.graph.nodes[p]
                 for v in ["valid", "valid_p"]:
@@ -2522,6 +2552,11 @@ class CO2System(UserDict):
                                 {(p, n): -1},
                                 name="valid",
                             )
+                if p in self.valid:
+                    L_valid_p |= self.valid[p] > 0
+            if n not in self.valid:
+                self.valid[n] = 0
+            self.valid[n] += np.array(L_valid_p).astype(int) * 2
             if -1 in n_valid_p:
                 nx.set_node_attributes(
                     self.graph,

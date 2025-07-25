@@ -13,7 +13,7 @@ co2s = (
         dic=2100,
         ph=8.1,
         salinity=[35, np.nan, 35],
-        temperature=25,
+        temperature=[20, 25, 25],
         tsi=5,
         # pk1=8,
         total_borate=300,
@@ -27,7 +27,7 @@ co2s.plot_graph(
     backend="plotly",
     prog_graphviz="dot",
     show_unknown=False,
-    mode="state",
+    mode="valid",
     # nan_invalid=True,
 )
 # dict(co2s.valid)
