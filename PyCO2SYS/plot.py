@@ -1,6 +1,7 @@
 from warnings import warn
 
 import networkx as nx
+import numpy as np
 
 from .engine import set_node_labels
 
@@ -8,6 +9,7 @@ from .engine import set_node_labels
 def plot_graph(
     self,
     ax=None,
+    backend="matplotlib",
     exclude_nodes=None,
     show_unknown=False,
     keep_unknown=None,
@@ -31,6 +33,9 @@ def plot_graph(
     ----------
     ax : matplotlib axes, optional
         The axes on which to plot.  If `None`, a new figure and axes are created.
+    backend : str, optional
+        Which backend to use to make the plot, either "matplotlib" (default) or
+        "plotly".
     exclude_nodes : list of str, optional
         List of nodes to exclude from the plot, by default `None`.  Nodes in
         this list are not shown, nor are connections to them or through them.
@@ -52,8 +57,6 @@ def plot_graph(
     matplotlib axes
         The axes on which the graph is plotted.
     """
-    from matplotlib import pyplot as plt
-
     # NODE STATES
     # -----------
     # no state (grey) = unknwown
@@ -66,8 +69,9 @@ def plot_graph(
     # no state (grey) = calculation not performed
     # 2 = (azure) calculation performed
     #
-    if ax is None:
-        ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
+    assert backend.lower() in ["matplotlib", "plotly"], (
+        '`backend` must be either "matplotlib" or "plotly"'
+    )
     if mode == "valid":
         if not self.checked_valid:
             self.check_valid(nan_invalid=nan_invalid)
@@ -103,9 +107,9 @@ def plot_graph(
         ]
         node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
     else:
-        warn(f'mode "{mode}" not recognised, options are "state" or "valid".')
-        node_colour = "xkcd:grey"
-        edge_colour = "xkcd:grey"
+        warn('`mode` not recognised, options are "state" or "valid".')
+        node_colour = self.c_state[0]
+        edge_colour = self.c_state[0]
     node_labels = {k: k for k in graph_to_plot.nodes}
     for k, v in set_node_labels.items():
         if k in node_labels:
@@ -119,25 +123,98 @@ def plot_graph(
     if mode == "valid":
         node_kwargs["edgecolors"] = node_edgecolors
         node_kwargs["linewidths"] = node_linewidths
-    nx.draw_networkx_nodes(
-        graph_to_plot,
-        ax=ax,
-        node_color=node_colour,
-        pos=pos,
-        **node_kwargs,
-    )
-    nx.draw_networkx_edges(
-        graph_to_plot,
-        ax=ax,
-        edge_color=edge_colour,
-        pos=pos,
-        **edge_kwargs,
-    )
-    nx.draw_networkx_labels(
-        graph_to_plot,
-        ax=ax,
-        labels=node_labels,
-        pos=pos,
-        **label_kwargs,
-    )
-    return ax
+    if backend.lower() == "matplotlib":
+        from matplotlib import pyplot as plt
+
+        if ax is None:
+            ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
+        nx.draw_networkx_nodes(
+            graph_to_plot,
+            ax=ax,
+            node_color=node_colour,
+            pos=pos,
+            **node_kwargs,
+        )
+        nx.draw_networkx_edges(
+            graph_to_plot,
+            ax=ax,
+            edge_color=edge_colour,
+            pos=pos,
+            **edge_kwargs,
+        )
+        nx.draw_networkx_labels(
+            graph_to_plot,
+            ax=ax,
+            labels=node_labels,
+            pos=pos,
+            **label_kwargs,
+        )
+        return ax
+    elif backend.lower() == "plotly":
+        import plotly.graph_objects as go
+
+        # Create edge traces
+        edge_traces = []
+        if mode.lower() == "state":
+            colours = self.c_state
+        elif mode.lower() == "valid":
+            colours = self.c_valid
+        for s, c in colours.items():
+            edge_x = []
+            edge_y = []
+            for edge, state in nx.get_edge_attributes(
+                graph_to_plot, mode.lower(), default=0
+            ).items():
+                if state == s:
+                    edge_x.append(pos[edge[0]][0])
+                    edge_x.append(pos[edge[1]][0])
+                    edge_x.append(None)
+                    edge_y.append(pos[edge[0]][1])
+                    edge_y.append(pos[edge[1]][1])
+                    edge_y.append(None)
+            edge_traces.append(
+                go.Scatter(
+                    x=edge_x,
+                    y=edge_y,
+                    line=dict(
+                        color=c,
+                        width=0.9,
+                    ),
+                    hoverinfo="none",
+                    opacity=0.6,
+                    mode="lines",
+                    showlegend=False,
+                )
+            )
+        # Create node traces
+        node_text = []
+        node_x = []
+        node_y = []
+        for n, (x, y) in pos.items():
+            node_text.append(n)
+            node_x.append(x)
+            node_y.append(y)
+        node_trace = go.Scatter(
+            x=node_x,
+            y=node_y,
+            hoverinfo="text",
+            mode="markers",
+            marker=dict(
+                color=node_colour,
+                size=10,
+            ),
+            showlegend=False,
+        )
+        node_trace.text = node_text
+        if mode.lower() == "valid":
+            node_trace.marker.line = dict(
+                color=node_edgecolors,
+                width=list(np.array(node_linewidths) * 0.6),
+            )
+        layout = go.Layout(
+            margin=dict(l=10, r=10, t=10, b=10),
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        )
+        fig = go.Figure([*edge_traces, node_trace], layout=layout)
+        return fig

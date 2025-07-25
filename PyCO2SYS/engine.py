@@ -1369,15 +1369,19 @@ class CO2System(UserDict):
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
         self.c_state = {
-            0: "xkcd:grey",  # not calculated
-            1: "xkcd:grass",  # provided by user i.e. known but not calculated
-            2: "xkcd:azure",  # calculated en route to a user-requested parameter
-            3: "xkcd:tangerine",  # calculated after direct user request
+            0: "#929591",  # not calculated
+            # (xkcd:grey)
+            1: "#5CAC2D",  # provided by user i.e. known but not calculated
+            # (xkcd:grass)
+            2: "#069AF3",  # calculated en route to a user-requested parameter
+            # (xkcd:azure)
+            3: "#FF9408",  # calculated after direct user request
+            # (xkcd:tangerine)
         }
         self.c_valid = {
-            -1: "xkcd:light red",  # invalid
-            0: "xkcd:light grey",  # unknown
-            1: "xkcd:sky blue",  # valid
+            -1: "#FF474C",  # invalid (xkcd:light red)
+            0: "#C5C9C7",  # unknown (xkcd:silver)
+            1: "#75BBFD",  # valid (xkcd:sky blue)
         }
         self.checked_valid = False
         self.adjusted = False

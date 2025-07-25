@@ -20,10 +20,11 @@ co2s = (
     )
     .set_u(dic=2, ph=0.005, **pyco2.uncertainty_OEDG18)
     # .solve("co3", store_steps=1)
-    .prop(["co3", "hco3"], store_steps=1)
+    .prop(["co3", "hco3"], store_steps=2)
 )
 # co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="state")
 co2s.plot_graph(
+    backend="plotly",
     prog_graphviz="dot",
     show_unknown=False,
     mode="state",
