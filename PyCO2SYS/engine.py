@@ -894,15 +894,15 @@ set_node_labels = {
     "pk_BOH3_total_1atm": r"p$K_\mathrm{B}^\mathrm{T0}$",
     "pk_BOH3": r"p$K_\mathrm{B}^*$",
     "pk_calcite": r"p$K_\mathrm{c}^*$",
-    "pk_CO2_1atm": "$pK_0′^0$",
-    "pk_CO2": "$pK_0′$",
+    "pk_CO2_1atm": "p$K_0′^0$",
+    "pk_CO2": "p$K_0′$",
     "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
-    "pk_H2CO3_sws": "$pK_1^s$",
+    "pk_H2CO3_sws": "p$K_1^s$",
     "pk_H2CO3_total_1atm": r"p$K_1^\mathrm{T0}$",
-    "pk_H2CO3": "$pK_1^*$",
+    "pk_H2CO3": "p$K_1^*$",
     "pk_H2O_sws_1atm": r"p$K_w^\mathrm{S0}$",
     "pk_H2O_sws": r"p$K_w^\mathrm{S}$",
-    "pk_H2O": "$pK_w^*$",
+    "pk_H2O": "p$K_w^*$",
     "pk_H2PO4_sws_1atm": r"p$K_\mathrm{P2}^\mathrm{S0}$",
     "pk_H2PO4_sws": r"p$K_\mathrm{P2}^\mathrm{S}$",
     "pk_H2PO4": r"p$K_\mathrm{P2}^*$",
@@ -914,9 +914,9 @@ set_node_labels = {
     "pk_H3PO4_sws": r"p$K_\mathrm{P1}^\mathrm{S}$",
     "pk_H3PO4": r"p$K_\mathrm{P1}^*$",
     "pk_HCO3_sws_1atm": r"p$K_2^\mathrm{S0}$",
-    "pk_HCO3_sws": "$pK_2^s$",
+    "pk_HCO3_sws": "p$K_2^s$",
     "pk_HCO3_total_1atm": r"p$K_2^\mathrm{T0}$",
-    "pk_HCO3": "$pK_2^*$",
+    "pk_HCO3": "p$K_2^*$",
     "pk_HF_free_1atm": r"p$K_\mathrm{HF}^\mathrm{F0}$",
     "pk_HF_free": r"p$K_\mathrm{HF}^\mathrm{F}$",
     "pk_HNO2_sws_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{S0}$",
@@ -2341,31 +2341,31 @@ class CO2System(UserDict):
                     # If the uncertainty is fractional, multiply through
                     var_from = var_from[:-3]
                     u_from = self.data[var_from] * u_from
-                if var_from in self.nodes_original:
-                    self.get_grad(var_in, var_from)
-                    u_part = np.abs(self.grads[var_in][var_from] * u_from)
-                else:
-                    # If the uncertainty is from some internally calculated value,
-                    # then we need to make a second CO2System where that value
-                    # is one of the known inputs, and get the grad from that
-                    self.solve(var_from)
-                    data = self.get_values_original()
-                    data.update({var_from: self.data[var_from]})
-                    sys = CO2System(**data, **self.opts)
-                    sys.get_grad(var_in, var_from)
-                    u_part = np.abs(sys.grads[var_in][var_from] * u_from)
-                if is_fractional:
-                    var_from += "__f"
-                if var_in not in self.uncertainty.parts:
-                    self.uncertainty.parts[var_in] = ShortcutDotDict()
-                self.uncertainty.parts[var_in][var_from] = u_part
-                u_total = u_total + u_part**2
+                # Propagate uncertainties only from ancestor nodes
+                if var_from in nx.ancestors(self.graph, var_in):
+                    if var_from in self.nodes_original:
+                        self.get_grad(var_in, var_from)
+                        u_part = np.abs(self.grads[var_in][var_from] * u_from)
+                    else:
+                        # If the uncertainty is from some internally calculated value,
+                        # then we need to make a second CO2System where that value
+                        # is one of the known inputs, and get the grad from that
+                        data = self.get_values_original()
+                        data.update({var_from: self.data[var_from]})
+                        sys = CO2System(**data, **self.opts)
+                        sys.get_grad(var_in, var_from)
+                        u_part = np.abs(sys.grads[var_in][var_from] * u_from)
+                    if is_fractional:
+                        var_from += "__f"
+                    if var_in not in self.uncertainty.parts:
+                        self.uncertainty.parts[var_in] = ShortcutDotDict()
+                    self.uncertainty.parts[var_in][var_from] = u_part
+                    u_total = u_total + u_part**2
             self.uncertainty[var_in] = np.sqrt(u_total)
         return self
 
     def get_graph_to_plot(
         self,
-        show_tsp=True,
         show_unknown=True,
         keep_unknown=None,
         exclude_nodes=None,
@@ -2374,8 +2374,6 @@ class CO2System(UserDict):
     ):
         graph_to_plot = self.graph.copy()
         # Remove nodes as requested by user
-        if not show_tsp:
-            graph_to_plot.remove_nodes_from(["pressure", "salinity", "temperature"])
         if not show_unknown:
             if keep_unknown is None:
                 keep_unknown = []
@@ -2386,7 +2384,7 @@ class CO2System(UserDict):
                 n for n, s in node_states.items() if s == 0 and n not in keep_unknown
             ]
             graph_to_plot.remove_nodes_from(to_remove)
-        # Connect nodes that are missing due to store_steps=1 mode
+        # Connect across nodes that are missing due to store_steps=1 mode
         _graph_to_plot = graph_to_plot.copy()
         for n, properties in _graph_to_plot.nodes.items():
             if (
@@ -2459,7 +2457,6 @@ class CO2System(UserDict):
         self,
         ax=None,
         exclude_nodes=None,
-        show_tsp=True,
         show_unknown=False,
         keep_unknown=None,
         show_isolated=False,
@@ -2487,9 +2484,6 @@ class CO2System(UserDict):
             this list are not shown, nor are connections to them or through them.
         prog_graphviz : str, optional
             Name of Graphviz layout program, by default "neato".
-        show_tsp : bool, optional
-            Whether to show temperature, salinity and pressure nodes, by default
-            `True`.
         show_unknown : bool, optional
             Whether to show nodes for parameters that have not (yet) been calculated,
             by default `True`.
@@ -2522,11 +2516,11 @@ class CO2System(UserDict):
         #
         if ax is None:
             ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        if mode == "valid" and not self.checked_valid:
-            self.check_valid(nan_invalid=nan_invalid)
+        if mode == "valid":
+            if not self.checked_valid:
+                self.check_valid(nan_invalid=nan_invalid)
         graph_to_plot = self.get_graph_to_plot(
             exclude_nodes=exclude_nodes,
-            show_tsp=show_tsp,
             show_unknown=show_unknown,
             keep_unknown=keep_unknown,
             show_isolated=show_isolated,
