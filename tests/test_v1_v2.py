@@ -181,7 +181,7 @@ def test_v1_v2():
             results_keys.remove(v2_to_v1[k])
         elif k not in dont_compare:
             # All the others should be in the dont_compare list
-            assert False, k
+            raise Exception(f"{k} isn't in the dont_compare list")
     # Also test the edge cases (gradients of fCO2 and pCO2 w.r.t. temperature) that have
     # to be calculated manually for a CO2System
     for k in results_keys.copy():
@@ -197,7 +197,7 @@ def test_v1_v2():
             results_keys.remove(k)
         else:
             # There shouldn't be anything else left in results_keys
-            assert False, k
+            raise Exception(k)
 
 
 # test_v1_v2()

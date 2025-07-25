@@ -830,8 +830,9 @@ condition_independent = (
 )
 
 # Define labels for parameter plotting
-# NOTE this list is also used as the basis for the shortcuts,
+# NOTE This dict's keys are also used as the basis for the shortcuts,
 #      so every possible parameter must appear here!
+#      (except those with __pre suffixes - they're added automatically).
 set_node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
     "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
@@ -868,7 +869,6 @@ set_node_labels = {
     "factor_k_Si": r"$P_\mathrm{Si}$",
     "fCO2": "fCO$_2$",
     "fH": r"$\gamma_\mathrm{H}$(NBS)",
-    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
     "fugacity_factor": "$ƒ$",
     "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
     "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
@@ -894,15 +894,15 @@ set_node_labels = {
     "pk_BOH3_total_1atm": r"p$K_\mathrm{B}^\mathrm{T0}$",
     "pk_BOH3": r"p$K_\mathrm{B}^*$",
     "pk_calcite": r"p$K_\mathrm{c}^*$",
-    "pk_CO2_1atm": "$pK_0′^0$",
-    "pk_CO2": "$pK_0′$",
+    "pk_CO2_1atm": "p$K_0′^0$",
+    "pk_CO2": "p$K_0′$",
     "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
-    "pk_H2CO3_sws": "$pK_1^s$",
+    "pk_H2CO3_sws": "p$K_1^s$",
     "pk_H2CO3_total_1atm": r"p$K_1^\mathrm{T0}$",
-    "pk_H2CO3": "$pK_1^*$",
+    "pk_H2CO3": "p$K_1^*$",
     "pk_H2O_sws_1atm": r"p$K_w^\mathrm{S0}$",
     "pk_H2O_sws": r"p$K_w^\mathrm{S}$",
-    "pk_H2O": "$pK_w^*$",
+    "pk_H2O": "p$K_w^*$",
     "pk_H2PO4_sws_1atm": r"p$K_\mathrm{P2}^\mathrm{S0}$",
     "pk_H2PO4_sws": r"p$K_\mathrm{P2}^\mathrm{S}$",
     "pk_H2PO4": r"p$K_\mathrm{P2}^*$",
@@ -914,9 +914,9 @@ set_node_labels = {
     "pk_H3PO4_sws": r"p$K_\mathrm{P1}^\mathrm{S}$",
     "pk_H3PO4": r"p$K_\mathrm{P1}^*$",
     "pk_HCO3_sws_1atm": r"p$K_2^\mathrm{S0}$",
-    "pk_HCO3_sws": "$pK_2^s$",
+    "pk_HCO3_sws": "p$K_2^s$",
     "pk_HCO3_total_1atm": r"p$K_2^\mathrm{T0}$",
-    "pk_HCO3": "$pK_2^*$",
+    "pk_HCO3": "p$K_2^*$",
     "pk_HF_free_1atm": r"p$K_\mathrm{HF}^\mathrm{F0}$",
     "pk_HF_free": r"p$K_\mathrm{HF}^\mathrm{F}$",
     "pk_HNO2_sws_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{S0}$",
@@ -937,15 +937,11 @@ set_node_labels = {
     "pk_Si": r"p$K_\mathrm{Si}^*$",
     "Mg_fraction": "Mg fraction",
     "Mg": r"$[\mathrm{Mg}^{2+}]$",
-    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "NH3": r"$[\mathrm{NH}_3]$",
     "NH4": r"$[\mathrm{NH}_4^+]$",
     "OH": r"$[\mathrm{OH}^–]$",
     "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
     "omega_dic": r"$\omega_{C_\mathrm{T}}$",
-    "opt_to_free": r"$_*^\mathrm{F}Y$",
-    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
-    "opt_to_sws": r"$_*^\mathrm{S}Y$",
     "pCO2": r"$p\mathrm{CO}_2$",
     "pH": "pH",
     "pH_free": r"pH$_\mathrm{F}$",
@@ -965,9 +961,7 @@ set_node_labels = {
     "saturation_Mg_calcite": r"$Ω_\mathrm{c(Mg)}$",
     "SO4": r"$[\mathrm{SO}_4^{2–}]$",
     "substrate_inhibitor_ratio": "SIR",
-    "sws_to_opt": r"$_\mathrm{S}^*Y$",
     "temperature": "$t$",
-    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "total_ammonia": r"$T_\mathrm{NH_3}$",
     "total_borate": r"$T_\mathrm{B}$",
     "total_fluoride": r"$T_\mathrm{F}$",
@@ -979,6 +973,26 @@ set_node_labels = {
     "upsilon": r"$\upsilon$",
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
+    # pH scale conversions
+    "free_to_opt": r"$_\mathrm{F}^*Y$",
+    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
+    "nbs_to_free": r"$_\mathrm{N}^\mathrm{F}Y$",
+    "nbs_to_opt": r"$_\mathrm{N}^*Y$",
+    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
+    "nbs_to_tot": r"$_\mathrm{N}^\mathrm{T}Y$",
+    "opt_to_free": r"$_*^\mathrm{F}Y$",
+    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
+    "opt_to_sws": r"$_*^\mathrm{S}Y$",
+    "opt_to_tot": r"$_*^\mathrm{T}Y$",
+    "sws_to_free": r"$_\mathrm{S}^\mathrm{F}Y$",
+    "sws_to_nbs": r"$_\mathrm{S}^\mathrm{N}Y$",
+    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "sws_to_tot": r"$_\mathrm{S}^\mathrm{T}Y$",
+    "tot_to_free": r"$_\mathrm{T}^\mathrm{F}Y$",
+    "tot_to_nbs": r"$_\mathrm{T}^\mathrm{N}Y$",
+    "tot_to_opt": r"$_\mathrm{T}^*Y$",
+    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "tot_to_sws": r"$_\mathrm{T}^\mathrm{S}Y$",
     # TODO below not formatted
     "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
     "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
@@ -1002,6 +1016,67 @@ set_node_labels.update(
         if k not in condition_independent
     }
 )
+
+# This is the list of parameters that will NOT be stored internally when
+# store_steps == 1
+exclude_on_store_steps_1 = [
+    "factor_k_BOH3",
+    "factor_k_CO2",
+    "factor_k_H2CO3",
+    "factor_k_H2O",
+    "factor_k_H2PO4",
+    "factor_k_H2S",
+    "factor_k_H3PO4",
+    "factor_k_HCO3",
+    "factor_k_HF",
+    "factor_k_HNO2",
+    "factor_k_HPO4",
+    "factor_k_HSO4",
+    "factor_k_NH3",
+    "factor_k_Si",
+    "free_to_sws_1atm",
+    "nbs_to_opt",
+    "opt_to_free",
+    "opt_to_nbs",
+    "opt_to_sws",
+    "pk_BOH3_sws_1atm",
+    "pk_BOH3_sws",
+    "pk_BOH3_total_1atm",
+    "pk_CO2_1atm",
+    "pk_H2CO3_sws_1atm",
+    "pk_H2CO3_sws",
+    "pk_H2CO3_total_1atm",
+    "pk_H2O_sws_1atm",
+    "pk_H2O_sws",
+    "pk_H2PO4_sws_1atm",
+    "pk_H2PO4_sws",
+    "pk_H2S_sws_1atm",
+    "pk_H2S_sws",
+    "pk_H2S_total_1atm",
+    "pk_H3PO4_sws_1atm",
+    "pk_H3PO4_sws",
+    "pk_HCO3_sws_1atm",
+    "pk_HCO3_sws",
+    "pk_HCO3_total_1atm",
+    "pk_HF_free_1atm",
+    "pk_HNO2_sws_1atm",
+    "pk_HNO2_sws",
+    "pk_HNO2_total_1atm",
+    "pk_HPO4_sws_1atm",
+    "pk_HPO4_sws",
+    "pk_HSO4_free_1atm",
+    "pk_Mg_calcite_1atm",
+    "pk_NH3_sws_1atm",
+    "pk_NH3_sws",
+    "pk_NH3_total_1atm",
+    "pk_Si_sws_1atm",
+    "pk_Si_sws",
+    "pkt_Mg_calcite_1atm",
+    "pkt_Mg_calcite_25C_1atm",
+    "sws_to_opt",
+    "tot_to_opt",
+    "tot_to_sws_1atm",
+]
 
 # Define shortcuts, which must all be lowercase
 shortcuts = {k.lower(): k for k in set_node_labels}
@@ -1115,7 +1190,7 @@ def assemble_graph(icase, opts):
     return graph
 
 
-class DotDict(UserDict):
+class ShortcutDotDict(UserDict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -1129,15 +1204,21 @@ class DotDict(UserDict):
                 raise AttributeError(attr)
 
 
-class Uncertainties(DotDict):
+class Uncertainties(ShortcutDotDict):
     def __init__(self):
         super().__init__()
-        self.assigned = DotDict()
-        self.parts = DotDict()
+        self.assigned = ShortcutDotDict()
+        self.parts = ShortcutDotDict()
 
     def assign(self, **uncertainties):
         for k, v in uncertainties.items():
             self.assigned[shortcuts[k.lower()]] = v
+
+
+class Validity(ShortcutDotDict):
+    def __init__(self):
+        super().__init__()
+        self.parts = ShortcutDotDict()
 
 
 class CO2System(UserDict):
@@ -1211,6 +1292,8 @@ class CO2System(UserDict):
     available for a `dict` can be used.  Methods such as `keys`, `values` and
     `items` will run only over parameters that have already been solved for.
     """
+
+    from .plot import plot_graph
 
     def __init__(
         self,
@@ -1292,20 +1375,25 @@ class CO2System(UserDict):
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
         self.c_state = {
-            0: "xkcd:grey",  # not calculated
-            1: "xkcd:grass",  # provided by user i.e. known but not calculated
-            2: "xkcd:azure",  # calculated en route to a user-requested parameter
-            3: "xkcd:tangerine",  # calculated after direct user request
+            0: "#929591",  # not calculated
+            # (xkcd:grey)
+            1: "#5CAC2D",  # provided by user i.e. known but not calculated
+            # (xkcd:grass)
+            2: "#069AF3",  # calculated en route to a user-requested parameter
+            # (xkcd:azure)
+            3: "#FF9408",  # calculated after direct user request
+            # (xkcd:tangerine)
         }
         self.c_valid = {
-            -1: "xkcd:light red",  # invalid
-            0: "xkcd:light grey",  # unknown
-            1: "xkcd:sky blue",  # valid
+            -1: "#FF474C",  # invalid (xkcd:light red)
+            0: "#C5C9C7",  # unknown (xkcd:silver)
+            1: "#75BBFD",  # valid (xkcd:sky blue)
         }
         self.checked_valid = False
         self.adjusted = False
         self.set_u = self.set_uncertainty
         self.prop = self.propagate
+        self.valid = Validity()
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -1350,8 +1438,16 @@ class CO2System(UserDict):
         for k, v in data.items():
             if v is not None:
                 if k in self.graph.nodes:
-                    # state 1 means that the value was provided as an argument
+                    # State 1 means that the value was provided as an argument
                     nx.set_node_attributes(self.graph, {k: 1}, name="state")
+                    # In which case, we want to remove the parent edges from
+                    # the graph
+                    if "args" in self.graph.nodes[k]:
+                        for arg in self.graph.nodes[k]["args"]:
+                            self.graph.remove_edge(arg, k)
+                        del self.graph.nodes[k]["args"]
+                    if "func" in self.graph.nodes[k]:
+                        del self.graph.nodes[k]["func"]
                 else:
                     to_ignore.append(k)
         for k in to_ignore:
@@ -1536,23 +1632,7 @@ class CO2System(UserDict):
                     # If store_steps is 1, store all but the equilibrium constants
                     # on the seawater scale, at 1 atm and their pressure-correction
                     # factors, and a few selected others
-                    | (
-                        store_steps == 1
-                        and not p.startswith("factor_k_")
-                        and not (p.startswith("pk_") and p.endswith("_sws"))
-                        and not (p.startswith("pk_") and p.endswith("_sws__pre"))
-                        and not p.endswith("_1atm")
-                        and not p.endswith("_1atm__pre")
-                        and (
-                            p
-                            not in [
-                                "sws_to_opt",
-                                "sws_to_opt__pre",
-                                "opt_to_free",
-                                "opt_to_free__pre",
-                            ]
-                        )
-                    )
+                    | (store_steps == 1 and p not in exclude_on_store_steps_1)
                     # If store_steps is 2, store everything
                     | (store_steps == 2)
                     # If p is in the list of requested parameters, store it
@@ -2222,7 +2302,7 @@ class CO2System(UserDict):
         self.propagate([shortcuts[k.lower()] for k in self.uncertainty])
         return self
 
-    def propagate(self, uncertainty_into=None):
+    def propagate(self, uncertainty_into=None, store_steps=1):
         """Propagate independent uncertainties through the calculations.
         Covariances are not accounted for.
 
@@ -2254,7 +2334,7 @@ class CO2System(UserDict):
             for k in uncertainty_into
             if k not in self.nodes_original
         ]
-        self.solve(uncertainty_into)
+        self.solve(uncertainty_into, store_steps=store_steps)
         # Propagate uncertainties
         self._propagate(uncertainty_into, self.uncertainty.assigned)
         return self
@@ -2273,31 +2353,31 @@ class CO2System(UserDict):
                     # If the uncertainty is fractional, multiply through
                     var_from = var_from[:-3]
                     u_from = self.data[var_from] * u_from
-                if var_from in self.nodes_original:
-                    self.get_grad(var_in, var_from)
-                    u_part = np.abs(self.grads[var_in][var_from] * u_from)
-                else:
-                    # If the uncertainty is from some internally calculated value,
-                    # then we need to make a second CO2System where that value
-                    # is one of the known inputs, and get the grad from that
-                    self.solve(var_from)
-                    data = self.get_values_original()
-                    data.update({var_from: self.data[var_from]})
-                    sys = CO2System(**data, **self.opts)
-                    sys.get_grad(var_in, var_from)
-                    u_part = np.abs(sys.grads[var_in][var_from] * u_from)
-                if is_fractional:
-                    var_from += "__f"
-                if var_in not in self.uncertainty.parts:
-                    self.uncertainty.parts[var_in] = DotDict()
-                self.uncertainty.parts[var_in][var_from] = u_part
-                u_total = u_total + u_part**2
+                # Propagate uncertainties only from ancestor nodes
+                if var_from in nx.ancestors(self.graph, var_in):
+                    if var_from in self.nodes_original:
+                        self.get_grad(var_in, var_from)
+                        u_part = np.abs(self.grads[var_in][var_from] * u_from)
+                    else:
+                        # If the uncertainty is from some internally calculated value,
+                        # then we need to make a second CO2System where that value
+                        # is one of the known inputs, and get the grad from that
+                        data = self.get_values_original()
+                        data.update({var_from: self.data[var_from]})
+                        sys = CO2System(**data, **self.opts)
+                        sys.get_grad(var_in, var_from)
+                        u_part = np.abs(sys.grads[var_in][var_from] * u_from)
+                    if is_fractional:
+                        var_from += "__f"
+                    if var_in not in self.uncertainty.parts:
+                        self.uncertainty.parts[var_in] = ShortcutDotDict()
+                    self.uncertainty.parts[var_in][var_from] = u_part
+                    u_total = u_total + u_part**2
             self.uncertainty[var_in] = np.sqrt(u_total)
         return self
 
     def get_graph_to_plot(
         self,
-        show_tsp=True,
         show_unknown=True,
         keep_unknown=None,
         exclude_nodes=None,
@@ -2306,8 +2386,6 @@ class CO2System(UserDict):
     ):
         graph_to_plot = self.graph.copy()
         # Remove nodes as requested by user
-        if not show_tsp:
-            graph_to_plot.remove_nodes_from(["pressure", "salinity", "temperature"])
         if not show_unknown:
             if keep_unknown is None:
                 keep_unknown = []
@@ -2318,7 +2396,7 @@ class CO2System(UserDict):
                 n for n, s in node_states.items() if s == 0 and n not in keep_unknown
             ]
             graph_to_plot.remove_nodes_from(to_remove)
-        # Connect nodes that are missing due to store_steps=1 mode
+        # Connect across nodes that are missing due to store_steps=1 mode
         _graph_to_plot = graph_to_plot.copy()
         for n, properties in _graph_to_plot.nodes.items():
             if (
@@ -2387,158 +2465,25 @@ class CO2System(UserDict):
             pos = nx_layout(graph_to_plot, *nx_args, **nx_kwargs)
         return pos
 
-    def plot_graph(
-        self,
-        ax=None,
-        exclude_nodes=None,
-        show_tsp=True,
-        show_unknown=False,
-        keep_unknown=None,
-        show_isolated=False,
-        skip_nodes=None,
-        prog_graphviz=None,
-        root_graphviz=None,
-        args_graphviz="",
-        nx_layout=nx.spring_layout,
-        nx_args=None,
-        nx_kwargs=None,
-        node_kwargs=None,
-        edge_kwargs=None,
-        label_kwargs=None,
-        mode="state",
-    ):
-        """Draw a graph showing the relationships between the different parameters.
-
-        Parameters
-        ----------
-        ax : matplotlib axes, optional
-            The axes on which to plot.  If `None`, a new figure and axes are created.
-        exclude_nodes : list of str, optional
-            List of nodes to exclude from the plot, by default `None`.  Nodes in
-            this list are not shown, nor are connections to them or through them.
-        prog_graphviz : str, optional
-            Name of Graphviz layout program, by default "neato".
-        show_tsp : bool, optional
-            Whether to show temperature, salinity and pressure nodes, by default
-            `True`.
-        show_unknown : bool, optional
-            Whether to show nodes for parameters that have not (yet) been calculated,
-            by default `True`.
-        show_isolated : bool, optional
-            Whether to show nodes for parameters that are not connected to the
-            graph, by default `True`.
-        skip_nodes : bool, optional
-            List of nodes to skip from the plot, by default `None`.  Nodes in this
-            list are not shown, but the connections between their predecessors
-            and children are still drawn.
-
-        Returns
-        -------
-        matplotlib axes
-            The axes on which the graph is plotted.
-        """
-        from matplotlib import pyplot as plt
-
-        # NODE STATES
-        # -----------
-        # no state (grey) = unknwown
-        # 1 (grass) = provided by user (or default) i.e. known but not calculated
-        # 2 (azure) = calculated en route to a user-requested parameter
-        # 3 (tangerine) = calculated after direct user request
-        #
-        # EDGE STATES
-        # -----------
-        # no state (grey) = calculation not performed
-        # 2 = (azure) calculation performed
-        #
-        if ax is None:
-            ax = plt.subplots(dpi=300, figsize=(8, 7))[1]
-        if mode == "valid" and not self.checked_valid:
-            self.check_valid()
-        graph_to_plot = self.get_graph_to_plot(
-            exclude_nodes=exclude_nodes,
-            show_tsp=show_tsp,
-            show_unknown=show_unknown,
-            keep_unknown=keep_unknown,
-            show_isolated=show_isolated,
-            skip_nodes=skip_nodes,
-        )
-        pos = self.get_graph_pos(
-            graph_to_plot=graph_to_plot,
-            prog_graphviz=prog_graphviz,
-            root_graphviz=root_graphviz,
-            args_graphviz=args_graphviz,
-            nx_layout=nx_layout,
-            nx_args=nx_args,
-            nx_kwargs=nx_kwargs,
-        )
-        if mode == "state":
-            node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
-            edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
-            node_colour = [
-                self.c_state[node_states[n]] for n in nx.nodes(graph_to_plot)
-            ]
-            edge_colour = [
-                self.c_state[edge_states[e]] for e in nx.edges(graph_to_plot)
-            ]
-        elif mode == "valid":
-            node_valid = nx.get_node_attributes(graph_to_plot, "valid", default=0)
-            edge_valid = nx.get_edge_attributes(graph_to_plot, "valid", default=0)
-            node_valid_p = nx.get_node_attributes(graph_to_plot, "valid_p", default=0)
-            node_colour = [self.c_valid[node_valid[n]] for n in nx.nodes(graph_to_plot)]
-            edge_colour = [self.c_valid[edge_valid[e]] for e in nx.edges(graph_to_plot)]
-            node_edgecolors = [
-                self.c_valid[node_valid_p[n]] for n in nx.nodes(graph_to_plot)
-            ]
-            node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
-        else:
-            warn(f'mode "{mode}" not recognised, options are "state" or "valid".')
-            node_colour = "xkcd:grey"
-            edge_colour = "xkcd:grey"
-        node_labels = {k: k for k in graph_to_plot.nodes}
-        for k, v in set_node_labels.items():
-            if k in node_labels:
-                node_labels[k] = v
-        if node_kwargs is None:
-            node_kwargs = {}
-        if edge_kwargs is None:
-            edge_kwargs = {}
-        if label_kwargs is None:
-            label_kwargs = {}
-        if mode == "valid":
-            node_kwargs["edgecolors"] = node_edgecolors
-            node_kwargs["linewidths"] = node_linewidths
-        nx.draw_networkx_nodes(
-            graph_to_plot,
-            ax=ax,
-            node_color=node_colour,
-            pos=pos,
-            **node_kwargs,
-        )
-        nx.draw_networkx_edges(
-            graph_to_plot,
-            ax=ax,
-            edge_color=edge_colour,
-            pos=pos,
-            **edge_kwargs,
-        )
-        nx.draw_networkx_labels(
-            graph_to_plot,
-            ax=ax,
-            labels=node_labels,
-            pos=pos,
-            **label_kwargs,
-        )
-        return ax
-
     def keys_all(self):
         """Return a tuple of all possible results keys, including those that have
         not yet been solved for.
         """
         return tuple(self.graph.nodes)
 
-    def check_valid(self, ignore=None):
-        """Check which parameters are valid."""
+    def check_valid(self, ignore=None, nan_invalid=False):
+        """Check if any parameters are invalid.
+
+        Updates the contents of `CO2System.valid` and `CO2System.valid.parts`.
+
+        Parameters
+        ----------
+        ignore : list | str, optional
+            Parameters to ignore when assessing validity (i.e., to consider
+            to be always valid).
+        nan_invalid : bool, optional
+            Whether to consider NaN values as invalid, by default `False`.
+        """
         if ignore is None:
             ignore = []
         if isinstance(ignore, str):
@@ -2551,12 +2496,18 @@ class CO2System(UserDict):
                 and n not in ignore
                 and hasattr(self.graph.nodes[n]["func"], "valid")
             ):
+                self.valid[n] = True
+                self.valid.parts[n] = ShortcutDotDict()
                 n_valid = []
                 for p, p_range in self.graph.nodes[n]["func"].valid.items():
                     # If all predecessor parameters fall within valid ranges, it's valid
-                    if np.all(
-                        (self.data[p] >= p_range[0]) & (self.data[p] <= p_range[1])
-                    ):
+                    sdp = self.data[p]
+                    L_valid = (sdp >= p_range[0]) & (sdp <= p_range[1])
+                    if not nan_invalid:
+                        L_valid |= np.isnan(sdp)
+                    self.valid.parts[n][p] = L_valid
+                    self.valid[n] &= L_valid
+                    if np.all(L_valid):
                         n_valid.append(1)
                         nx.set_edge_attributes(
                             self.graph,
@@ -2571,6 +2522,13 @@ class CO2System(UserDict):
                             {(p, n): -1},
                             name="valid",
                         )
+                # `self.valid` starts off with
+                #   - zeros where none of the inputs are out of range
+                #   - ones where at least one input is out of range
+                self.valid[n] = np.array(~self.valid[n]).astype(int)
+                # The "valid" node attribute starts off with
+                #   - ones where none of the inputs are out of range,
+                #   - negative ones where at least one input is out of range.
                 nx.set_node_attributes(
                     self.graph,
                     {n: min(n_valid)},
@@ -2578,7 +2536,11 @@ class CO2System(UserDict):
                 )
             # Next, assign inherited validity
             # (shown by node edge colour on the graph plot)
+            # If any ancestors are invalid for whatever reason:
+            #   - the "valid" node attribute gets turned to -1,
+            #   - `self.valid` gets += 2.
             n_valid_p = []
+            L_valid_p = False
             for p in self.graph.predecessors(n):
                 p_attrs = self.graph.nodes[p]
                 for v in ["valid", "valid_p"]:
@@ -2590,6 +2552,11 @@ class CO2System(UserDict):
                                 {(p, n): -1},
                                 name="valid",
                             )
+                if p in self.valid:
+                    L_valid_p |= self.valid[p] > 0
+            if n not in self.valid:
+                self.valid[n] = 0
+            self.valid[n] += np.array(L_valid_p).astype(int) * 2
             if -1 in n_valid_p:
                 nx.set_node_attributes(
                     self.graph,

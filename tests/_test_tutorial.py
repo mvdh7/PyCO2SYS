@@ -7,6 +7,33 @@ import xarray as xr
 
 import PyCO2SYS as pyco2
 
+# Propagate uncertainties
+co2s = (
+    pyco2.sys(
+        dic=2100,
+        ph=8.1,
+        salinity=[35, np.nan, 35],
+        temperature=[20, 25, 25],
+        tsi=5,
+        # pk1=8,
+        total_borate=300,
+    )
+    .set_u(dic=2, ph=0.005, **pyco2.uncertainty_OEDG18)
+    # .solve("co3", store_steps=1)
+    .prop(["co3", "hco3"], store_steps=2)
+)
+# co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="state")
+co2s.plot_graph(
+    backend="plotly",
+    prog_graphviz="dot",
+    show_unknown=False,
+    mode="valid",
+    # nan_invalid=True,
+)
+# dict(co2s.valid)
+
+# %%
+
 t = xr.DataArray([5, 10, 15], dims="d1")
 s = xr.DataArray([30, 35, 40], dims="d2")
 ds = xr.Dataset({"trAa": t, "s": s, "oops": 3})
@@ -50,26 +77,6 @@ co2s_insitu = (
 # Adjust fCO2 etc to different temperature
 co2s = pyco2.sys(fco2=400, t=25).adjust(t=5).solve("fco2")
 pyco2.sys(dic=2100, ta=2250, t=15, p=1000).solve("pH")
-
-
-# %% Propagate uncertainties
-co2s = (
-    pyco2.sys(
-        dic=2100,
-        ph=8.1,
-        salinity=500,
-        tsi=5,
-        pk1=8,
-        total_borate=300,
-    )
-    .set_u(dic=2, ph=0.005, **pyco2.uncertainty_OEDG18)
-    # .solve("ta")
-    .prop("ta")
-)
-co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="state")
-# BUG ^ pKs coming up orange in state graph?
-# co2s.plot_graph(prog_graphviz="dot", show_unknown=False, mode="valid")
-# # BUG ^ ionic_strength KeyError
 
 # %%
 gatl = glodap.atlantic().drop(columns="fco2")
