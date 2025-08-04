@@ -87,7 +87,7 @@ grads_of = ["pH"]  # Get derivatives of pH...
 grads_wrt = ["dic", "alkalinity"]  # ... with respect to DIC and alkalinity
 co2s.get_grads(grads_of, grads_wrt)
 
-# Access derivatives
+# Access derivatives - shortcuts and dot notation can be used
 dpH_ddic = co2s.grads["pH"]["dic"]
 dpH_dalk = co2s.grads["pH"]["alkalinity"]
 ```
@@ -100,7 +100,3 @@ dpH_dalk = co2s.grads["pH"]["alkalinity"]
 !!! outputs "`get_grads` results"
 
     For each result `of` in `grads_of` and argument `wrt` in `grads_wrt`, the corresponding derivative is stored in `co2s.grads[of][wrt]`.
-
-!!! warning "No shortcuts here"
-
-    The shortcuts cannot be used in the arguments `grads_of` and `grads_wrt` in the `get_grads` function, nor when accessing keys from `co2s.grads`.

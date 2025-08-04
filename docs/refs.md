@@ -164,6 +164,9 @@ Click on each reference to see more details.
 ??? note "MCHP73: Mehrbach et al. (1973) *Limnol. Oceanogr.*"
     Mehrbach, C., Culberson, C. H., Hawley, J. E., and Pytkowicz, R. M. (1973). Measurement of the Apparent Dissociation Constants of Carbonic Acid in Seawater at Atmospheric Pressure. *Limnology and Oceanography* 18, 897–907. [doi:10.4319/lo.1973.18.6.0897](https://doi.org/10.4319/lo.1973.18.6.0897).
 
+??? note "MFWM08: Millero et al. (2008) *Deep-Sea Res. Pt. I*"
+    Millero, F. J., Feistel, R., Wright, D. G., and McDougall, T. J. (2008). The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale. *Deep-Sea Research Part I* 55(1), 50-72. [doi:10.1016/j.dsr.2007.10.001](https://doi.org/10.1016/j.dsr.2007.10.001).
+
 ??? note "MGH06: Millero et al. (2006) *Mar. Chem.*"
     Millero, F. J., Graham, T. B., Huang, F., Bustos-Serrano, H., and Pierrot, D. (2006). Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. *Marine Chemistry* 100, 80–94. [doi:10.1016/j.marchem.2005.12.001](https://doi.org/10.1016/j.marchem.2005.12.001).
 

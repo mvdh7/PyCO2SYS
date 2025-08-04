@@ -212,7 +212,7 @@ def Ca_C65(salinity):
 
 
 def Mg_reference_composition(salinity):
-    """Magnesium in µmol/kg-sw following the reference composition.
+    """Magnesium in µmol/kg-sw following the reference composition (MFWM08).
 
     Parameters
     ----------

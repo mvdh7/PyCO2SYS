@@ -12,7 +12,7 @@
 
     **If you are here to test PyCO2SYS v2**, then create a test environment with Python v3.10 or greater, and then in that environment run
 
-        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b4
+        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b5
 
     This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
 
@@ -57,8 +57,9 @@ Start with the
 before moving on to
 
   * [Arguments and results](detail.md),
-  * [Adjust conditions](adjust.md) and
-  * [Uncertainty propagation](uncertainty.md).
+  * [Adjust conditions](adjust.md),
+  * [Uncertainty propagation](uncertainty.md), and
+  * [Validity range checker](validity.md).
 
 If you're really interested, also look at
 
