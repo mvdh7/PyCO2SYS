@@ -57,8 +57,9 @@ Start with the
 before moving on to
 
   * [Arguments and results](detail.md),
-  * [Adjust conditions](adjust.md) and
-  * [Uncertainty propagation](uncertainty.md).
+  * [Adjust conditions](adjust.md),
+  * [Uncertainty propagation](uncertainty.md), and
+  * [Validity range checker](validity.md).
 
 If you're really interested, also look at
 
