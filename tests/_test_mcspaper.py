@@ -36,8 +36,7 @@ fig2d_dic = pyco2.sys(
     ta=fig2d.ta,
     s=fig2d.s,
     t=fig2d.t,
-)
-fig2d_dic.get_grads("CO2", "dic")
+).get_grads("co2", "dic")
 
 fig, ax = plt.subplots(dpi=300)
 ax.plot(fig2d.ph, fig2d.revelle, c="xkcd:blue/green", label="RF")

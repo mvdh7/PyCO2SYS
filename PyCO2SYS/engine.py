@@ -1362,7 +1362,7 @@ class CO2System(UserDict):
             ignored = []
         self.ignored = ignored
         self._parse_data(data)
-        self.grads = {}
+        self.grads = ShortcutDotDict()
         self.uncertainty = Uncertainties()
         self.u = self.uncertainty
         self.requested = set()  # keep track of all requested parameters
@@ -2213,7 +2213,14 @@ class CO2System(UserDict):
             The name of the variable to get the derivative with respect to.
             This must be one of the fixed values provided when creating the
             `CO2System`, i.e., listed in its `nodes_original` attribute.
+
+        Returns
+        -------
+        float
+            The gradient of `var_of` with respect to `var_wrt`.
         """
+        var_of = shortcuts[var_of.lower()]
+        var_wrt = shortcuts[var_wrt.lower()]
         assert var_wrt in self.nodes_original, (
             "`var_wrt` must be one of `sys.nodes_original!`"
         )
@@ -2240,14 +2247,13 @@ class CO2System(UserDict):
             # Put the final value into self.grads, first creating a new sub-dict
             # if necessary
             if var_of not in self.grads:
-                self.grads[var_of] = {}
+                self.grads[var_of] = ShortcutDotDict()
             self.grads[var_of][var_wrt] = d_of__d_wrt
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
         """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
-        store them in `sys.grads[var_of][var_wrt]`.  If there are already values
-        there, then those values are returned instead of recalculating.
+        store them in `sys.grads[var_of][var_wrt]`.
 
         Parameters
         ----------
@@ -2257,6 +2263,11 @@ class CO2System(UserDict):
             The names of the variables to get the derivatives with respect to.
             These must all be one of the fixed values provided when creating the
             `CO2System`, i.e., listed in its `nodes_original` attribute.
+
+        Returns
+        -------
+        CO2System
+            The `CO2System` with the additional gradients computed.
         """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
@@ -2264,6 +2275,7 @@ class CO2System(UserDict):
             vars_wrt = [vars_wrt]
         for var_of, var_wrt in itertools.product(vars_of, vars_wrt):
             self.get_grad(var_of, var_wrt)
+        return self
 
     def get_values_original(self):
         return {k: self.data[k] for k in self.nodes_original}
