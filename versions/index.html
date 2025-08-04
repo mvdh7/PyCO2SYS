@@ -1,0 +1,1786 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Marine carbonate system calculations in Python">
+      
+      
+        <meta name="author" content="Matthew P. Humphreys">
+      
+      
+      
+        <link rel="prev" href="../refs/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Version history - PyCO2SYS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M17%2013h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10%2010%200%200%200%202%2012a10%2010%200%200%200%2010%2010%2010%2010%200%200%200%2010-10A10%2010%200%200%200%2012%202%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans:300,300i,400,400i,700,700i%7CNoto+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans";--md-code-font:"Noto Sans Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#version-history" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyCO2SYS" class="md-header__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyCO2SYS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Version history
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyCO2SYS" class="md-nav__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyCO2SYS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview and installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick-start guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../detail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Arguments and results
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adjust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Adjust conditions (temperature and pressure)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Uncertainty propagation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validity range checker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced tips and tricks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1_to_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Switching from v1 to v2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../refs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Version history
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Version history
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#20-forthcoming" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.0 (forthcoming)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.8">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#183-16-february-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.3 (16 February 2024)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#182-19-january-2023" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.2 (19 January 2023)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#181-18-may-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.1 (18 May 2022)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#180-27-october-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.0 (27 October 2021)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.7">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-10-august-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7.1 (10 August 2021)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#170-13-may-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7.0 (13 May 2021)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.6
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#160-26-october-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.6.0 (26 October 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-30-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5.1 (30 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#150-29-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5.0 (29 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#143-16-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.3 (16 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#142-9-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.2 (9 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#141-1-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.1 (1 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#140-9-june-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.0 (9 June 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#130-1-may-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3.0 (1 May 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-9-april-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2.1 (9 April 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#120-8-april-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2.0 (8 April 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-20-march-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1.1 (20 March 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#110-19-march-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1.0 (19 March 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-28-february-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0.1 (28 February 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#100-3-february-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0.0 (3 February 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#20-forthcoming" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.0 (forthcoming)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.8">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#183-16-february-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.3 (16 February 2024)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#182-19-january-2023" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.2 (19 January 2023)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#181-18-may-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.1 (18 May 2022)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#180-27-october-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.8.0 (27 October 2021)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.7">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-10-august-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7.1 (10 August 2021)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#170-13-may-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.7.0 (13 May 2021)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.6
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#160-26-october-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.6.0 (26 October 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-30-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5.1 (30 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#150-29-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5.0 (29 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#143-16-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.3 (16 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#142-9-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.2 (9 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#141-1-july-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.1 (1 July 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#140-9-june-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4.0 (9 June 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#130-1-may-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3.0 (1 May 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-9-april-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2.1 (9 April 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#120-8-april-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2.0 (8 April 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-20-march-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1.1 (20 March 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#110-19-march-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1.0 (19 March 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-28-february-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0.1 (28 February 2020)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#100-3-february-2020" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.0.0 (3 February 2020)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<div class="admonition danger">
+<p class="admonition-title">PyCO2SYS v2 beta</p>
+<p>These are the docs for the beta release of PyCO2SYS v2!</p>
+<p>If you're here to test it, then thank you! and please report any issues via <a href="https://github.com/mvdh7/PyCO2SYS/issues">the GitHub repo</a>.</p>
+<p><strong>These instructions will not work for the current version 1.8</strong> that can be installed through <code>pip</code> and <code>conda</code> - please see <a href="https://pyco2sys.readthedocs.io/en/latest/">PyCO2SYS.readthedocs.io</a> for documentation for the latest stable release.</p>
+</div>
+<h1 id="version-history">Version history<a class="headerlink" href="#version-history" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">Semantics</p>
+<p>Version numbering aims to follow <a href="https://semver.org/">semantic versioning</a>. Therefore:</p>
+<ul>
+<li>New <em>patch</em> versions (e.g. 1.1.<strong>0</strong> to 1.1.<strong>1</strong>) make minor changes that do not alter fuctionality or calculated results.</li>
+<li>New <em>minor</em> versions (e.g. 1.<strong>0</strong>.1 to 1.<strong>1</strong>.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).</li>
+<li>New <em>major</em> versions (e.g. <strong>1</strong>.1.1 to <strong>2</strong>.0.0) may break your code and require you to rewrite things.  They may significantly alter the results of calculations with default settings.</li>
+</ul>
+<p>We will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><em>Will (not) break your code</em> refers <strong>only</strong> to the functions covered in this documentation.</p>
+<p>For the main CO2SYS function as imported with</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">PyCO2SYS</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pyco2</span>
+
+<span class="n">co2s</span> <span class="o">=</span> <span class="n">pyco2</span><span class="o">.</span><span class="n">sys</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+<p>the only things that may change, in at least a <em>minor</em> version release, are:</p>
+<ol>
+<li>Additional inputs may be added to the <code>kwargs</code>, but always with default values such that the results do not change if they are not explicitly set.</li>
+<li>Additional calculated variables may be returned in the output <code>results</code>.</li>
+</ol>
+<p>The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.</p>
+</div>
+<h2 id="20-forthcoming">2.0 (forthcoming)<a class="headerlink" href="#20-forthcoming" title="Permanent link">&para;</a></h2>
+<p>Switches from Autograd to JAX for automatic differentiation.  Internal mechanism rebuilt for significantly more memory-efficient and faster calculations.</p>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v2.0</p>
+<ul>
+<li>Validity range checker implemented.</li>
+<li>Nitrous acid equilibrium at 1 atm pressure included.</li>
+<li>Equilibrium constants handled internally and returned as p<i>K</i> values rather than <i>K</i>.</li>
+<li>Calculations performed only when needed for specifically requested parameters.</li>
+<li>Only one combination of known marine carbonate system parameters allowed per calculation.</li>
+<li>Only one combination of optional settings allowed per calculation.</li>
+<li>Optional settings each only affect one parameterisation, so there are more of them.  (In v1, <code>opt_k_carbonic</code> could alter several other parameterisations beyond just the carbonic acid equilibrium.)</li>
+<li>"Input" and "output" conditions deprecated in favour of the <code>adjust</code> method.</li>
+<li>Uncertainty propagation uses automatic differentiation instead of finite differences.</li>
+<li>Simple tests suggest calculations including iterative pH solving are on the order of 100 times faster and have about 100 times lower peak memory demand.</li>
+<li>Differences in calculated values from v1.8 should all be at the level of computer precision (i.e., negligible).</li>
+</ul>
+</div>
+<h2 id="18">1.8<a class="headerlink" href="#18" title="Permanent link">&para;</a></h2>
+<p>Adds atmospheric pressure input for <em>p</em>CO<sub>2</sub>-<em>f</em>CO<sub>2</sub>-<em>x</em>CO<sub>2</sub> interconversions and (from v1.8.2) optional hydrostatic pressure effect on CO<sub>2</sub> solubility and fugacity.  Uncertainty analysis updated for more reproducible results.  Rigorously validated and fully documented in peer-reviewed journal article (<a href="https://doi.org/10.5194/gmd-15-15-2022">Humphreys et al., 2022</a>).</p>
+<h3 id="183-16-february-2024">1.8.3 (16 February 2024)<a class="headerlink" href="#183-16-february-2024" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.8.3</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Added <code>"dlnfCO2_dT"</code> and <code>"dlnpCO2_dT"</code> results, the theoretical effect of temperature on the natural log of <i>ƒ</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.</li>
+<li>Added the <a href="../refs/#p">PLR18</a> parameterisation of the carbonic acid constants for sea-ice brines.</li>
+</ul>
+<p><strong><em>Default options</em></strong></p>
+<ul>
+<li>Reverted default <code>opt_k_carbonic</code> to <code>10</code> (i.e., <a href="../refs/#l">LDK00</a>) for consistency with the best practice guide.</li>
+</ul>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Updated <code>pyco2.equilibria.p1atm.kH2CO3_NBS_MCHP73</code> (used for <code>opt_k_carbonic</code> options <code>6</code> and <code>7</code>) to update any salinity values less than 10<sup>–16</sup> to be 10<sup>–16</sup>, because zero salinities give a NaN for <i>K</i><sub>2</sub>, which causes problems for Autograd.  This should not make any practical difference, because the parameterisation is only valid for salinities above 19.</li>
+<li>Added <code>opt_pressured_kCO2</code> to results dict and incorporated it correctly into the uncertainty propagation functions.</li>
+</ul>
+<p><strong><em>Technical</em></strong></p>
+<ul>
+<li>Updated from building with setup.py to pyproject.toml.</li>
+<li>PyCO2SYS can now be installed with conda/mamba (via conda-forge).</li>
+</ul>
+</div>
+<h3 id="182-19-january-2023">1.8.2 (19 January 2023)<a class="headerlink" href="#182-19-january-2023" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.8.2</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Added <code>opt_pressured_kCO2</code> to enable pressure corrections for the fugacity factor and CO<sub>2</sub> solubility constant following <a href="../refs/#w">W74</a>.  These have been added to CO2SYS-MATLAB by Jon Sharp at the same time with consistent results (differences less than 10<sup>−4</sup> %).  These pressure corrections are not enabled by default, for consistency with previous versions.</li>
+</ul>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Fixed logicals in <code>solve.core()</code> that had meant no results were returned for parameter type combinations <code>7, 10</code>, <code>7, 11</code>, <code>8, 10</code> and <code>8, 11</code>.</li>
+<li>Updated Autograd version for compatibility with Python 3.11.</li>
+</ul>
+</div>
+<h3 id="181-18-may-2022">1.8.1 (18 May 2022)<a class="headerlink" href="#181-18-may-2022" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.8.1</p>
+<p><strong><em>Breaking changes</em></strong></p>
+<ul>
+<li>For consistency with other settings, <code>buffers_mode</code> kwarg key changed to <code>opt_buffers_mode</code> and its values are now integers rather than strings.</li>
+</ul>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Adds new <code>par1_type</code> / <code>par2_type</code> options <code>10</code> and <code>11</code> for saturation states with respect to calcite and aragonite.</li>
+<li>Adds <a href="../refs/#k">KSK18</a> parameterisation for estimating total borate from salinity.</li>
+</ul>
+<p><strong><em>Dependencies</em></strong></p>
+<ul>
+<li>Switched to Autograd v1.4.</li>
+</ul>
+</div>
+<h3 id="180-27-october-2021">1.8.0 (27 October 2021)<a class="headerlink" href="#180-27-october-2021" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.8.0</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Adds <code>pressure_atmosphere</code> and <code>pressure_atmosphere_out</code> arguments, rather than assuming 1 atm total barometric pressure.</li>
+</ul>
+<p><strong><em>Behind-the-scenes improvements</em></strong></p>
+<ul>
+<li>Adds additional constraint to the initial pH estimate for more robust results for the alkalinity-CO<sub>2</sub> fugacity parameter pair.</li>
+<li>Difference derivatives for uncertainties now have a fixed step size for each argument, instead of scaling depending on arguments, for more reproducible results.</li>
+</ul>
+</div>
+<h2 id="17">1.7<a class="headerlink" href="#17" title="Permanent link">&para;</a></h2>
+<p>Adds new syntax to return equilibrium constants and total salts without needing to solve the full carbonate system.  Fully documented in manuscript in review (<a href="https://doi.org/10.5194/gmd-2021-159">Humphreys et al., 2021, <em>Geosci. Model Dev. Discuss.</em></a>).</p>
+<h3 id="171-10-august-2021">1.7.1 (10 August 2021)<a class="headerlink" href="#171-10-august-2021" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.7.1</p>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Improved handling of zero-valued inputs.</li>
+<li>Adjusted <code>CO2SYS_wrap</code> to work with latest pandas release.</li>
+</ul>
+</div>
+<h3 id="170-13-may-2021">1.7.0 (13 May 2021)<a class="headerlink" href="#170-13-may-2021" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.7.0</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Can now run <code>pyco2.sys</code> with no carbonate system parameter arguments provided, to just return all the equilibrium constants etc. under the specified conditions.</li>
+<li>Can also run <code>pyco2.sys</code> with only one carbonate system parameter argument.  This does not solve the carbonate system, but does calculate all that can be calculated with that parameter.</li>
+<li>Added carbonic acid constants parameterisation of <a href="../refs/#s">SB21</a>.</li>
+<li>Added bisulfate dissociation constant parameterisation of <a href="../refs/#w">WM13</a>/<a href="../refs/#w">WMW14</a>.</li>
+<li>Added spreadsheet-to-spreadsheet function <code>pyco2.ezio</code> (with thanks to <a href="https://github.com/d-sandborn">Daniel Sandborn</a>).</li>
+<li>Integrated uncertainty propagation into the main <code>pyco2.sys</code> function and expanded its capabilities.</li>
+</ul>
+<p><strong><em>Internal updates</em></strong></p>
+<ul>
+<li>Switched default first-guess pH for solving from the alkalinity-carbonate ion parameter pair at low alkalinity from 10 to 3.</li>
+<li>Renamed various internal functions and variables for better consistency with the Pythonic <code>pyco2.sys</code> i/o syntax.</li>
+<li>Removed the <code>PyCO2SYS.test</code> module, instead defining the round-robin test functions it contained directly in the test suite.</li>
+<li>Added various internal settings for testing and validation against older CO2SYS-MATLAB versions.</li>
+<li>Adjust aqueous CO<sub>2</sub> calculation for better consistency with CO2SYS-MATLAB (but negligible changes in the results).</li>
+<li>Can now use <code>PyCO2SYS.hello()</code> to find version number and credits (alias for <code>PyCO2SYS.say_hello()</code>).</li>
+<li>The final component of DIC (or DIC itself) to be calculated is now always computed by difference from the known components.</li>
+<li>Various functions in <code>convert</code> module renamed.</li>
+</ul>
+<p><strong><em>Validation</em></strong></p>
+<ul>
+<li>Rigorous validation against various CO2SYS-MATLAB versions performed, as described in forthcoming PyCO2SYS manuscript (Humphreys et al., in prep.).</li>
+</ul>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li><code>par1</code>, <code>par2</code>, <code>par1_type</code> and <code>par2_type</code> arguments now always get broadcasted to the maximum size, even if they are scalar.</li>
+<li>Erroneous <code>"k_phosphate_*"</code> keys corrected to <code>"k_phosphoric_"</code>.</li>
+<li>Override values for equilibrium constants under output conditions now assigned correctly.</li>
+<li>Fixed minor errors in initial pH estimates when solving from alkalinity and either DIC or [CO<span class="arithmatex">\(_2\)</span>(aq)].</li>
+</ul>
+</div>
+<h2 id="16">1.6<a class="headerlink" href="#16" title="Permanent link">&para;</a></h2>
+<p>Adds extra alkalinity components with arbitrary p<em>K</em> values.</p>
+<h3 id="160-26-october-2020">1.6.0 (26 October 2020)<a class="headerlink" href="#160-26-october-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.6.0</p>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Updates the total alkalinity equation to fix minor error in pH scale conversions inherited from CO2SYS-MATLAB (see related note in <a href="#150-29-july-2020">v1.5.0 release notes</a>).</li>
+</ul>
+<p><strong><em>New inputs and outputs</em></strong></p>
+<ul>
+<li>Enables inputting total molalities and equilibrium constants for up to two additional contributors to total alkalinity.</li>
+<li>Full chemical speciation returned in the output dict of <code>pyco2.sys</code>, not just the alkalinity components as before.</li>
+</ul>
+<p><strong><em>New syntax</em></strong></p>
+<ul>
+<li>Adds <code>sys</code> as an alias for <code>CO2SYS_nd</code> at the top level.  Recommended Python-style syntax is thus now <code>pyco2.sys</code>.</li>
+</ul>
+</div>
+<h2 id="15">1.5<a class="headerlink" href="#15" title="Permanent link">&para;</a></h2>
+<p>Introduces a more Pythonic top-level function that accepts multidimensional arguments and that only returns results at "output" conditions if explicitly specified.</p>
+<h3 id="151-30-july-2020">1.5.1 (30 July 2020)<a class="headerlink" href="#151-30-july-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.5.1</p>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Switched <code>dx</code>-scaling function in <code>PyCO2SYS.uncertainties</code> to use <code>numpy.nanmedian</code> instead of <code>numpy.median</code>.</li>
+<li>Fixed <code>PyCO2SYS.uncertainties.propagate_nd</code> bug that prevented calculations on non-scalar arguments.</li>
+</ul>
+</div>
+<h3 id="150-29-july-2020">1.5.0 (29 July 2020)<a class="headerlink" href="#150-29-july-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.5.0</p>
+<p><strong><em>New top-level functions</em></strong></p>
+<ul>
+<li>Adds <code>PyCO2SYS.CO2SYS_nd</code> top-level function with a more Pythonic interface and with NumPy broadcasting of <span class="arithmatex">\(n\)</span>-dimensional inputs.</li>
+<li>In <code>PyCO2SYS.CO2SYS_nd</code>, results at "output" conditions are only calculated if output temperature or pressure is provided.</li>
+<li>Adds corresponding <code>PyCO2SYS.uncertainty.forward_nd</code> and <code>PyCO2SYS.uncertainty.propagate_nd</code> functions for uncertainty propagation.</li>
+</ul>
+<p><strong><em>Alternative calculations</em></strong></p>
+<ul>
+<li>New alkalinity equation fixing pH scale conversion bug inherited from CO2SYS-MATLAB is available, but not yet implemented by default.</li>
+</ul>
+<p><strong><em>Extra arguments and results</em></strong></p>
+<ul>
+<li>Solubility constants for aragonite and calcite available directly as outputs from <code>PyCO2SYS.CO2SYS</code> and <code>PyCO2SYS.CO2SYS_nd</code></li>
+<li>Explicit values for the solubility constants can be given as arguments to override the default internal calculation.</li>
+</ul>
+<p><strong><em>Internal reorganisation</em></strong></p>
+<ul>
+<li>All 2-to-3 functions in <code>PyCO2SYS.solve.get</code> now have a more consistent set of inputs.</li>
+<li>Revised pH scale conversion functions for consistency and added tests for their internal accuracy.</li>
+<li>Switched preallocations to use <code>np.shape</code> not <code>np.size</code> in preparation for working with <span class="arithmatex">\(n\)</span>-dimensional inputs.</li>
+<li>Updated style to import the whole NumPy module as <code>np</code> instead of individual functions separately.</li>
+<li>Converted <code>PyCO2SYS.engine</code> to a sub-module.</li>
+</ul>
+</div>
+<h2 id="14">1.4<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<p>Enables uncertainty propagation with forward finite-difference derivatives.</p>
+<h3 id="143-16-july-2020">1.4.3 (16 July 2020)<a class="headerlink" href="#143-16-july-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.4.3</p>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Corrected missing a pH scale conversion in <a href="../refs/#s">SLH20</a> option for carbonic acid dissociation.  <strong>Any calculations with this option in PyCO2SYS v1.4.1 or v1.4.2 should be updated!</strong></li>
+</ul>
+<p><strong><em>Validation</em></strong></p>
+<ul>
+<li>Results validated against new release candidate version of CO2SYS-MATLAB v3.</li>
+</ul>
+<p><strong><em>New API</em></strong></p>
+<ul>
+<li>New wrapper function with the same input order and default gas constant option as the new CO2SYS-MATLAB v3 available in <code>PyCO2SYS.api.CO2SYS_MATLABv3</code>.</li>
+</ul>
+<p><strong><em>Internal reorganisation</em></strong></p>
+<ul>
+<li><code>_approx</code> function inputs in <code>PyCO2SYS.solve.delta</code> updated to match the exact Autograd functions for easier switching.</li>
+</ul>
+</div>
+<h3 id="142-9-july-2020">1.4.2 (9 July 2020)<a class="headerlink" href="#142-9-july-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.4.2</p>
+<p><strong><em>Bug fixes</em></strong></p>
+<ul>
+<li>Swapped order of <code>totals</code> and <code>Ks</code> arguments for all functions in <code>PyCO2SYS.solve.delta</code> for consistency with other modules.</li>
+<li>Inverted the alkalinity-pH residual equations in <code>PyCO2SYS.solve.delta</code>.</li>
+</ul>
+<p><strong><em>Reorganisation</em></strong></p>
+<ul>
+<li>Broke out some parts of <code>PyCO2SYS.equilibria.assemble</code> into separate functions.</li>
+</ul>
+</div>
+<h3 id="141-1-july-2020">1.4.1 (1 July 2020)<a class="headerlink" href="#141-1-july-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.4.1</p>
+<p><strong><em>Extra calculation options</em></strong></p>
+<ul>
+<li>Added the <a href="https://physics.nist.gov/cgi-bin/cuu/Value?r">2018 CODATA</a> value for the universal gas constant <em>R</em> as an option for consistency with forthcoming CO2SYS-MATLAB v3.  The original DOEv2 version remains default.</li>
+<li>Added the <a href="../refs/#s">SLH20</a> equations as option <code>16</code> for the carbonic acid dissociation constants.</li>
+</ul>
+</div>
+<h3 id="140-9-june-2020">1.4.0 (9 June 2020)<a class="headerlink" href="#140-9-june-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.4.0</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Added <code>uncertainty</code> module with functions to evaluate derivatives of PyCO2SYS outputs with respect to inputs, along with corresponding <a href="../uncertainty/">documentation</a>.</li>
+<li>Specific input values can optionally be provided for all total concentrations and equilibrium constants that are estimated internally from salinity, temperature and pressure.</li>
+</ul>
+<p><strong><em>General improvements</em></strong></p>
+<ul>
+<li>Added basic sanity checking to prevent some invalid marine carbonate system parameter input values.</li>
+<li>Nutrient concentrations have always been set to zero internally for <code>K1K2CONSTANTS</code> options <code>6</code> and <code>8</code>, and salinity too for <code>8</code>, regardless of the input values.  This is now reflected in the output values of these variables in the <code>CO2dict</code>.</li>
+</ul>
+<p><strong><em>New outputs</em></strong></p>
+<ul>
+<li>Substrate:inhibitor ratio (SIR) of <a href="../refs/#b">B15</a>, calculated with <code>SIratio</code> in new module <code>bio</code>.</li>
+<li>Inputs <code>PAR1</code> and <code>PAR2</code>.</li>
+<li>The "Peng correction" factor.</li>
+<li>The fugacity factor for converting between CO<sub>2</sub> partial pressure and fugacity.</li>
+<li>The activity coefficient of the H<sup>+</sup> ion for NBS pH scale conversions.</li>
+</ul>
+<p><strong><em>Validation</em></strong></p>
+<ul>
+<li>Calculations compare very favourably against the forthcoming <a href="https://github.com/jonathansharp/CO2-System-Extd">CO2SYS for MATLAB v3</a>.</li>
+</ul>
+</div>
+<h2 id="13">1.3<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<p>Adds bicarbonate ion and aqueous CO<sub>2</sub> as inputs from which the carbonate system can be solved.  Continues to reorganise code behind the scenes.  Makes almost everything <a href="https://github.com/HIPS/autograd">Autograd</a>-able and uses this approach to calculate buffer constants.  Validates results against CO2SYS for MATLAB.</p>
+<h3 id="130-1-may-2020">1.3.0 (1 May 2020)<a class="headerlink" href="#130-1-may-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.3.0</p>
+<p><strong><em>New features</em></strong></p>
+<ul>
+<li>Added bicarbonate ion (type <code>7</code>) and aqueous CO<sub>2</sub> (type <code>8</code>) as options for known input marine carbonate system variables.</li>
+<li>Added module <code>test</code> with functions to perform internal consistency checks on <code>PyCO2SYS.CO2SYS</code> calculations and compare results with those from other sources.</li>
+<li>Added module <code>api</code> with a wrapper for <code>PyCO2SYS.CO2SYS</code> to allow inputs as Pandas Series and/or Xarray DataArrays.</li>
+</ul>
+<p><strong><em>Improved calculations</em></strong></p>
+<ul>
+<li>The Revelle factor and all other buffer factors added in v1.2 are now evaluated using automatic differentiation, which means that the effects of all equilibrating species are taken into account.<ul>
+<li>The original, non-automatic functions that do not account for nutrient effects are still available in <code>buffers.explicit</code>.</li>
+<li>Can switch between calculation methods using new optional input <code>opt_buffers_mode</code>.</li>
+</ul>
+</li>
+<li>Corrected Revelle factor calculations:<ul>
+<li>Added missing "Peng correction" to Revelle factor calculation at output conditions.  <em>Note that this correction is currently also missing from CO2SYS for MATLAB!</em></li>
+<li>Decreased DIC perturbation size for more accurate finite-difference "explicit" evaluation.</li>
+<li>Finite-difference calculation now references the correct DIC value.</li>
+</ul>
+</li>
+<li>Implemented better initial guesses for pH in all iterative solvers in <code>solve.get</code> following <a href="../refs/#m">M13</a> and <a href="../refs/#o">OE15</a>.</li>
+<li>Switched to using exact slopes in iterative solvers in <code>solve.get</code>, evaluated using Autograd in new submodule <code>solve.delta</code>.</li>
+<li>Updated entire package to be <a href="https://github.com/HIPS/autograd">Autograd</a>-able.</li>
+<li>Return NaN instead of negative DIC if an impossible pH-alkalinity combination is given as input (i.e. pH is too high).</li>
+<li>Return NaN where DIC and one of its components is given if the component is impossibly large.</li>
+</ul>
+<p><strong><em>Internal reorganisation</em></strong></p>
+<ul>
+<li>Major internal reorganisation that is probably not fully captured in these notes.</li>
+<li>Renamed modules:<ul>
+<li><code>assemble</code> is now <code>engine</code>.</li>
+<li><code>concentrations</code> is now <code>salts</code>.</li>
+<li><code>extra</code> is now <code>buffers.explicit</code>.</li>
+</ul>
+</li>
+<li>Module <code>equilibria</code> now contains sub-modules:<ul>
+<li><code>p1atm</code> for calculating constants at atmospheric pressure.</li>
+<li><code>pcx</code> for determining pressure correction factors.</li>
+<li><code>pressured</code> for calculating constants at given pressure.</li>
+</ul>
+</li>
+<li>Module <code>solve</code> now contains sub-modules:<ul>
+<li><code>initialise</code> to generate first-guess estimates of pH for the TA-pH solvers.</li>
+<li><code>get</code> to calculate a new system variable from various input pairs.</li>
+</ul>
+</li>
+<li>Added module <code>solubility</code> for mineral solubility calculations.</li>
+<li>Relocated <code>_CaSolubility</code> function from root to <code>solubility.CaCO3</code>.<ul>
+<li>Separated out its internal calculations into a set of subfunctions also in the <code>solubility</code> module.</li>
+<li>Added calcium molinity <code>TCa</code> as an input, instead of being evaluated internally.</li>
+</ul>
+</li>
+<li>Added calcium molininty <code>TCa</code> (estimated from salinity) into the main <code>CO2dict</code> output from <code>PyCO2SYS.CO2SYS</code>.</li>
+<li>Relocated <code>_RevelleFactor</code> function from root to <code>buffers.RevelleFactor</code>.</li>
+<li>Relocated <code>_FindpHOnAllScales</code> function from root to <code>convert.pH2allscales</code>.</li>
+<li>Added module <code>constants</code> for storing values of universal physical constants.</li>
+<li>Lists of equilibrium constants and total concentrations now passed around internally as dicts, for safety.</li>
+<li>Total sulfate and bisulfate dissociation constant renamed from <code>TS</code> and <code>KS</code> to <code>TSO4</code> and <code>KSO4</code> internally to avoid confusion with sulfide species.</li>
+<li>The as-close-as-possible MATLAB clone in <code>PyCO2SYS.original</code> no longer produces a dict but just the original <code>DATA</code>, <code>HEADERS</code> and <code>NICEHEADERS</code> outputs.</li>
+</ul>
+<p><strong><em>Miscellaneous</em></strong></p>
+<ul>
+<li>Documentation substantially expanded and switched to using <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a>.<ul>
+<li>Validation section added with internal consistency checks and an external comparison of PyCO2SYS calculations with CO2SYS for MATLAB.</li>
+</ul>
+</li>
+<li>All code now formatted with <a href="https://github.com/psf/black">Black</a> (except for module <code>original</code>).</li>
+<li>Version number now reported with <code>PyCO2SYS.say_hello()</code> in homage to the original MS-DOS program.</li>
+</ul>
+</div>
+<h2 id="12">1.2<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<p>Calculates a wider variety of chemical buffer factors.</p>
+<h3 id="121-9-april-2020">1.2.1 (9 April 2020)<a class="headerlink" href="#121-9-april-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.2.1</p>
+<ul>
+<li>Fixed typo in <a href="../refs/#e">ESM10</a> equations that had been carried through into <code>extra.buffers_ESM10</code> function (thanks <a href="https://twitter.com/James1Orr/status/1248216403355803648">Jim Orr</a>!).</li>
+</ul>
+</div>
+<h3 id="120-8-april-2020">1.2.0 (8 April 2020)<a class="headerlink" href="#120-8-april-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.2.0</p>
+<ul>
+<li>Added module <code>extra</code> containing functions to calculate variables not included in CO2SYS for MATLAB:</li>
+<li><code>buffers_ESM10</code> calculates the buffer factors of <a href="../refs/#e">ESM10</a>, corrected for the typos noted by <a href="../refs/#r">RAH18</a>.</li>
+<li><code>bgc_isocap</code> calculates the "exact" isocapnic quotient of <a href="../refs/#h">HDW18</a>, Eq. 8.</li>
+<li><code>bgc_isocap_approx</code> calculates the approximate isocapnic quotient of <a href="../refs/#h">HDW18</a>, Eq. 7.</li>
+<li><code>psi</code> calculates the <span class="arithmatex">\(\psi\)</span> factor of <a href="../refs/#f">FCG94</a>.</li>
+<li>Added all functions in <code>extra</code> to the <code>CO2dict</code> output of the main <code>CO2SYS</code> function, and documented in the <a href="https://github.com/mvdh7/PyCO2SYS#pyco2sys">Github repo README</a>.</li>
+</ul>
+</div>
+<h2 id="11">1.1<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<p>Adds optional inputs of total ammonium, hydrogen sulfide, and carbonate ion molinities for consistency with forthcoming MATLAB "v1.21".</p>
+<h3 id="111-20-march-2020">1.1.1 (20 March 2020)<a class="headerlink" href="#111-20-march-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.1.1</p>
+<ul>
+<li>Removed unnecessary <code>WhoseTB</code> input to <code>assemble.equilibria</code>.</li>
+</ul>
+</div>
+<h3 id="110-19-march-2020">1.1.0 (19 March 2020)<a class="headerlink" href="#110-19-march-2020" title="Permanent link">&para;</a></h3>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.1.0</p>
+<ul>
+<li>Updated pH-solving iterative functions so that iteration stops separately for each row once it reaches the tolerance threshold.</li>
+<li>Extracted all functions for solving the CO<sub>2</sub> system into a separate module (<code>solve</code>).</li>
+<li>Extracted other key subfunctions into module <code>assemble</code>.</li>
+<li>Added total ammonium (<code>NH3</code>) and hydrogen sulfide (<code>H2S</code>) concentrations as optional inputs to be included in the alkalinity model.</li>
+<li>Added optional input to choose between different equations for hydrogen fluoride dissociation constant (<code>KFCONSTANT</code>).</li>
+<li>Added functions to enable carbonate ion as an input carbonate system variable.</li>
+<li>Output is now only the <code>CO2dict</code> dict, not the original <code>DATA</code>, <code>HEADERS</code> and <code>NICEHEADERS</code>.</li>
+<li>Eliminated all global variables throughout the entire program.</li>
+</ul>
+</div>
+<h2 id="10">1.0<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="101-28-february-2020">1.0.1 (28 February 2020)<a class="headerlink" href="#101-28-february-2020" title="Permanent link">&para;</a></h3>
+<p>Starts to make things more Pythonic.</p>
+<div class="admonition new-version">
+<p class="admonition-title">Changes in v1.0.1</p>
+<ul>
+<li>Extracted all equations for concentrations and equilibrium constants into functions in separate modules (<code>concentrations</code> and <code>equilibria</code>).</li>
+<li>Eliminated all global variables from the <code>_Constants</code> function.</li>
+<li>Moved the as-close-as-possible version into module <code>original</code>. The default <code>from PyCO2SYS import CO2SYS</code> now imports the more Pythonic implementation.</li>
+</ul>
+</div>
+<h3 id="100-3-february-2020">1.0.0 (3 February 2020)<a class="headerlink" href="#100-3-february-2020" title="Permanent link">&para;</a></h3>
+<p>An as-close-as-possible clone of <a href="https://github.com/jamesorr/CO2SYS-MATLAB">MATLAB CO2SYS v2.0.5</a>.</p>
+<div class="admonition new-version">
+<p class="admonition-title">Release notes for v1.0.0</p>
+<ul>
+<li>The first output <code>DICT</code> is new: a dict containing a separate entry for each variable in the original output <code>DATA</code>, with the keys named following the original output <code>HEADERS</code>.</li>
+<li>The output <code>DATA</code> is transposed relative to the MATLAB version because Numpy is row-major while MATLAB is column-major.</li>
+<li>Every combination of input options was tested against the MATLAB version with no significant differences (i.e. all differences can be attributed to floating point errors).</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../refs/" class="md-footer__link md-footer__link--prev" aria-label="Previous: References">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                References
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2025 Matthew P. Humphreys (GNU GPLv3)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy", "navigation.expand", "content.tooltips"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

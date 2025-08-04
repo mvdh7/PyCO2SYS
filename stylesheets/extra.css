@@ -1,0 +1,55 @@
+:root {
+    --md-admonition-icon--new-version: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.5 2.75a.75.75 0 00-1.5 0v18.5c0 .414.336.75.75.75H20a.75.75 0 000-1.5H2.5V2.75z"/><path d="M22.28 7.78a.75.75 0 00-1.06-1.06l-5.72 5.72-3.72-3.72a.75.75 0 00-1.06 0l-6 6a.75.75 0 101.06 1.06l5.47-5.47 3.72 3.72a.75.75 0 001.06 0l6.25-6.25z"/></svg>')
+  }
+  .md-typeset .admonition.new-version,
+  .md-typeset details.new-version {
+    border-color: rgb(15, 15, 15);
+  }
+  .md-typeset .new-version > .admonition-title,
+  .md-typeset .new-version > summary {
+    background-color: rgba(15, 15, 15, 0.1);
+  }
+  .md-typeset .new-version > .admonition-title::before,
+  .md-typeset .new-version > summary::before {
+    background-color: rgb(15, 15, 15);
+    -webkit-mask-image: var(--md-admonition-icon--new-version);
+            mask-image: var(--md-admonition-icon--new-version);
+  }
+
+  :root {
+    --md-admonition-icon--inputs: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14,12L10,8V11H2V13H10V16M20,18V6C20,4.89 19.1,4 18,4H6A2,2 0 0,0 4,6V9H6V6H18V18H6V15H4V18A2,2 0 0,0 6,20H18A2,2 0 0,0 20,18Z"/></svg>')
+  }
+  .md-typeset .admonition.inputs,
+  .md-typeset details.inputs {
+    border-color: #7C4DFF;
+  }
+  .md-typeset .inputs > .admonition-title,
+  .md-typeset .inputs > summary {
+    background-color: #7C4DFF0F;
+  }
+  .md-typeset .inputs > .admonition-title::before,
+  .md-typeset .inputs > summary::before {
+    background-color: #7C4DFF;
+    -webkit-mask-image: var(--md-admonition-icon--inputs);
+            mask-image: var(--md-admonition-icon--inputs);
+  }
+
+  :root {
+    --md-admonition-icon--outputs: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 2.25a.75.75 0 01.75-.75h5.5a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06L20.94 3h-3.69a.75.75 0 01-.75-.75z"/><path d="M3.25 4a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h2.5a.75.75 0 01.75.75v3.19l3.72-3.72a.75.75 0 01.53-.22h10a.25.25 0 00.25-.25v-6a.75.75 0 011.5 0v6a1.75 1.75 0 01-1.75 1.75h-9.69l-3.573 3.573A1.457 1.457 0 015 21.043V18.5H3.25a1.75 1.75 0 01-1.75-1.75V4.25c0-.966.784-1.75 1.75-1.75h11a.75.75 0 010 1.5h-11z"/></svg>')
+  }
+  .md-typeset .admonition.outputs,
+  .md-typeset details.outputs {
+    border-color: rgb(0, 176, 255);
+  }
+  .md-typeset .outputs > .admonition-title,
+  .md-typeset .outputs > summary {
+    background-color: rgba(0, 176, 255, 0.1);
+  }
+  .md-typeset .outputs > .admonition-title::before,
+  .md-typeset .outputs > summary::before {
+    background-color: rgb(0, 176, 255);
+    -webkit-mask-image: var(--md-admonition-icon--outputs);
+            mask-image: var(--md-admonition-icon--outputs);
+  }
+
+  

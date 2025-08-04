@@ -1,0 +1,1416 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Marine carbonate system calculations in Python">
+      
+      
+        <meta name="author" content="Matthew P. Humphreys">
+      
+      
+      
+        <link rel="prev" href="../v1_to_v2/">
+      
+      
+        <link rel="next" href="../versions/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>References - PyCO2SYS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M17%2013h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10%2010%200%200%200%202%2012a10%2010%200%200%200%2010%2010%2010%2010%200%200%200%2010-10A10%2010%200%200%200%2012%202%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans:300,300i,400,400i,700,700i%7CNoto+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans";--md-code-font:"Noto Sans Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#references" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyCO2SYS" class="md-header__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyCO2SYS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              References
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyCO2SYS" class="md-nav__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyCO2SYS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview and installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick-start guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../detail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Arguments and results
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adjust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Adjust conditions (temperature and pressure)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Uncertainty propagation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validity range checker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced tips and tricks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1_to_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Switching from v1 to v2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#b" class="md-nav__link">
+    <span class="md-ellipsis">
+      B
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      C
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d" class="md-nav__link">
+    <span class="md-ellipsis">
+      D
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e" class="md-nav__link">
+    <span class="md-ellipsis">
+      E
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f" class="md-nav__link">
+    <span class="md-ellipsis">
+      F
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#g" class="md-nav__link">
+    <span class="md-ellipsis">
+      G
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#h" class="md-nav__link">
+    <span class="md-ellipsis">
+      H
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i" class="md-nav__link">
+    <span class="md-ellipsis">
+      I
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k" class="md-nav__link">
+    <span class="md-ellipsis">
+      K
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l" class="md-nav__link">
+    <span class="md-ellipsis">
+      L
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#m" class="md-nav__link">
+    <span class="md-ellipsis">
+      M
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o" class="md-nav__link">
+    <span class="md-ellipsis">
+      O
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p" class="md-nav__link">
+    <span class="md-ellipsis">
+      P
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#r" class="md-nav__link">
+    <span class="md-ellipsis">
+      R
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s" class="md-nav__link">
+    <span class="md-ellipsis">
+      S
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t" class="md-nav__link">
+    <span class="md-ellipsis">
+      T
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#u" class="md-nav__link">
+    <span class="md-ellipsis">
+      U
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#w" class="md-nav__link">
+    <span class="md-ellipsis">
+      W
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#y" class="md-nav__link">
+    <span class="md-ellipsis">
+      Y
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z" class="md-nav__link">
+    <span class="md-ellipsis">
+      Z
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Version history
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#b" class="md-nav__link">
+    <span class="md-ellipsis">
+      B
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      C
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d" class="md-nav__link">
+    <span class="md-ellipsis">
+      D
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e" class="md-nav__link">
+    <span class="md-ellipsis">
+      E
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f" class="md-nav__link">
+    <span class="md-ellipsis">
+      F
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#g" class="md-nav__link">
+    <span class="md-ellipsis">
+      G
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#h" class="md-nav__link">
+    <span class="md-ellipsis">
+      H
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i" class="md-nav__link">
+    <span class="md-ellipsis">
+      I
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k" class="md-nav__link">
+    <span class="md-ellipsis">
+      K
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l" class="md-nav__link">
+    <span class="md-ellipsis">
+      L
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#m" class="md-nav__link">
+    <span class="md-ellipsis">
+      M
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o" class="md-nav__link">
+    <span class="md-ellipsis">
+      O
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p" class="md-nav__link">
+    <span class="md-ellipsis">
+      P
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#r" class="md-nav__link">
+    <span class="md-ellipsis">
+      R
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s" class="md-nav__link">
+    <span class="md-ellipsis">
+      S
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t" class="md-nav__link">
+    <span class="md-ellipsis">
+      T
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#u" class="md-nav__link">
+    <span class="md-ellipsis">
+      U
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#w" class="md-nav__link">
+    <span class="md-ellipsis">
+      W
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#y" class="md-nav__link">
+    <span class="md-ellipsis">
+      Y
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z" class="md-nav__link">
+    <span class="md-ellipsis">
+      Z
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<div class="admonition danger">
+<p class="admonition-title">PyCO2SYS v2 beta</p>
+<p>These are the docs for the beta release of PyCO2SYS v2!</p>
+<p>If you're here to test it, then thank you! and please report any issues via <a href="https://github.com/mvdh7/PyCO2SYS/issues">the GitHub repo</a>.</p>
+<p><strong>These instructions will not work for the current version 1.8</strong> that can be installed through <code>pip</code> and <code>conda</code> - please see <a href="https://pyco2sys.readthedocs.io/en/latest/">PyCO2SYS.readthedocs.io</a> for documentation for the latest stable release.</p>
+</div>
+<h1 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h1>
+<p>Click on each reference to see more details.</p>
+<h3 id="b">B<a class="headerlink" href="#b" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>B15: Bach (2015) <em>Biogeosciences</em></summary>
+<p>Bach, L. T. (2015). Reconsidering the role of carbonate ion concentration in calcification by marine organisms. <em>Biogeosciences</em> 12(16), 4939–4951. <a href="https://doi.org/10.5194/bg-12-4939-2015">doi:10.5194/bg-12-4939-2015</a>.</p>
+</details>
+<details class="note">
+<summary>B76: Berner (1976) <em>Am. J. Sci.</em></summary>
+<p>Berner, R. A. (1976). The solubility of calcite and aragonite in seawater at atmospheric pressure and 34.5 ‰ salinity. <em>American Journal of Science</em> 276, 713–730. <a href="https://doi.org/10.2475/ajs.276.6.713">doi:10.2475/ajs.276.6.713</a>.</p>
+</details>
+<details class="note">
+<summary>BBWB24: Borer et al. (2024) <em>Limnol. Oceanogr.</em></summary>
+<p>Borer, B., Bi, E., Woosley, R. J., and Babbin, A. R. (2024).  Apparent nitrous acid dissociation across environmentally relevant temperatures in freshwater and seawater.  <em>Limnology and Oceanography</em> 69, 2859–2866.  <a href="https://doi.org/10.1002/lno.12714">doi:10.1002/lno.12714</a>.</p>
+</details>
+<details class="note">
+<summary>BTSP79: Broecker et al. (1979) <em>Science</em></summary>
+<p>Broecker, W. S., Takahashi, T., Simpson, H. J., and Peng, T.-H. (1979). Fate of Fossil Fuel Carbon Dioxide and the Global Carbon Budget. <em>Science</em> 206, 409–418. <a href="https://doi.org/10.1126/science.206.4417.409">doi:10.1126/science.206.4417.409</a>.</p>
+</details>
+<h3 id="c">C<a class="headerlink" href="#c" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>C65: Culkin (1965) in <em>Chemical Oceanography</em></summary>
+<p>Culkin, F. (1965). “The major constituents of sea water,” in <em>Chemical Oceanography</em>, eds. J. P. Riley and G. Skirrow (London, UK: Academic Press), 121–161.</p>
+</details>
+<details class="note">
+<summary>CP68: Culberson &amp; Pytkowicz (1968) <em>Limnol. Oceanogr.</em></summary>
+<p>Culberson, C., and Pytkowicz, R. M. (1968). Effect of pressure on carbonic acid, boric acid, and the <i>p</i>H in seawater. <em>Limnology and Oceanography</em> 13, 403–417. <a href="https://doi.org/10.4319/lo.1968.13.3.0403">doi:10.4319/lo.1968.13.3.0403</a>.</p>
+</details>
+<details class="note">
+<summary>CW95: Clegg &amp; Whitfield (1995) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Clegg, S. L., and Whitfield, M. (1995). A chemical model of seawater including dissolved ammonia and the stoichiometric dissociation constant of ammonia in estuarine water and seawater from −2 to 40°C. <em>Geochimica et Cosmochimica Acta</em> 59, 2403–2421. <a href="https://doi.org/10.1016/0016-7037(95)00135-2">doi:10.1016/0016-7037(95)00135-2</a>.</p>
+</details>
+<details class="note">
+<summary>CW98: Cai &amp; Wang (1998) <em>Limnol. Oceanogr.</em></summary>
+<p>Cai, W.-J., and Wang, Y. (1998). The chemistry, fluxes, and sources of carbon dioxide in the estuarine waters of the Satilla and Altamaha Rivers, Georgia. <em>Limnology and Oceanography</em> 43, 657–668. <a href="https://doi.org/10.4319/lo.1998.43.4.0657">doi:10.4319/lo.1998.43.4.0657</a>.</p>
+</details>
+<h3 id="d">D<a class="headerlink" href="#d" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>D90a: Dickson (1990) <em>J. Chem. Thermodyn.</em></summary>
+<p>Dickson, A. G. (1990). Standard potential of the reaction: AgCl(s) + 0.5 H<sub>2</sub>(g) = Ag(s) + HCl(aq), and the standard acidity constant of the ion HSO<sub>4</sub><sup>−</sup> in synthetic sea water from 273.15 to 318.15 K. <em>Journal of Chemical Thermodynamics</em> 22, 113–127. <a href='https://doi.org/10.1016/0021-9614(90)90074-Z'>doi:10.1016/0021-9614(90)90074-Z</a>.</p>
+</details>
+<details class="note">
+<summary>D90b: Dickson (1990) <em>Deep-Sea Res. Pt. A</em></summary>
+<p>Dickson, A. G. (1990). Thermodynamics of the dissociation of boric acid in synthetic seawater from 273.15 to 318.15 K. <em>Deep-Sea Research Part A</em> 37, 755–766. <a href='https://doi.org/10.1016/0198-0149(90)90004-F'>doi:10.1016/0198-0149(90)90004-F</a>.</p>
+</details>
+<details class="note">
+<summary>DM87: Dickson &amp; Millero (1987) <em>Deep-Sea Res. Pt. A</em></summary>
+<p>Dickson, A. G., and Millero, F. J. (1987). A comparison of the equilibrium constants for the dissociation of carbonic acid in seawater media. <em>Deep-Sea Research Part A</em> 34, 1733–1743. <a href='https://doi.org/10.1016/0198-0149(87)90021-5'>doi:10.1016/0198-0149(87)90021-5</a>.</p>
+</details>
+<details class="note">
+<summary>DOE94: DOE (1994) <em>"Handbook of methods..."</em></summary>
+<p>DOE (1994). <em>Handbook of methods for the analysis of the various parameters of the carbon dioxide system in sea water, version 2.</em> ORNL/CDIAC-74.</p>
+</details>
+<details class="note">
+<summary>DR79: Dickson &amp; Riley (1979) <em>Mar. Chem.</em></summary>
+<p>Dickson, A. G., and Riley, J. P. (1979). The estimation of acid dissociation constants in sea-water media from potentiometric titrations with strong base. I. The ionic product of water - K<sub>w</sub>. <em>Marine Chemistry</em> 7(2), 89-99. <a href="https://doi.org/10.1016/0304-4203(79)90001-X">doi:10.1016/0304-4203(79)90001-X</a>.</p>
+</details>
+<h3 id="e">E<a class="headerlink" href="#e" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>EG70: Edmond &amp; Gieskes (1970) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Edmond, J. M., and Gieskes, J. M. T. M. (1970). On the calculation of the degree of saturation of sea water with respect to calcium carbonate under in situ conditions. <em>Geochimica et Cosmochimica Acta</em> 34(12), 1261–1291. <a href='https://doi.org/10.1016/0016-7037(70)90041-4'>doi:10.1016/0016-7037(70)90041-4</a>.</p>
+</details>
+<details class="note">
+<summary>ESM10: Egleston et al. (2010) <em>Global Biogeochem. Cycles</em></summary>
+<p>Egleston, E. S., Sabine, C. L., and Morel, F. M. M. (2010). Revelle revisited: Buffer factors that quantify the response of ocean chemistry to changes in DIC and alkalinity. <em>Global Biogeochemical Cycles</em> 24, GB1002. <a href="https://doi.org/10.1029/2008GB003407">doi:10.1029/2008GB003407</a>.</p>
+</details>
+<h3 id="f">F<a class="headerlink" href="#f" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>FCG94: Frankignoulle et al. (1994) <em>Limnol. Oceanogr.</em></summary>
+<p>Frankignoulle, M., Canon, C., and Gattuso, J.-P. (1994). Marine calcification as a source of carbon dioxide: Positive feedback of increasing atmospheric CO<sub>2</sub>. <em>Limnology and Oceanography</em> 39, 458–462. <a href="https://doi.org/10.4319/lo.1994.39.2.0458">doi:10.4319/lo.1994.39.2.0458</a>.</p>
+</details>
+<h3 id="g">G<a class="headerlink" href="#g" title="Permanent link">&para;</a></h3>
+<!-- ??? note "GELO19: Gattuso et al. (2019) *seacarb: seawater carbonate...*"
+    Gattuso J.-P., Epitalon J.-M., Lavigne H. and Orr J., 2019. seacarb: seawater carbonate chemistry. R package version 3.2.12. https://CRAN.R-project.org/package=seacarb. -->
+
+<details class="note">
+<summary>GG46: Goff &amp; Gratch (1946) <em>Trans. Am. Heat. Vent. Eng.</em></summary>
+<p>Goff, J. A., and Gratch, S. (1946). Low-pressure properties of water from -160 to 212 °F. <em>Transactions of the American Society of Heating and Ventilating Engineers</em> 52, 95–122.</p>
+</details>
+<details class="note">
+<summary>GP89: Goyet &amp; Poisson (1989) <em>Deep-Sea Res. Pt. A</em></summary>
+<p>Goyet, C., and Poisson, A. (1989). New determination of carbonic acid dissociation constants in seawater as a function of temperature and salinity. <em>Deep-Sea Research Part A</em> 36, 1635–1654. <a href='https://doi.org/10.1016/0198-0149(89)90064-2'>doi:10.1016/0198-0149(89)90064-2</a>.</p>
+</details>
+<h3 id="h">H<a class="headerlink" href="#h" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>H24: Humphreys (2024) <em>Ocean Sci.</em></summary>
+<p>Humphreys, M. P. (2024).  Temperature effect on seawater <em>ƒ</em>CO<sub>2</sub> revisited: theoretical basis, uncertainty analysis and implications for parameterising carbonic acid equilibrium constants.  <em>Ocean Science</em> 20, 1325-1350.  <a href="https://doi.org/10.5194/os-20-1325-2024">doi:10.5194/os-20-1325-2024</a>.</p>
+</details>
+<details class="note">
+<summary>H73a: Hansson (1973) <em>Deep-Sea Res.</em></summary>
+<p>Hansson, I. (1973). A new set of acidity constants for carbonic acid and boric acid in sea water. <em>Deep-Sea Research</em> 20, 461–478. <a href='https://doi.org/10.1016/0011-7471(73)90100-9'>doi:10.1016/0011-7471(73)90100-9</a>.</p>
+</details>
+<details class="note">
+<summary>H73b: Hansson (1973) <em>Acta Chem. Scand.</em></summary>
+<p>Hansson, I. (1973). The Determination of Dissociation Constants of Carbonic Acid in Synthetic Sea Water in the Salinity Range of 20–40 ‰ and Temperature Range of 5–30°C. <em>Acta Chemica Scandinavica</em> 27, 931–944. <a href="https://doi.org/10.3891/acta.chem.scand.27-0931">doi:10.3891/acta.chem.scand.27-0931</a>.</p>
+</details>
+<details class="note">
+<summary>HDW18: Humphreys et al. (2018) <em>Mar. Chem.</em></summary>
+<p>Humphreys, M. P., Daniels, C. J., Wolf-Gladrow, D. A., Tyrrell, T., and Achterberg, E. P. (2018). On the influence of marine biogeochemical processes over CO<sub>2</sub> exchange between the atmosphere and ocean. <em>Marine Chemistry</em> 199, 1–11. <a href="https://doi.org/10.1016/j.marchem.2017.12.006">doi:10.1016/j.marchem.2017.12.006</a>.</p>
+</details>
+<details class="note">
+<summary>HLSP22: Humphreys et al. (2022) <em>Geosci. Model Dev.</em></summary>
+<p>Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  <em>Geoscientific Model Development</em> 15, 15–43.  <a href="https://doi.org/10.5194/gmd-15-15-2022">doi:10.5194/gmd-15-15-2022</a>.</p>
+</details>
+<details class="note">
+<summary>HSS22: Humphreys et al. (2022) <em>"PyCO2SYS: marine carbonate..."</em></summary>
+<p>Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022). PyCO2SYS: marine carbonate system calculations in Python.  <em>Zenodo.</em> <a href="https://doi.org/10.5281/zenodo.3744275">doi:10.5281/zenodo.3744275</a>.</p>
+</details>
+<details class="note">
+<summary>HPR11: van Heuven et al. (2011) <em>"CO<sub>2</sub>SYS v1.1, MATLAB..."</em></summary>
+<p>van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. <a href="https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1">doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1</a>.</p>
+</details>
+<h3 id="i">I<a class="headerlink" href="#i" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>I75: Ingle (1975) <em>Mar. Chem.</em></summary>
+<p>Ingle, S. E. (1975). Solubility of calcite in the ocean. <em>Marine Chemistry</em> 3, 301–319. <a href='https://doi.org/10.1016/0304-4203(75)90010-9'>doi:10.1016/0304-4203(75)90010-9</a>.</p>
+</details>
+<details class="note">
+<summary>ICHP73: Ingle et al. (1973) <em>Mar. Chem.</em></summary>
+<p>Ingle, S. E., Culberson, C. H., Hawley, J. E., and Pytkowicz, R. M. (1973). The solubility of calcite in seawater at atmospheric pressure and 35‰ salinity. <em>Marine Chemistry</em> 1, 295–307. <a href='https://doi.org/10.1016/0304-4203(73)90019-4'>doi:10.1016/0304-4203(73)90019-4</a>.</p>
+</details>
+<h3 id="k">K<a class="headerlink" href="#k" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>KP67: Kester &amp; Pytkowicz (1967) <em>Limnol. Oceanogr.</em></summary>
+<p>Kester, D. R., and Pytkowicz, R. M. (1967). Determination of the Apparent Dissociation Constants of Phosphoric Acid in Seawater. <em>Limnology and Oceanography</em> 12, 243–252. <a href="https://doi.org/10.4319/lo.1967.12.2.0243">doi:10.4319/lo.1967.12.2.0243</a>.</p>
+</details>
+<details class="note">
+<summary>KRCB77: Khoo et al. (1977) <em>Anal. Chem.</em></summary>
+<p>Khoo, K. H., Ramette, R. W., Culberson, C. H., and Bates, R. G. (1977). Determination of hydrogen ion concentrations in seawater from 5 to 40C: standard potentials at salinities from 20 to 45 per mille. <em>Analytical Chemistry</em> 49, 29–34. <a href="https://doi.org/10.1021/ac50009a016">doi:10.1021/ac50009a016</a>.</p>
+</details>
+<details class="note">
+<summary>KSK18: Kuliński et al. (2018) <em>Mar. Chem.</em></summary>
+<p>Kuliński, K., Szymczycha, B., Koziorowska, K., Hammer, K., Schneider, B. (2018). Anomaly of total boron concentration in the brackish waters of the Baltic Sea and its consequence for the CO<sub>2</sub> system calculations. <em>Marine Chemistry</em> 204, 11-19. <a href="https://doi.org/10.1016/j.marchem.2018.05.007">doi:10.1016/j.marchem.2018.05.007</a>.</p>
+</details>
+<h3 id="l">L<a class="headerlink" href="#l" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>LDK00: Lueker et al. (2000) <em>Mar. Chem.</em></summary>
+<p>Lueker, T. J., Dickson, A. G., and Keeling, C. D. (2000). Ocean <i>p</i>CO<sub>2</sub> calculated from dissolved inorganic carbon, alkalinity, and equations for K<sub>1</sub> and K<sub>2</sub>: validation based on laboratory measurements of CO<sub>2</sub> in gas and seawater at equilibrium. <em>Marine Chemistry</em> 70, 105–119. <a href='https://doi.org/10.1016/S0304-4203(00)00022-0'>doi:10.1016/S0304-4203(00)00022-0</a>.</p>
+</details>
+<details class="note">
+<summary>LKB10: Lee et al. (2010) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Lee, K., Kim, T.-W., Byrne, R. H., Millero, F. J., Feely, R. A., and Liu, Y.-M. (2010). The universal ratio of boron to chlorinity for the North Pacific and North Atlantic oceans. <em>Geochimica et Cosmochimica Acta</em> 74, 1801–1811. <a href="https://doi.org/10.1016/j.gca.2009.12.027">doi:10.1016/j.gca.2009.12.027</a>.</p>
+</details>
+<details class="note">
+<summary>LTB69: Li et al. (1969) <em>J. Geophys. Res.</em></summary>
+<p>Li, Y.-H., Takahashi, T., and Broecker, W. S. (1969). Degree of saturation of CaCO<sub>3</sub> in the oceans. <em>Journal of Geophysical Research</em> 74, 5507–5525. <a href="https://doi.org/10.1029/JC074i023p05507">doi:10.1029/JC074i023p05507</a>.</p>
+</details>
+<details class="note">
+<summary>LW98: Lewis &amp; Wallace (1998) <em>"Program developed for..."</em></summary>
+<p>Lewis, E., and Wallace, D. W. R. (1998). Program Developed for CO<sub>2</sub> System Calculations. ORNL/CDIAC-105, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA.</p>
+</details>
+<h3 id="m">M<a class="headerlink" href="#m" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>M10: Millero (2010) <em>Mar. Freshwater Res.</em></summary>
+<p>Millero, F. J. (2010). Carbonate constants for estuarine waters. <em>Marine and Freshwater Research</em> 61(2), 139–142. <a href="https://doi.org/10.1071/MF09254">doi:10.1071/MF09254</a>.</p>
+</details>
+<details class="note">
+<summary>M13: Munhoven (2013) <em>Geosci. Model Dev.</em></summary>
+<p>Munhoven, G. (2013). Mathematics of the total alkalinity–pH equation – pathway to robust and universal solution algorithms: the SolveSAPHE package v1.0.1. <em>Geoscientific Model Development</em> 6, 1367–1388. <a href="https://doi.org/10.5194/gmd-6-1367-2013">doi:10.5194/gmd-6-1367-2013</a>.</p>
+</details>
+<details class="note">
+<summary>M16: Maclaurin (2016) <em>Autograd: Automatic Differentiation...</em></summary>
+<p>Maclaurin, D. (2016). “Autograd: Automatic Differentiation for Python,” in <em>Modeling, Inference and Optimization with Composable Differentiable Procedures</em> (PhD thesis, Harvard University, Cambridge, MA), 41–57.</p>
+</details>
+<details class="note">
+<summary>M79: Millero (1979) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Millero, F. J. (1979). The thermodynamics of the carbonate system in seawater. <em>Geochimica et Cosmochimica Acta</em> 43, 1651–1661. <a href='https://doi.org/10.1016/0016-7037(79)90184-4'>doi:10.1016/0016-7037(79)90184-4</a>.</p>
+</details>
+<details class="note">
+<summary>M83: Mucci (1983) <em>Am. J. Sci.</em></summary>
+<p>Mucci, A. (1983). The solubility of calcite and aragonite in seawater at various salinities, temperatures, and one atmosphere total pressure. <em>American Journal of Science</em> 283, 780–799. <a href="doi:10.2475/ajs.283.7.780">doi:10.2475/ajs.283.7.780</a>.</p>
+</details>
+<details class="note">
+<summary>Mi83: Millero (1983) in <em>"Chemical Oceanography"</em></summary>
+<p>Millero, F. J. (1983). “Influence of pressure on chemical processes in the sea,” in <em>Chemical Oceanography</em>, eds. J. P. Riley and R. Chester (Academic Press).</p>
+</details>
+<details class="note">
+<summary>MS92: Millero &amp; Sohn (1992) <em>"Chemical Oceanography"</em></summary>
+<p>Millero, F. J., and Sohn, M. L. (1992). <em>Chemical Oceanography.</em> CRC Press, Florida, USA.</p>
+</details>
+<details class="note">
+<summary>M95: Millero (1995) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Millero, F. J. (1995). Thermodynamics of the carbon dioxide system in the oceans. <em>Geochimica et Cosmochimica Acta</em> 59, 661–677. <a href='https://doi.org/10.1016/0016-7037(94)00354-O'>doi:10.1016/0016-7037(94)00354-O</a>.</p>
+</details>
+<details class="note">
+<summary>MCHP73: Mehrbach et al. (1973) <em>Limnol. Oceanogr.</em></summary>
+<p>Mehrbach, C., Culberson, C. H., Hawley, J. E., and Pytkowicz, R. M. (1973). Measurement of the Apparent Dissociation Constants of Carbonic Acid in Seawater at Atmospheric Pressure. <em>Limnology and Oceanography</em> 18, 897–907. <a href="https://doi.org/10.4319/lo.1973.18.6.0897">doi:10.4319/lo.1973.18.6.0897</a>.</p>
+</details>
+<details class="note">
+<summary>MFWM08: Millero et al. (2008) <em>Deep-Sea Res. Pt. I</em></summary>
+<p>Millero, F. J., Feistel, R., Wright, D. G., and McDougall, T. J. (2008). The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale. <em>Deep-Sea Research Part I</em> 55(1), 50-72. <a href="https://doi.org/10.1016/j.dsr.2007.10.001">doi:10.1016/j.dsr.2007.10.001</a>.</p>
+</details>
+<details class="note">
+<summary>MGH06: Millero et al. (2006) <em>Mar. Chem.</em></summary>
+<p>Millero, F. J., Graham, T. B., Huang, F., Bustos-Serrano, H., and Pierrot, D. (2006). Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. <em>Marine Chemistry</em> 100, 80–94. <a href="https://doi.org/10.1016/j.marchem.2005.12.001">doi:10.1016/j.marchem.2005.12.001</a>.</p>
+</details>
+<details class="note">
+<summary>MM02: Mojica Prieto &amp; Millero (2002) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Mojica Prieto, F. J., and Millero, F. J. (2002). The values of pK<sub>1</sub> + pK<sub>2</sub> for the dissociation of carbonic acid in seawater. <em>Geochimica et Cosmochimica Acta</em> 66, 2529–2540. <a href='https://doi.org/10.1016/S0016-7037(02)00855-4'>doi:10.1016/S0016-7037(02)00855-4</a>.</p>
+</details>
+<details class="note">
+<summary>MPL02: Millero et al. (2002) <em>Deep-Sea Res. Pt. I</em> </summary>
+<p>Millero, F. J., Pierrot, D., Lee, K., Wanninkhof, R., Feely, R., Sabine, C. L., et al. (2002). Dissociation constants for carbonic acid determined from field measurements. <em>Deep-Sea Research Part I</em> 49, 1705–1723. <a href='https://doi.org/10.1016/S0967-0637(02)00093-6'>doi:10.1016/S0967-0637(02)00093-6</a>.</p>
+</details>
+<details class="note">
+<summary>MR66: Morris &amp; Riley (1966) <em>Deep-Sea Res.</em></summary>
+<p>Morris, A. W., and Riley, J. P. (1966). The bromide/chlorinity and sulphate/chlorinity ratio in sea water. <em>Deep-Sea Research</em> 13, 699–705. <a href='https://doi.org/10.1016/0011-7471(66)90601-2'>doi:10.1016/0011-7471(66)90601-2</a>.</p>
+</details>
+<h3 id="o">O<a class="headerlink" href="#o" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>OE15: Orr &amp; Epitalon (2015) <em>Geosci. Model Dev.</em></summary>
+<p>Orr, J. C., and Epitalon, J.-M. (2015). Improved routines to model the ocean carbonate system: mocsy 2.0. <em>Geoscientific Model Development</em> 8, 485–499. <a href="https://doi.org/10.5194/gmd-8-485-2015">doi:10.5194/gmd-8-485-2015</a>.</p>
+</details>
+<details class="note">
+<summary>OEG15: Orr et al. (2015) <em>Biogeosciences</em></summary>
+<p>Orr, J. C., Epitalon, J.-M., and Gattuso, J.-P. (2015). Comparison of ten packages that compute ocean carbonate chemistry. <em>Biogeosciences</em> 12, 1483–1510. <a href="https://doi.org/10.5194/bg-12-1483-2015">doi:10.5194/bg-12-1483-2015</a>.</p>
+</details>
+<details class="note">
+<summary>OEDG18: Orr et al. (2018) <em>Mar. Chem.</em></summary>
+<p>Orr, J. C., Epitalon, J.-M., Dickson, A. G., and Gattuso, J.-P. (2018). Routine uncertainty propagation for the marine carbon dioxide system. <em>Marine Chemistry</em> 207, 84–107. <a href="https://doi.org/10.1016/j.marchem.2018.10.006">doi:10.1016/j.marchem.2018.10.006</a>.</p>
+</details>
+<h3 id="p">P<a class="headerlink" href="#p" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>PF87: Perez &amp; Fraga (1987) <em>Mar. Chem.</em></summary>
+<p>Perez, F. F., and Fraga, F. (1987). Association constant of fluoride and hydrogen ions in seawater. <em>Marine Chemistry</em> 21, 161–168. <a href="https://doi.org/10.1016/0304-4203(87)90036-3">doi:10.1016/0304-4203(87)90036-3</a>.</p>
+</details>
+<details class="note">
+<summary>PLR18: Papadimitriou et al. (2018) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Papadimitriou, S., Loucaides, S., Rérolle, V. M. C., Kennedy, P., Achterberg, E. P., Dickson, A. G., Mowlem, M., and Kennedy, H. (2018). The stoichiometric dissociation constants of carbonic acid in seawater brines from 298 to 267 K. <em>Geochimica et Cosmochimica Acta</em> 220, 55–70.  <a href="https://doi.org/10.1016/j.gca.2017.09.037">doi:10.1016/j.gca.2017.09.037</a>.</p>
+</details>
+<details class="note">
+<summary>PTBO87: Peng et al. (1987) <em>Tellus B</em></summary>
+<p>Peng, T.-H., Takahashi, T., Broecker, W. S., and Olafsson, J. (1987). Seasonal variability of carbon dioxide, nutrients and oxygen in the northern North Atlantic surface water: observations and a model. <em>Tellus B</em> 39, 439–458. <a href="https://doi.org/10.3402/tellusb.v39i5.15361">doi:10.3402/tellusb.v39i5.15361</a>.</p>
+</details>
+<h3 id="r">R<a class="headerlink" href="#r" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>R54: Robinson (1954) <em>J. Mar. Biol. Ass. U.K.</em></summary>
+<p>Robinson, R. A. (1954). The vapour pressure and osmotic equivalence of sea water. <em>Journal of the Marine Biological Association of the United Kingdom</em> 33, 449–455. <a href="https://doi.org/10.1017/S0025315400008468">doi:10.1017/S0025315400008468</a>.</p>
+</details>
+<details class="note">
+<summary>R65: Riley (1965) <em>Deep-Sea Res.</em></summary>
+<p>Riley, J. P. (1965). The occurrence of anomalously high fluoride concentrations in the North Atlantic. <em>Deep-Sea Research</em> 12, 219–220. <a href='https://doi.org/10.1016/0011-7471(65)90027-6'>doi:10.1016/0011-7471(65)90027-6</a>.</p>
+</details>
+<details class="note">
+<summary>RAH18: Richier et al. (2018) <em>Glob. Change Biol.</em></summary>
+<p>Richier, S., Achterberg, E. P., Humphreys, M. P., Poulton, A. J., Suggett, D. J., Tyrrell, T., et al. (2018). Geographical CO<sub>2</sub> sensitivity of phytoplankton correlates with ocean buffer capacity. <em>Global Change Biology</em> 24, 4438–4452. <a href="https://doi.org/10.1111/gcb.14324">doi:10.1111/gcb.14324</a>.</p>
+</details>
+<!-- ??? note "RG20: Raitzsch & Gattuso (2020) *ScarFace - seacarb calculations...*"
+    Raitzsch, M. and Gattuso, J.-P. (2020). ScarFace - seacarb calculations with R Shiny user interface. Version 1.1.0. *Zenodo.* [doi:10.5281/zenodo.3662139](https://doi.org/10.5281/zenodo.3662139). -->
+
+<details class="note">
+<summary>RRV93: Roy et al. (1993) <em>Mar. Chem.</em></summary>
+<p>Roy, R. N., Roy, L. N., Vogel, K. M., Porter-Moore, C., Pearson, T., Good, C. E., et al. (1993). The dissociation constants of carbonic acid in seawater at salinities 5 to 45 and temperatures 0 to 45°C. <em>Marine Chemistry</em> 44, 249–267. <a href='https://doi.org/10.1016/0304-4203(93)90207-5'>doi:10.1016/0304-4203(93)90207-5</a>.</p>
+</details>
+<details class="note">
+<summary>RT67: Riley &amp; Tongudai (1967) <em>Chem. Geol.</em></summary>
+<p>Riley, J. P., and Tongudai, M. (1967). The major cation/chlorinity ratios in sea water. <em>Chemical Geology</em> 2, 263–269. <a href='https://doi.org/10.1016/0009-2541(67)90026-5'>doi:10.1016/0009-2541(67)90026-5</a>.</p>
+</details>
+<h3 id="s">S<a class="headerlink" href="#s" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>SB21: Schockman &amp; Byrne (2021) <em>Geochim. Cosmochim. Acta</em></summary>
+<p>Schockman, K. M., and Byrne, R. H. (2021). Spectrophotometric Determination of the Bicarbonate Dissociation Constant in Seawater. <em>Geochemica Cosmochimica Acta</em>, in press.  <a href="https://doi.org/10.1016/j.gca.2021.02.008">doi:10.1016/j.gca.2021.02.008</a>.</p>
+</details>
+<details class="note">
+<summary>SLH20: Sulpis et al. (2020) <em>Ocean Sci.</em></summary>
+<p>Sulpis, O., Lauvset, S. K., and Hagens, M. (2020). Current estimates of K<sub>1</sub><sup>&ast;</sup> and K<sub>2</sub><sup>&ast;</sup> appear inconsistent with measured CO<sub>2</sub> system parameters in cold oceanic regions. <em>Ocean Science</em> 16(4), 847–862. <a href="https://doi.org/10.5194/os-2020-19">doi:10.5194/os-2020-19</a>.</p>
+</details>
+<details class="note">
+<summary>SMB64: Sillén et al. (1964) <em>Chem. Soc. London</em></summary>
+<p>Sillén, L. G., Martell, A. E., and Bjerrum, J. (1964). Stability constants of metal-ion complexes. Special Publication 17. London, UK: Chemical Society.</p>
+</details>
+<details class="note">
+<summary>SPH20: Sharp et al. (2020) <em>CO2-System-Extd</em></summary>
+<p>Sharp, J. D., Pierrot, D., Humphreys, M. P., Epitalon, J.-M., Orr, J. C., Lewis, E., Wallace, D. W. R. (2020). CO2-System-Extd, v3.0.  MATLAB (MathWorks).  Available from <a href="https://github.com/jonathansharp/CO2-System-Extd">github.com/jonathansharp/CO2-System-Extd</a>.</p>
+</details>
+<h3 id="t">T<a class="headerlink" href="#t" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>TOG93: Takahashi et al. (1993) <em>Global Biogeochem. Cycles</em></summary>
+<p>Takahashi, T., Olafsson, J., Goddard, J. G., Chipman, D. W., and Sutherland, S. C. (1993).  Seasonal variation of CO<sub>2</sub> and nutirents in the high-latitude surface oceans: a comparative study.  <em>Global Biogeochemical Cycles</em> 7(4), 843-878.  <a href="https://doi.org/10.1029/93GB02263">doi:10.1029/93GB02263</a>.</p>
+</details>
+<details class="note">
+<summary>TSW09: Takahashi et al. (2009) <em>Deep-Sea Res. Pt. II</em></summary>
+<p>Takahashi, T., Sutherland, S. C., Wanninkhof, R., Sweeney, C., Feely, R. A., Chipman, D. W., Hales, B., Friederich, G., Chavez, F., Sabine, C., Watson, A., Bakker, D. C. E., Schuster, U., Metzl, N., Yoshikawa-Inoue, H., Ishii, M., Midorikawa, T., Nojiri, Y., Körtzinger, A., Steinhoff, T., Hoppema, M., Olafsson, J., Arnarson, T. S., Tilbrook, B., Johannessen, T., Olsen, A., Bellerby, R., Wong, C. S., Delille, B., Bates, N. R., and de Baar, H. J. W. (2009).  Climatological mean and decadal change in surface ocean pCO<sub>2</sub>, and net sea-air CO<sub>2</sub> flux over the global oceans.  <em>Deep-Sea Research II</em> 56, 554–577.  <a href="https://doi.org/10.1016/j.dsr2.2008.12.009">doi:10.1016/j.dsr2.2008.12.009</a>.</p>
+</details>
+<details class="note">
+<summary>TWB82: Takahashi et al. (1982) in <em>"GEOSECS Pacific Expedition"</em></summary>
+<p>Takahashi, T., Williams, R. T., and Bos, D. L. (1982). “Carbonate Chemistry,” in <em>GEOSECS Pacific Expedition: Hydrographic Data</em> (Washington, D. C.: National Science Foundation), 77–105.</p>
+</details>
+<h3 id="u">U<a class="headerlink" href="#u" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>U74: Uppström (1974) <em>Deep-Sea Res.</em></summary>
+<p>Uppström, L. R. (1974). The boron/chlorinity ratio of deep-sea water from the Pacific Ocean. <em>Deep-Sea Research</em> 21, 161–162. <a href='https://doi.org/10.1016/0011-7471(74)90074-6'>doi:10.1016/0011-7471(74)90074-6</a>.</p>
+</details>
+<h3 id="w">W<a class="headerlink" href="#w" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>W74: Weiss (1974) <em>Mar. Chem.</em></summary>
+<p>Weiss, R. F. (1974). Carbon dioxide in water and seawater: the solubility of a non-ideal gas. <em>Marine Chemistry</em> 2, 203–215. <a href='https://doi.org/10.1016/0304-4203(74)90015-2'>doi:10.1016/0304-4203(74)90015-2</a>.</p>
+</details>
+<details class="note">
+<summary>WM13: Waters &amp; Millero (2013) <em>Mar. Chem.</em></summary>
+<p>Waters, J.F., Millero, F.J. (2013). The free proton concentration scale for seawater pH. <em>Marine Chemistry</em> 149, 8–22. <a href="https://doi.org/10.1016/j.marchem.2012.11.003">doi:10.1016/j.marchem.2012.11.003</a>.</p>
+</details>
+<details class="note">
+<summary>WMW14: Waters et al. (2014) <em>Mar. Chem.</em></summary>
+<p>Waters, J., Millero, F. J., and Woosley, R. J. (2014). Corrigendum to “The free proton concentration scale for seawater pH”, [MARCHE: 149 (2013) 8–22]. <em>Marine Chemistry</em> 165, 66–67. <a href="https://doi.org/10.1016/j.marchem.2014.07.004">doi:10.1016/j.marchem.2014.07.004</a>.</p>
+</details>
+<details class="note">
+<summary>WP80: Weiss &amp; Price (1980) <em>Mar. Chem.</em></summary>
+<p>Weiss, R. F., and Price, B. A. (1980). Nitrous oxide solubility in water and seawater. <em>Marine Chemistry</em> 8, 347–359. <a href="https://doi.org/10.1016/0304-4203(80)90024-9">doi:10.1016/0304-4203(80)90024-9</a>.</p>
+</details>
+<details class="note">
+<summary>WZK07: Wolf-Gladrow et al. (2007) <em>Mar. Chem.</em></summary>
+<p>Wolf-Gladrow, D. A., Zeebe, R. E., Klaas, C., Körtzinger, A., and Dickson, A. G. (2007). Total alkalinity: The explicit conservative expression and its application to biogeochemical processes. <em>Marine Chemistry</em> 106, 287-300. <a href="https://doi.org/10.1016/j.marchem.2007.01.006">doi:10.1016/j.marchem.2007.01.006</a>.</p>
+</details>
+<h3 id="y">Y<a class="headerlink" href="#y" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>YM95: Yao &amp; Millero (1995) <em>Aquat. Geochem.</em></summary>
+<p>Yao, W., and Millero, F. J. (1995). The chemistry of the anoxic waters in the Framvaren Fjord, Norway. <em>Aquatic Geochemistry</em> 1, 53–88. <a href="https://doi.org/10.1007/BF01025231">doi:10.1007/BF01025231</a>.</p>
+</details>
+<h3 id="z">Z<a class="headerlink" href="#z" title="Permanent link">&para;</a></h3>
+<details class="note">
+<summary>ZW01: Zeebe &amp; Wolf-Gladrow (2001) <em>"CO<sub>2</sub> in Seawater..."</em></summary>
+<p>Zeebe, R. E., and Wolf-Gladrow, D. (2001). <i>CO<sub>2</sub> in Seawater: Equilibrium, Kinetics, Isotopes.</i> Elsevier B.V., Amsterdam, the Netherlands.</p>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../v1_to_v2/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Switching from v1 to v2">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Switching from v1 to v2
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../versions/" class="md-footer__link md-footer__link--next" aria-label="Next: Version history">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Version history
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2025 Matthew P. Humphreys (GNU GPLv3)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy", "navigation.expand", "content.tooltips"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

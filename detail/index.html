@@ -1,0 +1,1561 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Marine carbonate system calculations in Python">
+      
+      
+        <meta name="author" content="Matthew P. Humphreys">
+      
+      
+      
+        <link rel="prev" href="../quick/">
+      
+      
+        <link rel="next" href="../adjust/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Arguments and results - PyCO2SYS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M17%2013h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10%2010%200%200%200%202%2012a10%2010%200%200%200%2010%2010%2010%2010%200%200%200%2010-10A10%2010%200%200%200%2012%202%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans:300,300i,400,400i,700,700i%7CNoto+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans";--md-code-font:"Noto Sans Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#arguments-and-results" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyCO2SYS" class="md-header__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyCO2SYS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Arguments and results
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyCO2SYS" class="md-nav__button md-logo" aria-label="PyCO2SYS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyCO2SYS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mvdh7/PyCO2SYS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mvdh7/PyCO2SYS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview and installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick-start guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Arguments and results
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Arguments and results
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#keyword-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keyword arguments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyword arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#carbonate-system-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carbonate system parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hydrographic-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hydrographic conditions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nutrients-and-other-solutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nutrients and other solutes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ph-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      pH scale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#carbonic-acid-dissociation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carbonic acid dissociation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-dissociation-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other dissociation constants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-dissociation-constant-pressure-corrections" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other dissociation constant pressure corrections
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-salt-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Total salt contents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equilibrium-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Equilibrium constants
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyco2sys-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      pyco2.sys arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ph-scales" class="md-nav__link">
+    <span class="md-ellipsis">
+      pH scales
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chemical-speciation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chemical speciation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chemical-buffer-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chemical buffer factors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equilibrium-constants_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Equilibrium constants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adjust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Adjust conditions (temperature and pressure)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Uncertainty propagation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validity range checker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced tips and tricks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1_to_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Switching from v1 to v2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../refs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Version history
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#keyword-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keyword arguments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyword arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#carbonate-system-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carbonate system parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hydrographic-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hydrographic conditions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nutrients-and-other-solutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nutrients and other solutes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ph-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      pH scale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#carbonic-acid-dissociation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carbonic acid dissociation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-dissociation-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other dissociation constants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-dissociation-constant-pressure-corrections" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other dissociation constant pressure corrections
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-salt-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Total salt contents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equilibrium-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Equilibrium constants
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyco2sys-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      pyco2.sys arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ph-scales" class="md-nav__link">
+    <span class="md-ellipsis">
+      pH scales
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chemical-speciation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chemical speciation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chemical-buffer-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chemical buffer factors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equilibrium-constants_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Equilibrium constants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<div class="admonition danger">
+<p class="admonition-title">PyCO2SYS v2 beta</p>
+<p>These are the docs for the beta release of PyCO2SYS v2!</p>
+<p>If you're here to test it, then thank you! and please report any issues via <a href="https://github.com/mvdh7/PyCO2SYS/issues">the GitHub repo</a>.</p>
+<p><strong>These instructions will not work for the current version 1.8</strong> that can be installed through <code>pip</code> and <code>conda</code> - please see <a href="https://pyco2sys.readthedocs.io/en/latest/">PyCO2SYS.readthedocs.io</a> for documentation for the latest stable release.</p>
+</div>
+<h1 id="arguments-and-results">Arguments and results<a class="headerlink" href="#arguments-and-results" title="Permanent link">&para;</a></h1>
+<p>This page provides a comprehensive overview of the keyword arguments that can be provided to <code>pyco2.sys</code> and the results it can compute.</p>
+<div class="admonition info">
+<p class="admonition-title">Content, not concentration</p>
+<p>For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed <em>substance content</em> or <em>molinity</em> values (as opposed to <em>concentration</em> or <em>molality</em>).</p>
+</div>
+<div class="admonition tip annotate">
+<p class="admonition-title">Keyword shortcuts</p>
+<p>Formally, all keyword arguments and results keys for <code>pyco2.sys</code> are lowercase except for chemical formulae, which are always written in their correct case.</p>
+<p>But you don't need to remember this - all keyword arguments and results keys are <strong>case-insensitive</strong>!</p>
+<p>Some keys also have alternative "shortcuts" - click on the (1) symbol next to the parameter names.  These shortcuts can be used both when creating a <code>CO2System</code> with <code>pyco2.sys</code> and when accessing results from it.  Shortcut keys are stored in a dict at <code>pyco2.engine.shortcuts</code>.</p>
+</div>
+<ol>
+<li>Shortcuts!</li>
+</ol>
+<h2 id="keyword-arguments">Keyword arguments<a class="headerlink" href="#keyword-arguments" title="Permanent link">&para;</a></h2>
+<p>Each argument to <code>pyco2.sys</code> can be either a single scalar value, or a <a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html">NumPy array</a> containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be <a href="https://numpy.org/doc/stable/user/basics.broadcasting.html">broadcasted</a> with each other.</p>
+<p>Pandas <code>DataFrame</code>s and xarray <code>Dataset</code>s can be provided using the <code>data</code> kwarg (see <a href="../quick/#data-structures">User guide / Quick-start guide / Data structures</a>).</p>
+<h3 id="carbonate-system-parameters">Carbonate system parameters<a class="headerlink" href="#carbonate-system-parameters" title="Permanent link">&para;</a></h3>
+<p>Up to two carbonate system parameters can be provided.</p>
+<div class="admonition inputs annotate">
+<p class="admonition-title">Carbonate system parameters</p>
+<p>If two parameters are provided, these can be any pair of:</p>
+<ul>
+<li><code>alkalinity</code>(1): <strong>total alkalinity</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>dic</code>(2): <strong>dissolved inorganic carbon</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>pH</code>: <strong>pH</strong> on the total, seawater, free or NBS scale.  Which scale is given by <code>opt_pH_scale</code>.</li>
+<li><code>HCO3</code>: <strong>bicarbonate ion</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li>Any one of:<ul>
+<li><code>pCO2</code>: <strong>partial pressure of CO<sub>2</sub></strong> in μatm,</li>
+<li><code>fCO2</code>: <strong>fugacity of CO<sub>2</sub></strong> in μatm,</li>
+<li><code>CO2</code>: <strong>aqueous CO<sub>2</sub></strong> in μmol&nbsp;kg<sup>–1</sup>, or</li>
+<li><code>xCO2</code>: <strong>dry-air mole fraction of CO<sub>2</sub></strong> in ppm.</li>
+</ul>
+</li>
+<li>Any one of:<ul>
+<li><code>CO3</code>: <strong>carbonate ion</strong> in μmol&nbsp;kg<sup>–1</sup>,</li>
+<li><code>saturation_calcite</code>(3): <strong>saturation state with respect to calcite</strong>, or</li>
+<li><code>saturation_aragonite</code>(4): <strong>saturation state with respect to aragonite</strong>.</li>
+</ul>
+</li>
+</ul>
+</div>
+<ol>
+<li>Shortcuts: <code>talk</code>, <code>alk</code>, <code>ta</code></li>
+<li>Shortcut: <code>tco2</code></li>
+<li>Shortcut: <code>oc</code></li>
+<li>Shortcut: <code>oa</code></li>
+</ol>
+<p>If one parameter is provided, then the full marine carbonate system cannot be solved, but some results can be calculated.  The single parameter can be any of:</p>
+<ul>
+<li><code>pCO2</code>, <code>fCO2</code>, <code>CO2</code> or <code>xCO2</code>: the others in this group of parameters can be calculated and adjusted to different temperatures.</li>
+<li><code>pH</code>, which can be converted to different scales.</li>
+</ul>
+<p>If no carbonate system parameters are provided, then all equilibrium constants and total salt contents can still be calculated.</p>
+<h3 id="hydrographic-conditions">Hydrographic conditions<a class="headerlink" href="#hydrographic-conditions" title="Permanent link">&para;</a></h3>
+<p>If not provided, these revert to default values.</p>
+<div class="admonition inputs annotate">
+<p class="admonition-title">Hydrographic conditions</p>
+<ul>
+<li><code>salinity</code>(1): <strong>practical salinity</strong> (default 35).</li>
+<li><code>temperature</code>(2): <strong>temperature</strong> in °C (default 25 °C) at which the carbonate system parameters are provided.</li>
+<li><code>pressure</code>(3): <strong>hydrostatic pressure</strong> in dbar (default 0 dbar) at which the carbonate system parameters are provided.</li>
+<li><code>pressure_atmosphere</code>: <strong>atmospheric pressure</strong> in atm (default 1 atm).</li>
+</ul>
+<p>As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive <strong>and</strong> the two known parameters are at a different temperature and/or pressure from each other.</p>
+</div>
+<ol>
+<li>Shortcuts: <code>sal</code>, <code>s</code></li>
+<li>Shortcuts: <code>temp</code>, <code>t</code></li>
+<li>Shortcuts: <code>pres</code>, <code>p</code></li>
+</ol>
+<h3 id="nutrients-and-other-solutes">Nutrients and other solutes<a class="headerlink" href="#nutrients-and-other-solutes" title="Permanent link">&para;</a></h3>
+<p>Nutrients default to zero if not provided, while other solutes are calculated from salinity.</p>
+<div class="admonition inputs annotate">
+<p class="admonition-title">Nutrients and other solutes</p>
+<p>Some default to zero if not provided:</p>
+<ul>
+<li><code>total_silicate</code>(1): <strong>total silicate</strong> in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) (<span class="arithmatex">\([\mathrm{Si(OH)}_4] + [\mathrm{SiO(OH)}_3^-]\)</span>).</li>
+<li><code>total_phosphate</code>(2): <strong>total phosphate</strong> in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) (<span class="arithmatex">\([\mathrm{H}_3\mathrm{PO}_4] + [\mathrm{H}_2\mathrm{PO}_4^-] + [\mathrm{HPO}_4^{2-}] + [\mathrm{PO}_4^{3-}]\)</span>).</li>
+<li><code>total_ammonia</code>(3): <strong>total ammonia</strong> in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) (<span class="arithmatex">\([\mathrm{NH}_3] + [\mathrm{NH}_4^+]\)</span>).</li>
+<li><code>total_sulfide</code>(4): <strong>total hydrogen sulfide</strong> in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) (<span class="arithmatex">\([\mathrm{H}_2\mathrm{S}] + [\mathrm{HS}^-]\)</span>).</li>
+<li><code>total_nitrite</code>(5): <strong>total nitrite</strong> in μmol&nbsp;kg<sup>–1</sup> (default 0 μmol&nbsp;kg<sup>–1</sup>) (<span class="arithmatex">\([\mathrm{HNO}_2] + [\mathrm{NO}_2^-]\)</span>).</li>
+</ul>
+<p>Others are calculated from salinity if not provided:</p>
+<ul>
+<li><code>total_borate</code>(6): <strong>total borate</strong> in μmol&nbsp;kg<sup>–1</sup> (<span class="arithmatex">\([\mathrm{B(OH)}_3] + [\mathrm{B(OH)}_4^-]\)</span>).</li>
+<li><code>total_fluoride</code>(7): <strong>total fluoride</strong> in μmol&nbsp;kg<sup>–1</sup> (<span class="arithmatex">\([\mathrm{HF}] + [\mathrm{F}^-]\)</span>).</li>
+<li><code>total_sulfate</code>(8): <strong>total sulfate</strong> in μmol&nbsp;kg<sup>–1</sup> (<span class="arithmatex">\([\mathrm{HSO}_4^-] + [\mathrm{SO}_4^{2-}]\)</span>).</li>
+<li><code>Ca</code>: <strong>dissolved calcium</strong> in μmol&nbsp;kg<sup>–1</sup> (<span class="arithmatex">\([\mathrm{Ca}^{2+}]\)</span>).</li>
+</ul>
+<p>If these are provided then their <a href="#settings">parameterisation settings</a> are ignored.</p>
+</div>
+<ol>
+<li>Shortcuts: <code>silicate</code>, <code>tsi</code></li>
+<li>Shortcuts: <code>phosphate</code>, <code>tp</code></li>
+<li>Shortcuts: <code>ammonia</code>, <code>tnh3</code></li>
+<li>Shortcuts: <code>sulfide</code>, <code>th2s</code></li>
+<li>Shortcuts: <code>nitrite</code>, <code>tno2</code></li>
+<li>Shortcuts: <code>borate</code>, <code>tb</code></li>
+<li>Shortcuts: <code>fluoride</code>, <code>tf</code></li>
+<li>Shortcuts: <code>sulfate</code>, <code>tso4</code></li>
+</ol>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<h4 id="ph-scale">pH scale<a class="headerlink" href="#ph-scale" title="Permanent link">&para;</a></h4>
+<p>If <code>pH</code> is provided as an known marine carbonate system parameter, the pH scale that it is reported on can be specified with <code>opt_pH_scale</code>.  All equilibrium constants will also be calculated on the same scale.</p>
+<div class="admonition inputs">
+<p class="admonition-title">pH scale</p>
+<ul>
+<li>
+<p><code>opt_pH_scale</code>: which <strong>pH scale</strong> was used for <code>pH</code>, as defined by <a href="../refs/#z">ZW01</a>:</p>
+<ul>
+<li><code>1</code>: total (default), i.e. <span class="arithmatex">\(\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])\)</span>.</li>
+<li><code>2</code>: seawater, i.e. <span class="arithmatex">\(\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])\)</span>.</li>
+<li><code>3</code>: free, i.e. <span class="arithmatex">\(\mathrm{pH} = -\log_{10} [\mathrm{H}^+]\)</span>.</li>
+<li><code>4</code>: NBS, i.e. relative to <a href="https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist">NBS/NIST</a> reference standards.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_fH</code>: how the <strong>hydrogen ion activity coefficient</strong> is calculated, for conversions to/from the NBS scale:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#t">TWB82</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#p">PTBO87</a>, for GEOSECS compatibility.</li>
+<li><code>3</code>: the coefficient is set to 1, for freshwater.</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="carbonic-acid-dissociation">Carbonic acid dissociation<a class="headerlink" href="#carbonic-acid-dissociation" title="Permanent link">&para;</a></h4>
+<div class="admonition inputs">
+<p class="admonition-title">Carbonic acid dissociation</p>
+<ul>
+<li>
+<p><code>opt_k_carbonic</code>: which set of equilibrium constant parameterisations to use for <strong>carbonic acid dissociation</strong>.  The valid temperature (<em>T</em>) and salinity (<em>S</em>) ranges, original pH scale, and type of material measured to derive each set of constants are shown.</p>
+<ul>
+<li><code>1</code>: <a href="../refs/#r">RRV93</a> (0 &lt; <em>T</em> &lt; 45 °C, 5 &lt; <em>S</em> &lt; 45, total scale, artificial seawater).</li>
+<li><code>2</code>: <a href="../refs/#g">GP89</a> (−1 &lt; <em>T</em> &lt; 40 °C, 10 &lt; <em>S</em> &lt; 50, seawater scale, artificial seawater).</li>
+<li><code>3</code>: <a href="../refs/#h">H73a</a> and <a href="../refs/#h">H73b</a> refit by <a href="../refs/#d">DM87</a> (2 &lt; <em>T</em> &lt; 35 °C, 20 &lt; <em>S</em> &lt; 40, seawater scale, artificial seawater).</li>
+<li><code>4</code>: <a href="../refs/#m">MCHP73</a> refit by <a href="../refs/#d">DM87</a> (2 &lt; <em>T</em> &lt; 35 °C, 20 &lt; <em>S</em> &lt; 40, seawater scale, real seawater).</li>
+<li><code>5</code>: <a href="../refs/#h">H73a</a>, <a href="../refs/#h">H73b</a> and <a href="../refs/#m">MCHP73</a> refit by <a href="../refs/#d">DM87</a> (2 &lt; <em>T</em> &lt; 35 °C, 20 &lt; <em>S</em> &lt; 40, seawater scale, artificial seawater).</li>
+<li><code>6</code>: <a href="../refs/#m">MCHP73</a> aka "GEOSECS" (2 &lt; <em>T</em> &lt; 35 °C, 19 &lt; <em>S</em> &lt; 43, NBS scale, real seawater).</li>
+<li><code>7</code>: <a href="../refs/#m">MCHP73</a> without certain species aka "Peng" (2 &lt; <em>T</em> &lt; 35 °C, 19 &lt; <em>S</em> &lt; 43, NBS scale, real seawater).</li>
+<li><code>8</code>: <a href="../refs/#m">M79</a> (0 &lt; <em>T</em> &lt; 50 °C, <em>S</em> = 0, freshwater only).</li>
+<li><code>9</code>: <a href="../refs/#c">CW98</a> (2 &lt; <em>T</em> &lt; 30 °C, 0 &lt; <em>S</em> &lt; 40, NBS scale, real estuarine seawater).</li>
+<li><strong><code>10</code>: <a href="../refs/#l">LDK00</a> (default) (2 &lt; <em>T</em> &lt; 35 °C, 19 &lt; <em>S</em> &lt; 43, total scale, real seawater).</strong></li>
+<li><code>11</code>: <a href="../refs/#m">MM02</a> (0 &lt; <em>T</em> &lt; 45 °C, 5 &lt; <em>S</em> &lt; 42, seawater scale, real seawater).</li>
+<li><code>12</code>: <a href="../refs/#m">MPL02</a> (−1.6 &lt; <em>T</em> &lt; 35 °C, 34 &lt; <em>S</em> &lt; 37, seawater scale, field measurements).</li>
+<li><code>13</code>: <a href="../refs/#m">MGH06</a> (0 &lt; <em>T</em> &lt; 50 °C, 1 &lt; <em>S</em> &lt; 50, seawater scale, real seawater).</li>
+<li><code>14</code>: <a href="../refs/#m">M10</a> (0 &lt; <em>T</em> &lt; 50 °C, 1 &lt; <em>S</em> &lt; 50, seawater scale, real seawater).</li>
+<li><code>15</code>: <a href="../refs/#w">WMW14</a> (0 &lt; <em>T</em> &lt; 45 °C, 0 &lt; <em>S</em> &lt; 45, seawater scale, real seawater).</li>
+<li><code>16</code>: <a href="../refs/#s">SLH20</a>  (−1.67 &lt; <em>T</em> &lt; 31.80 °C, 30.73 &lt; <em>S</em> &lt; 37.57, total scale, field measurements).</li>
+<li><code>17</code>: <a href="../refs/#s">SB21</a> (15 &lt; <em>T</em> &lt; 35 °C, 19.6 &lt; <em>S</em> &lt; 41, total scale, real seawater).</li>
+<li><code>18</code>: <a href="../refs/#p">PLR18</a> (–6 &lt; <em>T</em> &lt; 25 °C, 33 &lt; <em>S</em> &lt; 100, total scale, real seawater).</li>
+</ul>
+</li>
+<li>
+<p><code>opt_factor_k_H2CO3</code>: <strong>first carbonic acid</strong> dissociation constant <strong>pressure correction</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#e">EG70</a>, for GEOSECS compatibility.</li>
+<li><code>3</code>: <a href="../refs/#m">M83</a>, for freshwater.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_factor_k_HCO3</code>: <strong>second carbonic acid</strong> dissociation constant<strong> pressure correction</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#e">EG70</a>, for GEOSECS compatibility.</li>
+<li><code>3</code>: <a href="../refs/#m">M83</a>, for freshwater.</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="other-dissociation-constants">Other dissociation constants<a class="headerlink" href="#other-dissociation-constants" title="Permanent link">&para;</a></h4>
+<div class="admonition inputs">
+<p class="admonition-title">Other dissociation constants</p>
+<ul>
+<li>
+<p><code>opt_k_HSO4</code>: which parameterisation to use to model <strong>bisulfate dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#d">D90a</a> (default)</strong>.</li>
+<li><code>2</code>: <a href="../refs/#k">KRCB77</a>.</li>
+<li><code>3</code>: <a href="../refs/#w">WM13</a> with the corrections of <a href="../refs/#w">WMW14</a>.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_HF</code>: which parameterisation to use for <strong>hydrogen fluoride dissociation:</strong></p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#d">DR79</a> (default)</strong>.</li>
+<li><code>2</code>: <a href="../refs/#p">PF87</a>.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_BOH3</code>: which parameterisation to use for <strong>boric acid dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#d">D90b</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#l">LTB69</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_phosphate</code>: which parameterisation to use for <strong>phosphoric acid dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#y">YM95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#k">KP67</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_NH3</code>: which parameterisation to use for <strong>ammonium dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#c">CW95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#y">YM95</a>.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_Si</code>: which parameterisation to use for <strong>silicate dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#y">YM95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#s">SMB64</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_calcite</code>: which parameterisation to use for the <strong>saturation state with respect to </strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M83</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#i">I75</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_aragonite</code>: which parameterisation to use for the <strong>saturation state with respect to </strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M83</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#i">ICHP73</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_H2O</code>: which parameterisation to use for <strong>water dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#m">M79</a>, for GEOSECS compatibility.</li>
+<li><code>3</code>: <a href="../refs/#h">HO58</a> refit by <a href="../refs/#m">M79</a>, for freshwater.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_k_HNO2</code>: which parameterisation to use for <strong>nitrous acid dissociation</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#b">BBWB24</a> for seawater (default).</strong> </li>
+<li><code>2</code>: <a href="../refs/#b">BBWB24</a> for freshwater.</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="other-dissociation-constant-pressure-corrections">Other dissociation constant pressure corrections<a class="headerlink" href="#other-dissociation-constant-pressure-corrections" title="Permanent link">&para;</a></h4>
+<div class="admonition inputs">
+<p class="admonition-title">Other dissociation constant pressure corrections</p>
+<ul>
+<li>
+<p><code>opt_factor_k_BOH3</code>: <strong>boric acid</strong> dissociation constant <strong>pressure correction</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M79</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#e">EG70</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_factor_k_H2O</code>: <strong>water</strong> dissociation constant <strong>pressure correction</strong>:</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#m">M95</a> (default).</strong></li>
+<li><code>2</code>: <a href="../refs/#m">M83</a>, for freshwater.</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="total-salt-contents">Total salt contents<a class="headerlink" href="#total-salt-contents" title="Permanent link">&para;</a></h4>
+<p>These settings are ignored if <a href="#nutrients-and-other-solutes">their values are provided as arguments</a>.</p>
+<div class="admonition inputs">
+<p class="admonition-title">Total salt contents</p>
+<ul>
+<li>
+<p><code>opt_total_borate</code>: which <strong>boron:salinity</strong> relationship is used to calculate total borate (ignored if the <code>total_borate</code> argument is provided):</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#u">U74</a> (default)</strong>.</li>
+<li><code>2</code>: <a href="../refs/#l">LKB10</a>.</li>
+<li><code>3</code>: <a href="../refs/#k">KSK18</a>, for the Baltic Sea.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_Ca</code>: which <strong>calcium:salinity</strong> relationship is used to calculate dissolved calcium (ignored if the <code>Ca</code> argument is provided):</p>
+<ul>
+<li><strong><code>1</code>: <a href="../refs/#r">RT67</a> (default)</strong>.</li>
+<li><code>2</code>: <a href="../refs/#c">C65</a>, for GEOSECS compatibility.</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="other-settings">Other settings<a class="headerlink" href="#other-settings" title="Permanent link">&para;</a></h4>
+<div class="admonition inputs">
+<p class="admonition-title">Other settings</p>
+<ul>
+<li>
+<p><code>opt_gas_constant</code>: what value to use for the <strong>universal gas constant</strong> (<code>gas_constant</code>):</p>
+<ul>
+<li><code>1</code>: DOEv2 (consistent with other CO2SYS software before July 2020).</li>
+<li><code>2</code>: DOEv3.</li>
+<li><strong><code>3</code>: <a href="https://physics.nist.gov/cgi-bin/cuu/Value?r">2018 CODATA</a> (default)</strong>.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_fugacity_factor</code>: how to convert between partial pressure and fugacity of CO<sub>2</sub> (<code>pCO2</code> and <code>fCO2</code>):</p>
+<ul>
+<li><strong><code>1</code>: using a fugacity factor (default)</strong>.</li>
+<li><code>2</code>: assuming that partial pressure and fugacity are equal, for compatibility with GEOSECS.</li>
+</ul>
+</li>
+<li>
+<p><code>opt_HCO3_root</code>: if <strong>DIC and bicarbonate ion</strong> are the known carbonate system parameter pair, then there are two possible valid solutions (e.g., <a href="../refs/#h">HLSP22</a>):</p>
+<ul>
+<li><code>1</code>: find the low-pH solution.</li>
+<li><strong><code>2</code>: find the high-pH solution (default)</strong>. </li>
+</ul>
+</li>
+</ul>
+</div>
+<!-- * `opt_fCO2_temperature`: how to calculate the **temperature-sensitivity of fCO<sub>2</sub>** (`upsilon`) when only one marine carbonate system parameter is known:
+  * **`1`: [H24](refs.md/#h) parameterisation (default).**
+  * `2`: [TOG93](refs.md/#t) linear fit.
+  * `3`: [TOG93](refs.md/#t) quadratic fit.
+If `1` is selected, then the [H24](refs.md/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs.md/#t) dataset is used instead (see [H24](refs.md/#h)). -->
+
+<h3 id="equilibrium-constants">Equilibrium constants<a class="headerlink" href="#equilibrium-constants" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">p<i>K</i>, not <i>K</i></p>
+<p>All equilibrium constants are provided and returned as p<i>K</i> values, where p<i>K</i> = –log<sub>10</sub> <i>K</i>.</p>
+</div>
+<p>All of the equilibrium constants needed by PyCO2SYS are calculated internally from temperature, salinity and pressure, and returned in the results.  However, values for any of these constants can be provided instead when calling <code>pyco2.sys</code>.  They should be provided on the pH scale indicated by <a href="#ph-scale"><code>opt_pH_scale</code></a>.</p>
+<p>To do this, the arguments should have the same keywords as the corresponding <a href="#equilibrium-constants">results dict keys</a>.  For example, to provide a custom water dissociation constant value of p<i>K</i><sup>*</sup> 14, use <code>pk_H2O=14</code>.</p>
+<!--If non-zero using `total_alpha` and/or `total_beta`, you should also supply the corresponding stoichiometric dissociation constant values as `k_alpha`/`k_alpha_out` and/or `k_beta`/`k_beta_out`.  If not provided, these default to p*K* = 7.-->
+
+<h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
+<p>See <a href="../advanced/">Advanced tips and tricks</a> for a more detailed overview of the different ways that the results keys in the sections below can be solved for and accessed from a <code>CO2System</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Find all possible results keys</p>
+<p><code>co2s.keys()</code> returns an iterable of all results that have currently been solved for, and <code>co2s.keys_all()</code> returns all keys that could possibly be solved for, in a given <code>CO2System</code>.</p>
+</div>
+<h3 id="pyco2sys-arguments"><code>pyco2.sys</code> arguments<a class="headerlink" href="#pyco2sys-arguments" title="Permanent link">&para;</a></h3>
+<p>All <a href="#keyword-arguments">keyword arguments</a> that can be provided to <code>pyco2.sys</code> and are not settings (i.e., do not begin with <code>opt_</code>) are also available as results with the same keyword.</p>
+<p>Settings arguments can be found at <code>co2s.opts</code>.  They should not be modified there - doing so will have unpredictable consequences for future calculations.</p>
+<h3 id="ph-scales">pH scales<a class="headerlink" href="#ph-scales" title="Permanent link">&para;</a></h3>
+<div class="admonition outputs">
+<p class="admonition-title">pH scales</p>
+<ul>
+<li><code>pH_total</code>: pH on the <strong>total scale</strong>.</li>
+<li><code>pH_sws</code>: pH on the <strong>seawater scale</strong>.</li>
+<li><code>pH_free</code>: pH on the <strong>free scale</strong>.</li>
+<li><code>pH_nbs</code>: pH on the <strong>NBS scale</strong>.</li>
+<li><code>fH</code>: <strong>activity coefficient of H<sup>+</sup></strong> for conversions to and from the NBS scale.</li>
+</ul>
+</div>
+<h3 id="chemical-speciation">Chemical speciation<a class="headerlink" href="#chemical-speciation" title="Permanent link">&para;</a></h3>
+<div class="admonition outputs">
+<p class="admonition-title">Chemical speciation</p>
+<ul>
+<li><code>H_free</code>: <strong>"free" proton</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>OH</code>: <strong>hydroxide ion</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>CO3</code>: <strong>carbonate ion</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HCO3</code>: <strong>bicarbonate ion</strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>CO2</code>: <strong>aqueous CO<sub>2</sub></strong> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>BOH4</code>: <strong>tetrahydroxyborate</strong> <span class="arithmatex">\([\mathrm{B(OH)}_4^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>BOH3</code>: <strong>boric acid</strong> <span class="arithmatex">\([\mathrm{B(OH)}_3]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>H3PO4</code>: <strong>phosphoric acid</strong> <span class="arithmatex">\([\mathrm{H}_3\mathrm{PO}_4]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>H2PO4</code>: <strong>dihydrogen phosphate</strong> <span class="arithmatex">\([\mathrm{H}_2\mathrm{PO}_4^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HPO4</code>: <strong>monohydrogen phosphate</strong> <span class="arithmatex">\([\mathrm{HPO}_4^{2-}]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>PO4</code>: <strong>phosphate</strong> <span class="arithmatex">\([\mathrm{PO}_4^{3-}]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>H4SiO4</code>: <strong>orthosilicic acid</strong> <span class="arithmatex">\([\mathrm{Si(OH)}_4]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>H3SiO4</code>: <strong>trihydrogen orthosilicate</strong> <span class="arithmatex">\([\mathrm{SiO(OH)}_3^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>NH3</code>: <strong>ammonia</strong> <span class="arithmatex">\([\mathrm{NH}_3]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>NH4</code>: <strong>ammonium</strong> <span class="arithmatex">\([\mathrm{NH}_4^+]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HS</code>: <strong>bisulfide</strong> <span class="arithmatex">\([\mathrm{HS}^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>H2S</code>: <strong>hydrogen sulfide</strong> <span class="arithmatex">\([\mathrm{H}_2\mathrm{S}]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HSO4</code>: <strong>bisulfate</strong> <span class="arithmatex">\([\mathrm{HSO}_4^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>SO4</code>: <strong>sulfate</strong> <span class="arithmatex">\([\mathrm{SO}_4^{2-}]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HF</code>: <strong>hydrofluoric acid</strong> <span class="arithmatex">\([\mathrm{HF}]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>F</code>: <strong>fluoride</strong> <span class="arithmatex">\([\mathrm{F}^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>HNO2</code>: <strong>nitrous acid</strong> <span class="arithmatex">\([\mathrm{HNO}_2]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+<li><code>NO2</code>: <strong>nitrite</strong> <span class="arithmatex">\([\mathrm{NO}_2^-]\)</span> in μmol&nbsp;kg<sup>–1</sup>.</li>
+</ul>
+</div>
+<h3 id="chemical-buffer-factors">Chemical buffer factors<a class="headerlink" href="#chemical-buffer-factors" title="Permanent link">&para;</a></h3>
+<p>Buffer factors are evaluated using automatic differentiation of the complete alkalinity equation.</p>
+<div class="admonition outputs annotate">
+<p class="admonition-title">Buffer factors</p>
+<ul>
+<li><code>revelle_factor</code>(1): <strong>Revelle factor</strong>.</li>
+<li><code>psi</code>: <em>ψ</em> of <a href="../refs/#f">FCG94</a>.</li>
+<li><code>gamma_dic</code>: <strong>buffer factor <em>γ</em><sub>DIC</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>beta_dic</code>: <strong>buffer factor <em>β</em><sub>DIC</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>omega_dic</code>: <strong>buffer factor <em>ω</em><sub>DIC</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>gamma_alkalinity</code>: <strong>buffer factor <em>γ</em><sub>TA</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>beta_alkalinity</code>: <strong>buffer factor <em>β</em><sub>TA</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>omega_alkalinity</code>: <strong>buffer factor <em>ω</em><sub>TA</sub></strong> of <a href="../refs/#e">ESM10</a>.</li>
+<li><code>Q_isocap</code>(2): <strong>isocapnic quotient</strong> of <a href="../refs/#h">HDW18</a>.</li>
+<li><code>Q_isocap_approx</code>: <strong>isocapnic quotient approximation</strong> of <a href="../refs/#h">HDW18</a>.</li>
+<li><code>dlnfCO2_dT</code>: <strong>temperature derivative</strong> of <strong>ln(fCO<sub>2</sub>)</strong>.</li>
+<li><code>dlnpCO2_dT</code>: <strong>temperature derivative</strong> of <strong>ln(fCO<sub>2</sub>)</strong>.</li>
+<li><code>substrate_inhibitor_ratio</code>(3): <strong>substrate:inhibitor ratio</strong> of <a href="../refs/#b">B15</a> in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.</li>
+</ul>
+</div>
+<ol>
+<li>Shortcut: <code>revelle</code></li>
+<li>Shortcut: <code>q</code></li>
+<li>Shortcut: <code>sir</code></li>
+</ol>
+<h3 id="equilibrium-constants_1">Equilibrium constants<a class="headerlink" href="#equilibrium-constants_1" title="Permanent link">&para;</a></h3>
+<p>All equilibrium constants are returned on the pH scale of <code>opt_pH_scale</code> except for <code>pk_HF_free</code> and <code>pk_HSO4_free</code>, which are always on the free scale.  They are all stoichiometric constants, i.e., defined in terms of reactant contents rather than activities, with the exception of <code>pk_CO2</code>, which is a hybrid constant.</p>
+<div class="admonition outputs annotate">
+<p class="admonition-title">Equilibrium constants</p>
+<ul>
+<li><code>pk_CO2</code>(1): <strong>Henry's constant for CO<sub>2</sub></strong>.</li>
+<li><code>pk_H2CO3</code>(2): <strong>first carbonic acid</strong> dissociation constant.</li>
+<li><code>pk_HCO3</code>(3): <strong>second carbonic acid</strong> dissociation constant.</li>
+<li><code>pk_H2O</code>(4): <strong>water</strong> dissociation constant.</li>
+<li><code>pk_BOH3</code>: <strong>boric acid</strong> dissociation constant.</li>
+<li><code>pk_HF_free</code>: <strong>hydrogen fluoride</strong> dissociation constant.</li>
+<li><code>pk_HSO4_free</code>: <strong>bisulfate</strong> dissociation constant.</li>
+<li><code>pk_H3PO4</code>: <strong>first phosphoric acid</strong> dissociation constant.</li>
+<li><code>pk_H2PO4</code>: <strong>second phosphoric acid</strong> dissociation constant.</li>
+<li><code>pk_HPO4</code>: <strong>third phosphoric acid</strong> dissociation constant.</li>
+<li><code>pk_Si</code>: <strong>silicic acid</strong> dissociation constant.</li>
+<li><code>pk_NH3</code>: <strong>ammonia</strong> equilibrium constant.</li>
+<li><code>pk_H2S</code>: <strong>hydrogen sulfide</strong> dissociation constant.</li>
+<li><code>pk_HNO2</code>: <strong>nitrous acid</strong> dissociation constant.</li>
+<li><code>pk_calcite</code>: solubility product for <strong>calcite</strong>.</li>
+<li><code>pk_aragonite</code>: solubility product for <strong>aragonite</strong>.
+<!--* <code>k_alpha</code>: **HA** equilibrium constant.-->
+<!--* <code>k_beta</code>: **HB** equilibrium constant.--></li>
+</ul>
+</div>
+<ol>
+<li>Shortcut: <code>pk0</code></li>
+<li>Shortcut: <code>pk1</code></li>
+<li>Shortcut: <code>pk2</code></li>
+<li>Shortcut: <code>pkw</code></li>
+</ol>
+<h3 id="other-results">Other results<a class="headerlink" href="#other-results" title="Permanent link">&para;</a></h3>
+<div class="admonition outputs">
+<p class="admonition-title">Other results</p>
+<ul>
+<li><code>fugacity_factor</code>: <strong>fugacity factor</strong> for converting between CO<sub>2</sub> partial pressure and fugacity.</li>
+<li><code>vp_factor</code>: <strong>vapour pressure factor</strong> for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.    </li>
+<li><code>gas_constant</code>: <strong>ideal gas constant</strong> in ml bar<sup>−1</sup> mol<sup>−1</sup> K<sup>−1</sup> (note the unusual unit).</li>
+</ul>
+</div>
+<!-- * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`. -->
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../quick/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Quick-start guide">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Quick-start guide
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../adjust/" class="md-footer__link md-footer__link--next" aria-label="Next: Adjust conditions (temperature and pressure)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Adjust conditions (temperature and pressure)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2020-2025 Matthew P. Humphreys (GNU GPLv3)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy", "navigation.expand", "content.tooltips"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
