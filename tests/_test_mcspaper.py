@@ -4,7 +4,23 @@ from matplotlib import pyplot as plt
 
 import PyCO2SYS as pyco2
 
-# Fig 2a
+# Archer weirdness for Ben
+fx = np.linspace(0, 1.6, num=1000)
+fy = 1.3 * (0.2 - fx) / (0.4 - fx)
+fy2 = np.where(fy > 1, 1, fy)
+fig, ax = plt.subplots(dpi=300)
+ax.axhline(0, c="k", lw=0.8)
+ax.plot(fx, fy, label="Unrestricted equation")
+ax.plot(fx, fy2, label="Restricted to < 1")
+ax.set_xlim(0, 1.6)
+ax.set_ylim(-100, 20)
+ax.legend()
+ax.grid(alpha=0.3)
+ax.set_xlabel("Ω")
+ax.set_ylabel("%CaCO$_3$")
+fig.tight_layout()
+
+# %% Fig 2a
 field = pyco2.sys(
     ph=np.linspace(6, 9, num=200),
     pco2=np.vstack(np.linspace(1, 5000, num=200)),
