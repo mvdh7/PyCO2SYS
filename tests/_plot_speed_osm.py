@@ -149,12 +149,57 @@ v2_all["runtime2"] = [0.156, 0.260, 0.420, 0.906, 1.675, 2.498, 4.403]
 v2_all["runtime2_pm"] = [0.005, 0.005, 0.011, 0.046, 0.118, 0.042, 0.156]
 v2_all = pd.DataFrame(v2_all)
 
-fig, ax = plt.subplots()
-ax.plot(v1.sidelength, v1.runtime)
-ax.plot(v2_pH.sidelength, v2_pH.runtime1, ls=":")
-ax.plot(v2_pH.sidelength, v2_pH.runtime2)
-ax.plot(v2_all.sidelength, v2_all.runtime1, ls=":")
-ax.plot(v2_all.sidelength, v2_all.runtime2)
+c_v1 = "xkcd:grapefruit"
+c_v2_pH = "xkcd:sky"
+c_v2_all = "xkcd:cerulean blue"
+
+fig, axs = plt.subplots(nrows=2, figsize=(5, 7))
+
+markers = dict(
+    marker="o",
+    markersize=2,
+)
+
+ax = axs[0]
+ax.plot(
+    v1.sidelength,
+    v1.runtime,
+    c=c_v1,
+    **markers,
+    label="v1",
+)
+ax.plot(
+    v2_pH.sidelength,
+    v2_pH.runtime1,
+    c=c_v2_pH,
+    **markers,
+    ls=":",
+    lw=1.2,
+    label="v2 (pH + JIT)",
+)
+ax.plot(
+    v2_pH.sidelength,
+    v2_pH.runtime2,
+    c=c_v2_pH,
+    **markers,
+    label="v2 (pH)",
+)
+ax.plot(
+    v2_all.sidelength,
+    v2_all.runtime1,
+    c=c_v2_all,
+    **markers,
+    ls=":",
+    lw=1.2,
+    label="v2 (all + JIT)",
+)
+ax.plot(
+    v2_all.sidelength,
+    v2_all.runtime2,
+    c=c_v2_all,
+    **markers,
+    label="v2 (all)",
+)
 oo = np.array([1, 1])
 # for i, row in v1.iterrows():
 #     ax.plot(
@@ -174,19 +219,65 @@ oo = np.array([1, 1])
 #         c="k",
 #     )
 ax.set_yscale("log")
-ax.grid(alpha=0.2)
-ax.set_xlabel("√$N$")
 ax.set_ylabel("Run time / s")
+ax.set_yticks([0.1, 1, 10, 100])
+ax.set_yticklabels([0.1, 1, 10, 100])
+ax.legend(ncols=2, fontsize=9)
+ax.text(0, 1.03, "(a)", transform=ax.transAxes)
 
+ax = axs[1]
+dstyle = dict(
+    dashes=(4, 1.5),
+    lw=1.2,
+)
+ax.plot(
+    v1.sidelength,
+    v1.peak,
+    c=c_v1,
+    **markers,
+    **dstyle,
+    label="v1 (peak)",
+)
+ax.plot(
+    v2_pH.sidelength,
+    v2_pH.peak,
+    c=c_v2_pH,
+    **markers,
+    **dstyle,
+    label="v2 (pH, peak)",
+)
+ax.plot(
+    v2_all.sidelength,
+    v2_all.peak,
+    c=c_v2_all,
+    **markers,
+    **dstyle,
+    label="v2 (all, peak)",
+)
+ax.plot(
+    v1.sidelength,
+    v1.final,
+    c=c_v1,
+    **markers,
+    label="v1 (final)",
+)
+ax.plot(
+    v2_pH.sidelength,
+    v2_pH.final,
+    c=c_v2_pH,
+    **markers,
+    label="v2 (pH, final)",
+)
+ax.plot(
+    v2_all.sidelength,
+    v2_all.final,
+    c=c_v2_all,
+    **markers,
+    label="v2 (all, final)",
+)
+ax.legend(ncols=2, loc="lower right", fontsize=9)
+ax.text(0, 1.03, "(b)", transform=ax.transAxes)
 
-# %%
-fig, ax = plt.subplots()
-ax.plot(v1.sidelength, v1.peak, c="r", ls="--")
-ax.plot(v1.sidelength, v1.final, c="r")
-ax.plot(v2_pH.sidelength, v2_pH.peak, c="b", ls="--")
-ax.plot(v2_pH.sidelength, v2_pH.final, c="b")
-ax.plot(v2_all.sidelength, v2_all.peak, c="k", ls="--")
-ax.plot(v2_all.sidelength, v2_all.final, c="k")
 # oo = np.array([1, 1])
 # for i, row in v1.iterrows():
 #     ax.plot(
@@ -206,6 +297,14 @@ ax.plot(v2_all.sidelength, v2_all.final, c="k")
 #         c="k",
 #     )
 ax.set_yscale("log")
-ax.grid(alpha=0.2)
-ax.set_xlabel("√$N$")
-ax.set_ylabel("Memory / MB")
+ax.set_ylabel("Memory allocated / MB")
+ax.set_yticks([1, 10, 100, 1000, 10000])
+ax.set_yticklabels([1, 10, "10$^2$", "10$^3$", "10$^4$"])
+
+for ax in axs:
+    ax.set_xlim(0, 1200)
+    ax.set_xlabel("√$N$")
+    ax.grid(alpha=0.2)
+
+fig.tight_layout()
+fig.savefig("tests/_plot_speed_osm.png")
