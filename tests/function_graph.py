@@ -1,5 +1,6 @@
 from collections import UserDict
 from inspect import signature
+from itertools import product
 from warnings import warn
 
 import jax
@@ -15,32 +16,6 @@ import networkx as nx
 #  3 = calculated by explicit request
 
 
-def get_graph(funcs: dict) -> nx.DiGraph:
-    graph = nx.DiGraph()
-    for k, func in funcs.items():
-        for f in signature(func).parameters.keys():
-            graph.add_edge(f, k)
-    nx.set_node_attributes(graph, funcs, name="func")
-    args = {}
-    for node, attrs in graph.nodes.items():
-        if "func" in attrs:
-            args[node] = list(signature(attrs["func"]).parameters)
-    nx.set_node_attributes(graph, args, name="args")
-    return graph
-
-
-def remove_jax_overhead(data):
-    for k, v in data.items():
-        try:
-            data[k] = v.item()
-        except (AttributeError, ValueError):
-            pass
-        try:
-            data[k] = v.__array__()
-        except AttributeError:
-            pass
-
-
 def egrad(g):
     # From https://github.com/google/jax/issues/3556#issuecomment-649779759
     # modified to allow kwargs for g
@@ -52,7 +27,7 @@ def egrad(g):
     return wrapped
 
 
-class ShortcutDict(UserDict):
+class ShortcutsDict(UserDict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -61,6 +36,32 @@ class ShortcutDict(UserDict):
             return self.data[key.lower()]
         except KeyError:
             return key.lower()
+
+
+class ShortcutDotDict(UserDict):
+    def __init__(self, shortcuts):
+        super().__init__()
+        self._shortcuts = shortcuts
+
+    def __getattr__(self, attr):
+        try:
+            return object.__getattribute__(self, attr)
+        except AttributeError:
+            try:
+                return self.data[self._shortcuts[attr]]
+            except KeyError:
+                raise AttributeError(attr)
+
+
+class Uncertainties(ShortcutDotDict):
+    def __init__(self, shortcuts):
+        super().__init__(shortcuts)
+        self.assigned = ShortcutDotDict(shortcuts)
+        self.parts = ShortcutDotDict(shortcuts)
+
+    def assign(self, **uncertainties):
+        for k, v in uncertainties.items():
+            self.assigned[self._shortcuts[k]] = v
 
 
 class FunctionGraph(UserDict):
@@ -83,14 +84,17 @@ class FunctionGraph(UserDict):
         else:
             if not isinstance(funcs, dict):
                 raise Exception("Either `graph` or `funcs` must be provided")
-            self.graph = get_graph(funcs)
+            self.graph = self.get_graph(funcs)
         if shortcuts is not None:
-            self.shortcuts = ShortcutDict(**shortcuts)
+            self.shortcuts = ShortcutsDict(**shortcuts)
         else:
-            self.shortcuts = ShortcutDict()
+            self.shortcuts = ShortcutsDict()
         self.ignored = set()
         self.requested = set()
         self.nodes_original = set()
+        self.grads = ShortcutDotDict(self.shortcuts)
+        self.uncertainty = Uncertainties(self.shortcuts)
+        self.u = self.uncertainty
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -162,6 +166,7 @@ class FunctionGraph(UserDict):
             for k, v in (self_defaults | data).items()
             if v is not None
         )
+        return self
 
     def solve(
         self,
@@ -201,9 +206,10 @@ class FunctionGraph(UserDict):
                     nx.set_node_attributes(self.graph, {p: 2}, name="state")
             except KeyError:
                 raise Exception(f"{p} has no associated function in the graph")
-        remove_jax_overhead(self.data)
+        self.remove_jax_overhead(self.data)
+        return self
 
-    def get_func_of(self, var_of):
+    def get_func_of(self, var_of: str):
         """Create a function to compute `var_of` directly from an input set
         of values.
 
@@ -281,7 +287,181 @@ class FunctionGraph(UserDict):
         #      instead of the get_value_of function
         return get_value_of_from_wrt
 
-    def get_grad_func(self, var_of, var_wrt):
+    def get_grad_func(self, var_of: str, var_wrt: str):
         get_value_of = self.get_func_of(var_of)
         get_value_of_from_wrt = self.get_func_of_from_wrt(get_value_of, var_wrt)
         return egrad(get_value_of_from_wrt)
+
+    def get_grad(self, var_of: str, var_wrt: str):
+        """Compute the derivative of `var_of` with respect to `var_wrt` and
+        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
+        there, then that value is returned instead of recalculating.
+
+        Parameters
+        ----------
+        var_of : str
+            The name of the variable to get the derivative of.
+        var_wrt : str
+            The name of the variable to get the derivative with respect to.
+            This must be one of the fixed values provided when creating the
+            `CO2System`, i.e., listed in its `nodes_original` attribute.
+
+        Returns
+        -------
+        float
+            The gradient of `var_of` with respect to `var_wrt`.
+        """
+        var_of = self.shortcuts[var_of]
+        var_wrt = self.shortcuts[var_wrt]
+        assert var_wrt in self.nodes_original, (
+            "`var_wrt` must be one of `sys.nodes_original!`"
+        )
+        try:  # see if we've already calculated this value
+            d_of__d_wrt = self.grads[var_of][var_wrt]
+        except KeyError:  # Do the calculations only if needed
+            # We need to know the shape of the variable that we want the grad
+            # of.  The easiest way to get this is just to solve for it (if that
+            # hasn't already been done)
+            if var_of not in self.data:
+                self.solve(var_of)
+            # Next, we extract the originally set values, which are fixed
+            # during the differentiation
+            other_values_original = {
+                k: self.data[k] for k in self.nodes_original if k != var_wrt
+            }
+            # We have to make sure the value we are differentiating with
+            # respect to has the same shape as the value we want the
+            # derivative of
+            value_wrt = self.data[var_wrt] * np.ones_like(self.data[var_of])
+            # Here we compute the gradient
+            grad_func = self.get_grad_func(var_of, var_wrt)
+            d_of__d_wrt = grad_func(value_wrt, **other_values_original)
+            # Put the final value into self.grads, first creating a new
+            # sub-dict if necessary
+            if var_of not in self.grads:
+                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
+            self.grads[var_of][var_wrt] = d_of__d_wrt
+            self.remove_jax_overhead(self.grads[var_of])
+        return d_of__d_wrt
+
+    def get_grads(
+        self,
+        vars_of: str | list,
+        vars_wrt: str | list,
+    ):
+        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
+        store them in `sys.grads[var_of][var_wrt]`.
+
+        Parameters
+        ----------
+        vars_of : str | list
+            The name(s) of the variable(s) to get the derivative(s) of.
+        vars_wrt : str | list
+            The name(s) of the variable(s) to get the derivative(s) with
+            respect to.  These must all be one of the fixed parameters
+            provided on initialisation, i.e., listed in `nodes_original`.
+
+        Returns
+        -------
+        FunctionGraph
+            The `FunctionGraph` with the additional gradients computed.
+        """
+        if isinstance(vars_of, str):
+            vars_of = [vars_of]
+        if isinstance(vars_wrt, str):
+            vars_wrt = [vars_wrt]
+        for var_of, var_wrt in product(vars_of, vars_wrt):
+            self.get_grad(var_of, var_wrt)
+        return self
+
+    def set_uncertainty(self, **kwargs):
+        """Assign independent uncertainties for parameters.
+
+        The values should be the 1-sigma independent uncertainty in each
+        parameter.  These can be single scalar values, or arrays of the same
+        shape as the corresponding parameter.
+        """
+        uset = []
+        for k, v in kwargs.items():
+            if k.lower().endswith("__f"):
+                skl = self.shortcuts[k[:-3]] + "__f"
+            else:
+                skl = self.shortcuts[k]
+            if skl in uset:
+                raise SyntaxError(
+                    f"Keyword argument repeated, possibly with a different alias: {k}"
+                )
+            uset.append(skl)
+            if skl not in self.nodes_original:
+                raise Exception(
+                    "Uncertainty can be assigned only for user-provided parameters"
+                )
+            self.uncertainty.assign(**{skl: v})
+        # # Recalculate any uncertainties that have already been propagated
+        # self.propagate([self.shortcuts[k] for k in self.uncertainty])
+        return self
+
+    set_u = set_uncertainty
+
+    # def _propagate(self, uncertainty_into, uncertainty_from):
+    #     for var_in in uncertainty_into:
+    #         # This should always be reset to zero and all values wiped, even if
+    #         # it already exists (so you don't end up with old uncertainty_from
+    #         # components from a previous calculation which are no longer part of
+    #         # the total)
+    #         self.uncertainty[var_in] = np.zeros_like(self.data[var_in])
+    #         u_total = self.uncertainty[var_in]
+    #         for var_from, u_from in uncertainty_from.items():
+    #             is_fractional = var_from.endswith("__f")
+    #             if is_fractional:
+    #                 # If the uncertainty is fractional, multiply through
+    #                 var_from = var_from[:-3]
+    #                 u_from = self.data[var_from] * u_from
+    #             # Propagate uncertainties only from ancestor nodes
+    #             if var_from in nx.ancestors(self.graph, var_in):
+    #                 if var_from in self.nodes_original:
+    #                     self.get_grad(var_in, var_from)
+    #                     u_part = np.abs(self.grads[var_in][var_from] * u_from)
+    #                 else:
+    #                     # If the uncertainty is from some internally calculated value,
+    #                     # then we need to make a second CO2System where that value
+    #                     # is one of the known inputs, and get the grad from that
+    #                     data = self.get_values_original()
+    #                     data.update({var_from: self.data[var_from]})
+    #                     sys = CO2System(**data, **self.opts)
+    #                     sys.get_grad(var_in, var_from)
+    #                     u_part = np.abs(sys.grads[var_in][var_from] * u_from)
+    #                 if is_fractional:
+    #                     var_from += "__f"
+    #                 if var_in not in self.uncertainty.parts:
+    #                     self.uncertainty.parts[var_in] = ShortcutDotDict()
+    #                 self.uncertainty.parts[var_in][var_from] = u_part
+    #                 u_total = u_total + u_part**2
+    #         self.uncertainty[var_in] = np.sqrt(u_total)
+    #     return self
+
+    @staticmethod
+    def get_graph(funcs: dict) -> nx.DiGraph:
+        graph = nx.DiGraph()
+        for k, func in funcs.items():
+            for f in signature(func).parameters.keys():
+                graph.add_edge(f, k)
+        nx.set_node_attributes(graph, funcs, name="func")
+        args = {}
+        for node, attrs in graph.nodes.items():
+            if "func" in attrs:
+                args[node] = list(signature(attrs["func"]).parameters)
+        nx.set_node_attributes(graph, args, name="args")
+        return graph
+
+    @staticmethod
+    def remove_jax_overhead(data: dict):
+        for k, v in data.items():
+            try:
+                data[k] = v.item()
+            except (AttributeError, ValueError):
+                pass
+            try:
+                data[k] = v.__array__()
+            except AttributeError:
+                pass

@@ -7,9 +7,9 @@ from tests.function_graph import FunctionGraph
 funcs = {
     "beta": lambda: 1,
     "gamma": lambda alpha, beta: alpha + beta,
-    "delta": lambda beta, gamma: beta + gamma,
-    "epsilon": lambda alpha, delta: alpha + delta,
-    "phi": lambda delta, gamma: 2 * delta + gamma,
+    "Delta": lambda beta, gamma: beta + gamma,
+    "epsilon": lambda alpha, Delta: alpha + Delta,
+    "phi": lambda Delta, gamma: 2 * Delta + gamma,
 }
 defaults = dict(
     alpha=0.0,
@@ -19,7 +19,8 @@ shortcuts = dict(
     a="alpha",
     b="beta",
     c="gamma",
-    d="delta",
+    delta="Delta",
+    d="Delta",
     e="epsilon",
     g="gamma",
     f="phi",
@@ -40,7 +41,7 @@ data = dict(
     g=4.0,
     # h=2,
 )
-fg.set_data(**data)
+fg.set_data(**data).set_u(a=0.1)
 print(fg.data)
 fg.solve("e")
 print(fg.data)
@@ -58,6 +59,9 @@ get_dd_dg = fg.get_grad_func("d", "g")
 dd_dg = get_dd_dg(kwargs["gamma"], **{k: v for k, v in kwargs.items() if k != "gamma"})
 get_dd_da = fg.get_grad_func("d", "a")
 dd_da = get_dd_da(kwargs["alpha"], **{k: v for k, v in kwargs.items() if k != "alpha"})
+
+fg.get_grads("e", "a")
+print("de/da =", fg.grads.e.a)
 
 # %%
 pos = nx.nx_agraph.graphviz_layout(fg.graph, prog="dot")
