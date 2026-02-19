@@ -6,6 +6,7 @@ from warnings import warn
 import jax
 import jax.numpy as np
 import networkx as nx
+from jax import jacfwd
 
 # NODE STATES
 # ===========
@@ -290,7 +291,7 @@ class FunctionGraph(UserDict):
     def get_grad_func(self, var_of: str, var_wrt: str):
         get_value_of = self.get_func_of(var_of)
         get_value_of_from_wrt = self.get_func_of_from_wrt(get_value_of, var_wrt)
-        return egrad(get_value_of_from_wrt)
+        return jacfwd(get_value_of_from_wrt)
 
     def get_grad(self, var_of: str, var_wrt: str):
         """Compute the derivative of `var_of` with respect to `var_wrt` and
@@ -329,13 +330,13 @@ class FunctionGraph(UserDict):
             other_values_original = {
                 k: self.data[k] for k in self.nodes_original if k != var_wrt
             }
-            # We have to make sure the value we are differentiating with
-            # respect to has the same shape as the value we want the
-            # derivative of
-            value_wrt = self.data[var_wrt] * np.ones_like(self.data[var_of])
+            # # We have to make sure the value we are differentiating with
+            # # respect to has the same shape as the value we want the
+            # # derivative of
+            # value_wrt = self.data[var_wrt] * np.ones_like(self.data[var_of])
             # Here we compute the gradient
             grad_func = self.get_grad_func(var_of, var_wrt)
-            d_of__d_wrt = grad_func(value_wrt, **other_values_original)
+            d_of__d_wrt = grad_func(self.data[var_wrt], **other_values_original)
             # Put the final value into self.grads, first creating a new
             # sub-dict if necessary
             if var_of not in self.grads:

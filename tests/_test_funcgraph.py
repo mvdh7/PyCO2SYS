@@ -1,19 +1,24 @@
 # %%
+import jax
 import networkx as nx
+from jax import numpy as np
 from matplotlib import pyplot as plt
 
 from tests.function_graph import FunctionGraph
 
 funcs = {
-    "beta": lambda: 1,
-    "gamma": lambda alpha, beta: alpha + beta,
+    "beta": lambda: 1.5,
+    "gamma": lambda coeffs_gamma, alpha, beta: (
+        coeffs_gamma[0] + alpha * coeffs_gamma[1] + beta * coeffs_gamma[2]
+    ),
+    # "gamma": lambda alpha, beta: alpha + beta,
     "Delta": lambda beta, gamma: beta + gamma,
-    "epsilon": lambda alpha, Delta: alpha + Delta,
-    "phi": lambda Delta, gamma: 2 * Delta + gamma,
+    "epsilon": lambda alpha, Delta: alpha**2 + Delta,
+    "phi": lambda Delta, epsilon: 2 * Delta + epsilon,
 }
 defaults = dict(
     alpha=0.0,
-    gamma=0.0,
+    coeffs_gamma=np.array([0.0, 1.0, 1.0]),
 )
 shortcuts = dict(
     a="alpha",
@@ -26,52 +31,94 @@ shortcuts = dict(
     f="phi",
 )
 
-fg = FunctionGraph(
+fu = FunctionGraph(
     defaults=defaults,
     funcs=funcs,
     shortcuts=shortcuts,
 )
-print(fg.data)
 
 data = dict(
-    # ALPHA=1.0,
+    # alpha=1.0,
+    # alpha=np.array([1.0]),
+    # alpha=np.array([1, 2.0]),
+    alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,
     # b=2,
     # f=3,
-    g=4.0,
+    # g=4.0,
     # h=2,
 )
-fg.set_data(**data).set_u(a=0.1)
-print(fg.data)
-fg.solve("e")
-print(fg.data)
-result_f = fg.f
-print(fg.data)
-results = fg[["f", "g"]]
+fu.set_data(**data).set_u(a=0.1).solve("e")
+# print(fu.data)
+# result_f = fu.f
+# print(fu.data)
+# results = fu[["f", "g"]]
 
-get_d = fg.get_func_of("d")
-kwargs = {k: fg[k] for k in fg.nodes_original}
-d = get_d(**kwargs)
+kwargs = {k: fu[k] for k in fu.nodes_original}
+get_e = fu.get_func_of("e")
+get_e_from_cg = fu.get_func_of_from_wrt(get_e, "coeffs_gamma")
 
-get_d_from_a = fg.get_func_of_from_wrt(get_d, "a")
-get_dd_dg = fg.get_grad_func("d", "g")
+e_from_cg = get_e_from_cg(
+    kwargs["coeffs_gamma"],
+    **{k: v for k, v in kwargs.items() if k != "coeffs_gamma"},
+)
+
+testgrad = jax.jacfwd(get_e_from_cg)(
+    kwargs["coeffs_gamma"],
+    **{k: v for k, v in kwargs.items() if k != "coeffs_gamma"},
+)
+# print(testgrad)
+
+# get_dd_dg = fu.get_grad_func("d", "g")
 # TODO make a more convenient way to get the args and kwargs for get_func_of_from_wrt
-dd_dg = get_dd_dg(kwargs["gamma"], **{k: v for k, v in kwargs.items() if k != "gamma"})
-get_dd_da = fg.get_grad_func("d", "a")
-dd_da = get_dd_da(kwargs["alpha"], **{k: v for k, v in kwargs.items() if k != "alpha"})
+# de_dcg = get_dd_dg(kwargs["gamma"], **{k: v for k, v in kwargs.items() if k != "gamma"})
+# get_dd_da = fu.get_grad_func("d", "a")
+# dd_da = get_dd_da(kwargs["alpha"], **{k: v for k, v in kwargs.items() if k != "alpha"})
 
-fg.get_grads("e", "a")
-print("de/da =", fg.grads.e.a)
+fu.get_grads("e", "a")
+# jac = fu.grads.e.a
+# jshape = np.shape(jac)
+
+
+def parse_jac_from_scalar(jac):
+    """Collapse a Jacobian matrix to remove superfluous zeroes and make the
+    shape match the 'of' parameter when the 'wrt' parameter is 'scalar',
+    i.e., it isn't a set a coefficients.
+    """
+    # NOTE Is this actually necessary for uncertainty propagation?
+    #      Quite possibly not...
+    jshape = np.shape(jac)
+    if jshape == ():
+        return jac
+    else:
+        ixs = "".join(chr(97 + i) for i in range(int(len(jshape) / 2)))
+        return np.einsum(ixs + ixs + "->" + ixs, jac)
+
+
+pj = parse_jac_from_scalar(fu.grads.e.a)
+print(pj)
+
+# print("de/da =", np.einsum("ijij->ij", fu.grads.e.a))
+
+fu.get_grads("e", "coeffs_gamma")
+print(fu.grads.e.coeffs_gamma)
+
+# 0,0,0,0 => 0,0
+# 0,1,0,1 => 0,1
+# 1,0,1,0 => 1,0
+# 1,1,1,1 => 1,1
+# 2,0,2,0 => 2,0
+# 2,1,2,1 => 2,1
 
 # %%
-pos = nx.nx_agraph.graphviz_layout(fg.graph, prog="dot")
+pos = nx.nx_agraph.graphviz_layout(fu.graph, prog="dot")
 fig, ax = plt.subplots()
 nx.draw_networkx(
-    fg.graph,
+    fu.graph,
     pos=pos,
-    nodelist=fg.graph.nodes,
+    nodelist=fu.graph.nodes,
     node_color=[
-        nx.get_node_attributes(fg.graph, "state", default=-1)[n] for n in fg.graph.nodes
+        nx.get_node_attributes(fu.graph, "state", default=-1)[n] for n in fu.graph.nodes
     ],
     vmin=-1,
     vmax=3,
