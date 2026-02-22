@@ -1,6 +1,7 @@
 # %%
 import jax
 import networkx as nx
+import numpy as onp
 from jax import numpy as np
 from matplotlib import pyplot as plt
 
@@ -13,12 +14,15 @@ funcs = {
     ),
     # "gamma": lambda alpha, beta: alpha + beta,
     "Delta": lambda beta, gamma: beta + gamma,
-    "epsilon": lambda alpha, Delta: alpha**2 + Delta,
+    "epsilon": lambda coeffs_epsilon, alpha, Delta: (
+        coeffs_epsilon[0] * alpha**2 + coeffs_epsilon[1] * Delta
+    ),
     "phi": lambda Delta, epsilon: 2 * Delta + epsilon,
 }
 defaults = dict(
     alpha=0.0,
     coeffs_gamma=np.array([0.0, 1.0, 1.0]),
+    coeffs_epsilon=np.array([1.0, 1.0]),
 )
 shortcuts = dict(
     a="alpha",
@@ -91,6 +95,7 @@ def parse_jac_from_scalar(jac):
     if jshape == ():
         return jac
     else:
+        # `ixs` is "aa->a", "abab->ab", "abcabc->abc", ...
         ixs = "".join(chr(97 + i) for i in range(int(len(jshape) / 2)))
         return np.einsum(ixs + ixs + "->" + ixs, jac)
 
@@ -98,17 +103,8 @@ def parse_jac_from_scalar(jac):
 pj = parse_jac_from_scalar(fu.grads.e.a)
 print(pj)
 
-# print("de/da =", np.einsum("ijij->ij", fu.grads.e.a))
-
-fu.get_grads("e", "coeffs_gamma")
+fu.get_grads("e", ["coeffs_gamma", "coeffs_epsilon"])
 print(fu.grads.e.coeffs_gamma)
-
-# 0,0,0,0 => 0,0
-# 0,1,0,1 => 0,1
-# 1,0,1,0 => 1,0
-# 1,1,1,1 => 1,1
-# 2,0,2,0 => 2,0
-# 2,1,2,1 => 2,1
 
 # %%
 pos = nx.nx_agraph.graphviz_layout(fu.graph, prog="dot")
@@ -123,3 +119,31 @@ nx.draw_networkx(
     vmin=-1,
     vmax=3,
 )
+
+# %%
+# https://stackoverflow.com/questions/26089893/understanding-numpys-einsum
+numbers = onp.array(
+    [
+        [1, 2, 3],
+        [-1, -2, -3],
+    ]
+)
+letters = onp.array(
+    [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ]
+)
+cast = onp.einsum("ab,bc->ac", numbers, letters)
+print(cast)
+
+part1 = onp.array(
+    [
+        [
+            [1, 2, 3],
+            [8, 10, 12],
+            [21, 24, 27],
+        ]
+    ]
+)  # if `numbers` has only the first row, this is ab,bc->abc
