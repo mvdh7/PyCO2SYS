@@ -7,22 +7,22 @@ from matplotlib import pyplot as plt
 
 from tests.function_graph import FunctionGraph
 
+
 funcs = {
     "beta": lambda: 1.5,
-    "gamma": lambda coeffs_gamma, alpha, beta: (
-        coeffs_gamma[0] + alpha * coeffs_gamma[1] + beta * coeffs_gamma[2]
+    "gamma": lambda coeffs, alpha, beta: (
+        coeffs[0] + alpha * coeffs[1] + beta * coeffs[2]
     ),
     # "gamma": lambda alpha, beta: alpha + beta,
     "Delta": lambda beta, gamma: beta + gamma,
-    "epsilon": lambda coeffs_epsilon, alpha, Delta: (
-        coeffs_epsilon[0] * alpha**2 + coeffs_epsilon[1] * Delta
+    "epsilon": lambda coeffs, alpha, Delta: (
+        coeffs[3] * alpha**2 + coeffs[4] * Delta
     ),
     "phi": lambda Delta, epsilon: 2 * Delta + epsilon,
 }
 defaults = dict(
     alpha=0.0,
-    coeffs_gamma=np.array([0.0, 1.0, 1.0]),
-    coeffs_epsilon=np.array([1.0, 1.0]),
+    coeffs=np.array([0.0, 1, 1, 1, 1]),
 )
 shortcuts = dict(
     a="alpha",
@@ -61,16 +61,16 @@ fu.set_data(**data).set_u(a=0.1).solve("e")
 
 kwargs = {k: fu[k] for k in fu.nodes_original}
 get_e = fu.get_func_of("e")
-get_e_from_cg = fu.get_func_of_from_wrt(get_e, "coeffs_gamma")
+get_e_from_cg = fu.get_func_of_from_wrt(get_e, "coeffs")
 
 e_from_cg = get_e_from_cg(
-    kwargs["coeffs_gamma"],
-    **{k: v for k, v in kwargs.items() if k != "coeffs_gamma"},
+    kwargs["coeffs"],
+    **{k: v for k, v in kwargs.items() if k != "coeffs"},
 )
 
 testgrad = jax.jacfwd(get_e_from_cg)(
-    kwargs["coeffs_gamma"],
-    **{k: v for k, v in kwargs.items() if k != "coeffs_gamma"},
+    kwargs["coeffs"],
+    **{k: v for k, v in kwargs.items() if k != "coeffs"},
 )
 # print(testgrad)
 
@@ -80,7 +80,7 @@ testgrad = jax.jacfwd(get_e_from_cg)(
 # get_dd_da = fu.get_grad_func("d", "a")
 # dd_da = get_dd_da(kwargs["alpha"], **{k: v for k, v in kwargs.items() if k != "alpha"})
 
-fu.get_grads("e", "a")
+fu.get_jacs("e", "a")
 # jac = fu.grads.e.a
 # jshape = np.shape(jac)
 
@@ -104,8 +104,8 @@ def parse_jac_from_scalar(jac):
 
 
 def printif(arg):
-    return
     print(arg)
+    return
 
 
 # NOTE Jacobian has shape: (*y.shape, *x.shape)
@@ -138,22 +138,21 @@ def printif(arg):
 # + jac[0,1] * ux[1,0] * jac[0,0]
 
 
-# pj = parse_jac_from_scalar(fu.grads.e.a)
 print(f"fu.e {fu.e.shape}:")
 printif(fu.e)
 
 print(f"fu.a {fu.a.shape}:")
 printif(fu.a)
 
-print(f"fu.coeffs_gamma {fu.coeffs_gamma.shape}:")
-printif(fu.coeffs_gamma)
+print(f"fu.coeffs {fu.coeffs.shape}:")
+printif(fu.coeffs)
 
-print(f"fu.grads.e.a {fu.grads.e.a.shape}:")
-printif(fu.grads.e.a)
+print(f"fu.jacs.e.a {fu.jacs.e.a.shape}:")
+printif(fu.jacs.e.a)
 
-fu.get_grads("e", ["coeffs_gamma", "coeffs_epsilon"])
-print(f"fu.grads.e.coeffs_gamma {fu.grads.e.coeffs_gamma.shape}:")
-printif(fu.grads.e.coeffs_gamma)
+fu.get_jacs("d", "coeffs")
+print(f"fu.jacs.d.coeffs {fu.jacs.d.coeffs.shape}:")
+printif(fu.jacs.d.coeffs)
 
 
 # %%
@@ -216,22 +215,21 @@ ucc_b_einsum = np.einsum("abc,cd,efd->abef", jac_ccb, ub, jac_ccb)
 
 # Below is IT!
 def get_einsum_code(
-    x: tuple[int, ...],
-    y: tuple[int, ...],
-    ux: tuple[int, ...],
+    x_ndims: int,
+    y_ndims: int,
+    ux_ndims: int,
 ) -> str:
     """Get the einsum code for uncertainty propagation of `ux` from `x` to `y`.
 
     Parameters
     ----------
-    x : tuple[int, ...]
-        The shape of the variable to propagate uncertainty from.
-    y : tuple[int, ...]
-        The shape of the variable to propagate uncertainty into.
-    ux : tuple[int, ...]
-        The shape of the uncertainties for `x`.  Should be either
-          - the same as `x`, or
-          - `(*x, *x)`.
+    x_ndims : int
+        The number of dimensions of the variable to propagate uncertainty from.
+    y_ndims : int
+        The number of dimensions of the variable to propagate uncertainty into.
+    ux_ndims : int
+        The number of dimensions of the uncertainties for `x`.  Should be
+        either the same as, or double, `x_ndims`.
 
     Returns
     -------
@@ -241,22 +239,22 @@ def get_einsum_code(
     """
     i0 = 97
     A = ""
-    for i in range(len(y.shape)):
+    for i in range(y_ndims):
         A += chr(i0)
         i0 += 1
     B = ""
-    for i in range(len(x.shape)):
+    for i in range(x_ndims):
         B += chr(i0)
         i0 += 1
-    if x.shape == ux.shape:
+    if x_ndims == ux_ndims:
         C = B
     else:
         C = ""
-        for i in range(len(x.shape)):
+        for i in range(x_ndims):
             C += chr(i0)
             i0 += 1
     D = ""
-    for i in range(len(y.shape)):
+    for i in range(y_ndims):
         D += chr(i0)
         i0 += 1
     if B == C:
@@ -265,17 +263,43 @@ def get_einsum_code(
         return f"{A}{B},{B}{C},{D}{C}->{A}{D}"
 
 
-@jax.jit
-def prop(arg0, val, jac, uncert):
-    esc = get_einsum_code(arg0, val, uncert)
-    return np.einsum(esc, jac, uncert, jac)
+# @jax.jit
+def prop(
+    x: float | np.ndarray,
+    y: float | np.ndarray,
+    jac: float | np.ndarray,
+    ux: float | np.ndarray,
+) -> np.ndarray:
+    x_ndims = len(np.shape(x))
+    y_ndims = len(np.shape(y))
+    ux_ndims = len(np.shape(ux))
+    if ux_ndims == 0:
+        ux_ndims = x_ndims
+        ux = np.full_like(x, ux)
+    esc = get_einsum_code(x_ndims, y_ndims, ux_ndims)
+    uy = np.einsum(esc, jac, ux, jac)
+    return uy
 
 
-func = lambda b, a: get_c(a, b)  # noqa
-args = (b, aa)
-uncert = ub
+func = lambda a, b: get_c(a, b)  # noqa
+args = (np.array([1.5, 2.5]), b)
+uncert = np.array(
+    [
+        [0.2, 0.3],
+        [0.3, 0.5],
+    ]
+)
 
 val = func(*args)
+x_ndims = len(np.shape(args[0]))
+y_ndims = len(np.shape(val))
+ux_ndims = len(np.shape(uncert))
+print(x_ndims, y_ndims, ux_ndims)
+esc = get_einsum_code(
+    len(np.shape(args[0])),
+    len(np.shape(val)),
+    len(np.shape(uncert)),
+)
 jac = jax.jacfwd(func)(*args)
 
 uprop = prop(args[0], val, jac, uncert)
@@ -289,7 +313,8 @@ nx.draw_networkx(
     pos=pos,
     nodelist=fu.graph.nodes,
     node_color=[
-        nx.get_node_attributes(fu.graph, "state", default=-1)[n] for n in fu.graph.nodes
+        nx.get_node_attributes(fu.graph, "state", default=-1)[n]
+        for n in fu.graph.nodes
     ],
     vmin=-1,
     vmax=3,

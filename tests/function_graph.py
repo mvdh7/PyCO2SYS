@@ -1,12 +1,12 @@
 from collections import UserDict
 from inspect import signature
 from itertools import product
-from warnings import warn
 
 import jax
 import jax.numpy as np
 import networkx as nx
 from jax import jacfwd
+
 
 # NODE STATES
 # ===========
@@ -78,7 +78,9 @@ class FunctionGraph(UserDict):
             self.defaults = defaults.copy()
         else:
             self.defaults = {
-                n: None for n, attrs in self.graph.nodes.items() if "func" not in attrs
+                n: None
+                for n, attrs in self.graph.nodes.items()
+                if "func" not in attrs
             }
         if graph is not None:
             self.graph = graph.copy()
@@ -93,7 +95,7 @@ class FunctionGraph(UserDict):
         self.ignored = set()
         self.requested = set()
         self.nodes_original = set()
-        self.grads = ShortcutDotDict(self.shortcuts)
+        self.jacs = ShortcutDotDict(self.shortcuts)
         self.uncertainty = Uncertainties(self.shortcuts)
         self.u = self.uncertainty
 
@@ -184,7 +186,9 @@ class FunctionGraph(UserDict):
         # Remove known nodes from a copy of self.graph, so that ancestors of
         # known nodes are not unnecessarily recomputed
         graph_unknown = self.graph.copy()
-        graph_unknown.remove_nodes_from([k for k in keys_known if k not in parameters])
+        graph_unknown.remove_nodes_from(
+            [k for k in keys_known if k not in parameters]
+        )
         # Add intermediate parameters that we need to know in order to
         # calculate the requested parameters
         parameters_all = parameters.copy()
@@ -200,7 +204,9 @@ class FunctionGraph(UserDict):
         for p in parameters_all:
             attrs = self.graph.nodes[p]
             try:
-                self.data[p] = attrs["func"](*[self.data[r] for r in attrs["args"]])
+                self.data[p] = attrs["func"](
+                    *[self.data[r] for r in attrs["args"]]
+                )
                 if p in parameters:
                     nx.set_node_attributes(self.graph, {p: 3}, name="state")
                 else:
@@ -258,7 +264,9 @@ class FunctionGraph(UserDict):
                 get_value_of.__doc__ += f"\n        {p}"
         get_value_of.__doc__ += "\n\nReturns\n-------"
         get_value_of.__doc__ += f"\n{var_of}"
-        get_value_of.args_list = [n for n in self.nodes_original if n in nodes_vo_all]
+        get_value_of.args_list = [
+            n for n in self.nodes_original if n in nodes_vo_all
+        ]
         return get_value_of
 
     def get_func_of_from_wrt(self, get_value_of, var_wrt):
@@ -284,33 +292,33 @@ class FunctionGraph(UserDict):
             return get_value_of(**other_values_original)
 
         # TODO generate a docstring for `get_value_of_from_wrt`
-        # NOTE probably better to redesign this so it takes var_of as an arg
-        #      instead of the get_value_of function
         return get_value_of_from_wrt
 
-    def get_grad_func(self, var_of: str, var_wrt: str):
+    def get_jac_func(self, var_of: str, var_wrt: str):
         get_value_of = self.get_func_of(var_of)
-        get_value_of_from_wrt = self.get_func_of_from_wrt(get_value_of, var_wrt)
+        get_value_of_from_wrt = self.get_func_of_from_wrt(
+            get_value_of, var_wrt
+        )
         return jacfwd(get_value_of_from_wrt)
 
-    def get_grad(self, var_of: str, var_wrt: str):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and
-        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
+    def get_jac(self, var_of: str, var_wrt: str):
+        """Compute the Jacobian of `var_of` with respect to `var_wrt` and
+        store it in `sys.jacs[var_of][var_wrt]`.  If there is already a value
         there, then that value is returned instead of recalculating.
 
         Parameters
         ----------
         var_of : str
-            The name of the variable to get the derivative of.
+            The name of the variable to get the Jacobian of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.
-            This must be one of the fixed values provided when creating the
-            `CO2System`, i.e., listed in its `nodes_original` attribute.
+            The name of the variable to get the Jacobian with respect to.
+            This must be one of the fixed values listed in `nodes_original`.
 
         Returns
         -------
         float
-            The gradient of `var_of` with respect to `var_wrt`.
+            The Jacobian of `var_of` with respect to `var_wrt`.  Its dimensions
+            are `*(np.shape(var_of), *np.shape(var_wrt))`.
         """
         var_of = self.shortcuts[var_of]
         var_wrt = self.shortcuts[var_wrt]
@@ -318,7 +326,7 @@ class FunctionGraph(UserDict):
             "`var_wrt` must be one of `sys.nodes_original!`"
         )
         try:  # see if we've already calculated this value
-            d_of__d_wrt = self.grads[var_of][var_wrt]
+            d_of__d_wrt = self.jacs[var_of][var_wrt]
         except KeyError:  # Do the calculations only if needed
             # We need to know the shape of the variable that we want the grad
             # of.  The easiest way to get this is just to solve for it (if that
@@ -330,49 +338,40 @@ class FunctionGraph(UserDict):
             other_values_original = {
                 k: self.data[k] for k in self.nodes_original if k != var_wrt
             }
-            # # We have to make sure the value we are differentiating with
-            # # respect to has the same shape as the value we want the
-            # # derivative of
-            # value_wrt = self.data[var_wrt] * np.ones_like(self.data[var_of])
-            # Here we compute the gradient
-            grad_func = self.get_grad_func(var_of, var_wrt)
-            d_of__d_wrt = grad_func(self.data[var_wrt], **other_values_original)
-            # Put the final value into self.grads, first creating a new
+            # Here we compute the Jacobian
+            jac_func = self.get_jac_func(var_of, var_wrt)
+            d_of__d_wrt = jac_func(self.data[var_wrt], **other_values_original)
+            # Put the final value into self.jacs, first creating a new
             # sub-dict if necessary
-            if var_of not in self.grads:
-                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
-            self.grads[var_of][var_wrt] = d_of__d_wrt
-            self.remove_jax_overhead(self.grads[var_of])
+            if var_of not in self.jacs:
+                self.jacs[var_of] = ShortcutDotDict(self.shortcuts)
+            self.jacs[var_of][var_wrt] = d_of__d_wrt
+            self.remove_jax_overhead(self.jacs[var_of])
         return d_of__d_wrt
 
-    def get_grads(
+    def get_jacs(
         self,
         vars_of: str | list,
         vars_wrt: str | list,
     ):
-        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
-        store them in `sys.grads[var_of][var_wrt]`.
+        """Compute the Jacobians of `vars_of` with respect to `vars_wrt` and
+        store them in `sys.jacs[var_of][var_wrt]`.
 
         Parameters
         ----------
         vars_of : str | list
-            The name(s) of the variable(s) to get the derivative(s) of.
+            The name(s) of the variable(s) to get the Jacobian(s) of.
         vars_wrt : str | list
-            The name(s) of the variable(s) to get the derivative(s) with
+            The name(s) of the variable(s) to get the Jacobian(s) with
             respect to.  These must all be one of the fixed parameters
             provided on initialisation, i.e., listed in `nodes_original`.
-
-        Returns
-        -------
-        FunctionGraph
-            The `FunctionGraph` with the additional gradients computed.
         """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
             vars_wrt = [vars_wrt]
         for var_of, var_wrt in product(vars_of, vars_wrt):
-            self.get_grad(var_of, var_wrt)
+            self.get_jac(var_of, var_wrt)
         return self
 
     def set_uncertainty(self, **kwargs):
