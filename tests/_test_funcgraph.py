@@ -8,15 +8,21 @@ from matplotlib import pyplot as plt
 from tests.function_graph import FunctionGraph
 
 
+# alpha: standard input with default
+# beta: computed by function with no inputs
+# gamma, epsilon: computed from part of coeffs and other inputs/intermediates
+# delta: standard intermediate
+# phi: standard end product
+# coeffs: set of coefficients used in parts by multiple other steps
 funcs = {
     "beta": lambda: 1.5,
     "gamma": lambda coeffs, alpha, beta: (
-        coeffs[0] + alpha * coeffs[1] + beta * coeffs[2]
+        coeffs[0] + np.exp(-alpha) * coeffs[1] + beta * coeffs[2]
     ),
     # "gamma": lambda alpha, beta: alpha + beta,
-    "Delta": lambda beta, gamma: beta + gamma,
+    "Delta": lambda beta, gamma: beta + np.sqrt(gamma),
     "epsilon": lambda coeffs, alpha, Delta: (
-        coeffs[3] * alpha**2 + coeffs[4] * Delta
+        coeffs[3] * alpha**2 + coeffs[4] * Delta * alpha
     ),
     "phi": lambda Delta, epsilon: 2 * Delta + epsilon,
 }
@@ -34,7 +40,6 @@ shortcuts = dict(
     g="gamma",
     f="phi",
 )
-
 fu = FunctionGraph(
     defaults=defaults,
     funcs=funcs,
@@ -44,8 +49,14 @@ fu = FunctionGraph(
 data = dict(
     # alpha=1.0,
     # alpha=np.array([1.0]),
-    alpha=np.array([[1, 2.0]]),
-    beta=np.vstack([1, 2, 3.0]),
+    alpha=np.array(
+        [
+            [1, 2.0],
+            [1, 2.0],
+            [1, 2.0],
+        ]
+    ),
+    beta=np.vstack([1, 3.0, 2]),
     # alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,
     # b=2,
@@ -85,27 +96,9 @@ fu.get_jacs("e", "a")
 # jshape = np.shape(jac)
 
 
-def parse_jac_from_scalar(jac):
-    """Collapse a Jacobian matrix to remove superfluous zeroes and make the
-    shape match the 'of' parameter when the 'wrt' parameter is 'scalar',
-    i.e., it isn't a set a coefficients.
-    """
-    # NOTE Is this actually necessary for uncertainty propagation?
-    #      Quite possibly not...
-    # NOTE it might in fact be *incorrect* to do this, but I do still need
-    #      to use the einsum notation for propagation.
-    jshape = np.shape(jac)
-    if jshape == ():
-        return jac
-    else:
-        # `ixs` is "aa->a", "abab->ab", "abcabc->abc", ...
-        ixs = "".join(chr(97 + i) for i in range(int(len(jshape) / 2)))
-        return np.einsum(ixs + ixs + "->" + ixs, jac)
-
-
 def printif(arg):
-    print(arg)
     return
+    print(arg)
 
 
 # NOTE Jacobian has shape: (*y.shape, *x.shape)
@@ -153,6 +146,8 @@ printif(fu.jacs.e.a)
 fu.get_jacs("d", "coeffs")
 print(f"fu.jacs.d.coeffs {fu.jacs.d.coeffs.shape}:")
 printif(fu.jacs.d.coeffs)
+
+fu.propagate("phi")
 
 
 # %%
@@ -214,73 +209,9 @@ ucc_b_einsum = np.einsum("abc,cd,efd->abef", jac_ccb, ub, jac_ccb)
 
 
 # Below is IT!
-def get_einsum_code(
-    x_ndims: int,
-    y_ndims: int,
-    ux_ndims: int,
-) -> str:
-    """Get the einsum code for uncertainty propagation of `ux` from `x` to `y`.
-
-    Parameters
-    ----------
-    x_ndims : int
-        The number of dimensions of the variable to propagate uncertainty from.
-    y_ndims : int
-        The number of dimensions of the variable to propagate uncertainty into.
-    ux_ndims : int
-        The number of dimensions of the uncertainties for `x`.  Should be
-        either the same as, or double, `x_ndims`.
-
-    Returns
-    -------
-    einsum_code : str
-        The code to use with `np.einsum`:
-            `uy = np.einsum(einsum_code, jac_yx, ux, jac_yx)`
-    """
-    i0 = 97
-    A = ""
-    for i in range(y_ndims):
-        A += chr(i0)
-        i0 += 1
-    B = ""
-    for i in range(x_ndims):
-        B += chr(i0)
-        i0 += 1
-    if x_ndims == ux_ndims:
-        C = B
-    else:
-        C = ""
-        for i in range(x_ndims):
-            C += chr(i0)
-            i0 += 1
-    D = ""
-    for i in range(y_ndims):
-        D += chr(i0)
-        i0 += 1
-    if B == C:
-        return f"{A}{B},{B},{D}{C}->{A}{D}"
-    else:
-        return f"{A}{B},{B}{C},{D}{C}->{A}{D}"
 
 
 # @jax.jit
-def prop(
-    x: float | np.ndarray,
-    y: float | np.ndarray,
-    jac: float | np.ndarray,
-    ux: float | np.ndarray,
-) -> np.ndarray:
-    x_ndims = len(np.shape(x))
-    y_ndims = len(np.shape(y))
-    ux_ndims = len(np.shape(ux))
-    if ux_ndims == 0:
-        ux_ndims = x_ndims
-        ux = np.full_like(x, ux)
-    esc = get_einsum_code(x_ndims, y_ndims, ux_ndims)
-    uy = np.einsum(esc, jac, ux, jac)
-    return uy
-
-
 func = lambda a, b: get_c(a, b)  # noqa
 args = (np.array([1.5, 2.5]), b)
 uncert = np.array(
@@ -295,14 +226,14 @@ x_ndims = len(np.shape(args[0]))
 y_ndims = len(np.shape(val))
 ux_ndims = len(np.shape(uncert))
 print(x_ndims, y_ndims, ux_ndims)
-esc = get_einsum_code(
+subscripts = FunctionGraph.get_einsum_code(
     len(np.shape(args[0])),
     len(np.shape(val)),
     len(np.shape(uncert)),
 )
 jac = jax.jacfwd(func)(*args)
 
-uprop = prop(args[0], val, jac, uncert)
+uprop = FunctionGraph._propagate(args[0], val, jac, uncert)
 print(uprop)
 
 # %%

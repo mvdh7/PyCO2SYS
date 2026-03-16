@@ -8,6 +8,8 @@ import networkx as nx
 from jax import jacfwd
 
 
+jax.config.update("jax_enable_x64", True)
+
 # NODE STATES
 # ===========
 # -1 = value unknown
@@ -109,7 +111,6 @@ class FunctionGraph(UserDict):
             return {k: self.data[self.shortcuts[k.lower()]] for k in key}
         else:
             # If a single key is requested, return the corresponding value(s)
-            # directly
             return self.data[self.shortcuts[key.lower()]]
 
     def __getattr__(self, attr):
@@ -403,6 +404,28 @@ class FunctionGraph(UserDict):
 
     set_u = set_uncertainty
 
+    def propagate(self, uncertainty_into: str | list[str]):
+        if isinstance(uncertainty_into, str):
+            uncertainty_into = [uncertainty_into]
+        for ui in uncertainty_into:
+            self.uncertainty[ui] = 0
+            for uf in self.uncertainty.assigned:
+                x = self[uf]
+                y = self[ui]
+                jac = self.get_jac(ui, uf)
+                ux = self.uncertainty.assigned[uf]
+                if ui not in self.uncertainty.parts:
+                    self.uncertainty.parts[ui] = ShortcutDotDict(
+                        self.shortcuts
+                    )
+                self.uncertainty.parts[ui][uf] = self._propagate(x, y, jac, ux)
+                self.uncertainty[ui] = (
+                    self.uncertainty[ui] + self.uncertainty.parts[ui][uf]
+                )
+            self.remove_jax_overhead(self.uncertainty.parts[ui])
+        self.remove_jax_overhead(self.uncertainty)
+        return self
+
     # def _propagate(self, uncertainty_into, uncertainty_from):
     #     for var_in in uncertainty_into:
     #         # This should always be reset to zero and all values wiped, even if
@@ -465,3 +488,89 @@ class FunctionGraph(UserDict):
                 data[k] = v.__array__()
             except AttributeError:
                 pass
+
+    @staticmethod
+    def get_einsum_code(
+        x_ndims: int,
+        y_ndims: int,
+        ux_ndims: int,
+    ) -> str:
+        """Get the `np.einsum` subscripts for uncertainty propagation of `ux`
+        from `x` to `y`.
+
+        Parameters
+        ----------
+        x_ndims : int
+            The number of dimensions of the variable to propagate uncertainties
+            from.
+        y_ndims : int
+            The number of dimensions of the variable to propagate uncertainties
+            into.
+        ux_ndims : int
+            The number of dimensions of the uncertainties for `x`.  Should be
+            either the same as, or double, `x_ndims`.
+
+        Returns
+        -------
+        subscripts : str
+            The subscripts to use with `np.einsum`:
+                `uy = np.einsum(subscripts, jac_yx, ux, jac_yx)`
+        """
+        i0 = 97
+        A = ""
+        for i in range(y_ndims):
+            A += chr(i0)
+            i0 += 1
+        B = ""
+        for i in range(x_ndims):
+            B += chr(i0)
+            i0 += 1
+        if x_ndims == ux_ndims:
+            C = B
+        else:
+            C = ""
+            for i in range(x_ndims):
+                C += chr(i0)
+                i0 += 1
+        D = ""
+        for i in range(y_ndims):
+            D += chr(i0)
+            i0 += 1
+        if B == C:
+            return f"{A}{B},{B},{D}{C}->{A}{D}"
+        else:
+            return f"{A}{B},{B}{C},{D}{C}->{A}{D}"
+
+    @staticmethod
+    def _propagate(
+        x: float | np.ndarray,
+        y: float | np.ndarray,
+        jac: float | np.ndarray,
+        ux: float | np.ndarray,
+    ) -> np.ndarray:
+        """Propagate uncertainties `ux` from `x` to `y` given the Jacobian of
+        `y` with respect to `x` (`jac`).
+        """
+        x_ndims = len(np.shape(x))
+        y_ndims = len(np.shape(y))
+        ux_ndims = len(np.shape(ux))
+        if ux_ndims == 0:
+            ux_ndims = x_ndims
+            ux = np.full_like(x, ux)
+        subscripts = FunctionGraph.get_einsum_code(x_ndims, y_ndims, ux_ndims)
+        print(subscripts, jac, ux)
+        uy = np.einsum(subscripts, jac, ux, jac)
+        return uy
+
+    @staticmethod
+    def cut_covariances(uncert):
+        """Collapse a multidimensional uncertainty matrix to remove covariance
+        terms, equivalent to taking the main diagonal from a 2D matrix.
+        """
+        ushape = np.shape(uncert)
+        if ushape == ():
+            return uncert
+        else:
+            # `ixs` is "aa->a", "abab->ab", "abcabc->abc", ...
+            ixs = "".join(chr(97 + i) for i in range(int(len(ushape) / 2)))
+            return np.einsum(ixs + ixs + "->" + ixs, uncert)
