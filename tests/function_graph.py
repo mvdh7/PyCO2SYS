@@ -404,8 +404,10 @@ class FunctionGraph(UserDict):
 
     set_u = set_uncertainty
 
-    def propagate(self, uncertainty_into: str | list[str]):
-        if isinstance(uncertainty_into, str):
+    def propagate(self, uncertainty_into: str | list[str] = None):
+        if uncertainty_into is None:
+            uncertainty_into = list(self.requested)
+        elif isinstance(uncertainty_into, str):
             uncertainty_into = [uncertainty_into]
         for ui in uncertainty_into:
             self.uncertainty[ui] = 0
@@ -558,7 +560,6 @@ class FunctionGraph(UserDict):
             ux_ndims = x_ndims
             ux = np.full_like(x, ux)
         subscripts = FunctionGraph.get_einsum_code(x_ndims, y_ndims, ux_ndims)
-        print(subscripts, jac, ux)
         uy = np.einsum(subscripts, jac, ux, jac)
         return uy
 
