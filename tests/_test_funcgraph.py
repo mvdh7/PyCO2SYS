@@ -14,6 +14,14 @@ def get_gamma(coeffs, alpha, beta):
     return coeffs[0] + np.exp(-alpha) * coeffs[1] + beta * coeffs[2]
 
 
+# TODO for uncertainty propagation, I need to be able to choose which
+# parameters to propagate with Jacobians (e.g., sets of coefficients which
+# have covarying uncertainties) and which not to (e.g., other parameters on
+# the same set of dimensions as the first)
+# Otherwise, the uncertainty is always size dimensions squared, but mostly
+# full of zeroes!
+
+
 # alpha: standard input with default
 # beta: computed by function with no inputs
 # gamma, epsilon: computed from part of coeffs and other inputs/intermediates
@@ -52,13 +60,14 @@ fu = FunctionGraph(
 data = dict(
     # alpha=1.0,
     # alpha=np.array([1.0]),
-    alpha=np.array(
-        [
-            [1, 2.0],
-            [1, 2.0],
-            [1, 2.0],
-        ]
-    ),
+    # alpha=np.array(
+    #     [
+    #         [1, 2.0],
+    #         [1, 2.0],
+    #         [1, 2.0],
+    #     ]
+    # ),
+    alpha=np.vstack([1.5, 2.5, 3.5]),
     beta=np.vstack([1, 3.0, 2]),
     # alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,

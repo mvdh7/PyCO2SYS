@@ -215,8 +215,7 @@ class FunctionGraph(UserDict):
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
             parameters = [parameters]
-        parameters = [self.shortcuts[p] for p in parameters]
-        parameters = set(parameters)
+        parameters = {self.shortcuts[p] for p in parameters}
         self.requested |= parameters
         keys_known = list(self.data.keys())
         # Remove known nodes from a copy of self.graph, so that ancestors of
@@ -364,9 +363,6 @@ class FunctionGraph(UserDict):
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.jacs[var_of][var_wrt]
         except KeyError:  # Do the calculations only if needed
-            # We need to know the shape of the variable that we want the grad
-            # of.  The easiest way to get this is just to solve for it (if that
-            # hasn't already been done)
             if var_of not in self.data:
                 self.solve(var_of)
             # Next, we extract the originally set values, which are fixed
@@ -434,7 +430,7 @@ class FunctionGraph(UserDict):
                 )
             self.uncertainty.assign(**{skl: v})
         # # Recalculate any uncertainties that have already been propagated
-        # self.propagate([self.shortcuts[k] for k in self.uncertainty])
+        self.propagate([self.shortcuts[k] for k in self.uncertainty])
         return self
 
     def propagate(self, uncertainty_into: str | list[str] = None):
@@ -442,6 +438,7 @@ class FunctionGraph(UserDict):
             uncertainty_into = list(self.requested)
         elif isinstance(uncertainty_into, str):
             uncertainty_into = [uncertainty_into]
+        uncertainty_into = {self.shortcuts[ui] for ui in uncertainty_into}
         for ui in uncertainty_into:
             self.uncertainty[ui] = 0
             for uf in self.uncertainty.assigned:
@@ -469,8 +466,7 @@ class FunctionGraph(UserDict):
             parameters = list(self.requested)
         elif isinstance(parameters, str):
             parameters = [parameters]
-        parameters = [self.shortcuts[p] for p in parameters]
-        parameters = set(parameters)
+        parameters = {self.shortcuts[p] for p in parameters}
         # Add intermediate parameters that we need to know in order to
         # calculate the requested parameters
         parameters_all = parameters.copy()
@@ -498,6 +494,7 @@ class FunctionGraph(UserDict):
 
     @staticmethod
     def get_graph(funcs: dict) -> nx.DiGraph:
+        """Construct a graph from a dict of functions."""
         graph = nx.DiGraph()
         for k, func in funcs.items():
             for f in signature(func).parameters.keys():
@@ -512,6 +509,7 @@ class FunctionGraph(UserDict):
 
     @staticmethod
     def remove_jax_overhead(data: dict):
+        """Remove the JAX overhead on all values in a dict."""
         for k, v in data.items():
             try:
                 data[k] = v.item()
