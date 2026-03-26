@@ -67,6 +67,13 @@ class Uncertainties(ShortcutDotDict):
             self.assigned[self._shortcuts[k]] = v
 
 
+class Valids(ShortcutDotDict):
+    def __init__(self, shortcuts):
+        super().__init__(shortcuts)
+        self.direct = ShortcutDotDict(shortcuts)
+        self.indirect = ShortcutDotDict(shortcuts)
+
+
 class FunctionGraph(UserDict):
     def __init__(
         self,
@@ -91,6 +98,32 @@ class FunctionGraph(UserDict):
                 raise Exception("Either `graph` or `funcs` must be provided")
             self.graph = self.get_graph(funcs)
         if shortcuts is not None:
+            for k in shortcuts:
+                if k in [
+                    "defaults",
+                    "direct",
+                    "graph",
+                    "ignored",
+                    "indirect",
+                    "jacs",
+                    "nodes_original",
+                    "parts",
+                    "prop",
+                    "propagate",
+                    "requested",
+                    "set_data",
+                    "set_u",
+                    "set_uncertainty",
+                    "shortcuts",
+                    "solve",
+                    "u",
+                    "uncertainty",
+                    "v",
+                    "valid",
+                ]:
+                    raise Exception(
+                        f'Invalid shortcut "{k}" (reserved attribute)'
+                    )
             self.shortcuts = ShortcutsDict(**shortcuts)
         else:
             self.shortcuts = ShortcutsDict()
@@ -100,6 +133,8 @@ class FunctionGraph(UserDict):
         self.jacs = ShortcutDotDict(self.shortcuts)
         self.uncertainty = Uncertainties(self.shortcuts)
         self.u = self.uncertainty
+        self.valid = Valids(self.shortcuts)
+        self.v = self.valid
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
@@ -402,8 +437,6 @@ class FunctionGraph(UserDict):
         # self.propagate([self.shortcuts[k] for k in self.uncertainty])
         return self
 
-    set_u = set_uncertainty
-
     def propagate(self, uncertainty_into: str | list[str] = None):
         if uncertainty_into is None:
             uncertainty_into = list(self.requested)
@@ -428,42 +461,40 @@ class FunctionGraph(UserDict):
         self.remove_jax_overhead(self.uncertainty)
         return self
 
-    # def _propagate(self, uncertainty_into, uncertainty_from):
-    #     for var_in in uncertainty_into:
-    #         # This should always be reset to zero and all values wiped, even if
-    #         # it already exists (so you don't end up with old uncertainty_from
-    #         # components from a previous calculation which are no longer part of
-    #         # the total)
-    #         self.uncertainty[var_in] = np.zeros_like(self.data[var_in])
-    #         u_total = self.uncertainty[var_in]
-    #         for var_from, u_from in uncertainty_from.items():
-    #             is_fractional = var_from.endswith("__f")
-    #             if is_fractional:
-    #                 # If the uncertainty is fractional, multiply through
-    #                 var_from = var_from[:-3]
-    #                 u_from = self.data[var_from] * u_from
-    #             # Propagate uncertainties only from ancestor nodes
-    #             if var_from in nx.ancestors(self.graph, var_in):
-    #                 if var_from in self.nodes_original:
-    #                     self.get_grad(var_in, var_from)
-    #                     u_part = np.abs(self.grads[var_in][var_from] * u_from)
-    #                 else:
-    #                     # If the uncertainty is from some internally calculated value,
-    #                     # then we need to make a second CO2System where that value
-    #                     # is one of the known inputs, and get the grad from that
-    #                     data = self.get_values_original()
-    #                     data.update({var_from: self.data[var_from]})
-    #                     sys = CO2System(**data, **self.opts)
-    #                     sys.get_grad(var_in, var_from)
-    #                     u_part = np.abs(sys.grads[var_in][var_from] * u_from)
-    #                 if is_fractional:
-    #                     var_from += "__f"
-    #                 if var_in not in self.uncertainty.parts:
-    #                     self.uncertainty.parts[var_in] = ShortcutDotDict()
-    #                 self.uncertainty.parts[var_in][var_from] = u_part
-    #                 u_total = u_total + u_part**2
-    #         self.uncertainty[var_in] = np.sqrt(u_total)
-    #     return self
+    set_u = set_uncertainty
+    prop = propagate
+
+    def get_valid(self, parameters=None):
+        if parameters is None:
+            parameters = list(self.requested)
+        elif isinstance(parameters, str):
+            parameters = [parameters]
+        parameters = [self.shortcuts[p] for p in parameters]
+        parameters = set(parameters)
+        # Add intermediate parameters that we need to know in order to
+        # calculate the requested parameters
+        parameters_all = parameters.copy()
+        for p in parameters:
+            parameters_all = parameters_all | nx.ancestors(self.graph, p)
+        sgn = self.graph.nodes
+        sv = self.valid
+        for n in nx.topological_sort(self.graph):
+            if n in parameters_all:
+                if "func" in sgn[n] and hasattr(sgn[n]["func"], "valid"):
+                    sv[n] = ~np.isnan(self[n])
+                    sv.direct[n] = ShortcutDotDict(self.shortcuts)
+                    for k, v in sgn[n]["func"].valid.items():
+                        sv.direct[n][k] = (self[k] < v[0]) | (self[k] > v[1])
+                        sv[n] &= sv.direct[n][k]
+                for p in self.graph.predecessors(n):
+                    if p in sv:
+                        print(n, p)
+                        sv.indirect[n] = ShortcutDotDict(self.shortcuts)
+                        if n not in sv:
+                            sv[n] = ~np.isnan(self[n])
+                        sv.indirect[n][p] = sv[p]
+                        sv[n] &= sv.indirect[n][p]
+        return self
 
     @staticmethod
     def get_graph(funcs: dict) -> nx.DiGraph:

@@ -5,7 +5,13 @@ import numpy as onp
 from jax import numpy as np
 from matplotlib import pyplot as plt
 
+from PyCO2SYS.meta import valid
 from tests.function_graph import FunctionGraph
+
+
+@valid(alpha=[0, 1.5], beta=[1, 2])
+def get_gamma(coeffs, alpha, beta):
+    return coeffs[0] + np.exp(-alpha) * coeffs[1] + beta * coeffs[2]
 
 
 # alpha: standard input with default
@@ -16,10 +22,7 @@ from tests.function_graph import FunctionGraph
 # coeffs: set of coefficients used in parts by multiple other steps
 funcs = {
     "beta": lambda: 1.5,
-    "gamma": lambda coeffs, alpha, beta: (
-        coeffs[0] + np.exp(-alpha) * coeffs[1] + beta * coeffs[2]
-    ),
-    # "gamma": lambda alpha, beta: alpha + beta,
+    "gamma": get_gamma,
     "Delta": lambda beta, gamma: beta + np.sqrt(gamma),
     "epsilon": lambda coeffs, alpha, Delta: (
         coeffs[3] * alpha**2 + coeffs[4] * Delta * alpha
@@ -148,6 +151,22 @@ print(f"fu.jacs.d.coeffs {fu.jacs.d.coeffs.shape}:")
 printif(fu.jacs.d.coeffs)
 
 fu.propagate("phi")
+fu.get_valid("f")
+
+# %%
+pos = nx.nx_agraph.graphviz_layout(fu.graph, prog="dot")
+fig, ax = plt.subplots()
+nx.draw_networkx(
+    fu.graph,
+    pos=pos,
+    nodelist=fu.graph.nodes,
+    node_color=[
+        nx.get_node_attributes(fu.graph, "state", default=-1)[n]
+        for n in fu.graph.nodes
+    ],
+    vmin=-1,
+    vmax=3,
+)
 
 
 # %%
@@ -235,21 +254,6 @@ jac = jax.jacfwd(func)(*args)
 
 uprop = FunctionGraph._propagate(args[0], val, jac, uncert)
 print(uprop)
-
-# %%
-pos = nx.nx_agraph.graphviz_layout(fu.graph, prog="dot")
-fig, ax = plt.subplots()
-nx.draw_networkx(
-    fu.graph,
-    pos=pos,
-    nodelist=fu.graph.nodes,
-    node_color=[
-        nx.get_node_attributes(fu.graph, "state", default=-1)[n]
-        for n in fu.graph.nodes
-    ],
-    vmin=-1,
-    vmax=3,
-)
 
 # %%
 # https://stackoverflow.com/questions/26089893/understanding-numpys-einsum
