@@ -484,7 +484,7 @@ class FunctionGraph(UserDict):
                     sv[n] = ~np.isnan(self[n])
                     sv.direct[n] = ShortcutDotDict(self.shortcuts)
                     for k, v in sgn[n]["func"].valid.items():
-                        sv.direct[n][k] = (self[k] < v[0]) | (self[k] > v[1])
+                        sv.direct[n][k] = (self[k] >= v[0]) & (self[k] <= v[1])
                         sv[n] &= sv.direct[n][k]
                 for p in self.graph.predecessors(n):
                     if p in sv:
