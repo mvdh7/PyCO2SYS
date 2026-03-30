@@ -1796,6 +1796,23 @@ def pk_HCO3_total_PLR18(temperature, salinity):
     )
     return pK2
 
+@valid(temperature=[0, 35], salinity=[0, 41])
+def pk_HCO3_total_MMB25(temperature, salinity):
+    """Carbonic acid dissociation constants with K2 following MMB25.
+    K1 should come from WMW14.
+    Used when opt_k_carbonic = 19.
+    """
+    TempK = convert.celsius_to_kelvin(temperature)
+    Sal=salinity
+    pK2 = (
+        5.1703
+        + 2136.77 / TempK
+        - 177788 / TempK**(2)
+        - 0.4457 * np.sqrt(Sal)/(1 + 1.11 * np.sqrt(Sal))
+        + 0.0674 * Sal/np.log(TempK)
+        - 0.0008238 * np.sqrt(Sal)*TempK
+    )
+    return pK2
 
 def pk_H2S_total_YM95(temperature, salinity):
     """Hydrogen sulfide dissociation constant on the total scale following YM95.
