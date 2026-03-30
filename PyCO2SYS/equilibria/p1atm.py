@@ -183,7 +183,11 @@ def pk_CO2_W74(temperature, salinity):
     return -lnK0 / np.log(10)
 
 
-@valid(temperature=[0, 45], salinity=[5, 45], ionic_strength=[0.10012312, 0.93904847])
+@valid(
+    temperature=[0, 45],
+    salinity=[5, 45],
+    ionic_strength=[0.10012312, 0.93904847],
+)
 def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
     Used when opt_k_HSO4 = 1.
@@ -215,7 +219,8 @@ def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
         -4276.1 / TempK
         + 141.328
         - 23.093 * logTempK
-        + (-13856 / TempK + 324.57 - 47.986 * logTempK) * np.sqrt(ionic_strength)
+        + (-13856 / TempK + 324.57 - 47.986 * logTempK)
+        * np.sqrt(ionic_strength)
         + (35474 / TempK - 771.54 + 114.723 * logTempK) * ionic_strength
         + (-2698 / TempK) * np.sqrt(ionic_strength) * ionic_strength
         + (1776 / TempK) * ionic_strength**2
@@ -223,7 +228,11 @@ def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
     return -np.log10(np.exp(lnk_HSO4) * (1 - 0.001005 * salinity))
 
 
-@valid(temperature=[5, 40], salinity=[20, 45], ionic_strength=[0.40665374, 0.93904847])
+@valid(
+    temperature=[5, 40],
+    salinity=[20, 45],
+    ionic_strength=[0.40665374, 0.93904847],
+)
 def pk_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     """Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
     Used when opt_k_HSO4 = 2.
@@ -258,7 +267,10 @@ def pk_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     # Output KS is on the free pH scale in mol/kg-sw.
     TempK = temperature + 273.15
     pk_HSO4 = (
-        647.59 / TempK - 6.3451 + 0.019085 * TempK - 0.5208 * np.sqrt(ionic_strength)
+        647.59 / TempK
+        - 6.3451
+        + 0.019085 * TempK
+        - 0.5208 * np.sqrt(ionic_strength)
     )
     return pk_HSO4 - np.log10(1 - 0.001005 * salinity)
 
@@ -306,7 +318,9 @@ def pk_HSO4_free_WM13(temperature, salinity):
 
 
 @valid(
-    temperature=[5, 35], salinity=[10.43, 47.78], ionic_strength=[0.21000866, 0.999987]
+    temperature=[5, 35],
+    salinity=[10.43, 47.78],
+    ionic_strength=[0.21000866, 0.999987],
 )
 def pk_HF_free_DR79(temperature, salinity, ionic_strength):
     """Hydrogen fluoride dissociation constant on the free scale following DR79a.
@@ -331,7 +345,9 @@ def pk_HF_free_DR79(temperature, salinity, ionic_strength):
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    lnKF = 1590.2 / (temperature + 273.15) - 12.641 + 1.525 * ionic_strength**0.5
+    lnKF = (
+        1590.2 / (temperature + 273.15) - 12.641 + 1.525 * ionic_strength**0.5
+    )
     return -np.log10(np.exp(lnKF) * (1 - 0.001005 * salinity))
 
 
@@ -453,7 +469,8 @@ def pk_H2O_sws_M95(temperature, salinity):
         148.9802
         - 13847.26 / TempK
         - 23.6521 * np.log(TempK)
-        + (-5.977 + 118.67 / TempK + 1.0495 * np.log(TempK)) * np.sqrt(salinity)
+        + (-5.977 + 118.67 / TempK + 1.0495 * np.log(TempK))
+        * np.sqrt(salinity)
         - 0.01615 * salinity
     ) / np.log(10)
 
@@ -482,7 +499,8 @@ def pk_H2O_sws_M79(temperature, salinity):
         148.9802
         - 13847.26 / TempK
         - 23.6521 * np.log(TempK)
-        + (-79.2447 + 3298.72 / TempK + 12.0408 * np.log(TempK)) * np.sqrt(salinity)
+        + (-79.2447 + 3298.72 / TempK + 12.0408 * np.log(TempK))
+        * np.sqrt(salinity)
         - 0.019813 * salinity
     ) / np.log(10)
 
@@ -509,7 +527,9 @@ def pk_H2O_sws_HO58_M79(temperature):
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
     TempK = convert.celsius_to_kelvin(temperature)
-    return -(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK)) / np.log(10)
+    return -(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK)) / np.log(
+        10
+    )
 
 
 def pk_H3PO4_sws_KP67():
@@ -1386,7 +1406,12 @@ def pk_H2CO3_sws_MPL02(temperature, salinity):
     # sigma for pK1 is reported to be 0.005
     # sigma for pK2 is reported to be 0.008
     # This is from page 1715
-    pK1 = 6.359 - 0.00664 * salinity - 0.01322 * temperature + 4.989e-5 * temperature**2
+    pK1 = (
+        6.359
+        - 0.00664 * salinity
+        - 0.01322 * temperature
+        + 4.989e-5 * temperature**2
+    )
     return pK1  # this is on the SWS pH scale in mol/kg-SW
 
 
@@ -1407,7 +1432,12 @@ def pk_HCO3_sws_MPL02(temperature, salinity):
     float
         HCO3 dissociation constant.
     """
-    pK2 = 9.867 - 0.01314 * salinity - 0.01904 * temperature + 2.448e-5 * temperature**2
+    pK2 = (
+        9.867
+        - 0.01314 * salinity
+        - 0.01904 * temperature
+        + 2.448e-5 * temperature**2
+    )
     return pK2  # this is on the SWS pH scale in mol/kg-SW
 
 
@@ -1565,7 +1595,11 @@ def pk_H2CO3_sws_WMW14(temperature, salinity):
     # Constants for K's on the SWS;
     TempK = convert.celsius_to_kelvin(temperature)
     pK10 = _kH2CO3_WMW14(TempK)[0]
-    A1 = 13.409160 * salinity**0.5 + 0.031646 * salinity - 5.1895e-5 * salinity**2
+    A1 = (
+        13.409160 * salinity**0.5
+        + 0.031646 * salinity
+        - 5.1895e-5 * salinity**2
+    )
     B1 = -531.3642 * salinity**0.5 - 5.713 * salinity
     C1 = -2.0669166 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
@@ -1591,7 +1625,11 @@ def pk_HCO3_sws_WMW14(temperature, salinity):
     """
     TempK = convert.celsius_to_kelvin(temperature)
     pK20 = _kH2CO3_WMW14(TempK)[1]
-    A2 = 21.225890 * salinity**0.5 + 0.12450870 * salinity - 3.7243e-4 * salinity**2
+    A2 = (
+        21.225890 * salinity**0.5
+        + 0.12450870 * salinity
+        - 3.7243e-4 * salinity**2
+    )
     B2 = -779.3444 * salinity**0.5 - 19.91739 * salinity
     C2 = -3.3534679 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
@@ -1618,7 +1656,11 @@ def pk_H2CO3_total_WMW14(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # Coefficients from the corrigendum document [WMW14]
     pK10 = _kH2CO3_WMW14(TempK)[0]
-    A1 = 13.568513 * salinity**0.5 + 0.031645 * salinity - 5.3834e-5 * salinity**2
+    A1 = (
+        13.568513 * salinity**0.5
+        + 0.031645 * salinity
+        - 5.3834e-5 * salinity**2
+    )
     B1 = -539.2304 * salinity**0.5 - 5.635 * salinity
     C1 = -2.0901396 * salinity**0.5
     pK1 = pK10 + A1 + B1 / TempK + C1 * np.log(TempK)
@@ -1644,7 +1686,11 @@ def pk_HCO3_total_WMW14(temperature, salinity):
     TempK = convert.celsius_to_kelvin(temperature)
     # Coefficients from the corrigendum document [WMW14]
     pK20 = _kH2CO3_WMW14(TempK)[1]
-    A2 = 21.389248 * salinity**0.5 + 0.12452358 * salinity - 3.7447e-4 * salinity**2
+    A2 = (
+        21.389248 * salinity**0.5
+        + 0.12452358 * salinity
+        - 3.7447e-4 * salinity**2
+    )
     B2 = -787.3736 * salinity**0.5 - 19.84233 * salinity
     C2 = -3.3773006 * salinity**0.5
     pK2 = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
@@ -1796,6 +1842,7 @@ def pk_HCO3_total_PLR18(temperature, salinity):
     )
     return pK2
 
+
 @valid(temperature=[0, 35], salinity=[0, 41])
 def pk_HCO3_total_MMB25(temperature, salinity):
     """Carbonic acid dissociation constants with K2 following MMB25.
@@ -1803,16 +1850,17 @@ def pk_HCO3_total_MMB25(temperature, salinity):
     Used when opt_k_carbonic = 19.
     """
     TempK = convert.celsius_to_kelvin(temperature)
-    Sal=salinity
+    Sal = salinity
     pK2 = (
         5.1703
         + 2136.77 / TempK
-        - 177788 / TempK**(2)
-        - 0.4457 * np.sqrt(Sal)/(1 + 1.11 * np.sqrt(Sal))
-        + 0.0674 * Sal/np.log(TempK)
-        - 0.0008238 * np.sqrt(Sal)*TempK
+        - 177788 / TempK**2
+        - 0.4457 * np.sqrt(Sal) / (1 + 1.11 * np.sqrt(Sal))
+        + 0.0674 * Sal / np.log(TempK)
+        - 0.0008238 * np.sqrt(Sal) * TempK
     )
     return pK2
+
 
 def pk_H2S_total_YM95(temperature, salinity):
     """Hydrogen sulfide dissociation constant on the total scale following YM95.
@@ -1900,7 +1948,12 @@ def pk_NH3_total_CW95(temperature, salinity):
     PKNH3expCW = PKNH3expCW + (0.04203362 - 11.24742 / TempK) * salinity**0.25
     PKNH3expCW = (
         PKNH3expCW
-        + (-13.6416 + 1.176949 * TempK**0.5 - 0.02860785 * TempK + 545.4834 / TempK)
+        + (
+            -13.6416
+            + 1.176949 * TempK**0.5
+            - 0.02860785 * TempK
+            + 545.4834 / TempK
+        )
         * salinity**0.5
     )
     PKNH3expCW = (
@@ -1915,9 +1968,12 @@ def pk_NH3_total_CW95(temperature, salinity):
     )
     PKNH3expCW = (
         PKNH3expCW
-        + (0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK) * salinity**2
+        + (0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK)
+        * salinity**2
     )
-    PKNH3expCW = PKNH3expCW + (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
+    PKNH3expCW = (
+        PKNH3expCW + (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
+    )
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
     return -np.log10(KNH3)

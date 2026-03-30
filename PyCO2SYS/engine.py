@@ -23,6 +23,7 @@ from . import (
     upsilon,
 )
 
+
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
     # Total salt contents
@@ -33,18 +34,16 @@ get_funcs = {
     "pk_CO2_1atm": equilibria.p1atm.pk_CO2_W74,
     "pk_H2S_total_1atm": equilibria.p1atm.pk_H2S_total_YM95,
     # pH scale conversion factors at 1 atm
-    "free_to_sws_1atm": lambda total_fluoride,
-    total_sulfate,
-    pk_HF_free_1atm,
-    pk_HSO4_free_1atm: convert.pH_free_to_sws(
-        total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+    "free_to_sws_1atm": lambda total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm: (
+        convert.pH_free_to_sws(
+            total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+        )
     ),
     "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
-    "tot_to_sws_1atm": lambda total_fluoride,
-    total_sulfate,
-    pk_HF_free_1atm,
-    pk_HSO4_free_1atm: convert.pH_tot_to_sws(
-        total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+    "tot_to_sws_1atm": lambda total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm: (
+        convert.pH_tot_to_sws(
+            total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+        )
     ),
     # Equilibrium constants at 1 atm and on the seawater pH scale
     "pk_H2S_sws_1atm": lambda pk_H2S_total_1atm, tot_to_sws_1atm: (
@@ -103,7 +102,9 @@ get_funcs = {
         pk_HNO2_sws_1atm - np.log10(factor_k_HNO2)
     ),
     # Equilibrium constants at pressure and on the requested pH scale
-    "pk_CO2": lambda pk_CO2_1atm, factor_k_CO2: pk_CO2_1atm - np.log10(factor_k_CO2),
+    "pk_CO2": lambda pk_CO2_1atm, factor_k_CO2: (
+        pk_CO2_1atm - np.log10(factor_k_CO2)
+    ),
     "pk_BOH3": lambda sws_to_opt, pk_BOH3_sws: sws_to_opt + pk_BOH3_sws,
     "pk_H2O": lambda sws_to_opt, pk_H2O_sws: sws_to_opt + pk_H2O_sws,
     "pk_H2S": lambda sws_to_opt, pk_H2S_sws: sws_to_opt + pk_H2S_sws,
@@ -524,7 +525,9 @@ get_funcs_opts["opt_k_carbonic"] = {
 }
 # For historical reasons, these are the same as each other (one also gets the Peng
 # "correction", but that's handled elsewhere):
-get_funcs_opts["opt_k_carbonic"][7] = get_funcs_opts["opt_k_carbonic"][6].copy()
+get_funcs_opts["opt_k_carbonic"][7] = get_funcs_opts["opt_k_carbonic"][
+    6
+].copy()
 get_funcs_opts["opt_k_phosphate"] = {
     1: dict(
         pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_YM95,
@@ -584,7 +587,9 @@ get_funcs_opts["opt_k_Si"] = {
     1: dict(pk_Si_sws_1atm=equilibria.p1atm.pk_Si_sws_YM95),
     2: dict(
         pk_Si_nbs_1atm=equilibria.p1atm.pk_Si_nbs_SMB64,
-        pk_Si_sws_1atm=lambda pk_Si_nbs_1atm, nbs_to_sws: (pk_Si_nbs_1atm + nbs_to_sws),
+        pk_Si_sws_1atm=lambda pk_Si_nbs_1atm, nbs_to_sws: (
+            pk_Si_nbs_1atm + nbs_to_sws
+        ),
     ),
 }
 get_funcs_opts["opt_k_HNO2"] = {
@@ -692,9 +697,15 @@ get_funcs_opts["opt_k_aragonite"] = {
 #     ),
 # }
 get_funcs_opts["opt_Mg_calcite_type"] = {
-    1: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep),
-    2: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_biogenic),
-    3: dict(pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_synthetic),
+    1: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep
+    ),
+    2: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_biogenic
+    ),
+    3: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_synthetic
+    ),
 }
 
 get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
@@ -1341,7 +1352,9 @@ class CO2System(UserDict):
         core_known = np.array([v in data for v in parameters_core])
         icase_all = np.arange(1, len(parameters_core) + 1)
         icase = icase_all[core_known]
-        assert len(icase) < 3, "A maximum of 2 known core parameters can be provided."
+        assert len(icase) < 3, (
+            "A maximum of 2 known core parameters can be provided."
+        )
         if len(icase) == 0:
             icase = np.array(0)
         elif len(icase) == 2:
@@ -1352,7 +1365,9 @@ class CO2System(UserDict):
         for k, v in opts.items():
             if k in get_funcs_opts:
                 assert np.isscalar(v)
-                assert v in get_funcs_opts[k].keys(), f"{v} is not allowed for {k}!"
+                assert v in get_funcs_opts[k].keys(), (
+                    f"{v} is not allowed for {k}!"
+                )
             else:
                 warn(f"'{k}' not recognised - it will be ignored.")
                 opts.pop(k)
@@ -1614,7 +1629,9 @@ class CO2System(UserDict):
         # Remove known nodes from a copy of self.graph, so that ancestors of
         # known nodes are not unnecessarily recomputed
         graph_unknown = self.graph.copy()
-        graph_unknown.remove_nodes_from([k for k in self_data if k not in parameters])
+        graph_unknown.remove_nodes_from(
+            [k for k in self_data if k not in parameters]
+        )
         # Add intermediate parameters that we need to know in order to
         # calculate the requested parameters
         parameters_all = parameters.copy()
@@ -1633,9 +1650,13 @@ class CO2System(UserDict):
             if len(priors) == 0 or all([r in self_data for r in priors]):
                 attrs = self.graph.nodes[p]
                 try:
-                    self_data[p] = attrs["func"](*[self_data[r] for r in attrs["args"]])
+                    self_data[p] = attrs["func"](
+                        *[self_data[r] for r in attrs["args"]]
+                    )
                 except KeyError:
-                    raise Exception(f"{p} has no associated function in the graph")
+                    raise Exception(
+                        f"{p} has no associated function in the graph"
+                    )
                 store_here = (
                     #  If store_steps is 0, store only requested parameters
                     (store_steps == 0 and p in parameters)
@@ -1653,15 +1674,23 @@ class CO2System(UserDict):
                     if p in parameters:
                         # state = 3 means that the value was calculated internally
                         # due to direct request
-                        nx.set_node_attributes(self.graph, {p: 3}, name="state")
+                        nx.set_node_attributes(
+                            self.graph, {p: 3}, name="state"
+                        )
                     else:
                         # state = 2 means that the value was calculated internally
                         # as an intermediate to a requested parameter
-                        nx.set_node_attributes(self.graph, {p: 2}, name="state")
+                        nx.set_node_attributes(
+                            self.graph, {p: 2}, name="state"
+                        )
                     for f in attrs["args"]:
-                        nx.set_edge_attributes(self.graph, {(f, p): 2}, name="state")
+                        nx.set_edge_attributes(
+                            self.graph, {(f, p): 2}, name="state"
+                        )
         # Get rid of jax overhead on results
-        self_data = {k: v for k, v in self_data.items() if k in store_parameters}
+        self_data = {
+            k: v for k, v in self_data.items() if k in store_parameters
+        }
         _remove_jax_overhead(self_data)
         self.data.update(self_data)
         return self
@@ -1752,7 +1781,9 @@ class CO2System(UserDict):
             else:
                 return xr.Dataset(
                     {
-                        p: xr.DataArray(np.squeeze(self[p]), dims=self._get_xr_ndims(p))
+                        p: xr.DataArray(
+                            np.squeeze(self[p]), dims=self._get_xr_ndims(p)
+                        )
                         for p in parameters
                     }
                 )
@@ -1949,7 +1980,9 @@ class CO2System(UserDict):
         # To adjust to a different temperature/pressure, we need to know fCO2
         # for the original system.  First, we get the subgraph from the
         # original system that contains only fCO2 and all its ancestors.
-        graph_pre = self.graph.subgraph(nx.ancestors(self.graph, "fCO2") | {"fCO2"})
+        graph_pre = self.graph.subgraph(
+            nx.ancestors(self.graph, "fCO2") | {"fCO2"}
+        )
         # All of the nodes in graph_pre that are not condition-independent are
         # now renamed with "__pre" appended, to keep the distinct from the same
         # nodes under the adjusted conditions.  Pressure is also considered to
@@ -1979,30 +2012,28 @@ class CO2System(UserDict):
                 data_pre[k + "__pre"] = data_pre.pop(k)
         # Here we add the functions that convert fCO2 across temperatures to
         # `graph_adj`, depending on the conversion option.
-        cfuncs = {"fCO2": lambda fCO2__pre, exp_upsilon: fCO2__pre * exp_upsilon}
+        cfuncs = {
+            "fCO2": lambda fCO2__pre, exp_upsilon: fCO2__pre * exp_upsilon
+        }
         if method_fCO2 == 1:
             assert which_fCO2_insitu in [1, 2]
             if which_fCO2_insitu == 1:
-                cfuncs["bh"] = (
-                    lambda temperature__pre, salinity, fCO2__pre: upsilon.get_bh_H24(
-                        temperature__pre, salinity, fCO2__pre
-                    )
+                cfuncs["bh"] = lambda temperature__pre, salinity, fCO2__pre: (
+                    upsilon.get_bh_H24(temperature__pre, salinity, fCO2__pre)
                 )
             elif which_fCO2_insitu == 2:
                 cfuncs["bh"] = (
-                    lambda temperature__pre,
-                    temperature,
-                    salinity,
-                    fCO2__pre,
-                    gas_constant: upsilon.get_bh_H24(
-                        temperature__pre,
-                        salinity,
-                        fCO2__pre
-                        * upsilon.expUps_TOG93_H24(
+                    lambda temperature__pre, temperature, salinity, fCO2__pre, gas_constant: (
+                        upsilon.get_bh_H24(
                             temperature__pre,
-                            temperature,
-                            gas_constant,
-                        ),
+                            salinity,
+                            fCO2__pre
+                            * upsilon.expUps_TOG93_H24(
+                                temperature__pre,
+                                temperature,
+                                gas_constant,
+                            ),
+                        )
                     )
                 )
             cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
@@ -2013,7 +2044,9 @@ class CO2System(UserDict):
             cfuncs["bh"] = lambda: upsilon.bh_enthalpy_H24
             cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
         elif method_fCO2 == 4:
-            assert bh is not None, "A `bh` value must be provided for `method_fCO2=4`."
+            assert bh is not None, (
+                "A `bh` value must be provided for `method_fCO2=4`."
+            )
             data_pre["bh"] = bh
             no_pre.append("bh")
             cfuncs["exp_upsilon"] = upsilon.expUps_Hoff_H24
@@ -2178,7 +2211,9 @@ class CO2System(UserDict):
                 get_value_of.__doc__ += f"\n        {p}"
         get_value_of.__doc__ += "\n\nReturns\n-------"
         get_value_of.__doc__ += f"\n{var_of}"
-        get_value_of.args_list = [n for n in self.nodes_original if n in nodes_vo_all]
+        get_value_of.args_list = [
+            n for n in self.nodes_original if n in nodes_vo_all
+        ]
         return get_value_of
 
     def _get_func_of_from_wrt(self, get_value_of, var_wrt):
@@ -2207,7 +2242,9 @@ class CO2System(UserDict):
 
     def get_grad_func(self, var_of, var_wrt):
         get_value_of = self._get_func_of(var_of)
-        get_value_of_from_wrt = self._get_func_of_from_wrt(get_value_of, var_wrt)
+        get_value_of_from_wrt = self._get_func_of_from_wrt(
+            get_value_of, var_wrt
+        )
         return meta.egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
@@ -2236,7 +2273,9 @@ class CO2System(UserDict):
         )
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
-        except KeyError:  # only do the calculations if there isn't already a value
+        except (
+            KeyError
+        ):  # only do the calculations if there isn't already a value
             # We need to know the shape of the variable that we want the grad of,
             # the easy way to get this is just to solve for it (if that hasn't
             # already been done)
@@ -2413,9 +2452,13 @@ class CO2System(UserDict):
                 keep_unknown = []
             elif isinstance(keep_unknown, str):
                 keep_unknown = [keep_unknown]
-            node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
+            node_states = nx.get_node_attributes(
+                graph_to_plot, "state", default=0
+            )
             to_remove = [
-                n for n, s in node_states.items() if s == 0 and n not in keep_unknown
+                n
+                for n, s in node_states.items()
+                if s == 0 and n not in keep_unknown
             ]
             graph_to_plot.remove_nodes_from(to_remove)
         # Connect across nodes that are missing due to store_steps=1 mode
@@ -2443,7 +2486,9 @@ class CO2System(UserDict):
         if skip_nodes:
             # Skipping nodes removes them but then shows their predecessors as
             # being directly connected to their children
-            edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
+            edge_states = nx.get_edge_attributes(
+                graph_to_plot, "state", default=0
+            )
             if isinstance(skip_nodes, str):
                 skip_nodes = [skip_nodes]
             for n in skip_nodes:
@@ -2455,7 +2500,9 @@ class CO2System(UserDict):
                         new_state = {(p, s): 2}
                     else:
                         new_state = {(p, s): 0}
-                    nx.set_edge_attributes(graph_to_plot, new_state, name="state")
+                    nx.set_edge_attributes(
+                        graph_to_plot, new_state, name="state"
+                    )
                     edge_states.update(new_state)
                 graph_to_plot.remove_node(n)
         return graph_to_plot
@@ -2931,7 +2978,9 @@ def sys(data=None, **kwargs):
                         xr_shape = list(data.sizes.values())
                         for k, v in data.items():
                             if k in renamer_data:
-                                kwargs_data[renamer_data[k]] = da_to_array(v, xr_dims)
+                                kwargs_data[renamer_data[k]] = da_to_array(
+                                    v, xr_dims
+                                )
                 except ImportError:
                     warn("xarray could not be imported - ignoring `data`.")
                 if not data_is_xarray:
@@ -2975,7 +3024,9 @@ def sys(data=None, **kwargs):
                     kwargs_data[k] = kwargs_data[k].item()
             else:
                 kwargs_data[k] = np.ravel(np.array(kwargs_data[k]))[0].item()
-                warn(f"`{k}` is not scalar, so only the first value will be used.")
+                warn(
+                    f"`{k}` is not scalar, so only the first value will be used."
+                )
             if isinstance(kwargs_data[k], float):
                 kwargs_data[k] = int(kwargs_data[k])
         # For non-opts
@@ -3006,7 +3057,9 @@ def sys(data=None, **kwargs):
                 and not k.startswith("pk_")
                 and not k.startswith("pkt_")
             ):
-                kwargs_data[k] = np.where(kwargs_data[k] < 0, np.nan, kwargs_data[k])
+                kwargs_data[k] = np.where(
+                    kwargs_data[k] < 0, np.nan, kwargs_data[k]
+                )
     return CO2System(
         pd_index=pd_index,
         xr_dims=xr_dims,
