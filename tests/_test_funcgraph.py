@@ -6,7 +6,7 @@ from jax import numpy as np
 from matplotlib import pyplot as plt
 
 from PyCO2SYS.meta import valid
-from tests.function_graph import FunctionGraph
+from tests.function_graph import FunctionGraph, egrad
 
 
 @valid(alpha=[0, 1.5], beta=[1, 2])
@@ -68,7 +68,8 @@ data = dict(
     #     ]
     # ),
     alpha=np.vstack([1.5, 2.5, 3.5]),
-    beta=np.vstack([1, 3.0, 2]),
+    # beta=np.vstack([1, 3.0, 2]),
+    b=2.5,
     # alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,
     # b=2,
@@ -103,7 +104,12 @@ testgrad = jax.jacfwd(get_e_from_cg)(
 # get_dd_da = fu.get_grad_func("d", "a")
 # dd_da = get_dd_da(kwargs["alpha"], **{k: v for k, v in kwargs.items() if k != "alpha"})
 
-fu.get_jacs("e", "a")
+# For uncertainty propagation, decide whether to use grad or jac based on
+# shape of uncertainty relative to parameter OR always use jac if it's coeffs
+# (check `fu.graph.nodes['coeffs']`)
+# And don't (ever?) store jacs (too big?)
+fu.get_grads(["e", "f"], ["a", "b"])
+fu.get_jacs(["e", "f"], ["a", "b"])
 # jac = fu.grads.e.a
 # jshape = np.shape(jac)
 

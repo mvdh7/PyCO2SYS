@@ -130,6 +130,7 @@ class FunctionGraph(UserDict):
         self.ignored = set()
         self.requested = set()
         self.nodes_original = set()
+        self.grads = ShortcutDotDict(self.shortcuts)
         self.jacs = ShortcutDotDict(self.shortcuts)
         self.uncertainty = Uncertainties(self.shortcuts)
         self.u = self.uncertainty
@@ -329,6 +330,93 @@ class FunctionGraph(UserDict):
         # TODO generate a docstring for `get_value_of_from_wrt`
         return get_value_of_from_wrt
 
+    def get_grad_func(self, var_of: str, var_wrt: str):
+        get_value_of = self.get_func_of(var_of)
+        get_value_of_from_wrt = self.get_func_of_from_wrt(
+            get_value_of, var_wrt
+        )
+        return egrad(get_value_of_from_wrt)
+
+    def get_grad(self, var_of, var_wrt):
+        """Compute the derivative of `var_of` with respect to `var_wrt` and
+        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
+        there, then that value is returned instead of recalculating.
+
+        Parameters
+        ----------
+        var_of : str
+            The name of the variable to get the derivative of.
+        var_wrt : str
+            The name of the variable to get the derivative with respect to.
+            This must be one of the fixed values provided when creating the
+            `CO2System`, i.e., listed in its `nodes_original` attribute.
+
+        Returns
+        -------
+        float
+            The gradient of `var_of` with respect to `var_wrt`.
+        """
+        var_of = self.shortcuts[var_of]
+        var_wrt = self.shortcuts[var_wrt]
+        assert var_wrt in self.nodes_original, (
+            "`var_wrt` must be one of `self.nodes_original!`"
+        )
+        try:  # see if we've already calculated this value
+            d_of__d_wrt = self.grads[var_of][var_wrt]
+        except (
+            KeyError
+        ):  # only do the calculations if there isn't already a value
+            # We need to know the shape of the variable that we want the grad
+            # of, the easy way to get this is just to solve for it (if that
+            # hasn't already been done)
+            if var_of not in self.data:
+                self.solve(var_of)
+            # Next, we extract the originally set values, which are fixed
+            # during the differentiation
+            other_values_original = {
+                k: self.data[k] for k in self.nodes_original
+            }
+            # We have to make sure the value we are differentiating with
+            # respect to has the same shape as the value we want the
+            # differential of
+            value_wrt = other_values_original.pop(var_wrt) * np.ones_like(
+                self.data[var_of]
+            )
+            # Here we compute the gradient
+            grad_func = self.get_grad_func(var_of, var_wrt)
+            d_of__d_wrt = grad_func(value_wrt, **other_values_original)
+            # Put the final value into self.grads, first creating a new
+            # sub-dict if necessary
+            if var_of not in self.grads:
+                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
+            self.grads[var_of][var_wrt] = d_of__d_wrt
+        return d_of__d_wrt
+
+    def get_grads(self, vars_of, vars_wrt):
+        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
+        store them in `sys.grads[var_of][var_wrt]`.
+
+        Parameters
+        ----------
+        vars_of : list
+            The names of the variables to get the derivatives of.
+        vars_wrt : list
+            The names of the variables to get the derivatives with respect to.
+            These must all be one of the fixed values listed `nodes_original`.
+
+        Returns
+        -------
+        CO2System
+            The `CO2System` with the additional gradients computed.
+        """
+        if isinstance(vars_of, str):
+            vars_of = [vars_of]
+        if isinstance(vars_wrt, str):
+            vars_wrt = [vars_wrt]
+        for var_of, var_wrt in product(vars_of, vars_wrt):
+            self.get_grad(var_of, var_wrt)
+        return self
+
     def get_jac_func(self, var_of: str, var_wrt: str):
         get_value_of = self.get_func_of(var_of)
         get_value_of_from_wrt = self.get_func_of_from_wrt(
@@ -501,10 +589,16 @@ class FunctionGraph(UserDict):
                 graph.add_edge(f, k)
         nx.set_node_attributes(graph, funcs, name="func")
         args = {}
+        coeffs = {}
         for node, attrs in graph.nodes.items():
             if "func" in attrs:
                 args[node] = list(signature(attrs["func"]).parameters)
+            if node.startswith("coeffs"):
+                coeffs[node] = True
+            else:
+                coeffs[node] = False
         nx.set_node_attributes(graph, args, name="args")
+        nx.set_node_attributes(graph, coeffs, name="coeffs")
         return graph
 
     @staticmethod
