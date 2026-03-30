@@ -511,6 +511,16 @@ get_funcs_opts["opt_k_carbonic"] = {
             pk_HCO3_total_1atm + tot_to_sws_1atm
         ),
     ),
+    19: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_WMW14,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_MMB25,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
 }
 # For historical reasons, these are the same as each other (one also gets the Peng
 # "correction", but that's handled elsewhere):
