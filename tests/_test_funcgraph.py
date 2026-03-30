@@ -108,16 +108,32 @@ testgrad = jax.jacfwd(get_e_from_cg)(
 # shape of uncertainty relative to parameter OR always use jac if it's coeffs
 # (check `fu.graph.nodes['coeffs']`)
 # And don't (ever?) store jacs (too big?)
-fu.get_grads(["e", "f"], ["a", "b"])
-fu.get_jacs(["e", "f"], ["a", "b"])
+
+fu.propagate("e")
+
+pass
 # jac = fu.grads.e.a
 # jshape = np.shape(jac)
 
+# %%
+v = fu.grads.e.a
 
+# TODO (30 March) this is the inverse of `cut_covariances()`
+# (see also notes in `propagate`!)
+vc = np.zeros((*np.shape(v), *np.shape(v)))
+for i, val in enumerate(v.ravel()):
+    ix = np.unravel_index(i, np.shape(v))
+    vc = vc.at[*ix, *ix].set(val)
+
+
+# %%
 def printif(arg):
     return
     print(arg)
 
+
+fu.get_grads(["e", "f"], ["a", "b"])
+fu.get_jacs(["e", "f"], ["a", "b"])
 
 # NOTE Jacobian has shape: (*y.shape, *x.shape)
 # Uncertainty matrix for x has shape (*x.shape, *x.shape)

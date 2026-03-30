@@ -338,9 +338,9 @@ class FunctionGraph(UserDict):
         return egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and
-        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
-        there, then that value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt`.
+        If there is already a value in `sys.grads[var_of][var_wrt]`,
+        then that value is returned instead of recalculating.
 
         Parameters
         ----------
@@ -385,11 +385,6 @@ class FunctionGraph(UserDict):
             # Here we compute the gradient
             grad_func = self.get_grad_func(var_of, var_wrt)
             d_of__d_wrt = grad_func(value_wrt, **other_values_original)
-            # Put the final value into self.grads, first creating a new
-            # sub-dict if necessary
-            if var_of not in self.grads:
-                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
-            self.grads[var_of][var_wrt] = d_of__d_wrt
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
@@ -413,8 +408,14 @@ class FunctionGraph(UserDict):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
             vars_wrt = [vars_wrt]
-        for var_of, var_wrt in product(vars_of, vars_wrt):
-            self.get_grad(var_of, var_wrt)
+        for var_of in vars_of:
+            var_of = self.shortcuts[var_of]
+            if var_of not in self.grads:
+                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
+            for var_wrt in vars_wrt:
+                var_wrt = self.shortcuts[var_wrt]
+                self.grads[var_of][var_wrt] = self.get_grad(var_of, var_wrt)
+            self.remove_jax_overhead(self.grads[var_of])
         return self
 
     def get_jac_func(self, var_of: str, var_wrt: str):
@@ -425,9 +426,9 @@ class FunctionGraph(UserDict):
         return jacfwd(get_value_of_from_wrt)
 
     def get_jac(self, var_of: str, var_wrt: str):
-        """Compute the Jacobian of `var_of` with respect to `var_wrt` and
-        store it in `sys.jacs[var_of][var_wrt]`.  If there is already a value
-        there, then that value is returned instead of recalculating.
+        """Compute the Jacobian of `var_of` with respect to `var_wrt`.
+        If there is already a value in `sys.jacs[var_of][var_wrt]`,
+        then that value is returned instead of recalculating.
 
         Parameters
         ----------
@@ -461,18 +462,13 @@ class FunctionGraph(UserDict):
             # Here we compute the Jacobian
             jac_func = self.get_jac_func(var_of, var_wrt)
             d_of__d_wrt = jac_func(self.data[var_wrt], **other_values_original)
-            # Put the final value into self.jacs, first creating a new
-            # sub-dict if necessary
-            if var_of not in self.jacs:
-                self.jacs[var_of] = ShortcutDotDict(self.shortcuts)
-            self.jacs[var_of][var_wrt] = d_of__d_wrt
-            self.remove_jax_overhead(self.jacs[var_of])
         return d_of__d_wrt
 
     def get_jacs(
         self,
         vars_of: str | list,
         vars_wrt: str | list,
+        store_jacs: bool = True,
     ):
         """Compute the Jacobians of `vars_of` with respect to `vars_wrt` and
         store them in `sys.jacs[var_of][var_wrt]`.
@@ -490,8 +486,14 @@ class FunctionGraph(UserDict):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
             vars_wrt = [vars_wrt]
-        for var_of, var_wrt in product(vars_of, vars_wrt):
-            self.get_jac(var_of, var_wrt)
+        for var_of in vars_of:
+            var_of = self.shortcuts[var_of]
+            if var_of not in self.jacs:
+                self.jacs[var_of] = ShortcutDotDict(self.shortcuts)
+            for var_wrt in vars_wrt:
+                var_wrt = self.shortcuts[var_wrt]
+                self.jacs[var_of][var_wrt] = self.get_jac(var_of, var_wrt)
+            self.remove_jax_overhead(self.jacs[var_of])
         return self
 
     def set_uncertainty(self, **kwargs):
@@ -528,22 +530,25 @@ class FunctionGraph(UserDict):
             uncertainty_into = [uncertainty_into]
         uncertainty_into = {self.shortcuts[ui] for ui in uncertainty_into}
         for ui in uncertainty_into:
-            self.uncertainty[ui] = 0
-            for uf in self.uncertainty.assigned:
+            self.u[ui] = 0
+            for uf in self.u.assigned:
                 x = self[uf]
                 y = self[ui]
                 jac = self.get_jac(ui, uf)
-                ux = self.uncertainty.assigned[uf]
-                if ui not in self.uncertainty.parts:
-                    self.uncertainty.parts[ui] = ShortcutDotDict(
-                        self.shortcuts
-                    )
-                self.uncertainty.parts[ui][uf] = self._propagate(x, y, jac, ux)
-                self.uncertainty[ui] = (
-                    self.uncertainty[ui] + self.uncertainty.parts[ui][uf]
-                )
-            self.remove_jax_overhead(self.uncertainty.parts[ui])
-        self.remove_jax_overhead(self.uncertainty)
+                ux = self.u.assigned[uf]
+                if ui not in self.u.parts:
+                    self.u.parts[ui] = ShortcutDotDict(self.shortcuts)
+                # TODO next (30 March): finish implementing switcher between
+                # grad vs jac depending on ux shape (i.e., does it contain
+                # covariances?) - see `_propagate_grad()` below.
+                # How to add together uncertainties with and without the
+                # covariance terms?
+                # I need an inverse of `cut_covariances`!
+                print(uf, ui, np.shape(x), np.shape(y), np.shape(ux))
+                self.u.parts[ui][uf] = self._propagate_jac(x, y, jac, ux)
+                self.u[ui] = self.u[ui] + self.u.parts[ui][uf]
+            self.remove_jax_overhead(self.u.parts[ui])
+        self.remove_jax_overhead(self.u)
         return self
 
     set_u = set_uncertainty
@@ -667,7 +672,7 @@ class FunctionGraph(UserDict):
             return f"{A}{B},{B}{C},{D}{C}->{A}{D}"
 
     @staticmethod
-    def _propagate(
+    def _propagate_jac(
         x: float | np.ndarray,
         y: float | np.ndarray,
         jac: float | np.ndarray,
@@ -684,6 +689,17 @@ class FunctionGraph(UserDict):
             ux = np.full_like(x, ux)
         subscripts = FunctionGraph.get_einsum_code(x_ndims, y_ndims, ux_ndims)
         uy = np.einsum(subscripts, jac, ux, jac)
+        return uy
+
+    @staticmethod
+    def _propagate_grad(
+        grad_yx: float | np.ndarray,
+        ux: float | np.ndarray,
+    ):
+        """Propagate independent uncertainties `ux` from `x` to `y` given the
+        derivative of `y` with respect to `x` (`grad_yx`).
+        """
+        uy = ux * grad_yx**2
         return uy
 
     @staticmethod
