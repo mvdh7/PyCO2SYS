@@ -170,6 +170,9 @@ Click on each reference to see more details.
 ??? note "MM02: Mojica Prieto & Millero (2002) *Geochim. Cosmochim. Acta*"
     Mojica Prieto, F. J., and Millero, F. J. (2002). The values of pK<sub>1</sub> + pK<sub>2</sub> for the dissociation of carbonic acid in seawater. *Geochimica et Cosmochimica Acta* 66, 2529–2540. <a href='https://doi.org/10.1016/S0016-7037(02)00855-4'>doi:10.1016/S0016-7037(02)00855-4</a>.
 
+??? note "MMB25: Martin-Mayor et al. (2025) *Geochim. Cosmochim. Acta*"
+    Martin-Mayor, M., Byrne, R. H., Schockman, K. M., & Liu, X. (2025). Spectrophotometric determination of bicarbonate dissociation constants (K2) for freshwater, estuarine, and marine waters over a wide range of temperatures. Geochimica et Cosmochimica Acta, 401, 149-159. https://doi.org/10.1016/j.gca.2025.06.001
+
 ??? note "MPL02: Millero et al. (2002) *Deep-Sea Res. Pt. I* "
     Millero, F. J., Pierrot, D., Lee, K., Wanninkhof, R., Feely, R., Sabine, C. L., et al. (2002). Dissociation constants for carbonic acid determined from field measurements. *Deep-Sea Research Part I* 49, 1705–1723. <a href='https://doi.org/10.1016/S0967-0637(02)00093-6'>doi:10.1016/S0967-0637(02)00093-6</a>.
 
