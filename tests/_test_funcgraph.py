@@ -69,7 +69,7 @@ data = dict(
     # ),
     alpha=np.vstack([1.5, 2.5, 3.5]),
     # beta=np.vstack([1, 3.0, 2]),
-    b=2.5,
+    b=np.vstack([1.5, 2.5, 3.5]),
     # alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,
     # b=2,
@@ -77,7 +77,22 @@ data = dict(
     # g=4.0,
     # h=2,
 )
-fu.set_data(**data).set_u(a=0.1).solve("e")
+u_coeffs = np.array(
+    [
+        [0.1, 0, 0, 0, 0],
+        [0, 0.1, 0, 0, 0],
+        [0, 0, 0.1, 0, 0],
+        [0, 0, 0, 0.1, 0],
+        [0, 0, 0, 0, 0.1],
+    ]
+)
+# u_coeffs = np.array([0.1, 0.1, 0.1, 0.1, 0.1])
+# u_coeffs = 0.1
+fu.set_data(**data).set_u(
+    a=0.1,
+    b=np.vstack([0.1, 0.1, 0.1]),
+    coeffs=u_coeffs,
+).solve("e")
 # print(fu.data)
 # result_f = fu.f
 # print(fu.data)
@@ -109,7 +124,7 @@ testgrad = jax.jacfwd(get_e_from_cg)(
 # (check `fu.graph.nodes['coeffs']`)
 # And don't (ever?) store jacs (too big?)
 
-fu.propagate("e")
+fu.prop("g", keep_cov=False)
 
 pass
 # jac = fu.grads.e.a
@@ -117,13 +132,6 @@ pass
 
 # %%
 v = fu.grads.e.a
-
-# TODO (30 March) this is the inverse of `cut_covariances()`
-# (see also notes in `propagate`!)
-vc = np.zeros((*np.shape(v), *np.shape(v)))
-for i, val in enumerate(v.ravel()):
-    ix = np.unravel_index(i, np.shape(v))
-    vc = vc.at[*ix, *ix].set(val)
 
 
 # %%

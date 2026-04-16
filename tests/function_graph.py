@@ -523,7 +523,32 @@ class FunctionGraph(UserDict):
         self.propagate([self.shortcuts[k] for k in self.uncertainty])
         return self
 
-    def propagate(self, uncertainty_into: str | list[str] = None):
+    def propagate(
+        self,
+        uncertainty_into: str | list[str] = None,
+        keep_cov: bool = True,
+        store_parts: bool = True,
+    ):
+        """Propagate uncertainties from all parameters with assigned
+        uncertainties into the requested set of parameters.
+
+        Parameters
+        ----------
+        uncertainty_into : str | list[str], optional
+            Which parameters to propagate uncertainty into, by default `None`,
+            in which case the list of parameters in `self.requested` is used.
+        keep_cov : bool, optional
+            Whether to keep covariance terms in the final results, by default
+            `True`.
+        store_parts : bool, optional
+            Whether the save the separate uncertainty components, by default
+            `True`.
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
         if uncertainty_into is None:
             uncertainty_into = list(self.requested)
         elif isinstance(uncertainty_into, str):
@@ -534,20 +559,28 @@ class FunctionGraph(UserDict):
             for uf in self.u.assigned:
                 x = self[uf]
                 y = self[ui]
-                jac = self.get_jac(ui, uf)
                 ux = self.u.assigned[uf]
-                if ui not in self.u.parts:
+                if store_parts and ui not in self.u.parts:
                     self.u.parts[ui] = ShortcutDotDict(self.shortcuts)
-                # TODO next (30 March): finish implementing switcher between
-                # grad vs jac depending on ux shape (i.e., does it contain
-                # covariances?) - see `_propagate_grad()` below.
-                # How to add together uncertainties with and without the
-                # covariance terms?
-                # I need an inverse of `cut_covariances`!
-                print(uf, ui, np.shape(x), np.shape(y), np.shape(ux))
-                self.u.parts[ui][uf] = self._propagate_jac(x, y, jac, ux)
-                self.u[ui] = self.u[ui] + self.u.parts[ui][uf]
-            self.remove_jax_overhead(self.u.parts[ui])
+                # To avoid potentially creating unnecessary large sparse
+                # arrays, we only want to use a Jacobian if we really need to.
+                # Otherwise, an element-wise grad will do.
+                if not self.graph.nodes[uf]["coeffs"] and (
+                    np.shape(ux) == () or np.shape(ux) == np.shape(x)
+                ):
+                    grad_yx = self.get_grad(ui, uf)
+                    part = self._propagate_grad(grad_yx, ux)
+                    self.u[ui] = self.u[ui] + self.expand_zero_cov(part)
+                else:
+                    jac = self.get_jac(ui, uf)
+                    part = self._propagate_jac(x, y, jac, ux)
+                    self.u[ui] = self.u[ui] + part
+                if store_parts:
+                    self.u.parts[ui][uf] = part
+            if store_parts:
+                self.remove_jax_overhead(self.u.parts[ui])
+        if not keep_cov:
+            self.u[ui] = self.cut_cov(self.u[ui])
         self.remove_jax_overhead(self.u)
         return self
 
@@ -703,7 +736,7 @@ class FunctionGraph(UserDict):
         return uy
 
     @staticmethod
-    def cut_covariances(uncert):
+    def cut_cov(uncert):
         """Collapse a multidimensional uncertainty matrix to remove covariance
         terms, equivalent to taking the main diagonal from a 2D matrix.
         """
@@ -714,3 +747,12 @@ class FunctionGraph(UserDict):
             # `ixs` is "aa->a", "abab->ab", "abcabc->abc", ...
             ixs = "".join(chr(97 + i) for i in range(int(len(ushape) / 2)))
             return np.einsum(ixs + ixs + "->" + ixs, uncert)
+
+    @staticmethod
+    def expand_zero_cov(v):
+        """Inverse of `cut_cov`."""
+        vc = np.zeros((*np.shape(v), *np.shape(v)))
+        for i, val in enumerate(v.ravel()):
+            ix = np.unravel_index(i, np.shape(v))
+            vc = vc.at[*ix, *ix].set(val)
+        return vc
