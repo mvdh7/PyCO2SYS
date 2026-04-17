@@ -83,6 +83,12 @@ class FunctionGraph(UserDict):
         shortcuts: dict | None = None,
     ):
         super().__init__()
+        if graph is not None:
+            self.graph = graph.copy()
+        else:
+            if not isinstance(funcs, dict):
+                raise Exception("Either `graph` or `funcs` must be provided")
+            self.graph = self.get_graph(funcs)
         if defaults is not None:
             self.defaults = defaults.copy()
         else:
@@ -91,12 +97,6 @@ class FunctionGraph(UserDict):
                 for n, attrs in self.graph.nodes.items()
                 if "func" not in attrs
             }
-        if graph is not None:
-            self.graph = graph.copy()
-        else:
-            if not isinstance(funcs, dict):
-                raise Exception("Either `graph` or `funcs` must be provided")
-            self.graph = self.get_graph(funcs)
         if shortcuts is not None:
             for k in shortcuts:
                 if k in [
@@ -579,8 +579,8 @@ class FunctionGraph(UserDict):
                     self.u.parts[ui][uf] = part
             if store_parts:
                 self.remove_jax_overhead(self.u.parts[ui])
-        if not keep_cov:
-            self.u[ui] = self.cut_cov(self.u[ui])
+            if not keep_cov:
+                self.u[ui] = self.cut_cov(self.u[ui])
         self.remove_jax_overhead(self.u)
         return self
 
