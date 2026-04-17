@@ -6,7 +6,7 @@ from jax import numpy as np
 from matplotlib import pyplot as plt
 
 from PyCO2SYS.meta import valid
-from tests.function_graph import FunctionGraph, egrad
+from tests.function_graph import FunctionGraph
 
 
 @valid(alpha=[0, 1.5], beta=[1, 2])

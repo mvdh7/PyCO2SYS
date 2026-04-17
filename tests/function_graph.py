@@ -1,6 +1,5 @@
 from collections import UserDict
 from inspect import signature
-from itertools import product
 
 import jax
 import jax.numpy as np
