@@ -8,6 +8,8 @@ import jax.numpy as np
 import networkx as nx
 from jax import jacfwd
 
+from ..meta import egrad
+
 
 jax.config.update("jax_enable_x64", True)
 
@@ -18,17 +20,6 @@ jax.config.update("jax_enable_x64", True)
 #  1 = user-provided value
 #  2 = calculated as intermediate
 #  3 = calculated by explicit request
-
-
-def egrad(g):
-    # From https://github.com/google/jax/issues/3556#issuecomment-649779759
-    # modified to allow kwargs for g
-    def wrapped(x, *args, **kwargs):
-        y, g_vjp = jax.vjp(lambda x: g(x, *args, **kwargs), x)
-        (x_bar,) = g_vjp(np.ones_like(y))
-        return x_bar
-
-    return wrapped
 
 
 class ShortcutsDict(UserDict):
