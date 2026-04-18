@@ -204,6 +204,7 @@ class FunctionGraph(UserDict):
         self,
         parameters: list | str | None = None,
     ):
+        """Solve for the requested parameter(s)."""
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):

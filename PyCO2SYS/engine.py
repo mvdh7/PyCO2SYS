@@ -1100,8 +1100,8 @@ exclude_on_store_steps_1 = [
 
 # Define shortcuts, the keys for which must all be lowercase
 # TODO turn this into a ShortcutsDict
-shortcuts = {k.lower(): k for k in set_node_labels if k.lower() != k}
-shortcuts.update({k.lower(): k for k in opts_default if k.lower() != k})
+shortcuts = {k.lower(): k for k in set_node_labels}
+shortcuts.update({k.lower(): k for k in opts_default})
 shortcuts.update(
     {
         "tco2": "dic",

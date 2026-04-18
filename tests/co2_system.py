@@ -1,27 +1,1252 @@
 # %%
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
+from inspect import signature
+from warnings import warn
+
 import networkx as nx
 from jax import numpy as np
 
+from PyCO2SYS import (
+    bio,
+    buffers,
+    constants,
+    convert,
+    equilibria,
+    gas,
+    salts,
+    solubility,
+    solve,
+    upsilon,
+)
 from PyCO2SYS.classes.function_graph import (
     FunctionGraph,
     ShortcutDotDict,
     ShortcutsDict,
 )
-from PyCO2SYS.engine import (
-    get_funcs,
-    get_funcs_core,
-    get_funcs_opts,
-    opts_default,
-    parameters_core,
-    shortcuts,
-    values_default,
-)
 from tests._plotting import plot_graph
 
 
+# Define functions for calculations that depend neither on icase nor opts:
+get_funcs = {
+    # Total salt contents
+    "ionic_strength": salts.ionic_strength_DOE94,
+    "total_fluoride": salts.total_fluoride_R65,
+    "total_sulfate": salts.total_sulfate_MR66,
+    # Equilibrium constants at 1 atm and on reported pH scale
+    "pk_CO2_1atm": equilibria.p1atm.pk_CO2_W74,
+    "pk_H2S_total_1atm": equilibria.p1atm.pk_H2S_total_YM95,
+    # pH scale conversion factors at 1 atm
+    "free_to_sws_1atm": lambda total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm: (
+        convert.pH_free_to_sws(
+            total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+        )
+    ),
+    "nbs_to_sws": convert.pH_nbs_to_sws,  # because fH doesn't get pressure-corrected
+    "tot_to_sws_1atm": lambda total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm: (
+        convert.pH_tot_to_sws(
+            total_fluoride, total_sulfate, pk_HF_free_1atm, pk_HSO4_free_1atm
+        )
+    ),
+    # Equilibrium constants at 1 atm and on the seawater pH scale
+    "pk_H2S_sws_1atm": lambda pk_H2S_total_1atm, tot_to_sws_1atm: (
+        pk_H2S_total_1atm + tot_to_sws_1atm
+    ),
+    # Pressure correction factors for equilibrium constants
+    "factor_k_HSO4": equilibria.pcx.factor_k_HSO4,
+    "factor_k_HF": equilibria.pcx.factor_k_HF,
+    "factor_k_H2S": equilibria.pcx.factor_k_H2S,
+    "factor_k_H3PO4": equilibria.pcx.factor_k_H3PO4,
+    "factor_k_H2PO4": equilibria.pcx.factor_k_H2PO4,
+    "factor_k_HPO4": equilibria.pcx.factor_k_HPO4,
+    "factor_k_Si": equilibria.pcx.factor_k_Si,
+    "factor_k_NH3": equilibria.pcx.factor_k_NH3,
+    "factor_k_CO2": equilibria.pcx.factor_k_CO2,
+    "factor_k_HNO2": lambda: 1.0,  # unknown!
+    # Equilibrium constants at pressure and on the free pH scale
+    "pk_HF_free": lambda pk_HF_free_1atm, factor_k_HF: (
+        pk_HF_free_1atm - np.log10(factor_k_HF)
+    ),
+    "pk_HSO4_free": lambda pk_HSO4_free_1atm, factor_k_HSO4: (
+        pk_HSO4_free_1atm - np.log10(factor_k_HSO4)
+    ),
+    # Equilibrium constants at pressure and on the seawater pH scale
+    "pk_BOH3_sws": lambda pk_BOH3_sws_1atm, factor_k_BOH3: (
+        pk_BOH3_sws_1atm - np.log10(factor_k_BOH3)
+    ),
+    "pk_H2O_sws": lambda pk_H2O_sws_1atm, factor_k_H2O: (
+        pk_H2O_sws_1atm - np.log10(factor_k_H2O)
+    ),
+    "pk_H2S_sws": lambda pk_H2S_sws_1atm, factor_k_H2S: (
+        pk_H2S_sws_1atm - np.log10(factor_k_H2S)
+    ),
+    "pk_H3PO4_sws": lambda pk_H3PO4_sws_1atm, factor_k_H3PO4: (
+        pk_H3PO4_sws_1atm - np.log10(factor_k_H3PO4)
+    ),
+    "pk_H2PO4_sws": lambda pk_H2PO4_sws_1atm, factor_k_H2PO4: (
+        pk_H2PO4_sws_1atm - np.log10(factor_k_H2PO4)
+    ),
+    "pk_HPO4_sws": lambda pk_HPO4_sws_1atm, factor_k_HPO4: (
+        pk_HPO4_sws_1atm - np.log10(factor_k_HPO4)
+    ),
+    "pk_Si_sws": lambda pk_Si_sws_1atm, factor_k_Si: (
+        pk_Si_sws_1atm - np.log10(factor_k_Si)
+    ),
+    "pk_NH3_sws": lambda pk_NH3_sws_1atm, factor_k_NH3: (
+        pk_NH3_sws_1atm - np.log10(factor_k_NH3)
+    ),
+    "pk_H2CO3_sws": lambda pk_H2CO3_sws_1atm, factor_k_H2CO3: (
+        pk_H2CO3_sws_1atm - np.log10(factor_k_H2CO3)
+    ),
+    "pk_HCO3_sws": lambda pk_HCO3_sws_1atm, factor_k_HCO3: (
+        pk_HCO3_sws_1atm - np.log10(factor_k_HCO3)
+    ),
+    "pk_HNO2_sws": lambda pk_HNO2_sws_1atm, factor_k_HNO2: (
+        pk_HNO2_sws_1atm - np.log10(factor_k_HNO2)
+    ),
+    # Equilibrium constants at pressure and on the requested pH scale
+    "pk_CO2": lambda pk_CO2_1atm, factor_k_CO2: (
+        pk_CO2_1atm - np.log10(factor_k_CO2)
+    ),
+    "pk_BOH3": lambda sws_to_opt, pk_BOH3_sws: sws_to_opt + pk_BOH3_sws,
+    "pk_H2O": lambda sws_to_opt, pk_H2O_sws: sws_to_opt + pk_H2O_sws,
+    "pk_H2S": lambda sws_to_opt, pk_H2S_sws: sws_to_opt + pk_H2S_sws,
+    "pk_H3PO4": lambda sws_to_opt, pk_H3PO4_sws: sws_to_opt + pk_H3PO4_sws,
+    "pk_H2PO4": lambda sws_to_opt, pk_H2PO4_sws: sws_to_opt + pk_H2PO4_sws,
+    "pk_HPO4": lambda sws_to_opt, pk_HPO4_sws: sws_to_opt + pk_HPO4_sws,
+    "pk_Si": lambda sws_to_opt, pk_Si_sws: sws_to_opt + pk_Si_sws,
+    "pk_NH3": lambda sws_to_opt, pk_NH3_sws: sws_to_opt + pk_NH3_sws,
+    "pk_H2CO3": lambda sws_to_opt, pk_H2CO3_sws: sws_to_opt + pk_H2CO3_sws,
+    "pk_HCO3": lambda sws_to_opt, pk_HCO3_sws: sws_to_opt + pk_HCO3_sws,
+    "pk_HNO2": lambda sws_to_opt, pk_HNO2_sws: sws_to_opt + pk_HNO2_sws,
+    # Gasses
+    "vp_factor": gas.vpfactor,
+    # Mg-calcite solubility
+    "acf_Ca": solubility.get_activity_coefficient_Ca,
+    "acf_Mg": solubility.get_activity_coefficient_Mg,
+    "acf_CO3": solubility.get_activity_coefficient_CO3,
+    "pk_Mg_calcite_1atm": solubility.get_pk_Mg_calcite_1atm,
+    "pk_Mg_calcite": solubility.get_pk_Mg_calcite,
+    "Mg": salts.Mg_reference_composition,
+}
+
+# Define functions for calculations that depend on icase:
+get_funcs_core = {}
+for i in [0, 3, 4, 5, 6, 8, 9, 10, 11]:
+    get_funcs_core[i] = {}
+# alkalinity and DIC
+get_funcs_core[102] = {
+    "pH": solve.inorganic.pH_from_alkalinity_dic,
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
+}
+# alkalinity and pH
+get_funcs_core[103] = {
+    "dic": solve.inorganic.dic_from_alkalinity_pH_speciated,
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
+}
+# alkalinity and pCO2, fCO2, CO2, xCO2
+for i in [104, 105, 108, 109]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_alkalinity_fCO2,
+        "dic": solve.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
+    }
+# alkalinity and CO3, omega
+for i in [106, 110, 111]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_alkalinity_CO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
+    }
+# alkalinity and HCO3
+get_funcs_core[107] = {
+    "pH": solve.inorganic.pH_from_alkalinity_HCO3,
+    "dic": solve.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
+}
+# DIC and pH
+get_funcs_core[203] = {
+    "fCO2": solve.inorganic.fCO2_from_dic_pH,
+    "CO3": solve.inorganic.CO3_from_dic_pH,
+    "HCO3": solve.inorganic.HCO3_from_dic_pH,
+    "alkalinity": solve.speciate.sum_alkalinity,
+}
+# DIC and pCO2, fCO2, CO2, xCO2
+for i in [204, 205, 208, 209]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_dic_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# DIC and CO3, omega
+for i in [206, 210, 211]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_dic_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# DIC and HCO3
+get_funcs_core[207] = {
+    # pH is taken care of by opt_HCO3_root
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
+    "alkalinity": solve.speciate.sum_alkalinity,
+}
+# pH and pCO2, fCO2, CO2, xCO2
+for i in [304, 305, 308, 309]:
+    get_funcs_core[i] = {
+        "dic": solve.inorganic.dic_from_pH_fCO2,
+        "HCO3": solve.inorganic.HCO3_from_pH_fCO2,
+        "CO3": solve.inorganic.CO3_from_dic_pH,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# pH and CO3, omega
+for i in [306, 310, 311]:
+    get_funcs_core[i] = {
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "fCO2": solve.inorganic.fCO2_from_pH_CO3,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# pH and HCO3
+get_funcs_core[307] = {
+    "dic": solve.inorganic.dic_from_pH_HCO3,
+    "CO3": solve.inorganic.CO3_from_pH_HCO3,
+    "fCO2": solve.inorganic.fCO2_from_pH_HCO3,
+    "alkalinity": solve.speciate.sum_alkalinity,
+}
+# CO3, omega and pCO2, fCO2, CO2, xCO2
+for i in [406, 506, 608, 609, 410, 510, 810, 910, 411, 511, 811, 911]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_fCO2_CO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "HCO3": solve.inorganic.HCO3_from_pH_CO3,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# HCO3 and pCO2, fCO2, CO2, xCO2
+for i in [407, 507, 708, 709]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_fCO2_HCO3,
+        "dic": solve.inorganic.dic_from_pH_HCO3,
+        "CO3": solve.inorganic.CO3_from_pH_HCO3,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+# CO3, omega and HCO3
+for i in [607, 710, 711]:
+    get_funcs_core[i] = {
+        "pH": solve.inorganic.pH_from_CO3_HCO3,
+        "fCO2": solve.inorganic.fCO2_from_CO3_HCO3,
+        "dic": solve.inorganic.dic_from_pH_CO3,
+        "alkalinity": solve.speciate.sum_alkalinity,
+    }
+
+# Add p-f-x-CO2 interconversions
+for k, fc in get_funcs_core.items():
+    if "fCO2" in fc or k in [5, 105, 205, 305, 506, 507, 510, 511]:
+        fc.update(
+            {
+                "pCO2": convert.fCO2_to_pCO2,
+                "CO2": convert.fCO2_to_CO2aq,
+                "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [4, 104, 204, 304, 406, 407, 410, 411]:
+        fc.update(
+            {
+                "fCO2": convert.pCO2_to_fCO2,
+                "CO2": convert.fCO2_to_CO2aq,
+                "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [8, 108, 208, 308, 608, 708, 810, 811]:
+        fc.update(
+            {
+                "fCO2": convert.CO2aq_to_fCO2,
+                "pCO2": convert.fCO2_to_pCO2,
+                "xCO2": convert.fCO2_to_xCO2,
+            }
+        )
+    elif k in [9, 109, 209, 309, 609, 709, 910, 911]:
+        fc.update(
+            {
+                "fCO2": convert.xCO2_to_fCO2,
+                "pCO2": convert.fCO2_to_pCO2,
+                "CO2": convert.fCO2_to_CO2aq,
+            }
+        )
+
+# Add CO3-saturation state interconversions
+for k, fc in get_funcs_core.items():
+    if "CO3" in fc or k in [6, 106, 206, 306, 406, 506, 607, 608, 609]:
+        fc.update(
+            {
+                "saturation_aragonite": solubility.OA_from_CO3,
+                "saturation_calcite": solubility.OC_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
+            }
+        )
+    elif k in [10, 110, 210, 310, 410, 510, 710, 810, 910]:
+        fc.update(
+            {
+                "CO3": solubility.CO3_from_OC,
+                "saturation_aragonite": solubility.OA_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
+            }
+        )
+    elif k in [11, 111, 211, 311, 411, 511, 711, 811, 911]:
+        fc.update(
+            {
+                "CO3": solubility.CO3_from_OA,
+                "saturation_calcite": solubility.OC_from_CO3,
+                "saturation_Mg_calcite": solubility.OMgCaCO3_from_CO3,
+            }
+        )
+
+# Add buffers and similar
+for k, fc in get_funcs_core.items():
+    if k > 100:
+        fc.update(
+            {
+                "substrate_inhibitor_ratio": bio.substrate_inhibitor_ratio,
+                "gamma_dic": buffers.gamma_dic,
+                "gamma_alkalinity": buffers.gamma_alkalinity,
+                "beta_dic": buffers.beta_dic,
+                "beta_alkalinity": buffers.beta_alkalinity,
+                "omega_dic": buffers.omega_dic,
+                "omega_alkalinity": buffers.omega_alkalinity,
+                "Q_isocap": buffers.Q_isocap,
+                "Q_isocap_approx": buffers.Q_isocap_approx,
+                "psi": buffers.psi,
+                "revelle_factor": buffers.revelle_factor,
+                "d_lnOmega__d_CO3": buffers.d_lnOmega__d_CO3,
+                "d_CO3__d_pH__alkalinity": buffers.d_CO3__d_pH__alkalinity,
+                "d_CO3__d_pH__dic": buffers.d_CO3__d_pH__dic,
+                "d_dic__d_pH__alkalinity": buffers.d_dic__d_pH__alkalinity,
+                "d_alkalinity__d_pH__dic": buffers.d_alkalinity__d_pH__dic,
+                "d_lnCO2__d_pH__alkalinity": buffers.d_lnCO2__d_pH__alkalinity,
+                "d_lnCO2__d_pH__dic": buffers.d_lnCO2__d_pH__dic,
+                "d_alkalinity__d_pH__fCO2": buffers.d_alkalinity__d_pH__fCO2,
+                "d_dic__d_pH__fCO2": buffers.d_dic__d_pH__fCO2,
+                "d_fCO2__d_pH__alkalinity": buffers.d_fCO2__d_pH__alkalinity,
+            }
+        )
+
+# Chemical speciation functions can only be used if there is a pH value
+funcs_chemspec = {
+    "H": lambda pH: 10**-pH,
+    "H3PO4": solve.speciate.get_H3PO4,
+    "H2PO4": solve.speciate.get_H2PO4,
+    "HPO4": solve.speciate.get_HPO4,
+    "PO4": solve.speciate.get_PO4,
+    "BOH4": solve.speciate.get_BOH4,
+    "BOH3": solve.speciate.get_BOH3,
+    "OH": solve.speciate.get_OH,
+    "H_free": solve.speciate.get_H_free,
+    "H3SiO4": solve.speciate.get_H3SiO4,
+    "H4SiO4": solve.speciate.get_H4SiO4,
+    "HSO4": solve.speciate.get_HSO4,
+    "SO4": solve.speciate.get_SO4,
+    "HF": solve.speciate.get_HF,
+    "F": solve.speciate.get_F,
+    "NH3": solve.speciate.get_NH3,
+    "NH4": solve.speciate.get_NH4,
+    "H2S": solve.speciate.get_H2S,
+    "HS": solve.speciate.get_HS,
+    "HNO2": solve.speciate.get_HNO2,
+    "NO2": solve.speciate.get_NO2,
+}
+for k, fc in get_funcs_core.items():
+    if k > 100 or k == 3:
+        fc.update(funcs_chemspec)
+
+# Define functions for calculations that depend on opts:
+# (unlike in previous versions, each opt may only affect one parameter)
+get_funcs_opts = {}
+get_funcs_opts["opt_gas_constant"] = {
+    1: dict(gas_constant=lambda: constants.RGasConstant_DOEv2),
+    2: dict(gas_constant=lambda: constants.RGasConstant_DOEv3),
+    3: dict(gas_constant=lambda: constants.RGasConstant_CODATA2018),
+}
+get_funcs_opts["opt_factor_k_BOH3"] = {
+    1: dict(factor_k_BOH3=equilibria.pcx.factor_k_BOH3_M79),
+    2: dict(factor_k_BOH3=equilibria.pcx.factor_k_BOH3_GEOSECS),
+}
+get_funcs_opts["opt_factor_k_H2CO3"] = {
+    1: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3),
+    2: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_GEOSECS),
+    3: dict(factor_k_H2CO3=equilibria.pcx.factor_k_H2CO3_fw),
+}
+get_funcs_opts["opt_factor_k_HCO3"] = {
+    1: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3),
+    2: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_GEOSECS),
+    3: dict(factor_k_HCO3=equilibria.pcx.factor_k_HCO3_fw),
+}
+get_funcs_opts["opt_factor_k_H2O"] = {
+    1: dict(factor_k_H2O=equilibria.pcx.factor_k_H2O),
+    2: dict(factor_k_H2O=equilibria.pcx.factor_k_H2O_fw),
+}
+get_funcs_opts["opt_fH"] = {
+    1: dict(fH=convert.fH_TWB82),
+    2: dict(fH=convert.fH_PTBO87),
+    3: dict(fH=lambda: 1.0),
+}
+get_funcs_opts["opt_k_carbonic"] = {
+    1: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_RRV93,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_RRV93,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_GP89,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_GP89,
+    ),
+    3: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_H73_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_H73_DM87,
+    ),
+    4: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MCHP73_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MCHP73_DM87,
+    ),
+    5: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_HM_DM87,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_HM_DM87,
+    ),
+    6: dict(
+        pk_H2CO3_nbs_1atm=equilibria.p1atm.pk_H2CO3_nbs_MCHP73,
+        pk_HCO3_nbs_1atm=equilibria.p1atm.pk_HCO3_nbs_MCHP73,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_nbs_1atm, nbs_to_sws: (
+            pk_H2CO3_nbs_1atm + nbs_to_sws
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_nbs_1atm, nbs_to_sws: (
+            pk_HCO3_nbs_1atm + nbs_to_sws
+        ),
+    ),
+    # 7: same as 6; see note at end
+    8: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_M79,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_M79,
+    ),
+    9: dict(
+        pk_H2CO3_nbs_1atm=equilibria.p1atm.pk_H2CO3_nbs_CW98,
+        pk_HCO3_nbs_1atm=equilibria.p1atm.pk_HCO3_nbs_CW98,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_nbs_1atm, nbs_to_sws: (
+            pk_H2CO3_nbs_1atm + nbs_to_sws
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_nbs_1atm, nbs_to_sws: (
+            pk_HCO3_nbs_1atm + nbs_to_sws
+        ),
+    ),
+    10: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_LDK00,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_LDK00,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    11: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MM02,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MM02,
+    ),
+    12: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MPL02,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MPL02,
+    ),
+    13: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_MGH06,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_MGH06,
+    ),
+    14: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_M10,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_M10,
+    ),
+    15: dict(
+        pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_WMW14,
+        pk_HCO3_sws_1atm=equilibria.p1atm.pk_HCO3_sws_WMW14,
+    ),
+    16: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_SLH20,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_SLH20,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    17: dict(
+        # pk_H2CO3_sws_1atm=equilibria.p1atm.pk_H2CO3_sws_WMW14,
+        # ^ although the above should work, it gives slightly different answers
+        #   than he conversion below, and below is consistent with the MATLAB
+        #   implementation
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_WMW14,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_SB21,
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    18: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_PLR18,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_PLR18,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    19: dict(
+        pk_H2CO3_total_1atm=equilibria.p1atm.pk_H2CO3_total_WMW14,
+        pk_HCO3_total_1atm=equilibria.p1atm.pk_HCO3_total_MMB25,
+        pk_H2CO3_sws_1atm=lambda pk_H2CO3_total_1atm, tot_to_sws_1atm: (
+            pk_H2CO3_total_1atm + tot_to_sws_1atm
+        ),
+        pk_HCO3_sws_1atm=lambda pk_HCO3_total_1atm, tot_to_sws_1atm: (
+            pk_HCO3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+}
+# For historical reasons, these are the same as each other (one also gets the
+# Peng "correction", but that's handled elsewhere):
+gfo = get_funcs_opts
+get_funcs_opts["opt_k_carbonic"][7] = gfo["opt_k_carbonic"][6].copy()
+get_funcs_opts["opt_k_phosphate"] = {
+    1: dict(
+        pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_YM95,
+        pk_H2PO4_sws_1atm=equilibria.p1atm.pk_H2PO4_sws_YM95,
+        pk_HPO4_sws_1atm=equilibria.p1atm.pk_HPO4_sws_YM95,
+    ),
+    2: dict(
+        pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_KP67,
+        pk_H2PO4_nbs_1atm=equilibria.p1atm.pk_H2PO4_nbs_KP67,
+        pk_H2PO4_sws_1atm=lambda pk_H2PO4_nbs_1atm, nbs_to_sws: (
+            pk_H2PO4_nbs_1atm + nbs_to_sws
+        ),
+        pk_HPO4_nbs_1atm=equilibria.p1atm.pk_HPO4_nbs_KP67,
+        pk_HPO4_sws_1atm=lambda pk_HPO4_nbs_1atm, nbs_to_sws: (
+            pk_HPO4_nbs_1atm + nbs_to_sws
+        ),
+    ),
+}
+get_funcs_opts["opt_k_BOH3"] = {
+    1: dict(
+        pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_D90b,
+        pk_BOH3_sws_1atm=lambda pk_BOH3_total_1atm, tot_to_sws_1atm: (
+            pk_BOH3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        pk_BOH3_nbs_1atm=equilibria.p1atm.pk_BOH3_nbs_LTB69,
+        pk_BOH3_sws_1atm=lambda pk_BOH3_nbs_1atm, nbs_to_sws: (
+            pk_BOH3_nbs_1atm + nbs_to_sws
+        ),
+    ),
+}
+get_funcs_opts["opt_k_H2O"] = {
+    1: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M95),
+    2: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M79),
+    3: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_HO58_M79),
+}
+get_funcs_opts["opt_k_HF"] = {
+    1: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_DR79),
+    2: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_PF87),
+}
+get_funcs_opts["opt_k_HSO4"] = {
+    1: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_D90a),
+    2: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_KRCB77),
+    3: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_WM13),
+}
+get_funcs_opts["opt_k_NH3"] = {
+    1: dict(
+        pk_NH3_total_1atm=equilibria.p1atm.pk_NH3_total_CW95,
+        pk_NH3_sws_1atm=lambda pk_NH3_total_1atm, tot_to_sws_1atm: (
+            pk_NH3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(pk_NH3_sws_1atm=equilibria.p1atm.pk_NH3_sws_YM95),
+}
+get_funcs_opts["opt_k_Si"] = {
+    1: dict(pk_Si_sws_1atm=equilibria.p1atm.pk_Si_sws_YM95),
+    2: dict(
+        pk_Si_nbs_1atm=equilibria.p1atm.pk_Si_nbs_SMB64,
+        pk_Si_sws_1atm=lambda pk_Si_nbs_1atm, nbs_to_sws: (
+            pk_Si_nbs_1atm + nbs_to_sws
+        ),
+    ),
+}
+get_funcs_opts["opt_k_HNO2"] = {
+    1: dict(
+        pk_HNO2_total_1atm=equilibria.p1atm.pk_HNO2_total_BBWB24,
+        pk_HNO2_sws_1atm=lambda pk_HNO2_total_1atm, tot_to_sws_1atm: (
+            pk_HNO2_total_1atm + tot_to_sws_1atm
+        ),
+    ),
+    2: dict(
+        pk_HNO2_nbs_1atm=equilibria.p1atm.pk_HNO2_nbs_BBWB24_freshwater,
+        pk_HNO2_sws_1atm=lambda pk_HNO2_nbs_1atm, nbs_to_sws: (
+            pk_HNO2_nbs_1atm + nbs_to_sws
+        ),
+    ),
+}
+get_funcs_opts["opt_pH_scale"] = {
+    1: dict(  # total
+        sws_to_opt=convert.pH_sws_to_tot,
+        opt_to_free=convert.pH_tot_to_free,
+        opt_to_sws=convert.pH_tot_to_sws,
+        opt_to_nbs=convert.pH_tot_to_nbs,
+    ),
+    2: dict(  # sws
+        sws_to_opt=lambda: 0,
+        opt_to_free=convert.pH_sws_to_free,
+        opt_to_tot=convert.pH_sws_to_tot,
+        opt_to_nbs=convert.pH_sws_to_nbs,
+    ),
+    3: dict(  # free
+        sws_to_opt=convert.pH_sws_to_free,
+        opt_to_free=lambda: 0,
+        opt_to_tot=convert.pH_free_to_tot,
+        opt_to_sws=convert.pH_free_to_sws,
+        opt_to_nbs=convert.pH_free_to_nbs,
+    ),
+    4: dict(  # nbs
+        sws_to_opt=convert.pH_sws_to_nbs,
+        opt_to_free=convert.pH_nbs_to_free,
+        opt_to_tot=convert.pH_nbs_to_tot,
+        opt_to_sws=convert.pH_nbs_to_sws,
+    ),
+}
+# TODO these below can be added only if there is a pH accessible!
+# While also depending on an opt!  See also below TODO for fCO2
+# i.e. icase == 3 or icase > 100
+for o, funcs in get_funcs_opts["opt_pH_scale"].items():
+    if o == 1:
+        funcs.update(dict(pH_total=lambda pH: pH))
+    if o == 2:
+        funcs.update(dict(pH_sws=lambda pH: pH))
+    if o == 3:
+        funcs.update(dict(pH_free=lambda pH: pH))
+    if o == 4:
+        funcs.update(dict(pH_nbs=lambda pH: pH))
+    if o in [2, 3, 4]:
+        funcs.update(dict(pH_total=lambda pH, opt_to_tot: pH + opt_to_tot))
+    if o in [1, 3, 4]:
+        funcs.update(dict(pH_sws=lambda pH, opt_to_sws: pH + opt_to_sws))
+    if o in [1, 2, 4]:
+        funcs.update(dict(pH_free=lambda pH, opt_to_free: pH + opt_to_free))
+    if o in [1, 2, 3]:
+        funcs.update(dict(pH_nbs=lambda pH, opt_to_nbs: pH + opt_to_nbs))
+get_funcs_opts["opt_total_borate"] = {
+    1: dict(total_borate=salts.total_borate_U74),
+    2: dict(total_borate=salts.total_borate_LKB10),
+    3: dict(total_borate=salts.total_borate_KSK18),
+    4: dict(total_borate=salts.total_borate_C65),
+}
+get_funcs_opts["opt_Ca"] = {
+    1: dict(Ca=salts.Ca_RT67),
+    2: dict(Ca=salts.Ca_C65),
+}
+get_funcs_opts["opt_fugacity_factor"] = {
+    1: dict(fugacity_factor=gas.fugacity_factor),
+    2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
+}
+get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
+    1: dict(pH=solve.inorganic.pH_from_dic_HCO3_lo),
+    2: dict(pH=solve.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
+}
+get_funcs_opts["opt_k_calcite"] = {
+    1: dict(pk_calcite=solubility.pk_calcite_M83),
+    2: dict(pk_calcite=solubility.pk_calcite_I75),  # for GEOSECS
+}
+get_funcs_opts["opt_k_aragonite"] = {
+    1: dict(pk_aragonite=solubility.pk_aragonite_M83),
+    2: dict(pk_aragonite=solubility.pk_aragonite_GEOSECS),  # for GEOSECS
+}
+# # TODO option 1 below can only be added if there is an fCO2 value accessible
+# # (see also similar TODO above about pH)
+# get_funcs_opts["opt_fCO2_temperature"] = {
+#     1: dict(
+#         bh=upsilon.get_bh_H24,
+#         upsilon=upsilon.inverse,
+#     ),
+#     2: dict(
+#         bl=lambda: upsilon.bl_TOG93,
+#         upsilon=upsilon.linear,
+#     ),
+#     3: dict(
+#         aq=lambda: upsilon.aq_TOG93,
+#         bq=lambda: upsilon.bq_TOG93,
+#         upsilon=upsilon.quadratic,
+#     ),
+# }
+get_funcs_opts["opt_Mg_calcite_type"] = {
+    1: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep
+    ),
+    2: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_biogenic
+    ),
+    3: dict(
+        pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_synthetic
+    ),
+}
+get_funcs_opts["opt_Mg_calcite_kt_Tdep"] = {
+    1: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_idealmix),
+    2: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_PB82),
+    3: dict(pkt_Mg_calcite_1atm=solubility.get_pkt_Mg_calcite_1atm_vantHoff),
+}
+
+
+def icase_to_params(icase):
+    if icase > 100:
+        p1 = int(np.floor(icase / 100))
+        p2 = int(icase - p1 * 100)
+        par1 = parameters_core[p1 - 1]
+        par2 = parameters_core[p2 - 1]
+        return par1, par2
+    elif icase > 0:
+        return [parameters_core[icase - 1]]
+
+
+def make_positional(get_value_of):
+    assert hasattr(get_value_of, "args_list")
+
+    def func_positional(*args):
+        kwargs = {k: v for k, v in zip(get_value_of.args_list, args)}
+        return get_value_of(**kwargs)
+
+    func_positional.__doc__ = (
+        get_value_of.__doc__.replace("kwargs", "args")
+        .replace("dict", "tuple")
+        .replace("Key-value pairs for", "Values of")
+    )
+    func_positional.args_list = get_value_of.args_list
+    return func_positional
+
+
+# DO NOT CHANGE THE ORDER OF THE ITEMS IN THIS TUPLE!!!
+parameters_core = (
+    "alkalinity",  # 1
+    "dic",  # 2
+    "pH",  # 3
+    "pCO2",  # 4
+    "fCO2",  # 5
+    "CO3",  # 6
+    "HCO3",  # 7
+    "CO2",  # 8
+    "xCO2",  # 9
+    "saturation_calcite",  # 10
+    "saturation_aragonite",  # 11
+)
+
+values_default = {
+    "Mg_fraction": 0.0,
+    "pressure_atmosphere": 1.0,  # atm
+    "pressure": 0.0,  # dbar
+    "salinity": 35.0,
+    "temperature": 25.0,  # °C
+    "total_ammonia": 0.0,  # µmol/kg-sw
+    "total_phosphate": 0.0,  # µmol/kg-sw
+    "total_silicate": 0.0,  # µmol/kg-sw
+    "total_sulfide": 0.0,  # µmol/kg-sw
+    "total_nitrite": 0.0,  # µmol/kg-sw
+}
+
+opts_default = {
+    "opt_Ca": 1,
+    "opt_factor_k_BOH3": 1,
+    "opt_factor_k_H2CO3": 1,
+    "opt_factor_k_H2O": 1,
+    "opt_factor_k_HCO3": 1,
+    # "opt_fCO2_temperature": 1,
+    "opt_fH": 1,
+    "opt_fugacity_factor": 1,
+    "opt_gas_constant": 3,
+    "opt_HCO3_root": 2,
+    "opt_k_aragonite": 1,
+    "opt_k_BOH3": 1,
+    "opt_k_calcite": 1,
+    "opt_k_carbonic": 10,
+    "opt_k_H2O": 1,
+    "opt_k_HF": 1,
+    "opt_k_HSO4": 1,
+    "opt_k_NH3": 1,
+    "opt_k_phosphate": 1,
+    "opt_k_Si": 1,
+    "opt_k_HNO2": 1,
+    "opt_Mg_calcite_kt_Tdep": 1,
+    "opt_Mg_calcite_type": 2,
+    "opt_pH_scale": 1,
+    "opt_total_borate": 1,
+}
+
+# Parameters that do not change between input and output conditions
+condition_independent = (
+    "alkalinity",
+    "Ca",
+    "dic",
+    "gas_constant",
+    "ionic_strength",
+    "Mg_fraction",
+    "pressure_atmosphere",
+    "salinity",
+    "total_ammonia",
+    "total_borate",
+    "total_fluoride",
+    "total_phosphate",
+    "total_silicate",
+    "total_sulfate",
+    "total_sulfide",
+    "total_nitrite",
+)
+
+# Define labels for parameter plotting
+# NOTE This dict's keys are also used as the basis for the shortcuts,
+#      so every parameter that isn't all lowercase must appear here.
+#      (except those with __pre suffixes - they're added automatically).
+set_node_labels = {
+    "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
+    "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
+    "acf_Mg": r"$\gamma_{\mathrm{Mg}^{2+}}$",
+    "alkalinity": r"$A_\mathrm{T}$",
+    "aq": "$a_q$",
+    "beta_alkalinity": r"$\beta_{A_\mathrm{T}}$",
+    "beta_dic": r"$\beta_{C_\mathrm{T}}$",
+    "bh": "$b_h$",
+    "bl": "$b_l$",
+    "BOH3": r"$[\mathrm{B(OH)}_3]$",
+    "BOH4": r"$[\mathrm{B(OH)}_4^–]$",
+    "bq": "$b_q$",
+    "Ca": r"$[\mathrm{Ca}^{2+}]$",
+    "CO2": r"$[\mathrm{CO}_2(\mathrm{aq})]$",
+    "CO3": "[CO$_3^{2–}$]",
+    "d_lnOmega__d_CO3": "dlnΩ/d[CO$_3^{2-}$]",
+    "dic": r"$T_\mathrm{C}$",
+    "exp_upsilon": r"$e^\Upsilon$",
+    "F": r"$[\mathrm{F}^-]$",
+    "factor_k_BOH3": r"$P_\mathrm{B}$",
+    "factor_k_CO2": "$P_0$",
+    "factor_k_H2CO3": "$P_1$",
+    "factor_k_H2O": r"$P_w$",
+    "factor_k_H2PO4": r"$P_\mathrm{P2}$",
+    "factor_k_H2S": r"$P_\mathrm{H_2S}$",
+    "factor_k_H3PO4": r"$P_\mathrm{P1}$",
+    "factor_k_HCO3": "$P_2$",
+    "factor_k_HF": r"$P_\mathrm{HF}$",
+    "factor_k_HNO2": r"$P_{\mathrm{HNO}_2}$",
+    "factor_k_HPO4": r"$P_\mathrm{P3}$",
+    "factor_k_HSO4": r"$P_\mathrm{SO_4}$",
+    "factor_k_NH3": r"$P_\mathrm{NH_3}$",
+    "factor_k_Si": r"$P_\mathrm{Si}$",
+    "fCO2": "fCO$_2$",
+    "fH": r"$\gamma_\mathrm{H}$(NBS)",
+    "fugacity_factor": "$ƒ$",
+    "gamma_alkalinity": r"$\gamma_{A_\mathrm{T}}$",
+    "gamma_dic": r"$\gamma_{C_\mathrm{T}}$",
+    "gas_constant": "$R$",
+    "H_free": r"$[\mathrm{H}^+]^\mathrm{F}$",
+    "H": r"$[\mathrm{H}^+]^*$",
+    "H2PO4": r"$[\mathrm{H}_2\mathrm{PO}_4^–]$",
+    "H2S": r"$[\mathrm{H_2S}]$",
+    "H3PO4": r"$[\mathrm{H}_3\mathrm{PO}_4]$",
+    "H3SiO4": r"$[\mathrm{H}_3\mathrm{SiO}_4^–]$",
+    "H4SiO4": r"$[\mathrm{H}_4\mathrm{SiO}_4]$",
+    "HCO3": "[HCO$_3^–$]",
+    "HF": "[HF]",
+    "HPO4": r"$[\mathrm{HPO}_4^{2–}]$",
+    "HNO2": r"$[\mathrm{HNO}_2]$",
+    "HS": r"$[\mathrm{HS}^–]$",
+    "HSO4": r"$[\mathrm{HSO}_4^–]$",
+    "ionic_strength": "$I$",
+    "NO2": r"$[\mathrm{NO}_2^-]$",
+    "pk_aragonite": r"p$K_\mathrm{a}^*$",
+    "pk_BOH3_sws_1atm": r"p$K_\mathrm{B}^\mathrm{S0}$",
+    "pk_BOH3_sws": r"p$K_\mathrm{B}^\mathrm{S}$",
+    "pk_BOH3_total_1atm": r"p$K_\mathrm{B}^\mathrm{T0}$",
+    "pk_BOH3": r"p$K_\mathrm{B}^*$",
+    "pk_calcite": r"p$K_\mathrm{c}^*$",
+    "pk_CO2_1atm": "p$K_0′^0$",
+    "pk_CO2": "p$K_0′$",
+    "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
+    "pk_H2CO3_sws": "p$K_1^s$",
+    "pk_H2CO3_total_1atm": r"p$K_1^\mathrm{T0}$",
+    "pk_H2CO3": "p$K_1^*$",
+    "pk_H2O_sws_1atm": r"p$K_w^\mathrm{S0}$",
+    "pk_H2O_sws": r"p$K_w^\mathrm{S}$",
+    "pk_H2O": "p$K_w^*$",
+    "pk_H2PO4_sws_1atm": r"p$K_\mathrm{P2}^\mathrm{S0}$",
+    "pk_H2PO4_sws": r"p$K_\mathrm{P2}^\mathrm{S}$",
+    "pk_H2PO4": r"p$K_\mathrm{P2}^*$",
+    "pk_H2S_sws_1atm": r"p$K_\mathrm{H_2S}^\mathrm{S0}$",
+    "pk_H2S_sws": r"p$K_\mathrm{H_2S}^\mathrm{S}$",
+    "pk_H2S_total_1atm": r"p$K_\mathrm{H_2S}^\mathrm{T0}$",
+    "pk_H2S": r"p$K_\mathrm{H_2S}^*$",
+    "pk_H3PO4_sws_1atm": r"p$K_\mathrm{P1}^\mathrm{S0}$",
+    "pk_H3PO4_sws": r"p$K_\mathrm{P1}^\mathrm{S}$",
+    "pk_H3PO4": r"p$K_\mathrm{P1}^*$",
+    "pk_HCO3_sws_1atm": r"p$K_2^\mathrm{S0}$",
+    "pk_HCO3_sws": "p$K_2^s$",
+    "pk_HCO3_total_1atm": r"p$K_2^\mathrm{T0}$",
+    "pk_HCO3": "p$K_2^*$",
+    "pk_HF_free_1atm": r"p$K_\mathrm{HF}^\mathrm{F0}$",
+    "pk_HF_free": r"p$K_\mathrm{HF}^\mathrm{F}$",
+    "pk_HNO2_sws_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{S0}$",
+    "pk_HNO2_sws": r"p$K_\mathrm{HNO_2}^\mathrm{S}$",
+    "pk_HNO2_total_1atm": r"p$K_\mathrm{HNO_2}^\mathrm{T0}$",
+    "pk_HNO2": r"p$K_\mathrm{HNO_2}^*$",
+    "pk_HPO4_sws_1atm": r"p$K_\mathrm{P3}^\mathrm{S0}$",
+    "pk_HPO4_sws": r"p$K_\mathrm{P3}^\mathrm{S}$",
+    "pk_HPO4": r"p$K_\mathrm{P3}^*$",
+    "pk_HSO4_free_1atm": r"p$K_\mathrm{HSO_4}^\mathrm{F0}$",
+    "pk_HSO4_free": r"p$K_\mathrm{HSO_4}^\mathrm{F}$",
+    "pk_NH3_sws_1atm": r"p$K_\mathrm{NH_3}^\mathrm{S0}$",
+    "pk_NH3_sws": r"p$K_\mathrm{NH_3}^\mathrm{S}$",
+    "pk_NH3_total_1atm": r"p$K_\mathrm{NH_3}^\mathrm{T0}$",
+    "pk_NH3": r"p$K_\mathrm{NH_3}^*$",
+    "pk_Si_sws_1atm": r"p$K_\mathrm{Si}^\mathrm{S0}$",
+    "pk_Si_sws": r"p$K_\mathrm{Si}^\mathrm{S}$",
+    "pk_Si": r"p$K_\mathrm{Si}^*$",
+    "Mg_fraction": "Mg fraction",
+    "Mg": r"$[\mathrm{Mg}^{2+}]$",
+    "NH3": r"$[\mathrm{NH}_3]$",
+    "NH4": r"$[\mathrm{NH}_4^+]$",
+    "OH": r"$[\mathrm{OH}^–]$",
+    "omega_alkalinity": r"$\omega_{A_\mathrm{T}}$",
+    "omega_dic": r"$\omega_{C_\mathrm{T}}$",
+    "pCO2": r"$p\mathrm{CO}_2$",
+    "pH": "pH",
+    "pH_free": r"pH$_\mathrm{F}$",
+    "pH_nbs": r"pH$_\mathrm{N}$",
+    "pH_sws": r"pH$_\mathrm{S}$",
+    "pH_total": r"pH$_\mathrm{T}$",
+    "PO4": r"$[\mathrm{PO}_4^{3–}]$",
+    "pressure_atmosphere": r"$p_\mathrm{atm}$",
+    "pressure": "$p$",
+    "psi": r"$\psi$",
+    "Q_isocap_approx": "$Q_x$",
+    "Q_isocap": "$Q$",
+    "revelle_factor": r"$R_\mathrm{F}$",
+    "salinity": "$S$",
+    "saturation_aragonite": r"$Ω_\mathrm{a}$",
+    "saturation_calcite": r"$Ω_\mathrm{c}$",
+    "saturation_Mg_calcite": r"$Ω_\mathrm{c(Mg)}$",
+    "SO4": r"$[\mathrm{SO}_4^{2–}]$",
+    "substrate_inhibitor_ratio": "SIR",
+    "temperature": "$t$",
+    "total_ammonia": r"$T_\mathrm{NH_3}$",
+    "total_borate": r"$T_\mathrm{B}$",
+    "total_fluoride": r"$T_\mathrm{F}$",
+    "total_nitrite": r"$T_\mathrm{HNO_2}$",
+    "total_phosphate": r"$T_\mathrm{P}$",
+    "total_silicate": r"$T_\mathrm{Si}$",
+    "total_sulfate": r"$T_\mathrm{SO_4}$",
+    "total_sulfide": r"$T_\mathrm{H_2S}$",
+    "upsilon": r"$\upsilon$",
+    "vp_factor": "$v$",
+    "xCO2": r"$x\mathrm{CO}_2$",
+    # pH scale conversions
+    "free_to_opt": r"$_\mathrm{F}^*Y$",
+    "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
+    "nbs_to_free": r"$_\mathrm{N}^\mathrm{F}Y$",
+    "nbs_to_opt": r"$_\mathrm{N}^*Y$",
+    "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
+    "nbs_to_tot": r"$_\mathrm{N}^\mathrm{T}Y$",
+    "opt_to_free": r"$_*^\mathrm{F}Y$",
+    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
+    "opt_to_sws": r"$_*^\mathrm{S}Y$",
+    "opt_to_tot": r"$_*^\mathrm{T}Y$",
+    "sws_to_free": r"$_\mathrm{S}^\mathrm{F}Y$",
+    "sws_to_nbs": r"$_\mathrm{S}^\mathrm{N}Y$",
+    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "sws_to_tot": r"$_\mathrm{S}^\mathrm{T}Y$",
+    "tot_to_free": r"$_\mathrm{T}^\mathrm{F}Y$",
+    "tot_to_nbs": r"$_\mathrm{T}^\mathrm{N}Y$",
+    "tot_to_opt": r"$_\mathrm{T}^*Y$",
+    "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
+    "tot_to_sws": r"$_\mathrm{T}^\mathrm{S}Y$",
+    # TODO below not formatted
+    "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
+    "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
+    "pk_Mg_calcite": "pk_Mg_calcite",
+    "pkt_Mg_calcite_25C_1atm": "pkt_Mg_calcite_25C_1atm",
+    "d_dic__d_pH__alkalinity": "d_dic__d_pH__alkalinity",
+    "d_lnCO2__d_pH__alkalinity": "d_lnCO2__d_pH__alkalinity",
+    "d_alkalinity__d_pH__dic": "d_alkalinity__d_pH__dic",
+    "d_lnCO2__d_pH__dic": "d_lnCO2__d_pH__dic",
+    "d_CO3__d_pH__alkalinity": "d_CO3__d_pH__alkalinity",
+    "d_CO3__d_pH__dic": "d_CO3__d_pH__dic",
+    "d_alkalinity__d_pH__fCO2": "d_alkalinity__d_pH__fCO2",
+    "d_dic__d_pH__fCO2": "d_dic__d_pH__fCO2",
+    "d_fCO2__d_pH__alkalinity": "d_fCO2__d_pH__alkalinity",
+    "d_fCO2__d_pH__dic": "d_fCO2__d_pH__dic",
+}
+set_node_labels.update(
+    {
+        k + "__pre": r"$^\pi$" + v
+        for k, v in set_node_labels.items()
+        if k not in condition_independent
+    }
+)
+
+# This is the list of parameters that will NOT be stored internally when
+# store_steps == 1
+exclude_on_store_steps_1 = [
+    "factor_k_BOH3",
+    "factor_k_CO2",
+    "factor_k_H2CO3",
+    "factor_k_H2O",
+    "factor_k_H2PO4",
+    "factor_k_H2S",
+    "factor_k_H3PO4",
+    "factor_k_HCO3",
+    "factor_k_HF",
+    "factor_k_HNO2",
+    "factor_k_HPO4",
+    "factor_k_HSO4",
+    "factor_k_NH3",
+    "factor_k_Si",
+    "free_to_sws_1atm",
+    "nbs_to_opt",
+    "opt_to_free",
+    "opt_to_nbs",
+    "opt_to_sws",
+    "pk_BOH3_sws_1atm",
+    "pk_BOH3_sws",
+    "pk_BOH3_total_1atm",
+    "pk_CO2_1atm",
+    "pk_H2CO3_sws_1atm",
+    "pk_H2CO3_sws",
+    "pk_H2CO3_total_1atm",
+    "pk_H2O_sws_1atm",
+    "pk_H2O_sws",
+    "pk_H2PO4_sws_1atm",
+    "pk_H2PO4_sws",
+    "pk_H2S_sws_1atm",
+    "pk_H2S_sws",
+    "pk_H2S_total_1atm",
+    "pk_H3PO4_sws_1atm",
+    "pk_H3PO4_sws",
+    "pk_HCO3_sws_1atm",
+    "pk_HCO3_sws",
+    "pk_HCO3_total_1atm",
+    "pk_HF_free_1atm",
+    "pk_HNO2_sws_1atm",
+    "pk_HNO2_sws",
+    "pk_HNO2_total_1atm",
+    "pk_HPO4_sws_1atm",
+    "pk_HPO4_sws",
+    "pk_HSO4_free_1atm",
+    "pk_Mg_calcite_1atm",
+    "pk_NH3_sws_1atm",
+    "pk_NH3_sws",
+    "pk_NH3_total_1atm",
+    "pk_Si_sws_1atm",
+    "pk_Si_sws",
+    "pkt_Mg_calcite_1atm",
+    "pkt_Mg_calcite_25C_1atm",
+    "sws_to_opt",
+    "tot_to_opt",
+    "tot_to_sws_1atm",
+]
+
+# Define shortcuts, the keys for which must all be lowercase
+# TODO turn this into a ShortcutsDict
+shortcuts = {k.lower(): k for k in set_node_labels if k.lower() != k}
+shortcuts.update({k.lower(): k for k in opts_default if k.lower() != k})
+shortcuts.update(
+    {
+        "tco2": "dic",
+        "talk": "alkalinity",
+        "alk": "alkalinity",
+        "ta": "alkalinity",
+        "ss_calc": "saturation_calcite",
+        "ss_arag": "saturation_aragonite",
+        "oc": "saturation_calcite",
+        "oa": "saturation_aragonite",
+        "ammonia": "total_ammonia",
+        "borate": "total_borate",
+        "fluoride": "total_fluoride",
+        "nitrite": "total_nitrite",
+        "phosphate": "total_phosphate",
+        "silicate": "total_silicate",
+        "sulfate": "total_sulfate",
+        "sulfide": "total_sulfide",
+        "tnh3": "total_ammonia",
+        "tb": "total_borate",
+        "tf": "total_fluoride",
+        "tno2": "total_nitrite",
+        "tp": "total_phosphate",
+        "tsi": "total_silicate",
+        "tso4": "total_sulfate",
+        "th2s": "total_sulfide",
+        "sir": "substrate_inhibitor_ratio",
+        "pk0": "pk_CO2",
+        "pk1": "pk_H2CO3",
+        "pk2": "pk_HCO3",
+        "pkw": "pk_H2O",
+        "method_fco2": "method_fCO2",
+        "which_fco2_insitu": "which_fCO2_insitu",
+        "sal": "salinity",
+        "temp": "temperature",
+        "pres": "pressure",
+        "s": "salinity",
+        "t": "temperature",
+        "p": "pressure",
+        "revelle": "revelle_factor",
+        "q": "Q_isocap",
+    }
+)
+# This needs to be the final step of constructing `shortcuts`:
+# append "__pre" to all shortcuts that need it and don't yet have it
+for k, v in shortcuts.copy().items():
+    if (
+        not k.endswith("__pre")
+        and k + "__pre" not in shortcuts
+        and k not in condition_independent
+    ):
+        shortcuts[k + "__pre"] = v + "__pre"
+shortcuts = ShortcutsDict(**shortcuts)
+
+
+def da_to_array(da, xr_dims):
+    """Convert an xarray `DataArray` `da` into a NumPy `array`.
+
+    The NumPy `array` will have as many dimensions as `len(xr_dims)` and the
+    dimensions will be in the same order as indicated in `xr_dims`.
+
+    If `da` does not contain a dimension from `xr_dims`, a new singleton
+    dimension will be added in the appropriate position.
+
+    `da` is not allowed to contain any dimensions that are not in `xr_dims`.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        The `DataArray` to be converted.
+    xr_dims : iterable
+        The full list of dimension names in the correct order for the output
+        NumPy array.  Can be obtained from an xarray `Dataset` (`ds`) as
+        `ds.sizes`.
+
+    Returns
+    -------
+    numpy.array
+        The converted `array`.
+    """
+    # Get `DataArray` info
+    da_dims = list(da.sizes)
+    try:
+        da_data = da.data.astype(float)
+    except ValueError:
+        return None
+    # Prepare for loop through `xr_dims`
+    move_from = []
+    extra_dims = 0
+    for d in xr_dims:
+        if d in da_dims:
+            # If the dimension is in `da`, just append the appropriate position
+            # to `move_from`
+            move_from.append(da_dims.index(d))
+        else:
+            # If the dimension is not in `da`, we need to create it at the end
+            move_from.append(len(da_dims) + extra_dims)
+            da_data = np.expand_dims(da_data, -1)
+            extra_dims += 1  # increment offset, for adding multiple new dims
+    # Move axes around to the shape matching `xr_dims`
+    return np.moveaxis(da_data, move_from, range(len(xr_dims)))
+
+
 class CO2System(FunctionGraph):
+    """An equilibrium model of the marine carbonate system.
+
+    Methods
+    -------
+    adjust
+        Adjust the system to a different temperature and/or pressure.
+    get_grads
+        Calculate derivatives of parameters with respect to each other.
+    keys_all
+        Return a tuple of all possible results keys, including those that have
+        not yet been solved for.
+    plot_graph
+        Draw graphs showing the relationships between the different parameters.
+    propagate
+        Propagate independent uncertainties through the calculations.
+    solve
+        Calculate parameter(s) and store them internally.
+    to_pandas
+        Return parameters as a pandas `Series` or `DataFrame`.
+    to_xarray
+        Return parameters as an xarray `DataArray` or `Dataset`.
+
+    Attributes
+    ----------
+    grads : dict
+        Derivatives of parameters with respect to each other, calculated with
+        `get_grads`.
+    opts : dict
+        The optional settings being used for calculations.  Constructed when
+        the `CO2System` is initalised; subsequent changes will not affect any
+        calculations.
+    uncertainty : dict
+        Uncertainties in parameters with respect to each other, calculated with
+        `propagate`.
+
+    Advanced attributes
+    -------------------
+    adjusted : bool
+        Whether this system was generated using `adjust`.
+    c_state : dict
+        Colours for plotting the state graph (see `plot_graph`).
+    c_valid : dict
+        Colours for plotting the validity graph (see `plot_graph`)
+    checked_valid : bool
+        Whether the validity of the system has been checked.
+    data : dict
+        The known parameters (either user provided or solved for).
+    graph : nx.DiGraph
+        The graph of calculations.
+    icase : int
+        Which known core parameters were provided.
+    ignored : list
+        Which kwargs or keys in `data` were ignored.
+    nodes_original : tuple
+        Which parameters were user-provided or took fixed default values.
+    pd_index : pd.Index
+        If `data` was a pandas `DataFrame`, this contains its index.
+    requested : list
+        Which parameters have been directly requested for solving.
+    shortcuts : dict
+        Alternative key mapper.
+    xr_dims : tuple
+        If `data` was an xarray `Dataset`, this contains all its dimensions.
+    xr_shape : tuple
+        If `data` was an xarray `Dataset`, this contains its fullest shape.
+
+    In addition to the methods listed above, all of the methods usually
+    available for a `dict` can be used.  Methods such as `keys`, `values` and
+    `items` will run only over parameters that have already been solved for.
+    """
+
     def __init__(
         self,
         defaults: dict | None = None,
@@ -30,6 +1255,9 @@ class CO2System(FunctionGraph):
         shortcuts: dict | None = None,
         icase: int = None,
         opts: dict = None,
+        pd_index=None,
+        xr_dims=None,
+        xr_shape=None,
     ):
         super().__init__(
             defaults=defaults, graph=graph, funcs=funcs, shortcuts=shortcuts
@@ -37,51 +1265,642 @@ class CO2System(FunctionGraph):
         self.icase = icase
         self.opts = ShortcutDotDict(self.shortcuts)
         self.opts.update(opts)
+        self.pd_index = pd_index
+        if xr_dims is not None:
+            assert xr_shape is not None
+            assert len(xr_dims) == len(xr_shape)
+        else:
+            assert xr_shape is None
+        self.xr_dims = xr_dims
+        self.xr_shape = xr_shape
+
+    def solve(
+        self,
+        parameters: list | str | None = None,
+    ):
+        """Calculate parameter(s) and store them internally.
+
+        Parameters
+        ----------
+        parameters : str or list of str, optional
+            Which parameter(s) to calculate and store, by default `None`, in
+            which case all possible parameters are calculated and stored
+            internally.  The full list of possible parameters is provided
+            below.
+        store_steps : int, optional
+            Whether/which non-requested parameters calculated during
+            intermediate calculation steps should be stored, by default `1`.
+            The options are
+                0 - store only the specifically requested parameters,
+                1 - store the most used set of intermediate parameters, or
+                2 - store the complete set of parameters.
+
+        Returns
+        -------
+        CO2System
+            The original `CO2System` including the newly solved parameters.
+
+        PARAMETERS THAT CAN BE SOLVED FOR
+        =================================
+        Note that some parameters may be available only for certain
+        combinations of core carbonate system parameters optional settings.
+
+        pH on different scales
+        ----------------------
+             Key | Description
+        -------: | :-----------------------------------------------------------
+              pH | pH on the scale specified by `opt_pH_scale`.
+        pH_total | pH on the total scale.
+          pH_sws | pH on the seawater scale.
+         pH_free | pH on the free scale.
+          pH_nbs | pH on the NBS scale.
+              fH | H+ activity coefficient for conversions to/from NBS scale.
+
+        Chemical speciation
+        -------------------
+        All are substance contents in units of µmol/kg.
+
+           Key | Description
+        -----: | :-------------------------------------------------------------
+        H_free | "Free" protons.
+            OH | Hydroxide ion.
+           CO3 | Carbonate ion.
+          HCO3 | Bicarbonate ion.
+           CO2 | Aqueous CO2.
+          BOH4 | Tetrahydroxyborate.
+          BOH3 | Boric acid.
+         H3PO4 | Phosphoric acid.
+         H2PO4 | Dihydrogen phosphate.
+          HPO4 | Monohydrogen phosphate.
+           PO4 | Phosphate.
+        H4SiO4 | Orthosilicic acid.
+        H3SiO4 | Trihydrogen orthosilicate.
+           NH3 | Ammonia.
+           NH4 | Ammonium.
+            HS | Bisulfide.
+           H2S | Hydrogen sulfide.
+          HSO4 | Bisulfate.
+           SO4 | Sulfate.
+            HF | Hydrofluoric acid.
+             F | Fluoride.
+          HNO2 | Nitrous acid.
+           NO2 | Nitrite.
+
+        Chemical buffer factors
+        -----------------------
+                              Key | Description
+        ------------------------: | :------------------------------------------
+                   revelle_factor | Revelle factor.
+                              psi | Psi of FCG94.
+                        gamma_dic | Buffer factors from ESM10.
+                         beta_dic | Buffer factors from ESM10.
+                        omega_dic | Buffer factors from ESM10.
+                 gamma_alkalinity | Buffer factors from ESM10.
+                  beta_alkalinity | Buffer factors from ESM10.
+                 omega_alkalinity | Buffer factors from ESM10.
+                         Q_isocap | Isocapnic quotient from HDW18.
+                  Q_isocap_approx | Approximate isocapnic quotient from HDW18.
+                       dlnfCO2_dT | temperature sensitivity of ln(fCO2).
+                       dlnpCO2_dT | temperature sensitivity of ln(pCO2).
+        substrate_inhibitor_ratio | HCO3/H_free, substrate:inhibitor from B15.
+
+        Equilibrium constants
+        ---------------------
+        All are returned on the pH scale specified by `opt_pH_scale`.
+
+                 Key | Description
+        -----------: | :-------------------------------------------------------
+              pk_CO2 | Henry's constant for CO2.
+            pk_H2CO3 | First dissociation constant for carbonic acid.
+             pk_HCO3 | Second dissociation constant for carbonic acid.
+              pk_H2O | Water dissociation constant.
+             pk_BOH3 | Boric acid equilibrium constant.
+          pk_HF_free | HF dissociation constant (always free scale).
+        pk_HSO4_free | Bisulfate dissociation constant (always free scale).
+            pk_H3PO4 | First dissociation constant for phosphoric acid.
+            pk_H2PO4 | Second dissociation constant for phosphoric acid.
+             pk_HPO4 | Third dissociation constant for phosphoric acid.
+               pk_Si | Silicic acid dissociation constant.
+              pk_NH3 | Ammonia equilibrium constant.
+              pk_H2S | Hydrogen sulfide dissociation constant.
+             pk_HNO2 | Nitrous acid dissociation constant.
+
+        Other results
+        -------------
+                    Key | Description (unit)
+        --------------: | :----------------------------------------------------
+                upsilon | Temperature-sensitivity of fCO2 (%/°C)
+        fugacity_factor | Converts between pCO2 and fCO2.
+              vp_factor | Vapour pressure factor, converts pCO2 and xCO2.
+           gas_constant | Universal gas constant (ml/bar/mol/K).
+        """
+        super().solve(parameters)
+
+    def to_pandas(self, parameters=None, store_steps=1):
+        """Return parameters as a pandas `Series` or `DataFrame`.  All
+        parameters should be scalar or one-dimensional vectors of the same
+        size.
+
+        Parameters
+        ----------
+        parameters : str or list of str, optional
+            The parameter(s) to return.  These are solved for if not already
+            available. If `None`, then all parameters that have already been
+            solved for are returned.
+        store_steps : int, optional
+            See `solve`.
+
+        Returns
+        -------
+        pd.Series or pd.DataFrame
+            The parameter(s) as a `pd.Series` (if `parameters` is a `str`) or
+            as a `pd.DataFrame` (if `parameters` is a `list`) with the original
+            pandas index passed into the `CO2System` as `data`.  If `data` was
+            not a `pd.DataFrame` then the default index will be used.
+        """
+        try:
+            import pandas as pd
+
+            if parameters is None:
+                parameters = self.keys()
+            self.solve(parameters=parameters, store_steps=store_steps)
+            if isinstance(parameters, str):
+                return pd.Series(data=self[parameters], index=self.pd_index)
+            else:
+                return pd.DataFrame(
+                    {
+                        p: pd.Series(
+                            data=self[p] * np.ones(self.pd_index.shape),
+                            index=self.pd_index,
+                        )
+                        for p in parameters
+                    }
+                )
+        except ImportError:
+            warn("pandas could not be imported.")
+
+    def _get_xr_ndims(self, parameter):
+        ndims = []
+        if not np.isscalar(self[parameter]):
+            for i, vs in enumerate(self[parameter].shape):
+                if vs == self.xr_shape[i]:
+                    ndims.append(self.xr_dims[i])
+        return ndims
+
+    def to_xarray(self, parameters=None, store_steps=1):
+        """Return parameters as an xarray `DataArray` or `Dataset`.
+
+        Parameters
+        ----------
+        parameters : str or list of str, optional
+            The parameter(s) to return.  These are solved for if not already
+            available. If `None`, then all parameters that have already been
+            solved for are returned.
+        store_steps : int, optional
+            See `solve`.
+
+        Returns
+        -------
+        xr.DataArray or xr.Dataset
+            The parameter(s) as a `xr.DataArray` (if `parameters` is a `str`)
+            or as a `xr.Dataset` (if `parameters` is a `list`) with the
+            original xarray dimensions passed into the `CO2System` as `data`.
+            If `data` was not an `xr.Dataset` then this function will not work.
+        """
+        assert self.xr_dims is not None and self.xr_shape is not None, (
+            "`data` was not provided as an `xr.Dataset` "
+            + "when creating this `CO2System`."
+        )
+        try:
+            import xarray as xr
+
+            if parameters is None:
+                parameters = self.keys()
+            self.solve(parameters=parameters, store_steps=store_steps)
+            if isinstance(parameters, str):
+                ndims = self._get_xr_ndims(parameters)
+                return xr.DataArray(np.squeeze(self[parameters]), dims=ndims)
+            else:
+                return xr.Dataset(
+                    {
+                        p: xr.DataArray(
+                            np.squeeze(self[p]), dims=self._get_xr_ndims(p)
+                        )
+                        for p in parameters
+                    }
+                )
+        except ImportError:
+            warn("xarray could not be imported.")
+
+    def _get_expUps(
+        self,
+        method_fCO2,
+        temperature,
+        bh_upsilon=None,
+        opt_which_fCO2_insitu=1,
+    ):
+        if method_fCO2 in [1, 2, 3, 4]:
+            self.solve("gas_constant")
+        match method_fCO2:
+            case 1:
+                self.solve("fCO2", store_steps=0)
+                fCO2 = self.fCO2
+                assert opt_which_fCO2_insitu in [1, 2]
+                if opt_which_fCO2_insitu == 2:
+                    # If the output conditions are the environmental ones, then
+                    # we need to provide an estimate of output fCO2 in order to
+                    # use the bh parameterisation; we get this using the
+                    # method_fCO2=2 approach:
+                    fCO2 = fCO2 * upsilon.expUps_TOG93_H24(
+                        self.data["temperature"],
+                        temperature,
+                        self.data["gas_constant"],
+                    )
+                return upsilon.expUps_parameterised_H24(
+                    self.data["temperature"],
+                    temperature,
+                    self.data["salinity"],
+                    fCO2,
+                    self.data["gas_constant"],
+                    opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+                )
+            case 2:
+                return upsilon.expUps_TOG93_H24(
+                    self.data["temperature"],
+                    temperature,
+                    self.data["gas_constant"],
+                )
+            case 3:
+                return upsilon.expUps_enthalpy_H24(
+                    self.data["temperature"],
+                    temperature,
+                    self.data["gas_constant"],
+                )
+            case 4:
+                assert bh_upsilon is not None, (
+                    "A bh_upsilon value must be provided for method_fCO2=4."
+                )
+                return upsilon.expUps_Hoff_H24(
+                    self.data["temperature"],
+                    temperature,
+                    self.data["gas_constant"],
+                    bh_upsilon,
+                )
+            case 5:
+                return upsilon.expUps_linear_TOG93(
+                    self.data["temperature"],
+                    temperature,
+                )
+            case 6:
+                return upsilon.expUps_quadratic_TOG93(
+                    self.data["temperature"],
+                    temperature,
+                )
+
+    def _adjust_prep(self, param):
+        # Convert temperature and/or pressure from pandas Series to NumPy
+        # arrays, if necessary.  The checks to see if they are Series are
+        # not foolproof, but they do avoid needing to import pandas.
+        if all([hasattr(param, a) for a in ["index", "values", "dtype"]]):
+            assert self.pd_index is not None, (
+                "Parameter cannot be provided as a pandas `Series`"
+                + " because this CO2System was not constructed"
+                + " from an pandas `DataFrame`."
+            )
+            assert self.pd_index.equals(param.index), (
+                "Cannot use this pandas `Series` for the adjust-to value"
+                + " because its index does not match that used to construct"
+                + " this CO2System."
+            )
+            param = param.to_numpy().astype(float)
+        # Convert temperature and/or pressure from xarray DataArrays to NumPy
+        # arrays, if necessary.  The checks to see if they are DataArrays are
+        # not foolproof, but they do avoid needing to import xarray.
+        if all([hasattr(param, a) for a in ["data", "dims", "coords"]]):
+            assert self.xr_dims is not None, (
+                "Parameter cannot be provided as an xarray `DataArray`"
+                + " because this `CO2System` was not constructed"
+                + " from an xarray `Dataset`."
+            )
+            param = da_to_array(param, self.xr_dims)
+        return param
+
+    def _adjust_2p(self, temperature=None, pressure=None):
+        temperature = self._adjust_prep(temperature)
+        pressure = self._adjust_prep(pressure)
+        kwargs_adjust = {}
+        if temperature is not None:
+            kwargs_adjust["temperature"] = temperature
+        if pressure is not None:
+            kwargs_adjust["pressure"] = pressure
+        # To adjust to a different temperature/pressure, we need to know
+        # alkalinity and DIC for the original system.  First, we get the
+        # subgraph from the original system that contains just alkalinity, DIC
+        # and all their ancestors.
+        graph_pre = self.graph.subgraph(
+            nx.ancestors(self.graph, "alkalinity")
+            | nx.ancestors(self.graph, "dic")
+            | {"alkalinity", "dic"}
+        )
+        # All of the nodes in graph_pre that are not condition-independent are
+        # now renamed with "__pre" appended, to keep them distinct from the
+        # same nodes under the adjusted conditions.  Temperature and pressure
+        # are considered to be condition-independent if they were not adjusted.
+        no_pre = [*condition_independent]
+        for p in ["temperature", "pressure"]:
+            if p not in kwargs_adjust:
+                no_pre.append(p)
+        graph_pre = nx.relabel_nodes(
+            graph_pre,
+            {n: n if n in no_pre else n + "__pre" for n in graph_pre.nodes},
+        )
+        args = {}
+        for node, attrs in graph_pre.nodes.items():
+            if "func" in attrs:
+                args[node] = [
+                    k if k in no_pre else k + "__pre"
+                    for k in signature(attrs["func"]).parameters.keys()
+                ]
+        nx.set_node_attributes(graph_pre, args, name="args")
+        # graph_pre can now be merged with a new graph to compute everything
+        # from alkalinity and DIC.  The original system's `opts` are retained.
+        funcs_adj = get_funcs | get_funcs_core[102]
+        for opt, v in self.opts.items():
+            # opt_HCO3_root is available only for icase == 207 (known DIC & HCO3)
+            if opt != "opt_HCO3_root":
+                funcs_adj.update(get_funcs_opts[opt][v])
+        graph_adj = nx.compose(graph_pre, FunctionGraph.get_graph(funcs_adj))
+        # The new system will have the same set of user-provided parameter
+        # values as the original, but the ones that are condition-dependent get
+        # renamed with "__pre" appended.
+        data_pre = self[list(self.nodes_original)]
+        for k, v in data_pre.copy().items():
+            if k not in no_pre:
+                data_pre[k + "__pre"] = data_pre.pop(k)
+        co2a = CO2System(
+            graph=graph_adj,
+            defaults=self.defaults,
+            shortcuts=self.shortcuts,
+            icase=self.icase,
+            opts=self.opts,
+            pd_index=self.pd_index,
+            xr_dims=self.xr_dims,
+            xr_shape=self.xr_shape,
+        ).set_data(**data_pre, **kwargs_adjust)
+        # Parameters that have already been solved for in the original system
+        # are copied across, so that they don't need solving for again.
+        for k, v in self.data.items():
+            if k not in co2a:
+                if k in no_pre:
+                    co2a.data[k] = v
+                else:
+                    co2a.data[k + "__pre"] = v
+        # Uncertainties that were assigned in the original system are copied
+        # across.
+        uncertainty_pre = {}
+        for k, v in self.uncertainty.assigned.items():
+            if k in no_pre:
+                uncertainty_pre[k] = v
+            else:
+                uncertainty_pre[k + "__pre"] = v
+        co2a.set_uncertainty(**uncertainty_pre)
+        # Final housekeeping: the new CO2System will usually get its icase
+        # wrong, because it doesn't recognise parameters with keys ending
+        # "__pre".  So adjusted systems here get assigned whichever icase the
+        # original system had.  This doesn't affect any calculations, but it
+        # does affect __str__ and __repr__.
+        # TODO make ^ actually affect __str__ and __repr__
+        co2a.solve(self.requested)
+        return co2a
 
 
+def sys(data=None, **kwargs):
+    # Check for double precision
+    if np.array(1.0).dtype == np.dtype("float32"):
+        warn(
+            "JAX does not appear to be using double precision - "
+            + "set the environment variable `JAX_ENABLE_X64=True`"
+        )
+    # Merge data with kwargs
+    pd_index = None
+    xr_dims = None
+    xr_shape = None
+    data_is_dict = isinstance(data, dict)
+    keys_ignored = []
+    kwargs_data = {}
+    if data is not None:
+        # First, check for string kwargs, which indicate keys in data that need
+        # renaming
+        renamer_user = {}
+        for k, v in kwargs.items():
+            if isinstance(v, str):
+                if v in renamer_user:
+                    # Can't repeat keys e.g. `data=df, dic="var", pH="var"`
+                    raise Exception(
+                        f'"{v}" cannot be used for {k} because'
+                        + f" it is already being used for {renamer_user[v]}"
+                    )
+                else:
+                    renamer_user[v] = shortcuts[k.lower()]
+        # Next, go through keys of data and get shortcuts or renames for them
+        renamer_data = {}
+        for k in data:
+            if k in renamer_user:
+                renamer_data[k] = renamer_user[k]
+            elif k in shortcuts:
+                renamer_data[k] = shortcuts[k.lower()]
+            else:
+                keys_ignored.append(k)
+        # Check for duplicates
+        renamer_values = []
+        for v in renamer_data.values():
+            if v in renamer_values:
+                raise SyntaxError(
+                    f"`data` contains multiple keys corresponding to `{v}`, "
+                    + "possibly under different shortcuts"
+                )
+            else:
+                renamer_values.append(v)
+        # Rename keys if data is a dict
+        if data_is_dict:
+            for k, v in renamer_data.items():
+                kwargs_data[v] = data[k]
+        # If `data` isn't a dict, it might be a pandas df
+        else:
+            data_is_pandas = False
+            try:
+                import pandas as pd
+
+                data_is_pandas = isinstance(data, pd.DataFrame)
+                # If `data` is a pandas df, we need to rename string keys,
+                # convert Series to numpy arrays, and save the df index
+                if data_is_pandas:
+                    pd_index = data.index.copy()
+                    for c in data.columns:
+                        if c in renamer_data:
+                            kwargs_data[renamer_data[c]] = data[c].to_numpy()
+            except ImportError:
+                warn("pandas could not be imported - ignoring `data`.")
+            data_is_xarray = False
+            if not data_is_pandas:
+                try:
+                    import xarray as xr
+
+                    data_is_xarray = isinstance(data, xr.Dataset)
+                    # If `data` is an xarray ds, we need to rename string keys,
+                    # convert DataArrays to numpy arrays, and store all the
+                    # dimensions
+                    if data_is_xarray:
+                        xr_dims = list(data.sizes.keys())
+                        xr_shape = list(data.sizes.values())
+                        for k, v in data.items():
+                            if k in renamer_data:
+                                kwargs_data[renamer_data[k]] = da_to_array(
+                                    v, xr_dims
+                                )
+                except ImportError:
+                    warn("xarray could not be imported - ignoring `data`.")
+                if not data_is_xarray:
+                    # If we reach this point, `data` is neither dict nor
+                    # pandas df nor xarray ds, so it's ignored
+                    warn("Type of `data` not recognised - it will be ignored.")
+                    keys_ignored.append("data")
+    # Check there aren't any duplicate kwargs with different aliases, and drop
+    # any kwargs that are strings (used to identify `data` columns)
+    kwargs_nodups = {}
+    for k, v in kwargs.items():
+        try:
+            skl = shortcuts[k]
+            if skl in kwargs_nodups:
+                raise SyntaxError(
+                    f"Repeated kwarg, possibly under a different shortcut: {k}"
+                )
+            elif not isinstance(v, str):
+                kwargs_nodups[skl] = v
+                if skl in kwargs_data:
+                    warn(
+                        f"{skl} found in both `data` and `kwargs`, possibly "
+                        + "under different shortcuts - using the `kwargs` "
+                        + "value"
+                    )
+        except KeyError:
+            keys_ignored.append(k)
+    # Merge data and user kwargs
+    kwargs_data.update(kwargs_nodups)
+    # Parse kwargs
+    for k, v in kwargs_data.copy().items():
+        # Convert lists to numpy arrays
+        if isinstance(kwargs_data[k], list):
+            kwargs_data[k] = np.array(kwargs_data[k])
+        # Convert None to np.nan
+        if kwargs_data[k] is None:
+            kwargs_data[k] = np.nan
+        # If an opts is not scalar, take only the first value
+        if k in opts_default:
+            if np.isscalar(kwargs_data[k]):
+                try:
+                    kwargs_data[k] = kwargs_data[k].item()
+                except (AttributeError, ValueError):
+                    pass
+            else:
+                kwargs_data[k] = np.ravel(np.array(kwargs_data[k]))[0].item()
+                warn(
+                    f"`{k}` is not scalar; only the first value will be used."
+                )
+            if isinstance(kwargs_data[k], float):
+                kwargs_data[k] = int(kwargs_data[k])
+        # For non-opts
+        else:
+            # Downgrade pd.Series and xr.DataArray to numpy arrays without
+            # importing pandas or xarray---but the user should avoid doing this
+            # because it doesn't take care of indices properly
+            try:
+                _ = kwargs_data[k].values
+                raise Exception(
+                    f"`{k}` provided as a `pd.Series` or `xr.DataArray`, "
+                    + "which is not allowed."
+                )
+            except AttributeError:
+                pass
+            # Convert ints to floats
+            if isinstance(kwargs_data[k], int):
+                kwargs_data[k] = float(kwargs_data[k])
+            elif hasattr(kwargs_data[k], "dtype"):
+                try:
+                    kwargs_data[k] = kwargs_data[k].astype(float)
+                except ValueError:
+                    pass
+            # Turn not-allowed negatives to NaN
+            if (
+                k not in ["alkalinity", "pH", "temperature"]
+                and not k.startswith("pH_")
+                and not k.startswith("pk_")
+                and not k.startswith("pkt_")
+            ):
+                kwargs_data[k] = np.where(
+                    kwargs_data[k] < 0, np.nan, kwargs_data[k]
+                )
+
+    # The below will be def sys(**kwargs)
+    opts = {k: v for k, v in kwargs_data.items() if k in opts_default}
+    opts = opts_default | opts
+    data = {
+        shortcuts[k]: v
+        for k, v in kwargs_data.items()
+        if k not in opts_default
+    }
+    # Get icase
+    core_known = np.array([v in data for v in parameters_core])
+    icase_all = np.arange(1, len(parameters_core) + 1)
+    icase = icase_all[core_known]
+    if len(icase) > 2:
+        raise Exception(
+            "A maximum of 2 known core parameters can be provided."
+        )
+    if len(icase) == 0:
+        icase = np.array(0)
+    elif len(icase) == 2:
+        icase = icase[0] * 100 + icase[1]
+    icase = icase.item()
+    # Assemble relevant functions
+    funcs = get_funcs | get_funcs_core[icase]
+    for opt, v in opts.items():
+        # opt_HCO3_root is available only for icase == 207 (known DIC & HCO3)
+        if not (opt == "opt_HCO3_root" and icase != 207):
+            funcs.update(get_funcs_opts[opt][v])
+    # If pH is not accessible, we can't calculate it on different scales
+    if icase < 100 and icase not in [3]:
+        pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
+        for v in pH_vars:
+            if v in funcs:
+                funcs.pop(v)
+    co2s = CO2System(
+        funcs=funcs,
+        shortcuts=shortcuts,
+        defaults=values_default,
+        icase=icase,
+        opts=opts,
+        pd_index=pd_index,
+        xr_dims=xr_dims,
+        xr_shape=xr_shape,
+    ).set_data(**data)
+    return co2s
+
+
+# temp testing
+data = None
 kwargs = dict(
     dic=2300,
-    ta=2400,
-    # ph=8.1,
+    # ta=2400,
+    ph=8.1,
     p=10,
     t=12,
     s=35,
     opt_k_carbonic=19,
 )
-shortcuts = ShortcutsDict(**shortcuts)
-# The below will be def sys(**kwargs)
-opts = {k: v for k, v in kwargs.items() if k in opts_default}
-opts = opts_default | opts
-data = {shortcuts[k]: v for k, v in kwargs.items() if k not in opts_default}
-# Get icase
-core_known = np.array([v in data for v in parameters_core])
-icase_all = np.arange(1, len(parameters_core) + 1)
-icase = icase_all[core_known]
-if len(icase) > 2:
-    raise Exception("A maximum of 2 known core parameters can be provided.")
-if len(icase) == 0:
-    icase = np.array(0)
-elif len(icase) == 2:
-    icase = icase[0] * 100 + icase[1]
-icase = icase.item()
-# Assemble relevant functions
-funcs = get_funcs | get_funcs_core[icase]
-for opt, v in opts.items():
-    # opt_HCO3_root is available only for icase == 207 (known DIC & HCO3)
-    if not (opt == "opt_HCO3_root" and icase != 207):
-        funcs.update(get_funcs_opts[opt][v])
-# If pH is not accessible, we can't calculate it on different scales
-if icase < 100 and icase not in [3]:
-    pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
-    for v in pH_vars:
-        if v in funcs:
-            funcs.pop(v)
-co2s = CO2System(
-    funcs=funcs,
-    shortcuts=shortcuts,
-    defaults=values_default,
-    icase=icase,
-    opts=opts,
-)
-co2s.set_data(**data)
+co2s = sys(data=data, **kwargs)
 plot_graph(co2s)
+co2a = co2s._adjust_2p(temperature=22)
+plot_graph(co2a)
+# TODO next (18 April): move across the _adjust_1p and adjust functions from
+# engine_new!  _adjust_2p seems to be working already!
