@@ -189,7 +189,7 @@ class FunctionGraph(UserDict):
         if len(ignored) > 0:
             print(
                 "Some parameters were not recognised or not valid for this"
-                + " combination of known carbonate system parameters and are"
+                + " combination of known parameters and are"
                 + " being ignored (see `ignored` attribute)"
             )
         self.ignored |= set(ignored)

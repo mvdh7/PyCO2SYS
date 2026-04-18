@@ -1098,9 +1098,10 @@ exclude_on_store_steps_1 = [
     "tot_to_sws_1atm",
 ]
 
-# Define shortcuts, which must all be lowercase
-shortcuts = {k.lower(): k for k in set_node_labels}
-shortcuts.update({k.lower(): k for k in opts_default})
+# Define shortcuts, the keys for which must all be lowercase
+# TODO turn this into a ShortcutsDict
+shortcuts = {k.lower(): k for k in set_node_labels if k.lower() != k}
+shortcuts.update({k.lower(): k for k in opts_default if k.lower() != k})
 shortcuts.update(
     {
         "tco2": "dic",
@@ -1144,8 +1145,8 @@ shortcuts.update(
         "q": "Q_isocap",
     }
 )
-# This needs to be the penultimate step of constructing `shortcuts`:
-#   append __pre to all shortcuts that need it and don't yet have it
+# This needs to be the final step of constructing `shortcuts`:
+# append "__pre" to all shortcuts that need it and don't yet have it
 for k, v in shortcuts.copy().items():
     if (
         not k.endswith("__pre")
@@ -1153,11 +1154,6 @@ for k, v in shortcuts.copy().items():
         and k not in condition_independent
     ):
         shortcuts[k + "__pre"] = v + "__pre"
-# This needs to be the very final step of constructing `shortcuts`:
-#   append __f to all shortcuts
-for k, v in shortcuts.copy().items():
-    if not k.endswith("__f"):
-        shortcuts[k + "__f"] = v + "__f"
 
 
 def _remove_jax_overhead(d):
@@ -2776,7 +2772,7 @@ def sys(data=None, **kwargs):
 
     pH scale
     --------
-    opt_pH_scale: pH scale of `pH` (if provided), also used for calculating
+    opt_pH_scale: pH scale of `pH` (if provided); also used for calculating
     equilibrium constants.
         1: total [DEFAULT].
         2: seawater.
@@ -2805,6 +2801,7 @@ def sys(data=None, **kwargs):
         16: SLH20.
         17: SB21.
         18: PLR18.
+        19: MMB25.
     opt_factor_k_H2CO3: pressure correction for the first carbonic acid
     dissociation constant (K1).
         1: M95 [DEFAULT].
