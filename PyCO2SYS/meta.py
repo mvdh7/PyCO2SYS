@@ -1,11 +1,12 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
 from functools import wraps
 
 import jax
 from jax import numpy as np
+
 
 version = "2.0.0-b5"
 version_xyz = "2.0.0-b5"

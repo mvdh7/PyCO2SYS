@@ -3,7 +3,7 @@ import numpy as np
 from numpy.random import default_rng
 from scipy import stats
 
-from tests.function_graph import FunctionGraph
+from PyCO2SYS.function_graph import FunctionGraph
 
 
 funcs = {

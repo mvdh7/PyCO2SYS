@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """
 PyCO2SYS.equilibria.pcx
 =======================
@@ -158,7 +158,9 @@ def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
     """
     Pbar = convert.decibar_to_bar(pressure)
     TempK = convert.celsius_to_kelvin(temperature)
-    return np.exp((-deltaV + 0.5 * kappa * Pbar) * Pbar / (gas_constant * TempK))
+    return np.exp(
+        (-deltaV + 0.5 * kappa * Pbar) * Pbar / (gas_constant * TempK)
+    )
 
 
 def factor_k_H2S(temperature, pressure, gas_constant):
@@ -558,7 +560,9 @@ def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
     # standard deltaV & kappa form of pressure_factor.
     Pbar = convert.decibar_to_bar(pressure)
     return np.exp(
-        (24.2 - 0.085 * temperature) * Pbar / (gas_constant * (temperature + 273.15))
+        (24.2 - 0.085 * temperature)
+        * Pbar
+        / (gas_constant * (temperature + 273.15))
     )
 
 
@@ -647,7 +651,9 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     # standard deltaV & Kappa form of pressure_factor.
     Pbar = convert.decibar_to_bar(pressure)
     return np.exp(
-        (16.4 - 0.04 * temperature) * Pbar / (gas_constant * (temperature + 273.15))
+        (16.4 - 0.04 * temperature)
+        * Pbar
+        / (gas_constant * (temperature + 273.15))
     )
 
 

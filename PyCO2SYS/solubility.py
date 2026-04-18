@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate saturation states of soluble solids."""
 
 from jax import numpy as np
@@ -23,15 +23,19 @@ def pk_calcite_M83(temperature, salinity, pressure, gas_constant):
     Pbar = convert.decibar_to_bar(pressure)
     logKCa = -171.9065 - 0.077993 * TempK + 2839.319 / TempK
     logKCa = logKCa + 71.595 * np.log10(TempK)
-    logKCa = logKCa + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * np.sqrt(
-        salinity
+    logKCa = logKCa + (
+        -0.77712 + 0.0028426 * TempK + 178.34 / TempK
+    ) * np.sqrt(salinity)
+    logKCa = (
+        logKCa - 0.07711 * salinity + 0.0041249 * np.sqrt(salinity) * salinity
     )
-    logKCa = logKCa - 0.07711 * salinity + 0.0041249 * np.sqrt(salinity) * salinity
     # sd fit = .01 (for salinity part, not part independent of salinity)
     KCa = 10.0**logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(temperature)
-    lnKCafac = (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (gas_constant * TempK)
+    lnKCafac = (
+        (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (gas_constant * TempK)
+    )
     KCa = KCa * np.exp(lnKCafac)
     return -np.log10(KCa)
 
@@ -42,10 +46,12 @@ def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
     Pbar = convert.decibar_to_bar(pressure)
     logKAr = -171.945 - 0.077993 * TempK + 2903.293 / TempK
     logKAr = logKAr + 71.595 * np.log10(TempK)
-    logKAr = logKAr + (-0.068393 + 0.0017276 * TempK + 88.135 / TempK) * np.sqrt(
-        salinity
+    logKAr = logKAr + (
+        -0.068393 + 0.0017276 * TempK + 88.135 / TempK
+    ) * np.sqrt(salinity)
+    logKAr = (
+        logKAr - 0.10018 * salinity + 0.0059415 * np.sqrt(salinity) * salinity
     )
-    logKAr = logKAr - 0.10018 * salinity + 0.0059415 * np.sqrt(salinity) * salinity
     # sd fit = .009 (for salinity part, not part independent of salinity)
     KAr = 10.0**logKAr  # this is in (mol/kg-SW)^2
     # Add pressure correction for aragonite [M79]:
@@ -54,7 +60,9 @@ def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
     #   and 10^3 for Kappa factor)
     deltaVKAr = deltaVKCa + 2.8
     KappaKAr = KappaKCa
-    lnKArfac = (-deltaVKAr + 0.5 * KappaKAr * Pbar) * Pbar / (gas_constant * TempK)
+    lnKArfac = (
+        (-deltaVKAr + 0.5 * KappaKAr * Pbar) * Pbar / (gas_constant * TempK)
+    )
     KAr = KAr * np.exp(lnKArfac)
     return -np.log10(KAr)
 
@@ -97,7 +105,9 @@ def pk_calcite_I75(temperature, salinity, pressure, gas_constant):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     # ==============================
-    KCa = 10**-pKCa * np.exp((36 - 0.2 * temperature) * Pbar / (gas_constant * TempK))
+    KCa = 10**-pKCa * np.exp(
+        (36 - 0.2 * temperature) * Pbar / (gas_constant * TempK)
+    )
     return -np.log10(KCa)
 
 
@@ -122,7 +132,9 @@ def pk_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     # but their paper is not even on this topic).
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
-    KAr = KAr * np.exp((33.3 - 0.22 * temperature) * Pbar / (gas_constant * TempK))
+    KAr = KAr * np.exp(
+        (33.3 - 0.22 * temperature) * Pbar / (gas_constant * TempK)
+    )
     return -np.log10(KAr)
 
 
@@ -186,7 +198,12 @@ def _get_Cp_Mg_calcite(Mg_fraction):
 def _get_pkt_calcite_1atm_PB82(temperature):
     TempK = convert.celsius_to_kelvin(temperature)
     # temperature dependence of K_calcite according to PB82
-    return -(-171.9065 - 0.077993 * TempK + 2839.319 / TempK + 71.595 * np.log10(TempK))
+    return -(
+        -171.9065
+        - 0.077993 * TempK
+        + 2839.319 / TempK
+        + 71.595 * np.log10(TempK)
+    )
 
 
 def _get_pkt_magnesite_1atm_B11(temperature):
@@ -224,7 +241,9 @@ def get_pkt_Mg_calcite_1atm_vantHoff(
     return -np.log10(kt_Mg_calcite_1atm)
 
 
-def get_pkt_Mg_calcite_1atm_idealmix(temperature, pkt_Mg_calcite_25C_1atm, Mg_fraction):
+def get_pkt_Mg_calcite_1atm_idealmix(
+    temperature, pkt_Mg_calcite_25C_1atm, Mg_fraction
+):
     # uses temperature dependence of logK(calcite) from PB82
     # uses temperature dependence of logK(magnesite) from B11
     # assumes ideal solid solution
@@ -232,7 +251,8 @@ def get_pkt_Mg_calcite_1atm_idealmix(temperature, pkt_Mg_calcite_25C_1atm, Mg_fr
         25, Mg_fraction
     )
     pkt_Mg_calcite_1atm = (
-        _get_pkt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction) + delta
+        _get_pkt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction)
+        + delta
     )
     return pkt_Mg_calcite_1atm
 
@@ -323,7 +343,9 @@ def get_activity_coefficient_CO3(salinity, temperature):
     return _get_activity_coefficient(salinity, temperature, acf_params_CO3)
 
 
-def get_pk_Mg_calcite_1atm(acf_Ca, acf_Mg, acf_CO3, Mg_fraction, pkt_Mg_calcite_1atm):
+def get_pk_Mg_calcite_1atm(
+    acf_Ca, acf_Mg, acf_CO3, Mg_fraction, pkt_Mg_calcite_1atm
+):
     # calculate stoichiometric K*
     k_Mg_calcite_1atm = 10**-pkt_Mg_calcite_1atm / (
         acf_Ca ** (1 - Mg_fraction) * acf_Mg**Mg_fraction * acf_CO3
@@ -355,5 +377,7 @@ def get_pk_Mg_calcite(
 
 def OMgCaCO3_from_CO3(Ca, Mg, CO3, Mg_fraction, pk_Mg_calcite):
     return (
-        1e-12 * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction) / 10**-pk_Mg_calcite
+        1e-12
+        * (CO3 * Ca ** (1 - Mg_fraction) * Mg**Mg_fraction)
+        / 10**-pk_Mg_calcite
     )

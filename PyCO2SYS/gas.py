@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """
 PyCO2SYS.gas
 ============
@@ -48,7 +48,12 @@ def fugacity_factor(
     pressure_bar = convert.decibar_to_bar(pressure)
     RT = gas_constant * TempK
     Delta = 57.7 - 0.118 * TempK
-    b = -1636.75 + 12.0408 * TempK - 0.0327957 * TempK**2 + 3.16528 * 0.00001 * TempK**3
+    b = (
+        -1636.75
+        + 12.0408 * TempK
+        - 0.0327957 * TempK**2
+        + 3.16528 * 0.00001 * TempK**3
+    )
     # # For a mixture of CO2 and air at 1 atm (at low CO2 concentrations):
     # P1atm = 1.01325  # in bar
     p_bar = pressure_atmosphere * 1.01325  # convert atm to bar
@@ -93,7 +98,9 @@ def vpfactor(temperature, salinity, pressure_atmosphere):
     #       This is in atmospheres.
     tempK = convert.celsius_to_kelvin(temperature)
     # WP80 eq. (10)
-    VPWP = np.exp(24.4543 - 67.4509 * (100 / tempK) - 4.8489 * np.log(tempK / 100))
+    VPWP = np.exp(
+        24.4543 - 67.4509 * (100 / tempK) - 4.8489 * np.log(tempK / 100)
+    )
     VPCorrWP = np.exp(-0.000544 * salinity)
     VPSWWP = VPWP * VPCorrWP
     VPFac = pressure_atmosphere - VPSWWP

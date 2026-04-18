@@ -156,7 +156,9 @@ def get_H3PO4(total_phosphate, H, pk_H3PO4, pk_H2PO4, pk_HPO4):
     KP2 = 10**-pk_H2PO4
     KP3 = 10**-pk_HPO4
     return (
-        total_phosphate * H**3 / (H**3 + KP1 * H**2 + KP1 * KP2 * H + KP1 * KP2 * KP3)
+        total_phosphate
+        * H**3
+        / (H**3 + KP1 * H**2 + KP1 * KP2 * H + KP1 * KP2 * KP3)
     )
 
 
@@ -315,7 +317,9 @@ def get_SO4(total_sulfate, H_free, pk_HSO4_free):
         [SO₄²⁻] in µmol/kg-sw.
     """
     H_free_molkg = H_free * 1e-6
-    return total_sulfate * 10**-pk_HSO4_free / (H_free_molkg + 10**-pk_HSO4_free)
+    return (
+        total_sulfate * 10**-pk_HSO4_free / (H_free_molkg + 10**-pk_HSO4_free)
+    )
 
 
 def get_HF(total_fluoride, H_free, pk_HF_free):

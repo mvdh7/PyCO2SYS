@@ -1,8 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define standard uncertainties for propagation."""
-
-from collections import UserDict
 
 # Define default uncertainties in pK values following OEDG18
 pKs_OEDG18 = {

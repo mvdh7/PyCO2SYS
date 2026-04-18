@@ -1,8 +1,9 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 from jax import numpy as np
 
 from . import constants
+
 
 bh_TOG93_H24 = 28995  # J / mol
 bh_enthalpy_H24 = 25288  # J / mol
@@ -26,7 +27,9 @@ def inverse(temperature, gas_constant, bh):
     -------
         υ in % / °C.
     """
-    return 100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
+    return (
+        100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
+    )
 
 
 def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
@@ -48,7 +51,10 @@ def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
         The adjustment factor exp(Υ).
     """
     return np.exp(
-        (1 / (temperature__pre + constants.Tzero) - 1 / (temperature + constants.Tzero))
+        (
+            1 / (temperature__pre + constants.Tzero)
+            - 1 / (temperature + constants.Tzero)
+        )
         * bh
         / (gas_constant * 0.1)
     )
@@ -234,7 +240,9 @@ def expUps_enthalpy_H24(temperature__pre, temperature, gas_constant):
     array-like
         The adjustment factor exp(Υ).
     """
-    return expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh_enthalpy_H24)
+    return expUps_Hoff_H24(
+        temperature__pre, temperature, gas_constant, bh_enthalpy_H24
+    )
 
 
 def ups_TOG93_H24(temperature, gas_constant):
@@ -271,7 +279,9 @@ def expUps_TOG93_H24(temperature__pre, temperature, gas_constant):
     array-like
         The adjustment factor exp(Υ).
     """
-    return expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh_TOG93_H24)
+    return expUps_Hoff_H24(
+        temperature__pre, temperature, gas_constant, bh_TOG93_H24
+    )
 
 
 def ups_linear_TOG93():

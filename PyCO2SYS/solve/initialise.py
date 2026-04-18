@@ -82,7 +82,9 @@ def _goodH0_fCO2(CBAlk, CO2, total_borate, pk_H2CO3, pk_HCO3, pk_BOH3):
     return H0
 
 
-def from_fCO2(alkalinity, fCO2, total_borate, pk_CO2, pk_H2CO3, pk_HCO3, pk_BOH3):
+def from_fCO2(
+    alkalinity, fCO2, total_borate, pk_CO2, pk_H2CO3, pk_HCO3, pk_BOH3
+):
     """Find initial value for TA-pH solver with fCO2 as the second variable.
 
     Inspired by M13, section 3.2.2.
