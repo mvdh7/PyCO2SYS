@@ -82,7 +82,9 @@ class FunctionGraph(UserDict):
                 raise Exception("Either `graph` or `funcs` must be provided")
             self.graph = self.get_graph(funcs)
         if defaults is not None:
-            self.defaults = defaults.copy()
+            self.defaults = {
+                k: v for k, v in defaults.items() if k in self.graph.nodes
+            }
         else:
             self.defaults = {
                 n: None
