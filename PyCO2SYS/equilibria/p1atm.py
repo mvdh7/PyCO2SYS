@@ -154,8 +154,16 @@ from .. import convert
 from ..meta import valid
 
 
+def coeffs_pk_CO2_W74():
+    # The sixth coefficient is temporary, to allow ±pK uncertainties to be set
+    # until we know the full uncertainty matrix
+    return np.array(
+        [-60.2409, 93.4517, 23.3585, 0.023517, -0.023656, 0.0047036, 1.0]
+    )
+
+
 @valid(temperature=[-1, 40], salinity=[0, 40])
-def pk_CO2_W74(temperature, salinity):
+def pk_CO2_W74(coeffs_pk_CO2, temperature, salinity):
     """Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
 
     Parameters
@@ -173,14 +181,15 @@ def pk_CO2_W74(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Weiss, R. F., Marine Chemistry 2:203-215, 1974.
     # This is in mol/kg-SW/atm.
+    cf = coeffs_pk_CO2
     TempK100 = (temperature + 273.15) / 100
     lnK0 = (
-        -60.2409
-        + 93.4517 / TempK100
-        + 23.3585 * np.log(TempK100)
-        + salinity * (0.023517 - 0.023656 * TempK100 + 0.0047036 * TempK100**2)
+        cf[0]
+        + cf[1] / TempK100
+        + cf[2] * np.log(TempK100)
+        + salinity * (cf[3] + cf[4] * TempK100 + cf[5] * TempK100**2)
     )
-    return -lnK0 / np.log(10)
+    return cf[6] - lnK0 / np.log(10)
 
 
 @valid(
@@ -382,7 +391,8 @@ def pk_HF_free_PF87(temperature, salinity):
 
 @valid(temperature=[0, 45], salinity=[5, 45])
 def pk_BOH3_total_D90b(temperature, salinity):
-    """Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
+    """Boric acid dissociation constant following D90b.  Used when
+    opt_k_BOH3 = 1.
 
     Parameters
     ----------
@@ -421,7 +431,8 @@ def pk_BOH3_total_D90b(temperature, salinity):
 
 @valid(temperature=[0, 25], salinity=[29, 38])
 def pk_BOH3_nbs_LTB69(temperature, salinity):
-    """Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
+    """Boric acid dissociation constant following LTB69.  Used when
+    opt_k_BOH3 = 2.
 
     Parameters
     ----------
@@ -1862,7 +1873,11 @@ def pk_HCO3_total_MMB25(temperature, salinity):
     return pK2
 
 
-def pk_H2S_total_YM95(temperature, salinity):
+def coeffs_pk_H2S_total_YM95():
+    return np.array([225.838, -13275.3, -34.6435, 0.3449, -0.0274, 1.0])
+
+
+def pk_H2S_total_YM95(coeffs_pk_H2S, temperature, salinity):
     """Hydrogen sulfide dissociation constant on the total scale following YM95.
 
     Parameters
@@ -1884,15 +1899,16 @@ def pk_H2S_total_YM95(temperature, salinity):
     # they agree with Millero 1988 which are on Total Scale.
     # Also, calculations agree at high H2S with AquaEnv when assuming it is on
     # Total Scale.
+    cf = coeffs_pk_H2S
     TempK = convert.celsius_to_kelvin(temperature)
     lnkH2S = (
-        225.838
-        - 13275.3 / TempK
-        - 34.6435 * np.log(TempK)
-        + 0.3449 * np.sqrt(salinity)
-        - 0.0274 * salinity
+        cf[0]
+        + cf[1] / TempK
+        + cf[2] * np.log(TempK)
+        + cf[3] * np.sqrt(salinity)
+        + cf[4] * salinity
     )
-    return -lnkH2S / np.log(10)
+    return cf[5] - lnkH2S / np.log(10)
 
 
 def pk_NH3_sws_YM95(temperature, salinity):

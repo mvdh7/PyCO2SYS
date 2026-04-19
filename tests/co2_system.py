@@ -769,6 +769,8 @@ values_default = {
     "total_silicate": 0.0,  # µmol/kg-sw
     "total_sulfide": 0.0,  # µmol/kg-sw
     "total_nitrite": 0.0,  # µmol/kg-sw
+    "coeffs_pk_CO2": equilibria.p1atm.coeffs_pk_CO2_W74(),
+    "coeffs_pk_H2S": equilibria.p1atm.coeffs_pk_H2S_total_YM95(),
 }
 
 opts_default = {
@@ -998,6 +1000,8 @@ set_node_labels = {
     "d_dic__d_pH__fCO2": "d_dic__d_pH__fCO2",
     "d_fCO2__d_pH__alkalinity": "d_fCO2__d_pH__alkalinity",
     "d_fCO2__d_pH__dic": "d_fCO2__d_pH__dic",
+    "coeffs_pk_CO2": "coeffs_pk_CO2",
+    "coeffs_pk_H2S": "coeffs_pk_H2S",
 }
 set_node_labels.update(
     {
@@ -2324,3 +2328,18 @@ plot_graph(co2a)
 
 co2f = sys(fco2=400)
 co2g = co2f._adjust_1p(temperature=26)
+
+# TODO next (19 April): how to handle coeffs in the pk_CO2_W74 example?
+# As a function, or as a default value?  Probably the latter!
+# Then the defaults would need to be responsive to opts.
+# Alternatively, could include a new FunctionGraph attribute to store coeffs.
+# But this might be making things unnecessarily complicated - better to reuse?
+# When testing the FunctionGraph originally, I put coeffs into defaults.
+# NOTE since comment above, coeffs is implemented as defaults for pk_CO2_W74,
+# which seems to work!  Still need to handle being responsive to opts though.
+# Could make a function in p1atm that contains the coeffs and call that to get
+# the values_default?  Then it keeps things together.
+# NOTE yes! this is the way.  And just add it in like I have for pk_CO2_W74
+# until the uncertainty matrices are actually known?
+# TODO also applied to YM H2S - need to figure out if the last term should be
+# + or *...
