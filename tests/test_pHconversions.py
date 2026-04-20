@@ -13,8 +13,12 @@ pH_T_i = rng.normal(size=npts, loc=8, scale=1)
 # Set and get total molinities
 temperature = 22.3
 salinity = 31.0
-total_sulfate = pyco2.salts.total_sulfate_MR66(salinity)
-total_fluoride = pyco2.salts.total_fluoride_R65(salinity)
+total_sulfate = pyco2.salts.total_sulfate_MR66(
+    pyco2.salts.coeffs_total_sulfate_MR66(), salinity
+)
+total_fluoride = pyco2.salts.total_fluoride_R65(
+    pyco2.salts.coeffs_total_fluoride_R65(), salinity
+)
 pk_HF_free = eq.pk_HF_free_PF87(
     eq.coeffs_pk_HF_free_PF87(), temperature, salinity
 )

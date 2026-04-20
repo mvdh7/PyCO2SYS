@@ -169,7 +169,11 @@ def total_borate_C65(coeffs_total_borate, salinity):
     return cf[0] + cf[1] * salinity / 35
 
 
-def total_fluoride_R65(salinity):
+def coeffs_total_fluoride_R65():
+    return np.array([0.0, 1e6 * 0.000067 / (18.998 * 1.80655)])
+
+
+def total_fluoride_R65(coeffs_total_fluoride, salinity):
     """Total fluoride in µmol/kg-sw following R65.
 
     Parameters
@@ -185,10 +189,15 @@ def total_fluoride_R65(salinity):
     # === CO2SYS.m comments: =======
     # Riley, J. P., Deep-Sea Research 12:219-220, 1965:
     # this is .000068*Sali/35. = .00000195*Sali; in mol/kg-SW.
-    return 1e6 * (0.000067 / 18.998) * salinity / 1.80655
+    cf = coeffs_total_fluoride
+    return cf[0] + cf[1] * salinity
 
 
-def total_sulfate_MR66(salinity):
+def coeffs_total_sulfate_MR66():
+    return np.array([0.0, 1e6 * 0.14 / (96.062 * 1.80655)])
+
+
+def total_sulfate_MR66(coeffs_total_sulfate, salinity):
     """Total sulfate in µmol/kg-sw following MR66.
 
     Parameters
@@ -204,10 +213,15 @@ def total_sulfate_MR66(salinity):
     # === CO2SYS.m comments: =======
     # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
     # this is .02824*Sali/35. = .0008067*Sali; in mol/kg-SW.
-    return 1e6 * (0.14 / 96.062) * salinity / 1.80655
+    cf = coeffs_total_sulfate
+    return cf[0] + cf[1] * salinity
 
 
-def Ca_RT67(salinity):
+def coeffs_Ca_RT67():
+    return np.array([0.0, 1e6 * 0.02128 / (40.087 * 1.80655)])
+
+
+def Ca_RT67(coeffs_Ca, salinity):
     """Calcium in µmol/kg-sw following RT67.  Used when opt_Ca = 1.
 
     Parameters
@@ -222,10 +236,15 @@ def Ca_RT67(salinity):
     """
     # === CO2SYS.m comments: =======
     # This is .010285*Sal/35
-    return 1e6 * 0.02128 / 40.087 * salinity / 1.80655
+    cf = coeffs_Ca
+    return cf[0] + cf[1] * salinity
 
 
-def Ca_C65(salinity):
+def coeffs_Ca_C65():
+    return np.array([0.0, 0.01026e6])
+
+
+def Ca_C65(coeffs_Ca, salinity):
     """Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 
     Parameters
@@ -244,10 +263,15 @@ def Ca_C65(salinity):
     # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
     # Culkin gives Ca = (.0213/40.078)*(Sal/1.80655) in mol/kg-SW
     # which corresponds to Ca = .01030*Sal/35.
-    return 1e6 * 0.01026 * salinity / 35
+    cf = coeffs_Ca
+    return cf[0] + cf[1] * salinity / 35
 
 
-def Mg_reference_composition(salinity):
+def coeffs_Mg_reference_composition():
+    return np.array([0.0, 0.0547421e6])
+
+
+def Mg_reference_composition(coeffs_Mg, salinity):
     """Magnesium in µmol/kg-sw following the reference composition (MFWM08).
 
     Parameters
@@ -260,4 +284,5 @@ def Mg_reference_composition(salinity):
     float
         Magnesium in µmol/kg-sw following the reference composition.
     """
-    return 1e6 * 0.0547421 * salinity / 35
+    cf = coeffs_Mg
+    return cf[0] + cf[1] * salinity / 35

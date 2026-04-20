@@ -630,6 +630,18 @@ get_funcs_opts["opt_k_phosphate"] = {
         ),
     ),
 }
+get_coeffs_opts["opt_k_phosphate"] = {
+    1: dict(
+        coeffs_pk_H3PO4=equilibria.p1atm.coeffs_pk_H3PO4_sws_YM95(),
+        coeffs_pk_H2PO4=equilibria.p1atm.coeffs_pk_H2PO4_sws_YM95(),
+        coeffs_pk_HPO4=equilibria.p1atm.coeffs_pk_HPO4_sws_YM95(),
+    ),
+    2: dict(
+        coeffs_pk_H3PO4=equilibria.p1atm.coeffs_pk_H3PO4_sws_KP67(),
+        coeffs_pk_H2PO4=equilibria.p1atm.coeffs_pk_H2PO4_nbs_KP67(),
+        coeffs_pk_HPO4=equilibria.p1atm.coeffs_pk_HPO4_nbs_KP67(),
+    ),
+}
 get_funcs_opts["opt_k_BOH3"] = {
     1: dict(
         pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_D90b,
@@ -785,6 +797,10 @@ get_funcs_opts["opt_Ca"] = {
     1: dict(Ca=salts.Ca_RT67),
     2: dict(Ca=salts.Ca_C65),
 }
+get_coeffs_opts["opt_Ca"] = {
+    1: dict(coeffs_Ca=salts.coeffs_Ca_RT67()),
+    2: dict(coeffs_Ca=salts.coeffs_Ca_C65()),
+}
 get_funcs_opts["opt_fugacity_factor"] = {
     1: dict(fugacity_factor=gas.fugacity_factor),
     2: dict(fugacity_factor=lambda: 1.0),  # for GEOSECS
@@ -899,6 +915,9 @@ values_default = {
     "total_nitrite": 0.0,  # µmol/kg-sw
     "coeffs_pk_CO2": equilibria.p1atm.coeffs_pk_CO2_W74(),
     "coeffs_pk_H2S": equilibria.p1atm.coeffs_pk_H2S_total_YM95(),
+    "coeffs_total_fluoride": salts.coeffs_total_fluoride_R65(),
+    "coeffs_total_sulfate": salts.coeffs_total_sulfate_MR66(),
+    "coeffs_Mg": salts.coeffs_Mg_reference_composition(),
 }
 
 opts_default = {
@@ -1139,7 +1158,16 @@ set_node_labels = {
     "coeffs_pk_HNO2": "coeffs_pk_HNO2",
     "coeffs_pk_H2CO3": "coeffs_pk_H2CO3",
     "coeffs_pk_HCO3": "coeffs_pk_HCO3",
+    "coeffs_pk_H3PO4": "coeffs_pk_H3PO4",
+    "coeffs_pk_H2PO4": "coeffs_pk_H2PO4",
+    "coeffs_pk_HPO4": "coeffs_pk_HPO4",
+    "coeffs_k_calcite": "coeffs_k_calcite",
+    "coeffs_k_aragonite": "coeffs_k_aragonite",
     "coeffs_total_borate": "coeffs_total_borate",
+    "coeffs_total_fluoride": "coeffs_total_fluoride",
+    "coeffs_total_sulfate": "coeffs_total_sulfate",
+    "coeffs_Mg": "coeffs_Mg",
+    "coeffs_Ca": "coeffs_Ca",
 }
 set_node_labels.update(
     {

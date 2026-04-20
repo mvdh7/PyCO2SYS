@@ -3,25 +3,33 @@
 """
 PyCO2SYS.equilibria.p1atm
 =========================
-Calculate stoichiometric equilibrium constants under standard atmospheric pressure.
+Calculate stoichiometric equilibrium constants under standard atmospheric
+pressure.
+
+Each function has a corresponding function with the same name prefixed by
+`coeffs_`, which returns the set of coefficients needed as the first argument
+for the pK function.
 
 Functions
 ---------
 pk_CO2_W74
     Henry's constant for CO2 solubility in mol/kg-sw/atm following W74.
 pk_BOH3_total_D90b
-    Boric acid dissociation constant following D90b.  Used when opt_k_BOH3 = 1.
+    Boric acid dissociation constant following D90b.
+    Used when opt_k_BOH3 = 1.
 pk_BOH3_nbs_LTB69
-    Boric acid dissociation constant following LTB69.  Used when opt_k_BOH3 = 2.
+    Boric acid dissociation constant following LTB69.
+    Used when opt_k_BOH3 = 2.
 pk_H2O_sws_M95
     Water dissociation constant on the seawater scale following M95.
     Used when opt_k_H2O = 1.
 pk_H2O_sws_M79
-    Water dissociation constant on the seawater scale following M79, for freshwater.
+    Water dissociation constant on the seawater scale following M79, for
+    freshwater.
     Used when opt_k_H2O = 2.
 pk_H2O_sws_HO58_M79
-    Water dissociation constant on the seawater scale following HO58 refit by M79,
-    for freshwater.  Used when opt_k_H2O = 3.
+    Water dissociation constant on the seawater scale following HO58 refit by
+    M79, for freshwater.  Used when opt_k_H2O = 3.
 pk_H2S_total_YM95
     Hydrogen sulfide dissociation constant on the total scale following YM95.
 pk_HF_free_DR79
@@ -34,10 +42,12 @@ pk_H3PO4_sws_YM95
     First phosphate dissociation constant on the seawater scale following YM95.
     Used when opt_k_phosphate = 1.
 pk_H2PO4_sws_YM95
-    Second phosphate dissociation constant on the seawater scale following YM95.
+    Second phosphate dissociation constant on the seawater scale following
+    YM95.
     Used when opt_k_phosphate = 1.
 pk_HPO4_sws_YM95
-    Third phosphate dissociation constant on the seawater scale following YM95.
+    Third phosphate dissociation constant on the seawater scale following
+    YM95.
     Used when opt_k_phosphate = 1.
 pk_H3PO4_sws_KP67
     First phosphate dissociation constant on the seawater scale following KP67.
@@ -49,14 +59,16 @@ pk_HPO4_nbs_KP67
     Third phosphate dissociation constant on the NBS scale following KP67.
     Used when opt_k_phosphate = 2.
 pk_HSO4_free_D90a
-    Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    D90a.
     Used when opt_k_HSO4 = 1.
 pk_HSO4_free_KRCB77
-    Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    KRCB77.
     Used when opt_k_HSO4 = 2.
 pk_HSO4_free_WM13
-    Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
-    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
+    Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    WM13, with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
 pk_Si_sws_YM95
     Silicate dissociation constant on the seawater scale following YM95.
     Used when opt_k_Si = 1.
@@ -80,11 +92,11 @@ pk_HCO3_sws_GP89
     Second carbonic acid dissociation constant following GP89.
     Used when opt_k_carbonic = 2.
 pk_H2CO3_sws_H73_DM87
-    First carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
+    First carbonic acid dissociation constant following DM87 refit of H73a and
+    H73b.  Used when opt_k_carbonic = 3.
 pk_HCO3_sws_H73_DM87
-    Second carbonic acid dissociation constant following DM87 refit of H73a and H73b.
-    Used when opt_k_carbonic = 3.
+    Second carbonic acid dissociation constant following DM87 refit of H73a and
+    H73b.  Used when opt_k_carbonic = 3.
 pk_H2CO3_sws_MCHP73_DM87
     First carbonic acid dissociation constant following DM87 refit of MCHP73.
     Used when opt_k_carbonic = 4.
@@ -92,11 +104,11 @@ pk_HCO3_sws_MCHP73_DM87
     Second carbonic acid dissociation constant following DM87 refit of MCHP73.
     Used when opt_k_carbonic = 4.
 pk_H2CO3_sws_HM_DM87
-    First carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
+    First carbonic acid dissociation constant following DM87 refit of MCHP73
+    plus Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
 pk_HCO3_sws_HM_DM87
-    Second carbonic acid dissociation constant following DM87 refit of MCHP73 plus
-    Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
+    Second carbonic acid dissociation constant following DM87 refit of MCHP73
+    plus Hansson [H73a, H73b].  Used when opt_k_carbonic = 5.
 pk_H2CO3_nbs_MCHP73
     First carbonic acid dissociation constant following MCHP73.
     Used when opt_k_carbonic = 6 or 7.
@@ -653,7 +665,11 @@ def pk_H2O_sws_HO58_M79(coeffs_pk_H2O, temperature):
     return cf[3] - (cf[0] + cf[1] / TempK + cf[2] * np.log(TempK)) / np.log(10)
 
 
-def pk_H3PO4_sws_KP67():
+def coeffs_pk_H3PO4_sws_KP67():
+    return np.array([0.02, 0.0])
+
+
+def pk_H3PO4_sws_KP67(coeffs_pk_H3PO4):
     """First phosphate dissociation constant on the seawater scale following
     KP67.  Used when opt_k_phosphate = 2.
 
@@ -666,10 +682,15 @@ def pk_H3PO4_sws_KP67():
     # Peng et al don't include the contribution from the KP1 term,
     # but it is so small it doesn't contribute. It needs to be
     # kept so that the routines work ok.
-    return -np.log10(0.02)  # This is already on the seawater scale!
+    cf = coeffs_pk_H3PO4
+    return cf[1] - np.log10(cf[0])  # This is already on the seawater scale!
 
 
-def pk_H2PO4_nbs_KP67(temperature):
+def coeffs_pk_H2PO4_nbs_KP67():
+    return np.array([-9.039, -1450, 0.0])
+
+
+def pk_H2PO4_nbs_KP67(coeffs_pk_H2PO4, temperature):
     """Second phosphate dissociation constant on the NBS scale following KP67.
     Used when opt_k_phosphate = 2.
 
@@ -690,10 +711,15 @@ def pk_H2PO4_nbs_KP67(temperature):
     # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
-    return -(-9.039 - 1450 / (temperature + 273.15)) / np.log(10)
+    cf = coeffs_pk_H2PO4
+    return cf[2] - (cf[0] + cf[1] / (temperature + 273.15)) / np.log(10)
 
 
-def pk_HPO4_nbs_KP67(temperature):
+def coeffs_pk_HPO4_nbs_KP67():
+    return np.array([4.466, -7276, 0.0])
+
+
+def pk_HPO4_nbs_KP67(coeffs_pk_HPO4, temperature):
     """Third phosphate dissociation constant on the NBS scale following KP67.
     Used when opt_k_phosphate = 2.
 
@@ -714,10 +740,26 @@ def pk_HPO4_nbs_KP67(temperature):
     # KP2, KP3 from Kester, D. R., and Pytkowicz, R. M.,
     # Limnology and Oceanography 12:243-252, 1967:
     # these are only for sals 33 to 36 and are on the NBS scale.
-    return -(4.466 - 7276 / (temperature + 273.15)) / np.log(10)
+    cf = coeffs_pk_HPO4
+    return cf[2] - (cf[0] + cf[1] / (temperature + 273.15)) / np.log(10)
 
 
-def pk_H3PO4_sws_YM95(temperature, salinity):
+def coeffs_pk_H3PO4_sws_YM95():
+    return np.array(
+        [
+            -4576.752,
+            115.54,
+            -18.453,
+            -106.736,
+            +0.69171,
+            -0.65643,
+            -0.01844,
+            0.0,
+        ]
+    )
+
+
+def pk_H3PO4_sws_YM95(coeffs_pk_H3PO4, temperature, salinity):
     """First phosphate dissociation constant on the seawater scale following
     YM95.  Used when opt_k_phosphate = 1.
 
@@ -736,18 +778,34 @@ def pk_H3PO4_sws_YM95(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
+    cf = coeffs_pk_H3PO4
     TempK = convert.celsius_to_kelvin(temperature)
     lnKP1 = (
-        -4576.752 / TempK
-        + 115.54
-        - 18.453 * np.log(TempK)
-        + (-106.736 / TempK + 0.69171) * np.sqrt(salinity)
-        + (-0.65643 / TempK - 0.01844) * salinity
+        cf[0] / TempK
+        + cf[1]
+        + cf[2] * np.log(TempK)
+        + (cf[3] / TempK + cf[4]) * np.sqrt(salinity)
+        + (cf[5] / TempK + cf[6]) * salinity
     )
-    return -lnKP1 / np.log(10)
+    return cf[7] - lnKP1 / np.log(10)
 
 
-def pk_H2PO4_sws_YM95(temperature, salinity):
+def coeffs_pk_H2PO4_sws_YM95():
+    return np.array(
+        [
+            -8814.715,
+            +172.1033,
+            -27.927,
+            -160.34,
+            1.3566,
+            0.37335,
+            -0.05778,
+            0.0,
+        ]
+    )
+
+
+def pk_H2PO4_sws_YM95(coeffs_pk_H2PO4, temperature, salinity):
     """Second phosphate dissociation constant on the seawater scale following
     YM95.  Used when opt_k_phosphate = 1.
 
@@ -766,18 +824,33 @@ def pk_H2PO4_sws_YM95(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
+    cf = coeffs_pk_H2PO4
     TempK = convert.celsius_to_kelvin(temperature)
     lnKP2 = (
-        -8814.715 / TempK
-        + 172.1033
-        - 27.927 * np.log(TempK)
-        + (-160.34 / TempK + 1.3566) * np.sqrt(salinity)
-        + (0.37335 / TempK - 0.05778) * salinity
+        cf[0] / TempK
+        + cf[1]
+        + cf[2] * np.log(TempK)
+        + (cf[3] / TempK + cf[4]) * np.sqrt(salinity)
+        + (cf[5] / TempK + cf[6]) * salinity
     )
-    return -lnKP2 / np.log(10)
+    return cf[7] - lnKP2 / np.log(10)
 
 
-def pk_HPO4_sws_YM95(temperature, salinity):
+def coeffs_pk_HPO4_sws_YM95():
+    return np.array(
+        [
+            -3070.75,
+            -18.126,
+            17.27039,
+            2.81197,
+            -44.99486,
+            -0.09984,
+            0.0,
+        ]
+    )
+
+
+def pk_HPO4_sws_YM95(coeffs_pk_HPO4, temperature, salinity):
     """Third phosphate dissociation constant on the seawater scale following
     YM95.  Used when opt_k_phosphate = 1.
 
@@ -796,14 +869,15 @@ def pk_HPO4_sws_YM95(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
+    cf = coeffs_pk_HPO4
     TempK = convert.celsius_to_kelvin(temperature)
     lnKP3 = (
-        -3070.75 / TempK
-        - 18.126
-        + (17.27039 / TempK + 2.81197) * np.sqrt(salinity)
-        + (-44.99486 / TempK - 0.09984) * salinity
+        cf[0] / TempK
+        + cf[1]
+        + (cf[2] / TempK + cf[3]) * np.sqrt(salinity)
+        + (cf[4] / TempK + cf[5]) * salinity
     )
-    return -lnKP3 / np.log(10)
+    return cf[6] - lnKP3 / np.log(10)
 
 
 def coeffs_pk_Si_nbs_SMB64():
@@ -2392,7 +2466,8 @@ def coeffs_pk_H2S_total_YM95():
 
 
 def pk_H2S_total_YM95(coeffs_pk_H2S, temperature, salinity):
-    """Hydrogen sulfide dissociation constant on the total scale following YM95.
+    """Hydrogen sulfide dissociation constant on the total scale following
+    YM95.
 
     Parameters
     ----------
@@ -2544,7 +2619,8 @@ def coeffs_pk_HNO2_total_BBWB24():
 
 @valid(temperature=[5, 35])
 def pk_HNO2_total_BBWB24(coeffs_pk_HNO2, temperature):
-    """Nitrous acid dissociation constant in artificial seawater following BBWB24.
+    """Nitrous acid dissociation constant in artificial seawater following
+    BBWB24.
 
     Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C.
 
