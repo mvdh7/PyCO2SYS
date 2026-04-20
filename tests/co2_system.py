@@ -371,10 +371,16 @@ for k, fc in get_funcs_core.items():
 # Define functions for calculations that depend on opts:
 # (unlike in previous versions, each opt may only affect one parameter)
 get_funcs_opts = {}
+get_coeffs_opts = {}
 get_funcs_opts["opt_gas_constant"] = {
-    1: dict(gas_constant=lambda: constants.RGasConstant_DOEv2),
-    2: dict(gas_constant=lambda: constants.RGasConstant_DOEv3),
-    3: dict(gas_constant=lambda: constants.RGasConstant_CODATA2018),
+    1: dict(),
+    2: dict(),
+    3: dict(),
+}
+get_coeffs_opts["opt_gas_constant"] = {
+    1: dict(gas_constant=constants.RGasConstant_DOEv2),
+    2: dict(gas_constant=constants.RGasConstant_DOEv3),
+    3: dict(gas_constant=constants.RGasConstant_CODATA2018),
 }
 get_funcs_opts["opt_factor_k_BOH3"] = {
     1: dict(factor_k_BOH3=equilibria.pcx.factor_k_BOH3_M79),
@@ -562,19 +568,37 @@ get_funcs_opts["opt_k_BOH3"] = {
         ),
     ),
 }
+get_coeffs_opts["opt_k_BOH3"] = {
+    1: dict(coeffs_pk_BOH3=equilibria.p1atm.coeffs_pk_BOH3_total_D90b()),
+    2: dict(coeffs_pk_BOH3=equilibria.p1atm.coeffs_pk_BOH3_nbs_LTB69()),
+}
 get_funcs_opts["opt_k_H2O"] = {
     1: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M95),
     2: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M79),
     3: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_HO58_M79),
 }
+get_coeffs_opts["opt_k_H2O"] = {
+    1: dict(coeffs_pk_H2O=equilibria.p1atm.coeffs_pk_H2O_sws_M95()),
+    2: dict(coeffs_pk_H2O=equilibria.p1atm.coeffs_pk_H2O_sws_M79()),
+    3: dict(coeffs_pk_H2O=equilibria.p1atm.coeffs_pk_H2O_sws_HO58_M79()),
+}
 get_funcs_opts["opt_k_HF"] = {
     1: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_DR79),
     2: dict(pk_HF_free_1atm=equilibria.p1atm.pk_HF_free_PF87),
+}
+get_coeffs_opts["opt_k_HF"] = {
+    1: dict(coeffs_pk_HF=equilibria.p1atm.coeffs_pk_HF_free_DR79()),
+    2: dict(coeffs_pk_HF=equilibria.p1atm.coeffs_pk_HF_free_PF87()),
 }
 get_funcs_opts["opt_k_HSO4"] = {
     1: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_D90a),
     2: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_KRCB77),
     3: dict(pk_HSO4_free_1atm=equilibria.p1atm.pk_HSO4_free_WM13),
+}
+get_coeffs_opts["opt_k_HSO4"] = {
+    1: dict(coeffs_pk_HSO4=equilibria.p1atm.coeffs_pk_HSO4_free_D90a()),
+    2: dict(coeffs_pk_HSO4=equilibria.p1atm.coeffs_pk_HSO4_free_KRCB77()),
+    3: dict(coeffs_pk_HSO4=equilibria.p1atm.coeffs_pk_HSO4_free_WM13()),
 }
 get_funcs_opts["opt_k_NH3"] = {
     1: dict(
@@ -585,6 +609,10 @@ get_funcs_opts["opt_k_NH3"] = {
     ),
     2: dict(pk_NH3_sws_1atm=equilibria.p1atm.pk_NH3_sws_YM95),
 }
+get_coeffs_opts["opt_k_NH3"] = {
+    1: dict(coeffs_pk_NH3=equilibria.p1atm.coeffs_pk_NH3_total_CW95()),
+    2: dict(coeffs_pk_NH3=equilibria.p1atm.coeffs_pk_NH3_sws_YM95()),
+}
 get_funcs_opts["opt_k_Si"] = {
     1: dict(pk_Si_sws_1atm=equilibria.p1atm.pk_Si_sws_YM95),
     2: dict(
@@ -593,6 +621,10 @@ get_funcs_opts["opt_k_Si"] = {
             pk_Si_nbs_1atm + nbs_to_sws
         ),
     ),
+}
+get_coeffs_opts["opt_k_Si"] = {
+    1: dict(coeffs_pk_Si=equilibria.p1atm.coeffs_pk_Si_sws_YM95()),
+    2: dict(coeffs_pk_Si=equilibria.p1atm.coeffs_pk_Si_nbs_SMB64()),
 }
 get_funcs_opts["opt_k_HNO2"] = {
     1: dict(
@@ -606,6 +638,12 @@ get_funcs_opts["opt_k_HNO2"] = {
         pk_HNO2_sws_1atm=lambda pk_HNO2_nbs_1atm, nbs_to_sws: (
             pk_HNO2_nbs_1atm + nbs_to_sws
         ),
+    ),
+}
+get_coeffs_opts["opt_k_HNO2"] = {
+    1: dict(coeffs_pk_HNO2=equilibria.p1atm.coeffs_pk_HNO2_total_BBWB24()),
+    2: dict(
+        coeffs_pk_HNO2=equilibria.p1atm.coeffs_pk_HNO2_nbs_BBWB24_freshwater()
     ),
 }
 get_funcs_opts["opt_pH_scale"] = {
@@ -1002,6 +1040,13 @@ set_node_labels = {
     "d_fCO2__d_pH__dic": "d_fCO2__d_pH__dic",
     "coeffs_pk_CO2": "coeffs_pk_CO2",
     "coeffs_pk_H2S": "coeffs_pk_H2S",
+    "coeffs_pk_HF": "coeffs_pk_HF",
+    "coeffs_pk_H2O": "coeffs_pk_H2O",
+    "coeffs_pk_HSO4": "coeffs_pk_HSO4",
+    "coeffs_pk_BOH3": "coeffs_pk_BOH3",
+    "coeffs_pk_NH3": "coeffs_pk_NH3",
+    "coeffs_pk_Si": "coeffs_pk_Si",
+    "coeffs_pk_HNO2": "coeffs_pk_HNO2",
 }
 set_node_labels.update(
     {
@@ -1396,7 +1441,7 @@ class CO2System(FunctionGraph):
                 upsilon | Temperature-sensitivity of fCO2 (%/°C)
         fugacity_factor | Converts between pCO2 and fCO2.
               vp_factor | Vapour pressure factor, converts pCO2 and xCO2.
-           gas_constant | Universal gas constant (ml/bar/mol/K).
+           gas_constant | Universal gas constant (J/mol/K).
         """
         super().solve(parameters)
 
@@ -2291,6 +2336,10 @@ def sys(data=None, **kwargs):
         # opt_HCO3_root is available only for icase == 207 (known DIC & HCO3)
         if not (opt == "opt_HCO3_root" and icase != 207):
             funcs.update(get_funcs_opts[opt][v])
+    # Add defaults that depend on opts (i.e., coeffs)
+    defaults = values_default.copy()
+    for opt, v in get_coeffs_opts.items():
+        defaults.update(v[opts[opt]])
     # If pH is not accessible, we can't calculate it on different scales
     if icase < 100 and icase not in [3]:
         pH_vars = ["pH", "pH_total", "pH_sws", "pH_free", "pH_nbs"]
@@ -2300,7 +2349,7 @@ def sys(data=None, **kwargs):
     co2s = CO2System(
         funcs=funcs,
         shortcuts=shortcuts,
-        defaults=values_default,
+        defaults=defaults,
         icase=icase,
         opts=opts,
         pd_index=pd_index,
@@ -2339,7 +2388,4 @@ co2g = co2f._adjust_1p(temperature=26)
 # which seems to work!  Still need to handle being responsive to opts though.
 # Could make a function in p1atm that contains the coeffs and call that to get
 # the values_default?  Then it keeps things together.
-# NOTE yes! this is the way.  And just add it in like I have for pk_CO2_W74
-# until the uncertainty matrices are actually known?
-# TODO also applied to YM H2S - need to figure out if the last term should be
-# + or *...
+# NOTE yes! this is the way.  Keep going!

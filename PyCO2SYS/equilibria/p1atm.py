@@ -158,7 +158,7 @@ def coeffs_pk_CO2_W74():
     # The sixth coefficient is temporary, to allow ±pK uncertainties to be set
     # until we know the full uncertainty matrix
     return np.array(
-        [-60.2409, 93.4517, 23.3585, 0.023517, -0.023656, 0.0047036, 1.0]
+        [-60.2409, 93.4517, 23.3585, 0.023517, -0.023656, 0.0047036, 0.0]
     )
 
 
@@ -192,14 +192,33 @@ def pk_CO2_W74(coeffs_pk_CO2, temperature, salinity):
     return cf[6] - lnK0 / np.log(10)
 
 
+def coeffs_pk_HSO4_free_D90a():
+    return np.array(
+        [
+            -4276.1,
+            141.328,
+            -23.093,
+            -13856,
+            324.57,
+            -47.986,
+            35474,
+            -771.54,
+            114.723,
+            -2698,
+            1776,
+            0.0,
+        ]
+    )
+
+
 @valid(
     temperature=[0, 45],
     salinity=[5, 45],
     ionic_strength=[0.10012312, 0.93904847],
 )
-def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
-    """Bisulfate dissociation constant in mol/kg-sw on the free scale following D90a.
-    Used when opt_k_HSO4 = 1.
+def pk_HSO4_free_D90a(coeffs_pk_HSO4, temperature, salinity, ionic_strength):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    D90a.  Used when opt_k_HSO4 = 1.
 
     Parameters
     ----------
@@ -222,19 +241,23 @@ def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
     # TYPO on p. 121: the constant e9 should be e8.
     # Output KS is on the free pH scale in mol/kg-sw.
     # This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
+    cf = coeffs_pk_HSO4
     TempK = convert.celsius_to_kelvin(temperature)
     logTempK = np.log(TempK)
     lnk_HSO4 = (
-        -4276.1 / TempK
-        + 141.328
-        - 23.093 * logTempK
-        + (-13856 / TempK + 324.57 - 47.986 * logTempK)
-        * np.sqrt(ionic_strength)
-        + (35474 / TempK - 771.54 + 114.723 * logTempK) * ionic_strength
-        + (-2698 / TempK) * np.sqrt(ionic_strength) * ionic_strength
-        + (1776 / TempK) * ionic_strength**2
+        cf[0] / TempK
+        + cf[1]
+        + cf[2] * logTempK
+        + (cf[3] / TempK + cf[4] + cf[5] * logTempK) * np.sqrt(ionic_strength)
+        + (cf[6] / TempK + cf[7] + cf[8] * logTempK) * ionic_strength
+        + (cf[9] / TempK) * np.sqrt(ionic_strength) * ionic_strength
+        + (cf[10] / TempK) * ionic_strength**2
     )
-    return -np.log10(np.exp(lnk_HSO4) * (1 - 0.001005 * salinity))
+    return cf[11] - np.log10(np.exp(lnk_HSO4) * (1 - 0.001005 * salinity))
+
+
+def coeffs_pk_HSO4_free_KRCB77():
+    return np.array([647.59, -6.3451, 0.019085, -0.5208, 0.0])
 
 
 @valid(
@@ -242,9 +265,9 @@ def pk_HSO4_free_D90a(temperature, salinity, ionic_strength):
     salinity=[20, 45],
     ionic_strength=[0.40665374, 0.93904847],
 )
-def pk_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
-    """Bisulfate dissociation constant in mol/kg-sw on the free scale following KRCB77.
-    Used when opt_k_HSO4 = 2.
+def pk_HSO4_free_KRCB77(coeffs_pk_HSO4, temperature, salinity, ionic_strength):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    KRCB77.  Used when opt_k_HSO4 = 2.
 
     Parameters
     ----------
@@ -274,20 +297,41 @@ def pk_HSO4_free_KRCB77(temperature, salinity, ionic_strength):
     # The rms error is .0021 in pKS, or about .5% in KS.
     # This is equation 20 on p. 33:
     # Output KS is on the free pH scale in mol/kg-sw.
+    cf = coeffs_pk_HSO4
     TempK = temperature + 273.15
     pk_HSO4 = (
-        647.59 / TempK
-        - 6.3451
-        + 0.019085 * TempK
-        - 0.5208 * np.sqrt(ionic_strength)
+        cf[0] / TempK + cf[1] + cf[2] * TempK + cf[3] * np.sqrt(ionic_strength)
     )
-    return pk_HSO4 - np.log10(1 - 0.001005 * salinity)
+    return cf[4] + pk_HSO4 - np.log10(1 - 0.001005 * salinity)
+
+
+def coeffs_pk_HSO4_free_WM13():
+    return np.array(
+        [
+            562.69486,
+            -102.5154,
+            -0.0001117033,
+            0.2477538,
+            -13273.76,
+            4.24666,
+            -0.152671,
+            0.0267059,
+            -0.000042128,
+            0.2542181,
+            -0.00509534,
+            0.00071589,
+            -0.00291179,
+            0.0000209968,
+            -0.0000403724,
+            0.0,
+        ]
+    )
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def pk_HSO4_free_WM13(temperature, salinity):
-    """Bisulfate dissociation constant in mol/kg-sw on the free scale following WM13,
-    with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
+def pk_HSO4_free_WM13(coeffs_pk_HSO4, temperature, salinity):
+    """Bisulfate dissociation constant in mol/kg-sw on the free scale following
+    WM13, with the corrections of WMW14.  Used when opt_k_HSO4 = 3.
 
     Parameters
     ----------
@@ -301,29 +345,33 @@ def pk_HSO4_free_WM13(temperature, salinity):
     float
         HSO4 dissociation constant.
     """
+    cf = coeffs_pk_HSO4
     TempK = convert.celsius_to_kelvin(temperature)
     logKS0 = (
-        562.69486
-        - 102.5154 * np.log(TempK)
-        - 0.0001117033 * TempK**2
-        + 0.2477538 * TempK
-        - 13273.76 / TempK
+        cf[0]
+        + cf[1] * np.log(TempK)
+        + cf[2] * TempK**2
+        + cf[3] * TempK
+        + cf[4] / TempK
     )
     logKSK0 = (
         (
-            4.24666
-            - 0.152671 * TempK
-            + 0.0267059 * TempK * np.log(TempK)
-            - 0.000042128 * TempK**2
+            cf[5]
+            + cf[6] * TempK
+            + cf[7] * TempK * np.log(TempK)
+            + cf[8] * TempK**2
         )
         * salinity**0.5
-        + (0.2542181 - 0.00509534 * TempK + 0.00071589 * TempK * np.log(TempK))
-        * salinity
-        + (-0.00291179 + 0.0000209968 * TempK) * salinity**1.5
-        + -0.0000403724 * salinity**2
+        + (cf[9] + cf[10] * TempK + cf[11] * TempK * np.log(TempK)) * salinity
+        + (cf[12] + cf[13] * TempK) * salinity**1.5
+        + cf[14] * salinity**2
     )
     k_HSO4 = (1 - 0.001005 * salinity) * 10.0 ** (logKSK0 + logKS0)
-    return -np.log10(k_HSO4)
+    return cf[15] - np.log10(k_HSO4)
+
+
+def coeffs_pk_HF_free_DR79():
+    return np.array([1590.2, -12.641, 1.525, 0.0])
 
 
 @valid(
@@ -331,13 +379,13 @@ def pk_HSO4_free_WM13(temperature, salinity):
     salinity=[10.43, 47.78],
     ionic_strength=[0.21000866, 0.999987],
 )
-def pk_HF_free_DR79(temperature, salinity, ionic_strength):
-    """Hydrogen fluoride dissociation constant on the free scale following DR79a.
-    Used when opt_k_HF = 1.
+def pk_HF_free_DR79(coeffs_pk_HF, temperature, salinity, ionic_strength):
+    """Hydrogen fluoride dissociation constant on the free scale following
+    DR79a.  Used when opt_k_HF = 1.
 
     Note that the validity range given for this function is given as the ranges
-    of temperature and salinity that DR79 applied it to when computing pk_H2O, rather
-    than being a true validity range for the pk_HF expression itself.
+    of temperature and salinity that DR79 applied it to when computing pk_H2O,
+    rather than being a true validity range for the pk_HF expression itself.
 
     Parameters
     ----------
@@ -354,16 +402,19 @@ def pk_HF_free_DR79(temperature, salinity, ionic_strength):
     # === CO2SYS.m comments: =======
     # Dickson, A. G. and Riley, J. P., Marine Chemistry 7:89-99, 1979:
     # this is on the free pH scale in mol/kg-sw
-    lnKF = (
-        1590.2 / (temperature + 273.15) - 12.641 + 1.525 * ionic_strength**0.5
-    )
-    return -np.log10(np.exp(lnKF) * (1 - 0.001005 * salinity))
+    cf = coeffs_pk_HF
+    lnKF = cf[0] / (temperature + 273.15) + cf[1] + cf[2] * ionic_strength**0.5
+    return cf[3] - np.log10(np.exp(lnKF) * (1 - 0.001005 * salinity))
+
+
+def coeffs_pk_HF_free_PF87():
+    return np.array([874, -9.68, 0.111, 0.0])
 
 
 @valid(temperature=[9, 33], salinity=[10, 40])
-def pk_HF_free_PF87(temperature, salinity):
-    """Hydrogen fluoride dissociation constant on the free scale following PF87.
-    Used when opt_k_HF = 2.
+def pk_HF_free_PF87(coeffs_pk_HF, temperature, salinity):
+    """Hydrogen fluoride dissociation constant on the free scale following
+    PF87.  Used when opt_k_HF = 2.
 
     Parameters
     ----------
@@ -381,16 +432,38 @@ def pk_HF_free_PF87(temperature, salinity):
     # despite the equations below appearing in CO2SYS.m (commented out).
     # === CO2SYS.m comments: =======
     # Another expression exists for KF: Perez and Fraga 1987. Not used here
-    # since ill defined for low salinityinity. (to be used for S: 10-40, T: 9-33)
+    # since ill defined for low salinityinity.
+    # (to be used for S: 10-40, T: 9-33)
     # Nonetheless, P&F87 might actually be better than the fit of D&R79 above,
     # which is based on only three salinityinities: [0 26.7 34.6]
     # Output is on the free pH scale in mol/kg-SW.
-    lnKF = 874 / (temperature + 273.15) - 9.68 + 0.111 * salinity**0.5
-    return -lnKF / np.log(10)
+    cf = coeffs_pk_HF
+    lnKF = cf[0] / (temperature + 273.15) + cf[1] + cf[2] * salinity**0.5
+    return cf[3] - lnKF / np.log(10)
+
+
+def coeffs_pk_BOH3_total_D90b():
+    return np.array(
+        [
+            -8966.9,
+            -2890.53,
+            -77.942,
+            1.728,
+            -0.0996,
+            148.0248,
+            137.1942,
+            1.62142,
+            -24.4344,
+            -25.085,
+            -0.2474,
+            0.053105,
+            0,
+        ]
+    )
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
-def pk_BOH3_total_D90b(temperature, salinity):
+def pk_BOH3_total_D90b(coeffs_pk_BOH3, temperature, salinity):
     """Boric acid dissociation constant following D90b.  Used when
     opt_k_BOH3 = 1.
 
@@ -409,28 +482,33 @@ def pk_BOH3_total_D90b(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Dickson, A. G., Deep-Sea Research 37:755-766, 1990.
     # lnKB is on Total pH scale
+    cf = coeffs_pk_BOH3
     sqrsalinity = np.sqrt(salinity)
     TempK = convert.celsius_to_kelvin(temperature)
     lnKBtop = (
-        -8966.9
-        - 2890.53 * sqrsalinity
-        - 77.942 * salinity
-        + 1.728 * sqrsalinity * salinity
-        - 0.0996 * salinity**2
+        cf[0]
+        + cf[1] * sqrsalinity
+        + cf[2] * salinity
+        + cf[3] * sqrsalinity * salinity
+        + cf[4] * salinity**2
     )
     lnKB = (
         lnKBtop / TempK
-        + 148.0248
-        + 137.1942 * sqrsalinity
-        + 1.62142 * salinity
-        + (-24.4344 - 25.085 * sqrsalinity - 0.2474 * salinity) * np.log(TempK)
-        + 0.053105 * sqrsalinity * TempK
+        + cf[5]
+        + cf[6] * sqrsalinity
+        + cf[7] * salinity
+        + (cf[8] + cf[9] * sqrsalinity + cf[10] * salinity) * np.log(TempK)
+        + cf[11] * sqrsalinity * TempK
     )
-    return -lnKB / np.log(10)
+    return cf[12] - lnKB / np.log(10)
+
+
+def coeffs_pk_BOH3_nbs_LTB69():
+    return np.array([-9.26, 0.00886, 0.01, 0.0])
 
 
 @valid(temperature=[0, 25], salinity=[29, 38])
-def pk_BOH3_nbs_LTB69(temperature, salinity):
+def pk_BOH3_nbs_LTB69(coeffs_pk_BOH3, temperature, salinity):
     """Boric acid dissociation constant following LTB69.  Used when
     opt_k_BOH3 = 2.
 
@@ -451,12 +529,28 @@ def pk_BOH3_nbs_LTB69(temperature, salinity):
     # Lyman, John, UCLA Thesis, 1957
     # fit by Li et al, JGR 74:5507-5525, 1969.
     # logKB is on NBS pH scale
-    logKB = -9.26 + 0.00886 * salinity + 0.01 * temperature
-    return -logKB
+    cf = coeffs_pk_BOH3
+    logKB = cf[0] + cf[1] * salinity + cf[2] * temperature
+    return cf[3] - logKB
+
+
+def coeffs_pk_H2O_sws_M95():
+    return np.array(
+        [
+            148.9802,
+            -13847.26,
+            -23.6521,
+            -5.977,
+            118.67,
+            1.0495,
+            -0.01615,
+            0.0,
+        ]
+    )
 
 
 @valid(temperature=[0, 45], salinity=[0, 45])
-def pk_H2O_sws_M95(temperature, salinity):
+def pk_H2O_sws_M95(coeffs_pk_H2O, temperature, salinity):
     """Water dissociation constant on the seawater scale following M95.
     Used when opt_k_H2O = 1.
 
@@ -475,19 +569,34 @@ def pk_H2O_sws_M95(temperature, salinity):
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
     # his check value of 1.6 umol/kg-SW should be 6.2 (for ln(k))
+    cf = coeffs_pk_H2O
     TempK = convert.celsius_to_kelvin(temperature)
-    return -(
-        148.9802
-        - 13847.26 / TempK
-        - 23.6521 * np.log(TempK)
-        + (-5.977 + 118.67 / TempK + 1.0495 * np.log(TempK))
-        * np.sqrt(salinity)
-        - 0.01615 * salinity
+    return cf[7] - (
+        cf[0]
+        + cf[1] / TempK
+        + cf[2] * np.log(TempK)
+        + (cf[3] + cf[4] / TempK + cf[5] * np.log(TempK)) * np.sqrt(salinity)
+        + cf[6] * salinity
     ) / np.log(10)
 
 
+def coeffs_pk_H2O_sws_M79():
+    return np.array(
+        [
+            148.9802,
+            -13847.26,
+            -23.6521,
+            -79.2447,
+            3298.72,
+            12.0408,
+            -0.019813,
+            0.0,
+        ]
+    )
+
+
 @valid(temperature=[0, 50], salinity=[0, 40])
-def pk_H2O_sws_M79(temperature, salinity):
+def pk_H2O_sws_M79(coeffs_pk_H2O, temperature, salinity):
     """Water dissociation constant on the seawater scale following M79.
     Used when opt_k_H2O = 2.
 
@@ -505,28 +614,30 @@ def pk_H2O_sws_M79(temperature, salinity):
     """
     # === CO2SYS.m comments: =======
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
+    cf = coeffs_pk_H2O
     TempK = convert.celsius_to_kelvin(temperature)
-    return -(
-        148.9802
-        - 13847.26 / TempK
-        - 23.6521 * np.log(TempK)
-        + (-79.2447 + 3298.72 / TempK + 12.0408 * np.log(TempK))
-        * np.sqrt(salinity)
-        - 0.019813 * salinity
+    return cf[7] - (
+        cf[0]
+        + cf[1] / TempK
+        + cf[2] * np.log(TempK)
+        + (cf[3] + cf[4] / TempK + cf[5] * np.log(TempK)) * np.sqrt(salinity)
+        + cf[6] * salinity
     ) / np.log(10)
 
 
+def coeffs_pk_H2O_sws_HO58_M79():
+    return np.array([148.9802, -13847.26, -23.6521, 0.0])
+
+
 @valid(temperature=[0, 50])
-def pk_H2O_sws_HO58_M79(temperature):
-    """Water dissociation constant on the seawater scale following HO58 refit by
-    M79, for freshwater.  Used when opt_k_H2O = 3.
+def pk_H2O_sws_HO58_M79(coeffs_pk_H2O, temperature):
+    """Water dissociation constant on the seawater scale following HO58 refit
+    by M79, for freshwater.  Used when opt_k_H2O = 3.
 
     Parameters
     ----------
     temperature : float
         Temperature in °C.
-    salinity : float
-        Practical salinity.
 
     Returns
     -------
@@ -537,15 +648,14 @@ def pk_H2O_sws_HO58_M79(temperature):
     # Millero, Geochemica et Cosmochemica Acta 43:1651-1661, 1979
     # refit data of Harned and Owen, The Physical Chemistry of
     # Electrolyte Solutions, 1958
+    cf = coeffs_pk_H2O
     TempK = convert.celsius_to_kelvin(temperature)
-    return -(148.9802 - 13847.26 / TempK - 23.6521 * np.log(TempK)) / np.log(
-        10
-    )
+    return cf[3] - (cf[0] + cf[1] / TempK + cf[2] * np.log(TempK)) / np.log(10)
 
 
 def pk_H3PO4_sws_KP67():
-    """First phosphate dissociation constant on the seawater scale following KP67.
-    Used when opt_k_phosphate = 2.
+    """First phosphate dissociation constant on the seawater scale following
+    KP67.  Used when opt_k_phosphate = 2.
 
     Returns
     -------
@@ -608,8 +718,8 @@ def pk_HPO4_nbs_KP67(temperature):
 
 
 def pk_H3PO4_sws_YM95(temperature, salinity):
-    """First phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    """First phosphate dissociation constant on the seawater scale following
+    YM95.  Used when opt_k_phosphate = 1.
 
     Parameters
     ----------
@@ -638,8 +748,8 @@ def pk_H3PO4_sws_YM95(temperature, salinity):
 
 
 def pk_H2PO4_sws_YM95(temperature, salinity):
-    """Second phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    """Second phosphate dissociation constant on the seawater scale following
+    YM95.  Used when opt_k_phosphate = 1.
 
     Parameters
     ----------
@@ -668,8 +778,8 @@ def pk_H2PO4_sws_YM95(temperature, salinity):
 
 
 def pk_HPO4_sws_YM95(temperature, salinity):
-    """Third phosphate dissociation constant on the seawater scale following YM95.
-    Used when opt_k_phosphate = 1.
+    """Third phosphate dissociation constant on the seawater scale following
+    YM95.  Used when opt_k_phosphate = 1.
 
     Parameters
     ----------
@@ -696,7 +806,11 @@ def pk_HPO4_sws_YM95(temperature, salinity):
     return -lnKP3 / np.log(10)
 
 
-def pk_Si_nbs_SMB64():
+def coeffs_pk_Si_nbs_SMB64():
+    return np.array([0.0000000004, 0.0])
+
+
+def pk_Si_nbs_SMB64(coeffs_pk_Si):
     """Silicate dissociation constant on the NBS scale following SMB64.
     Used when opt_k_Si = 2.
 
@@ -708,10 +822,28 @@ def pk_Si_nbs_SMB64():
     # === CO2SYS.m comments: =======
     # Sillen, Martell, and Bjerrum,  Stability Constants of metal-ion
     # complexes, The Chemical Society (London), Special Publ. 17:751, 1964.
-    return -np.log10(0.0000000004)
+    cf = coeffs_pk_Si
+    return cf[1] - np.log10(cf[0])
 
 
-def pk_Si_sws_YM95(temperature, salinity, ionic_strength):
+def coeffs_pk_Si_sws_YM95():
+    return np.array(
+        [
+            -8904.2,
+            117.4,
+            -19.334,
+            -458.79,
+            3.5913,
+            188.74,
+            -1.5998,
+            -12.1652,
+            +0.07871,
+            0.0,
+        ]
+    )
+
+
+def pk_Si_sws_YM95(coeffs_pk_Si, temperature, salinity, ionic_strength):
     """Silicate dissociation constant on the seawater scale following YM95.
     Used when opt_k_Si = 1.
 
@@ -733,16 +865,17 @@ def pk_Si_sws_YM95(temperature, salinity, ionic_strength):
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KSi was given on the SWS pH scale in mol/kg-H2O, but is converted here
     # to mol/kg-sw.
+    cf = coeffs_pk_Si
     TempK = convert.celsius_to_kelvin(temperature)
     lnKSi = (
-        -8904.2 / TempK
-        + 117.4
-        - 19.334 * np.log(TempK)
-        + (-458.79 / TempK + 3.5913) * np.sqrt(ionic_strength)
-        + (188.74 / TempK - 1.5998) * ionic_strength
-        + (-12.1652 / TempK + 0.07871) * ionic_strength**2
+        cf[0] / TempK
+        + cf[1]
+        + cf[2] * np.log(TempK)
+        + (cf[3] / TempK + cf[4]) * np.sqrt(ionic_strength)
+        + (cf[5] / TempK + cf[6]) * ionic_strength
+        + (cf[7] / TempK + cf[8]) * ionic_strength**2
     )
-    return -np.log10(np.exp(lnKSi) * (1 - 0.001005 * salinity))
+    return cf[9] - np.log10(np.exp(lnKSi) * (1 - 0.001005 * salinity))
 
 
 @valid(temperature=[0, 45], salinity=[5, 45])
@@ -1874,7 +2007,7 @@ def pk_HCO3_total_MMB25(temperature, salinity):
 
 
 def coeffs_pk_H2S_total_YM95():
-    return np.array([225.838, -13275.3, -34.6435, 0.3449, -0.0274, 1.0])
+    return np.array([225.838, -13275.3, -34.6435, 0.3449, -0.0274, 0.0])
 
 
 def pk_H2S_total_YM95(coeffs_pk_H2S, temperature, salinity):
@@ -1911,7 +2044,22 @@ def pk_H2S_total_YM95(coeffs_pk_H2S, temperature, salinity):
     return cf[5] - lnkH2S / np.log(10)
 
 
-def pk_NH3_sws_YM95(temperature, salinity):
+def coeffs_pk_NH3_sws_YM95():
+    return np.array(
+        [
+            -6285.33,
+            +0.0001635,
+            -0.25444,
+            0.46532,
+            -123.7184,
+            -0.01992,
+            3.17556,
+            0.0,
+        ]
+    )
+
+
+def pk_NH3_sws_YM95(coeffs_pk_NH3, temperature, salinity):
     """Ammonium association constant following YM95.  Used when opt_k_NH3 = 1.
 
     Parameters
@@ -1928,19 +2076,45 @@ def pk_NH3_sws_YM95(temperature, salinity):
     """
     # === CO2SYS_v1_21.m comments: =======
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995   SWS
+    cf = coeffs_pk_NH3
     TempK = convert.celsius_to_kelvin(temperature)
     lnkNH3 = (
-        -6285.33 / TempK
-        + 0.0001635 * TempK
-        - 0.25444
-        + (0.46532 - 123.7184 / TempK) * np.sqrt(salinity)
-        + (-0.01992 + 3.17556 / TempK) * salinity
+        cf[0] / TempK
+        + cf[1] * TempK
+        - cf[2]
+        + (cf[3] + cf[4] / TempK) * np.sqrt(salinity)
+        + (cf[5] + cf[6] / TempK) * salinity
     )
-    return -lnkNH3 / np.log(10)
+    return cf[7] - lnkNH3 / np.log(10)
+
+
+def coeffs_pk_NH3_total_CW95():
+    return np.array(
+        [
+            9.244605,
+            -2729.33,
+            0.04203362,
+            -11.24742,
+            -13.6416,
+            1.176949,
+            -0.02860785,
+            545.4834,
+            -0.1462507,
+            0.0090226468,
+            -0.0001471361,
+            10.5425,
+            0.004669309,
+            -0.0001691742,
+            -0.5677934,
+            -2.354039e-05,
+            0.009698623,
+            0.0,
+        ]
+    )
 
 
 @valid(temperature=[-2, 40], salinity=[0, 40])
-def pk_NH3_total_CW95(temperature, salinity):
+def pk_NH3_total_CW95(coeffs_pk_NH3, temperature, salinity):
     """Ammonium association constant following CW95.  Used when opt_k_NH3 = 2.
 
     Parameters
@@ -1959,44 +2133,36 @@ def pk_NH3_total_CW95(temperature, salinity):
     # Clegg Whitfield 1995
     # Geochimica et Cosmochimica Acta, Vol. 59, No. 12. pp. 2403-2421
     # eq (18)  Total scale   t=[-2 to 40 oC]  S=[0 to 40 ppt]   pK=+-0.00015
+    cf = coeffs_pk_NH3
     TempK = convert.celsius_to_kelvin(temperature)
-    PKNH3expCW = 9.244605 - 2729.33 * (1 / 298.15 - 1 / TempK)
-    PKNH3expCW = PKNH3expCW + (0.04203362 - 11.24742 / TempK) * salinity**0.25
+    PKNH3expCW = cf[0] + cf[1] * (1 / 298.15 - 1 / TempK)
+    PKNH3expCW = PKNH3expCW + (cf[2] + cf[3] / TempK) * salinity**0.25
     PKNH3expCW = (
         PKNH3expCW
-        + (
-            -13.6416
-            + 1.176949 * TempK**0.5
-            - 0.02860785 * TempK
-            + 545.4834 / TempK
-        )
+        + (cf[4] + cf[5] * TempK**0.5 + cf[6] * TempK + cf[7] / TempK)
         * salinity**0.5
     )
     PKNH3expCW = (
         PKNH3expCW
-        + (
-            -0.1462507
-            + 0.0090226468 * TempK**0.5
-            - 0.0001471361 * TempK
-            + 10.5425 / TempK
-        )
+        + (cf[8] + cf[9] * TempK**0.5 + cf[10] * TempK + cf[11] / TempK)
         * salinity**1.5
     )
     PKNH3expCW = (
         PKNH3expCW
-        + (0.004669309 - 0.0001691742 * TempK**0.5 - 0.5677934 / TempK)
-        * salinity**2
+        + (cf[12] + cf[13] * TempK**0.5 + cf[14] / TempK) * salinity**2
     )
-    PKNH3expCW = (
-        PKNH3expCW + (-2.354039e-05 + 0.009698623 / TempK) * salinity**2.5
-    )
+    PKNH3expCW = PKNH3expCW + (cf[15] + cf[16] / TempK) * salinity**2.5
     KNH3 = 10.0**-PKNH3expCW  # this is on the total pH scale in mol/kg-H2O
     KNH3 = KNH3 * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
-    return -np.log10(KNH3)
+    return cf[17] - np.log10(KNH3)
+
+
+def coeffs_pk_HNO2_total_BBWB24():
+    return np.array([16084.01, 50.17, -336.92, 0.0])
 
 
 @valid(temperature=[5, 35])
-def pk_HNO2_total_BBWB24(temperature):
+def pk_HNO2_total_BBWB24(coeffs_pk_HNO2, temperature):
     """Nitrous acid dissociation constant in artificial seawater following BBWB24.
 
     Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C.
@@ -2011,13 +2177,18 @@ def pk_HNO2_total_BBWB24(temperature):
     float
         HNO2 dissociation constant.
     """
+    cf = coeffs_pk_HNO2
     T = convert.celsius_to_kelvin(temperature)
-    pk_HNO2 = 16084.01 / T + 50.17 * np.log(T) - 336.92
-    return pk_HNO2
+    pk_HNO2 = cf[0] / T + cf[1] * np.log(T) + cf[2]
+    return cf[3] + pk_HNO2
+
+
+def coeffs_pk_HNO2_nbs_BBWB24_freshwater():
+    return np.array([16437.31, 53.61, -357.43, 0.0])
 
 
 @valid(temperature=[5, 35])
-def pk_HNO2_nbs_BBWB24_freshwater(temperature):
+def pk_HNO2_nbs_BBWB24_freshwater(coeffs_pk_HNO2, temperature):
     """Nitrous acid dissociation constant in freshwater following BBWB24.
 
     Used when opt_k_HNO2 = 2.  Valid from 5 to 35 °C.
@@ -2032,6 +2203,7 @@ def pk_HNO2_nbs_BBWB24_freshwater(temperature):
     float
         HNO2 dissociation constant.
     """
+    cf = coeffs_pk_HNO2
     T = convert.celsius_to_kelvin(temperature)
-    pk_HNO2 = 16437.31 / T + 53.61 * np.log(T) - 357.43
-    return pk_HNO2
+    pk_HNO2 = cf[0] / T + cf[1] * np.log(T) + cf[2]
+    return cf[3] + pk_HNO2
