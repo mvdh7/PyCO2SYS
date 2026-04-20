@@ -31,7 +31,7 @@ def fugacity_factor(
     temperature : float
         Temperature in °C.
     gas_constant : float
-        The universal gas constant.
+        The universal gas constant in J / (mol * K).
     pressure : float
         Hydrostatic pressure in dbar.
     pressure_atmosphere : float
@@ -46,7 +46,7 @@ def fugacity_factor(
     # Delta and B are in cm**3/mol.
     TempK = convert.celsius_to_kelvin(temperature)
     pressure_bar = convert.decibar_to_bar(pressure)
-    RT = gas_constant * TempK
+    RT = 10 * gas_constant * TempK
     Delta = 57.7 - 0.118 * TempK
     b = (
         -1636.75

@@ -34,7 +34,9 @@ def pk_calcite_M83(temperature, salinity, pressure, gas_constant):
     # Add pressure correction for calcite [I75, M79]
     deltaVKCa, KappaKCa = _deltaKappaCalcite_I75(temperature)
     lnKCafac = (
-        (-deltaVKCa + 0.5 * KappaKCa * Pbar) * Pbar / (gas_constant * TempK)
+        (-deltaVKCa + 0.5 * KappaKCa * Pbar)
+        * Pbar
+        / (10 * gas_constant * TempK)
     )
     KCa = KCa * np.exp(lnKCafac)
     return -np.log10(KCa)
@@ -61,7 +63,9 @@ def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
     deltaVKAr = deltaVKCa + 2.8
     KappaKAr = KappaKCa
     lnKArfac = (
-        (-deltaVKAr + 0.5 * KappaKAr * Pbar) * Pbar / (gas_constant * TempK)
+        (-deltaVKAr + 0.5 * KappaKAr * Pbar)
+        * Pbar
+        / (10 * gas_constant * TempK)
     )
     KAr = KAr * np.exp(lnKArfac)
     return -np.log10(KAr)
@@ -106,7 +110,7 @@ def pk_calcite_I75(temperature, salinity, pressure, gas_constant):
     # I can't find them anywhere else.
     # ==============================
     KCa = 10**-pKCa * np.exp(
-        (36 - 0.2 * temperature) * Pbar / (gas_constant * TempK)
+        (36 - 0.2 * temperature) * Pbar / (10 * gas_constant * TempK)
     )
     return -np.log10(KCa)
 
@@ -133,7 +137,7 @@ def pk_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     # The fits appears to be new in the GEOSECS report.
     # I can't find them anywhere else.
     KAr = KAr * np.exp(
-        (33.3 - 0.22 * temperature) * Pbar / (gas_constant * TempK)
+        (33.3 - 0.22 * temperature) * Pbar / (10 * gas_constant * TempK)
     )
     return -np.log10(KAr)
 
@@ -222,7 +226,7 @@ def _get_pkt_calcite_magnesite_idealmix_1atm(temperature, Mg_fraction):
 def get_pkt_Mg_calcite_1atm_vantHoff(
     temperature, Mg_fraction, gas_constant, pkt_Mg_calcite_25C_1atm
 ):
-    GasR = gas_constant / 10
+    GasR = gas_constant
     TempK = convert.celsius_to_kelvin(temperature)
     T0 = 298.15  # standard temperature is 25C
     kt_Mg_calcite_1atm = (
@@ -369,7 +373,7 @@ def get_pk_Mg_calcite(
     ln_K_K = (
         (-deltaV_Mg_calcite + 0.5 * deltaK_Mg_calcite * Pbar)
         * Pbar
-        / (gas_constant * TempK)
+        / (10 * gas_constant * TempK)
     )
     k_Mg_calcite = 10**-pk_Mg_calcite_1atm * np.exp(ln_K_K)
     return -np.log10(k_Mg_calcite)

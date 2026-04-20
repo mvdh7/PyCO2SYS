@@ -21,15 +21,13 @@ def inverse(temperature, gas_constant, bh):
     temperature : array-like
         Temperature in °C.
     gas_constant : float
-        The universal gas constant in ml / (bar mol K).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
         υ in % / °C.
     """
-    return (
-        100 * bh / (gas_constant * 0.1 * (temperature + constants.Tzero) ** 2)
-    )
+    return 100 * bh / (gas_constant * (temperature + constants.Tzero) ** 2)
 
 
 def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
@@ -43,7 +41,7 @@ def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
     temperature : array-like
         Adjusted temperature (t1) in °C.
     gas_constant : float
-        The universal gas constant in ml / (bar mol K).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -56,7 +54,7 @@ def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
             - 1 / (temperature + constants.Tzero)
         )
         * bh
-        / (gas_constant * 0.1)
+        / gas_constant
     )
 
 
@@ -117,7 +115,7 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
     fCO2 : array-like
         Seawater fugacity of CO2 in µatm.
     gas_constant : float
-        The universal gas constant in ml / (bar mol K).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -214,7 +212,7 @@ def ups_enthalpy_H24(temperature, gas_constant):
     temperature : array-like
         Temperature in °C.
     gas_constant : float
-        The universal gas constant in ml / (bar mol K).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -254,7 +252,7 @@ def ups_TOG93_H24(temperature, gas_constant):
     temperature : array-like
         Temperature in °C.
     gas_constant : float
-        The universal gas constant in ml / (bar mol K).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------

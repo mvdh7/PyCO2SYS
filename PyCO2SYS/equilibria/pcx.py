@@ -149,7 +149,7 @@ def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
     temperature : float
         Temperature in °C.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -159,7 +159,7 @@ def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
     Pbar = convert.decibar_to_bar(pressure)
     TempK = convert.celsius_to_kelvin(temperature)
     return np.exp(
-        (-deltaV + 0.5 * kappa * Pbar) * Pbar / (gas_constant * TempK)
+        (-deltaV + 0.5 * kappa * Pbar) * Pbar / (10 * gas_constant * TempK)
     )
 
 
@@ -173,7 +173,7 @@ def factor_k_H2S(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -199,7 +199,7 @@ def factor_k_HSO4(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -224,7 +224,7 @@ def factor_k_HF(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -251,7 +251,7 @@ def factor_k_BOH3_M79(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -287,7 +287,7 @@ def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -303,7 +303,9 @@ def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
     Pbar = convert.decibar_to_bar(pressure)
     # This one is handled differently, because the equation doesn't fit the
     # standard deltaV & Kappa form of pressure_factor.
-    return np.exp((27.5 - 0.095 * temperature) * Pbar / (gas_constant * TempK))
+    return np.exp(
+        (27.5 - 0.095 * temperature) * Pbar / (10 * gas_constant * TempK)
+    )
 
 
 def factor_k_H2O_fw(temperature, pressure, gas_constant):
@@ -317,7 +319,7 @@ def factor_k_H2O_fw(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -342,7 +344,7 @@ def factor_k_H2O(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -371,7 +373,7 @@ def factor_k_H3PO4(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -393,7 +395,7 @@ def factor_k_H2PO4(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -415,7 +417,7 @@ def factor_k_HPO4(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -437,7 +439,7 @@ def factor_k_Si(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -464,7 +466,7 @@ def factor_k_NH3(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -490,7 +492,7 @@ def factor_k_H2CO3(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -519,7 +521,7 @@ def factor_k_H2CO3_fw(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -543,7 +545,7 @@ def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -562,7 +564,7 @@ def factor_k_H2CO3_GEOSECS(temperature, pressure, gas_constant):
     return np.exp(
         (24.2 - 0.085 * temperature)
         * Pbar
-        / (gas_constant * (temperature + 273.15))
+        / (10 * gas_constant * (temperature + 273.15))
     )
 
 
@@ -578,7 +580,7 @@ def factor_k_HCO3(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -608,7 +610,7 @@ def factor_k_HCO3_fw(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -632,7 +634,7 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        The universal gas constant in ml / (bar * K * mol).
+        The universal gas constant in J / (mol * K).
 
     Returns
     -------
@@ -653,7 +655,7 @@ def factor_k_HCO3_GEOSECS(temperature, pressure, gas_constant):
     return np.exp(
         (16.4 - 0.04 * temperature)
         * Pbar
-        / (gas_constant * (temperature + 273.15))
+        / (10 * gas_constant * (temperature + 273.15))
     )
 
 
@@ -668,7 +670,7 @@ def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
     pressure : float
         Hydrostatic pressure in dbar.
     gas_constant : float
-        Universal gas constant in ml / (bar * K * mol).
+        Universal gas constant in J / (mol * K).
     pressure_atmosphere : float
         Atmospheric pressure in atm.
 
@@ -679,10 +681,11 @@ def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
     """
     pressure_bar = convert.decibar_to_bar(pressure)
     vCO2 = 32.3  # partial molar volume of CO2 in ml / mol
-    # Note that PyCO2SYS's gas_constant R is in bar units, not atm, so the pressures
-    # and equation here are all converted into bar, unlike in the original W74.
+    # Note that PyCO2SYS's gas_constant R is in bar units, not atm, so the
+    # pressures and equation here are all converted into bar, unlike in the
+    # original W74.
     return np.exp(
         (1.01325 - (pressure_bar + pressure_atmosphere * 1.01325))
         * vCO2
-        / (gas_constant * (temperature + 273.15))
+        / (10 * gas_constant * (temperature + 273.15))
     )
