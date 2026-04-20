@@ -1,11 +1,14 @@
+# PyCO2SYS: marine carbonate system calculations in Python.
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 from collections import UserDict
 from inspect import signature
-from itertools import product
 
 import jax
 import jax.numpy as np
 import networkx as nx
 from jax import jacfwd
+
+from ..meta import egrad
 
 
 jax.config.update("jax_enable_x64", True)
@@ -17,17 +20,6 @@ jax.config.update("jax_enable_x64", True)
 #  1 = user-provided value
 #  2 = calculated as intermediate
 #  3 = calculated by explicit request
-
-
-def egrad(g):
-    # From https://github.com/google/jax/issues/3556#issuecomment-649779759
-    # modified to allow kwargs for g
-    def wrapped(x, *args, **kwargs):
-        y, g_vjp = jax.vjp(lambda x: g(x, *args, **kwargs), x)
-        (x_bar,) = g_vjp(np.ones_like(y))
-        return x_bar
-
-    return wrapped
 
 
 class ShortcutsDict(UserDict):
@@ -83,20 +75,22 @@ class FunctionGraph(UserDict):
         shortcuts: dict | None = None,
     ):
         super().__init__()
-        if defaults is not None:
-            self.defaults = defaults.copy()
-        else:
-            self.defaults = {
-                n: None
-                for n, attrs in self.graph.nodes.items()
-                if "func" not in attrs
-            }
         if graph is not None:
             self.graph = graph.copy()
         else:
             if not isinstance(funcs, dict):
                 raise Exception("Either `graph` or `funcs` must be provided")
             self.graph = self.get_graph(funcs)
+        if defaults is not None:
+            self.defaults = {
+                k: v for k, v in defaults.items() if k in self.graph.nodes
+            }
+        else:
+            self.defaults = {
+                n: None
+                for n, attrs in self.graph.nodes.items()
+                if "func" not in attrs
+            }
         if shortcuts is not None:
             for k in shortcuts:
                 if k in [
@@ -197,7 +191,7 @@ class FunctionGraph(UserDict):
         if len(ignored) > 0:
             print(
                 "Some parameters were not recognised or not valid for this"
-                + " combination of known carbonate system parameters and are"
+                + " combination of known parameters and are"
                 + " being ignored (see `ignored` attribute)"
             )
         self.ignored |= set(ignored)
@@ -212,6 +206,7 @@ class FunctionGraph(UserDict):
         self,
         parameters: list | str | None = None,
     ):
+        """Solve for the requested parameter(s)."""
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
@@ -338,9 +333,9 @@ class FunctionGraph(UserDict):
         return egrad(get_value_of_from_wrt)
 
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt` and
-        store it in `sys.grads[var_of][var_wrt]`.  If there is already a value
-        there, then that value is returned instead of recalculating.
+        """Compute the derivative of `var_of` with respect to `var_wrt`.
+        If there is already a value in `sys.grads[var_of][var_wrt]`,
+        then that value is returned instead of recalculating.
 
         Parameters
         ----------
@@ -385,11 +380,6 @@ class FunctionGraph(UserDict):
             # Here we compute the gradient
             grad_func = self.get_grad_func(var_of, var_wrt)
             d_of__d_wrt = grad_func(value_wrt, **other_values_original)
-            # Put the final value into self.grads, first creating a new
-            # sub-dict if necessary
-            if var_of not in self.grads:
-                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
-            self.grads[var_of][var_wrt] = d_of__d_wrt
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
@@ -413,8 +403,14 @@ class FunctionGraph(UserDict):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
             vars_wrt = [vars_wrt]
-        for var_of, var_wrt in product(vars_of, vars_wrt):
-            self.get_grad(var_of, var_wrt)
+        for var_of in vars_of:
+            var_of = self.shortcuts[var_of]
+            if var_of not in self.grads:
+                self.grads[var_of] = ShortcutDotDict(self.shortcuts)
+            for var_wrt in vars_wrt:
+                var_wrt = self.shortcuts[var_wrt]
+                self.grads[var_of][var_wrt] = self.get_grad(var_of, var_wrt)
+            self.remove_jax_overhead(self.grads[var_of])
         return self
 
     def get_jac_func(self, var_of: str, var_wrt: str):
@@ -425,9 +421,9 @@ class FunctionGraph(UserDict):
         return jacfwd(get_value_of_from_wrt)
 
     def get_jac(self, var_of: str, var_wrt: str):
-        """Compute the Jacobian of `var_of` with respect to `var_wrt` and
-        store it in `sys.jacs[var_of][var_wrt]`.  If there is already a value
-        there, then that value is returned instead of recalculating.
+        """Compute the Jacobian of `var_of` with respect to `var_wrt`.
+        If there is already a value in `sys.jacs[var_of][var_wrt]`,
+        then that value is returned instead of recalculating.
 
         Parameters
         ----------
@@ -461,18 +457,13 @@ class FunctionGraph(UserDict):
             # Here we compute the Jacobian
             jac_func = self.get_jac_func(var_of, var_wrt)
             d_of__d_wrt = jac_func(self.data[var_wrt], **other_values_original)
-            # Put the final value into self.jacs, first creating a new
-            # sub-dict if necessary
-            if var_of not in self.jacs:
-                self.jacs[var_of] = ShortcutDotDict(self.shortcuts)
-            self.jacs[var_of][var_wrt] = d_of__d_wrt
-            self.remove_jax_overhead(self.jacs[var_of])
         return d_of__d_wrt
 
     def get_jacs(
         self,
         vars_of: str | list,
         vars_wrt: str | list,
+        store_jacs: bool = True,
     ):
         """Compute the Jacobians of `vars_of` with respect to `vars_wrt` and
         store them in `sys.jacs[var_of][var_wrt]`.
@@ -490,8 +481,14 @@ class FunctionGraph(UserDict):
             vars_of = [vars_of]
         if isinstance(vars_wrt, str):
             vars_wrt = [vars_wrt]
-        for var_of, var_wrt in product(vars_of, vars_wrt):
-            self.get_jac(var_of, var_wrt)
+        for var_of in vars_of:
+            var_of = self.shortcuts[var_of]
+            if var_of not in self.jacs:
+                self.jacs[var_of] = ShortcutDotDict(self.shortcuts)
+            for var_wrt in vars_wrt:
+                var_wrt = self.shortcuts[var_wrt]
+                self.jacs[var_of][var_wrt] = self.get_jac(var_of, var_wrt)
+            self.remove_jax_overhead(self.jacs[var_of])
         return self
 
     def set_uncertainty(self, **kwargs):
@@ -521,29 +518,65 @@ class FunctionGraph(UserDict):
         self.propagate([self.shortcuts[k] for k in self.uncertainty])
         return self
 
-    def propagate(self, uncertainty_into: str | list[str] = None):
+    def propagate(
+        self,
+        uncertainty_into: str | list[str] = None,
+        keep_cov: bool = True,
+        store_parts: bool = True,
+    ):
+        """Propagate uncertainties from all parameters with assigned
+        uncertainties into the requested set of parameters.
+
+        Parameters
+        ----------
+        uncertainty_into : str | list[str], optional
+            Which parameters to propagate uncertainty into, by default `None`,
+            in which case the list of parameters in `self.requested` is used.
+        keep_cov : bool, optional
+            Whether to keep covariance terms in the final results, by default
+            `True`.
+        store_parts : bool, optional
+            Whether the save the separate uncertainty components, by default
+            `True`.
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
         if uncertainty_into is None:
             uncertainty_into = list(self.requested)
         elif isinstance(uncertainty_into, str):
             uncertainty_into = [uncertainty_into]
         uncertainty_into = {self.shortcuts[ui] for ui in uncertainty_into}
         for ui in uncertainty_into:
-            self.uncertainty[ui] = 0
-            for uf in self.uncertainty.assigned:
+            self.u[ui] = 0
+            for uf in self.u.assigned:
                 x = self[uf]
                 y = self[ui]
-                jac = self.get_jac(ui, uf)
-                ux = self.uncertainty.assigned[uf]
-                if ui not in self.uncertainty.parts:
-                    self.uncertainty.parts[ui] = ShortcutDotDict(
-                        self.shortcuts
-                    )
-                self.uncertainty.parts[ui][uf] = self._propagate(x, y, jac, ux)
-                self.uncertainty[ui] = (
-                    self.uncertainty[ui] + self.uncertainty.parts[ui][uf]
-                )
-            self.remove_jax_overhead(self.uncertainty.parts[ui])
-        self.remove_jax_overhead(self.uncertainty)
+                ux = self.u.assigned[uf]
+                if store_parts and ui not in self.u.parts:
+                    self.u.parts[ui] = ShortcutDotDict(self.shortcuts)
+                # To avoid potentially creating unnecessary large sparse
+                # arrays, we only want to use a Jacobian if we really need to.
+                # Otherwise, an element-wise grad will do.
+                if not self.graph.nodes[uf]["coeffs"] and (
+                    np.shape(ux) == () or np.shape(ux) == np.shape(x)
+                ):
+                    grad_yx = self.get_grad(ui, uf)
+                    part = self._propagate_grad(grad_yx, ux)
+                    self.u[ui] = self.u[ui] + self.expand_zero_cov(part)
+                else:
+                    jac = self.get_jac(ui, uf)
+                    part = self._propagate_jac(x, y, jac, ux)
+                    self.u[ui] = self.u[ui] + part
+                if store_parts:
+                    self.u.parts[ui][uf] = part
+            if store_parts:
+                self.remove_jax_overhead(self.u.parts[ui])
+            if not keep_cov:
+                self.u[ui] = self.cut_cov(self.u[ui])
+        self.remove_jax_overhead(self.u)
         return self
 
     set_u = set_uncertainty
@@ -667,7 +700,7 @@ class FunctionGraph(UserDict):
             return f"{A}{B},{B}{C},{D}{C}->{A}{D}"
 
     @staticmethod
-    def _propagate(
+    def _propagate_jac(
         x: float | np.ndarray,
         y: float | np.ndarray,
         jac: float | np.ndarray,
@@ -687,7 +720,18 @@ class FunctionGraph(UserDict):
         return uy
 
     @staticmethod
-    def cut_covariances(uncert):
+    def _propagate_grad(
+        grad_yx: float | np.ndarray,
+        ux: float | np.ndarray,
+    ):
+        """Propagate independent uncertainties `ux` from `x` to `y` given the
+        derivative of `y` with respect to `x` (`grad_yx`).
+        """
+        uy = ux * grad_yx**2
+        return uy
+
+    @staticmethod
+    def cut_cov(uncert):
         """Collapse a multidimensional uncertainty matrix to remove covariance
         terms, equivalent to taking the main diagonal from a 2D matrix.
         """
@@ -698,3 +742,12 @@ class FunctionGraph(UserDict):
             # `ixs` is "aa->a", "abab->ab", "abcabc->abc", ...
             ixs = "".join(chr(97 + i) for i in range(int(len(ushape) / 2)))
             return np.einsum(ixs + ixs + "->" + ixs, uncert)
+
+    @staticmethod
+    def expand_zero_cov(v):
+        """Inverse of `cut_cov`."""
+        vc = np.zeros((*np.shape(v), *np.shape(v)))
+        for i, val in enumerate(v.ravel()):
+            ix = np.unravel_index(i, np.shape(v))
+            vc = vc.at[*ix, *ix].set(val)
+        return vc

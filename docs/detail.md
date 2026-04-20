@@ -385,6 +385,6 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
 
     * `fugacity_factor`: **fugacity factor** for converting between CO<sub>2</sub> partial pressure and fugacity.
     * `vp_factor`: **vapour pressure factor** for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.    
-    * `gas_constant`: **ideal gas constant** in ml bar<sup>−1</sup> mol<sup>−1</sup> K<sup>−1</sup> (note the unusual unit).
+    * `gas_constant`: **ideal gas constant** in J mol<sup>−1</sup> K<sup>−1</sup>.
 
 <!-- * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`. -->

@@ -1,27 +1,37 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """
 PyCO2SYS.salts
 ==============
-Calculate substance contents of various seawater solutes from practical salinity.
-All values are returned in µmol/kg-sw.
+Calculate substance contents of various seawater solutes from practical
+salinity.  All values are returned in µmol/kg-sw.
 
-Every function has the following signature:
+Every function has one of the following two signatures:
 
   >>> substance_content = pyco2.salts.parameter_citation(salinity)
+  >>> substance_content = pyco2.salts.parameter_citation(coeffs, salinity)
+
+In the second case, the `coeffs` can be obtained from the corresponding coeffs
+function:
+
+  >>> coeffs = pyco2s.salts.coeffs_parameter_citation()
 
 Functions
 ---------
 ionic_strength_DOE94
     Ionic strength following DOE94.
 total_borate_U74
-    Total borate in µmol/kg-sw following U74.  Used when opt_total_borate = 1.
+    Total borate in µmol/kg-sw following U74.
+    Used when opt_total_borate = 1.
 total_borate_LKB10
-    Total borate in µmol/kg-sw following LKB10.  Used when opt_total_borate = 2.
+    Total borate in µmol/kg-sw following LKB10.
+    Used when opt_total_borate = 2.
 total_borate_KSK18
-    Total borate in µmol/kg-sw following KSK18.  Used when opt_total_borate = 3.
+    Total borate in µmol/kg-sw following KSK18.
+    Used when opt_total_borate = 3.
 total_borate_C65
-    Total borate in µmol/kg-sw following C65.  Used when opt_total_borate = 4.
+    Total borate in µmol/kg-sw following C65.
+    Used when opt_total_borate = 4.
 total_fluoride_R65
     Total fluoride in µmol/kg-sw following R65.
 total_sulfate_MR66
@@ -31,6 +41,8 @@ Ca_RT67
 Ca_C65
     Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 """
+
+from jax import numpy as np
 
 from .meta import valid
 
@@ -53,9 +65,14 @@ def ionic_strength_DOE94(salinity):
     return 19.924 * salinity / (1000 - 1.005 * salinity)
 
 
+def coeffs_total_borate_U74():
+    return np.array([0.0, 415.7])
+
+
 @valid(salinity=[34.1, 36.3])
-def total_borate_U74(salinity):
-    """Total borate in µmol/kg-sw following U74.  Used when opt_total_borate = 1.
+def total_borate_U74(coeffs_total_borate, salinity):
+    """Total borate in µmol/kg-sw following U74.
+    Used when opt_total_borate = 1.
 
     Parameters
     ----------
@@ -71,12 +88,18 @@ def total_borate_U74(salinity):
     # Uppstrom, L., Deep-Sea Research 21:161-162, 1974:
     # this is .000416*Sali/35. = .0000119*Sali
     # total_borate[FF] = (0.000232/10.811)*(Sal[FF]/1.80655); in mol/kg-SW.
-    return 415.7 * salinity / 35
+    cf = coeffs_total_borate
+    return cf[0] + cf[1] * salinity / 35
+
+
+def coeffs_total_borate_LKB10():
+    return np.array([0.0, 432.6])
 
 
 @valid(salinity=[34.1, 36.9])
-def total_borate_LKB10(salinity):
-    """Total borate in µmol/kg-sw following LKB10.  Used when opt_total_borate = 2.
+def total_borate_LKB10(coeffs_total_borate, salinity):
+    """Total borate in µmol/kg-sw following LKB10.
+    Used when opt_total_borate = 2.
 
     Parameters
     ----------
@@ -92,12 +115,18 @@ def total_borate_LKB10(salinity):
     # Lee, Kim, Byrne, Millero, Feely, Yong-Ming Liu. 2010.
     # Geochimica Et Cosmochimica Acta 74 (6): 1801-1811.
     # Output in mol/kg-SW.
-    return 432.6 * salinity / 35
+    cf = coeffs_total_borate
+    return cf[0] + cf[1] * salinity / 35
+
+
+def coeffs_total_borate_KSK18():
+    return np.array([13.821, 10.838])
 
 
 @valid(salinity=[0, 20])
-def total_borate_KSK18(salinity):
-    """Total borate in µmol/kg-sw following KSK18.  Used when opt_total_borate = 3.
+def total_borate_KSK18(coeffs_total_borate, salinity):
+    """Total borate in µmol/kg-sw following KSK18.
+    Used when opt_total_borate = 3.
 
     Parameters
     ----------
@@ -109,11 +138,17 @@ def total_borate_KSK18(salinity):
     float
         Total borate in µmol/kg-sw following KSK18.
     """
-    return 10.838 * salinity + 13.821
+    cf = coeffs_total_borate
+    return cf[0] + cf[1] * salinity
 
 
-def total_borate_C65(salinity):
-    """Total borate in µmol/kg-sw following C65.  Used when opt_total_borate = 4.
+def coeffs_total_borate_C65():
+    return np.array([0.0, 410.6])
+
+
+def total_borate_C65(coeffs_total_borate, salinity):
+    """Total borate in µmol/kg-sw following C65.
+    Used when opt_total_borate = 4.
 
     Parameters
     ----------
@@ -130,10 +165,15 @@ def total_borate_C65(salinity):
     # Culkin, F., in Chemical Oceanography, ed. Riley and Skirrow, 1965:
     # GEOSECS references this, but this value is not explicitly given here
     # Output in mol/kg-SW
-    return 410.6 * salinity / 35
+    cf = coeffs_total_borate
+    return cf[0] + cf[1] * salinity / 35
 
 
-def total_fluoride_R65(salinity):
+def coeffs_total_fluoride_R65():
+    return np.array([0.0, 1e6 * 0.000067 / (18.998 * 1.80655)])
+
+
+def total_fluoride_R65(coeffs_total_fluoride, salinity):
     """Total fluoride in µmol/kg-sw following R65.
 
     Parameters
@@ -149,10 +189,15 @@ def total_fluoride_R65(salinity):
     # === CO2SYS.m comments: =======
     # Riley, J. P., Deep-Sea Research 12:219-220, 1965:
     # this is .000068*Sali/35. = .00000195*Sali; in mol/kg-SW.
-    return 1e6 * (0.000067 / 18.998) * salinity / 1.80655
+    cf = coeffs_total_fluoride
+    return cf[0] + cf[1] * salinity
 
 
-def total_sulfate_MR66(salinity):
+def coeffs_total_sulfate_MR66():
+    return np.array([0.0, 1e6 * 0.14 / (96.062 * 1.80655)])
+
+
+def total_sulfate_MR66(coeffs_total_sulfate, salinity):
     """Total sulfate in µmol/kg-sw following MR66.
 
     Parameters
@@ -168,10 +213,15 @@ def total_sulfate_MR66(salinity):
     # === CO2SYS.m comments: =======
     # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
     # this is .02824*Sali/35. = .0008067*Sali; in mol/kg-SW.
-    return 1e6 * (0.14 / 96.062) * salinity / 1.80655
+    cf = coeffs_total_sulfate
+    return cf[0] + cf[1] * salinity
 
 
-def Ca_RT67(salinity):
+def coeffs_Ca_RT67():
+    return np.array([0.0, 1e6 * 0.02128 / (40.087 * 1.80655)])
+
+
+def Ca_RT67(coeffs_Ca, salinity):
     """Calcium in µmol/kg-sw following RT67.  Used when opt_Ca = 1.
 
     Parameters
@@ -186,10 +236,15 @@ def Ca_RT67(salinity):
     """
     # === CO2SYS.m comments: =======
     # This is .010285*Sal/35
-    return 1e6 * 0.02128 / 40.087 * salinity / 1.80655
+    cf = coeffs_Ca
+    return cf[0] + cf[1] * salinity
 
 
-def Ca_C65(salinity):
+def coeffs_Ca_C65():
+    return np.array([0.0, 0.01026e6])
+
+
+def Ca_C65(coeffs_Ca, salinity):
     """Calcium in µmol/kg-sw following C65.  Used when opt_Ca = 2.
 
     Parameters
@@ -208,10 +263,15 @@ def Ca_C65(salinity):
     # (quoted in Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982)
     # Culkin gives Ca = (.0213/40.078)*(Sal/1.80655) in mol/kg-SW
     # which corresponds to Ca = .01030*Sal/35.
-    return 1e6 * 0.01026 * salinity / 35
+    cf = coeffs_Ca
+    return cf[0] + cf[1] * salinity / 35
 
 
-def Mg_reference_composition(salinity):
+def coeffs_Mg_reference_composition():
+    return np.array([0.0, 0.0547421e6])
+
+
+def Mg_reference_composition(coeffs_Mg, salinity):
     """Magnesium in µmol/kg-sw following the reference composition (MFWM08).
 
     Parameters
@@ -224,4 +284,5 @@ def Mg_reference_composition(salinity):
     float
         Magnesium in µmol/kg-sw following the reference composition.
     """
-    return 1e6 * 0.0547421 * salinity / 35
+    cf = coeffs_Mg
+    return cf[0] + cf[1] * salinity / 35

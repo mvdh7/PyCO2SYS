@@ -1,7 +1,8 @@
 # %%
 import numpy as np
 
-from PyCO2SYS import CO2System
+import PyCO2SYS as pyco2
+
 
 # Initial sample conditions
 values = {
@@ -32,7 +33,10 @@ dilution_factor = sample_mass / (sample_mass + titrant_mass)
 # Dilute alkalinity etc. through the titration
 values["alkalinity"] = (
     1e6
-    * (sample_mass * values["alkalinity"] * 1e-6 - titrant_molinity * titrant_mass)
+    * (
+        sample_mass * values["alkalinity"] * 1e-6
+        - titrant_molinity * titrant_mass
+    )
     / (sample_mass + titrant_mass)
 )
 values["dic"] *= dilution_factor
@@ -40,7 +44,7 @@ for k in ["total_borate", "total_fluoride", "total_sulfate"]:
     values[k] *= dilution_factor
 
 # Solve for pH, no phosphate
-sys = CO2System(**values, **opts)
+sys = pyco2.sys(**values, **opts)
 pH = sys["pH"]
 
 # And again, with phosphate
@@ -53,7 +57,7 @@ values_phosphate.update(
         "pk_HPO4": -np.log10(1.32e-15 / 8e-7),
     }
 )
-sys_phosphate = CO2System(**values_phosphate, **opts)
+sys_phosphate = pyco2.sys(**values_phosphate, **opts)
 pH_phosphate = sys_phosphate["pH"]
 
 # Compare with D81's tables
@@ -78,7 +82,8 @@ def test_D81():
 
 
 def test_D81_phosphate():
-    # Presumably these are typos in D81 Table 4, given how well everything else agrees
+    # Presumably these are typos in D81 Table 4, given how well everything
+    # else agrees
     typos = (
         np.isclose(titrant_mass * 1e3, 0.45)
         | np.isclose(titrant_mass * 1e3, 0.60)

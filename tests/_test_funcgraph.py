@@ -6,7 +6,7 @@ from jax import numpy as np
 from matplotlib import pyplot as plt
 
 from PyCO2SYS.meta import valid
-from tests.function_graph import FunctionGraph, egrad
+from tests.function_graph import FunctionGraph
 
 
 @valid(alpha=[0, 1.5], beta=[1, 2])
@@ -69,7 +69,7 @@ data = dict(
     # ),
     alpha=np.vstack([1.5, 2.5, 3.5]),
     # beta=np.vstack([1, 3.0, 2]),
-    b=2.5,
+    b=np.vstack([1.5, 2.5, 3.5]),
     # alpha=np.array([[1.0, 2.0], [3.0, 4.0], [5, 6]]),
     # d=3,
     # b=2,
@@ -77,7 +77,22 @@ data = dict(
     # g=4.0,
     # h=2,
 )
-fu.set_data(**data).set_u(a=0.1).solve("e")
+u_coeffs = np.array(
+    [
+        [0.1, 0, 0, 0, 0],
+        [0, 0.1, 0, 0, 0],
+        [0, 0, 0.1, 0, 0],
+        [0, 0, 0, 0.1, 0],
+        [0, 0, 0, 0, 0.1],
+    ]
+)
+# u_coeffs = np.array([0.1, 0.1, 0.1, 0.1, 0.1])
+# u_coeffs = 0.1
+fu.set_data(**data).set_u(
+    a=0.1,
+    b=np.vstack([0.1, 0.1, 0.1]),
+    coeffs=u_coeffs,
+).solve("e")
 # print(fu.data)
 # result_f = fu.f
 # print(fu.data)
@@ -108,16 +123,25 @@ testgrad = jax.jacfwd(get_e_from_cg)(
 # shape of uncertainty relative to parameter OR always use jac if it's coeffs
 # (check `fu.graph.nodes['coeffs']`)
 # And don't (ever?) store jacs (too big?)
-fu.get_grads(["e", "f"], ["a", "b"])
-fu.get_jacs(["e", "f"], ["a", "b"])
+
+fu.prop("g", keep_cov=False)
+
+pass
 # jac = fu.grads.e.a
 # jshape = np.shape(jac)
 
+# %%
+v = fu.grads.e.a
 
+
+# %%
 def printif(arg):
     return
     print(arg)
 
+
+fu.get_grads(["e", "f"], ["a", "b"])
+fu.get_jacs(["e", "f"], ["a", "b"])
 
 # NOTE Jacobian has shape: (*y.shape, *x.shape)
 # Uncertainty matrix for x has shape (*x.shape, *x.shape)

@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
 import warnings
@@ -52,7 +52,20 @@ def alkalinity_from_dic_pH(
     HF = speciate.get_HF(total_fluoride, H_free, pk_HF_free)
     HNO2 = speciate.get_HNO2(total_nitrite, H, pk_HNO2)
     return speciate.sum_alkalinity(
-        H_free, OH, HCO3, CO3, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF, HNO2
+        H_free,
+        OH,
+        HCO3,
+        CO3,
+        BOH4,
+        HPO4,
+        PO4,
+        H3PO4,
+        H3SiO4,
+        NH3,
+        HS,
+        HSO4,
+        HF,
+        HNO2,
     )
 
 
@@ -173,7 +186,20 @@ def dic_from_alkalinity_pH_speciated(
         DIC in µmol/kg-sw.
     """
     alkalinity_with_zero_dic = speciate.sum_alkalinity(
-        H_free, OH, 0, 0, BOH4, HPO4, PO4, H3PO4, H3SiO4, NH3, HS, HSO4, HF, HNO2
+        H_free,
+        OH,
+        0,
+        0,
+        BOH4,
+        HPO4,
+        PO4,
+        H3PO4,
+        H3SiO4,
+        NH3,
+        HS,
+        HSO4,
+        HF,
+        HNO2,
     )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
@@ -181,11 +207,17 @@ def dic_from_alkalinity_pH_speciated(
             "Some input pH values are impossibly high given the input alkalinity;"
             + " returning `np.nan` rather than negative DIC."
         )
-    alkalinity_carbonate = np.where(F, np.nan, alkalinity - alkalinity_with_zero_dic)
+    alkalinity_carbonate = np.where(
+        F, np.nan, alkalinity - alkalinity_with_zero_dic
+    )
     K1 = 10**-pk_H2CO3
     K2 = 10**-pk_HCO3
     H = 10**-pH
-    dic = alkalinity_carbonate * (H**2 + K1 * H + K1 * K2) / (K1 * H + 2 * K1 * K2)
+    dic = (
+        alkalinity_carbonate
+        * (H**2 + K1 * H + K1 * K2)
+        / (K1 * H + 2 * K1 * K2)
+    )
     return dic
 
 
@@ -421,7 +453,9 @@ def pH_from_alkalinity_dic(
     Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
-    pH = initialise.from_dic(alkalinity, dic, total_borate, pk_H2CO3, pk_HCO3, pk_BOH3)
+    pH = initialise.from_dic(
+        alkalinity, dic, total_borate, pk_H2CO3, pk_HCO3, pk_BOH3
+    )
     pH_tolerance = 1e-8
     pH_delta = 1.0 + pH_tolerance
     while np.any(np.abs(pH_delta) >= pH_tolerance):
@@ -457,8 +491,12 @@ def pH_from_alkalinity_dic(
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
-        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
-        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
+        pH_delta = np.where(
+            np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta
+        )
+        pH = np.where(
+            pH_done, pH, pH + pH_delta
+        )  # only update rows that need it
     return pH
 
 
@@ -533,8 +571,12 @@ def pH_from_alkalinity_fCO2(
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
-        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
-        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
+        pH_delta = np.where(
+            np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta
+        )
+        pH = np.where(
+            pH_done, pH, pH + pH_delta
+        )  # only update rows that need it
     return pH
 
 
@@ -603,8 +645,12 @@ def pH_from_alkalinity_CO3(
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
-        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
-        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
+        pH_delta = np.where(
+            np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta
+        )
+        pH = np.where(
+            pH_done, pH, pH + pH_delta
+        )  # only update rows that need it
     return pH
 
 
@@ -673,8 +719,12 @@ def pH_from_alkalinity_HCO3(
         )  # the pH jump
         # To keep the jump from being too big:
         # This is the default PyCO2SYS way - jump by 1 instead if `pH_delta` > 1
-        pH_delta = np.where(np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta)
-        pH = np.where(pH_done, pH, pH + pH_delta)  # only update rows that need it
+        pH_delta = np.where(
+            np.abs(pH_delta) > 1.0, np.sign(pH_delta), pH_delta
+        )
+        pH = np.where(
+            pH_done, pH, pH + pH_delta
+        )  # only update rows that need it
     return pH
 
 
