@@ -1,23 +1,39 @@
 # %%
 import numpy as np
 
-import PyCO2SYS as pyco2
+import PyCO2SYS.equilibria.p1atm as eq
+
 
 # Import data from W74 Table III
-data = np.genfromtxt("tests/manuscript_2022/data/weiss1974_tableIII.csv", delimiter=",")
+data = np.genfromtxt(
+    "tests/manuscript_2022/data/weiss1974_tableIII.csv", delimiter=","
+)
 salinity = data[0, 1:]
 temperature = np.vstack(data[1:, 0])
 kCO2_W74 = data[1:, 1:]
 
 # Calculate kCO2 with PyCO2SYS
 kCO2_pyco2 = np.array(
-    np.round((10 ** -pyco2.equilibria.p1atm.pk_CO2_W74(temperature, salinity)) * 1e2, 3)
+    np.round(
+        (
+            10
+            ** -eq.pk_CO2_W74(
+                eq.coeffs_pk_CO2_W74(),
+                temperature,
+                salinity,
+            )
+        )
+        * 1e2,
+        3,
+    )
 )
 kCO2_pyco2[0, :2] = np.nan
 
 
 def test_kCO2_W74():
-    assert np.all(np.isclose(kCO2_W74, kCO2_pyco2, rtol=0, atol=1e-5, equal_nan=True))
+    assert np.all(
+        np.isclose(kCO2_W74, kCO2_pyco2, rtol=0, atol=1e-5, equal_nan=True)
+    )
 
 
 # test_kCO2_W74()

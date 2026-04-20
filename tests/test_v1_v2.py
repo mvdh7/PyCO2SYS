@@ -3,7 +3,7 @@ import pickle
 
 import numpy as np
 
-from PyCO2SYS import CO2System
+import PyCO2SYS as pyco2
 
 
 def test_v1_v2():
@@ -11,7 +11,7 @@ def test_v1_v2():
     with open("tests/data/test_v1_v2.pkl", "rb") as f:
         results = pickle.load(f)
     # Solve the system with the v2 approach
-    co2s = CO2System(
+    co2s = pyco2.sys(
         **{
             k: results[k]
             for k in [
@@ -34,54 +34,54 @@ def test_v1_v2():
     dont_compare = [
         "H",
         "factor_k_CO2",
-        "k_H3PO4_sws_1atm",
+        "pk_H3PO4_sws_1atm",
         "factor_k_HPO4",
         "factor_k_Si",
-        "k_CO2_1atm",
-        "k_HPO4_sws_1atm",
+        "pk_CO2_1atm",
+        "pk_HPO4_sws_1atm",
         "ionic_strength",
         "factor_k_H2CO3",
         "factor_k_H3PO4",
         "factor_k_H2O",
-        "k_HPO4_sws",
+        "pk_HPO4_sws",
         "factor_k_HCO3",
-        "k_NH3_total_1atm",
+        "pk_NH3_total_1atm",
         "factor_k_H2PO4",
         "factor_k_HSO4",
         "factor_k_HF",
-        "k_H2CO3_total_1atm",
-        "k_H2PO4_sws_1atm",
-        "k_H2O_sws_1atm",
-        "k_Si_sws_1atm",
-        "k_H2S_total_1atm",
+        "pk_H2CO3_total_1atm",
+        "pk_H2PO4_sws_1atm",
+        "pk_H2O_sws_1atm",
+        "pk_Si_sws_1atm",
+        "pk_H2S_total_1atm",
         "factor_k_NH3",
         "factor_k_BOH3",
         "nbs_to_sws",
-        "k_HCO3_total_1atm",
+        "pk_HCO3_total_1atm",
         "factor_k_H2S",
-        "k_H3PO4_sws",
-        "k_BOH3_total_1atm",
-        "k_HSO4_free_1atm",
-        "k_HF_free_1atm",
-        "k_H2O_sws",
+        "pk_H3PO4_sws",
+        "pk_BOH3_total_1atm",
+        "pk_HSO4_free_1atm",
+        "pk_HF_free_1atm",
+        "pk_H2O_sws",
         "free_to_sws_1atm",
-        "k_H2PO4_sws",
-        "k_Si_sws",
+        "pk_H2PO4_sws",
+        "pk_Si_sws",
         "sws_to_opt",
         "opt_to_sws",
         "tot_to_sws_1atm",
         "opt_to_nbs",
         "opt_to_free",
-        "k_HCO3_sws_1atm",
-        "k_H2S_sws_1atm",
-        "k_NH3_sws_1atm",
-        "k_NH3_sws",
-        "k_H2CO3_sws_1atm",
-        "k_H2CO3_sws",
-        "k_BOH3_sws_1atm",
-        "k_HCO3_sws",
-        "k_BOH3_sws",
-        "k_H2S_sws",
+        "pk_HCO3_sws_1atm",
+        "pk_H2S_sws_1atm",
+        "pk_NH3_sws_1atm",
+        "pk_NH3_sws",
+        "pk_H2CO3_sws_1atm",
+        "pk_H2CO3_sws",
+        "pk_BOH3_sws_1atm",
+        "pk_HCO3_sws",
+        "pk_BOH3_sws",
+        "pk_H2S_sws",
         "d_dic__d_pH__alkalinity",
         "d_CO3__d_pH__dic",
         "d_fCO2__d_pH__alkalinity",
@@ -103,6 +103,22 @@ def test_v1_v2():
         "HNO2",
         "NO2",
         "pk_HNO2",
+        "coeffs_pk_CO2",
+        "coeffs_pk_H2S",
+        "coeffs_pk_BOH3",
+        "coeffs_pk_H2O",
+        "coeffs_pk_HF",
+        "coeffs_pk_HSO4",
+        "coeffs_pk_NH3",
+        "coeffs_pk_Si",
+        "coeffs_pk_HNO2",
+        "factor_k_HNO2",
+        "pkt_Mg_calcite_25C_1atm",
+        "pkt_Mg_calcite_1atm",
+        "pk_Mg_calcite_1atm",
+        "pk_HNO2_total_1atm",
+        "pk_HNO2_sws_1atm",
+        "pk_HNO2_sws",
     ]
     # This converts keys for values that have a different name in v1 and v2
     v2_to_v1 = {
@@ -155,15 +171,19 @@ def test_v1_v2():
             "bh_upsilon",
         ]
     ]
-    # Test the values that can be output as standard from a CO2System
+    # Test the values that can be output as standard from a pyco2.sys
     for k, v in co2s.items():
-        if k in results:
+        if k == "gas_constant":
+            # Units changed between v1 and v2
+            assert np.allclose(results[k] / 10, co2s[k], atol=0, rtol=1e-7)
+            results_keys.remove(k)
+        elif k in results:
             # These ones have the same name in v1 and v2
             a = results[k]
             b = co2s[k]
             if k in ["beta_dic", "gamma_dic", "omega_dic"]:
-                # These ones have NaNs in different places in v1 and v2, which makes
-                # allclose fail, so we need to make the NaNs match first
+                # These ones have NaNs in different places in v1 and v2, which
+                # makes allclose fail, so we need to make the NaNs match first
                 a = a.copy()
                 b = b.copy()
                 L = np.isnan(a) | np.isnan(b)
@@ -182,18 +202,22 @@ def test_v1_v2():
         elif k not in dont_compare:
             # All the others should be in the dont_compare list
             raise Exception(f"{k} isn't in the dont_compare list")
-    # Also test the edge cases (gradients of fCO2 and pCO2 w.r.t. temperature) that have
-    # to be calculated manually for a CO2System
+    # Also test the edge cases (gradients of fCO2 and pCO2 w.r.t. temperature)
+    # that have to be calculated manually for a pyco2.sys
     for k in results_keys.copy():
         if k == "dlnfCO2_dT":
-            co2s.get_grad("fCO2", "temperature")
+            co2s.get_grads("fCO2", "temperature")
             v = co2s.grads["fCO2"]["temperature"] / co2s["fCO2"]
-            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
+            assert np.allclose(
+                results[k], v, atol=0, rtol=1e-7, equal_nan=True
+            ), k
             results_keys.remove(k)
         elif k == "dlnpCO2_dT":
-            co2s.get_grad("pCO2", "temperature")
+            co2s.get_grads("pCO2", "temperature")
             v = co2s.grads["pCO2"]["temperature"] / co2s["pCO2"]
-            assert np.allclose(results[k], v, atol=0, rtol=1e-7, equal_nan=True), k
+            assert np.allclose(
+                results[k], v, atol=0, rtol=1e-7, equal_nan=True
+            ), k
             results_keys.remove(k)
         else:
             # There shouldn't be anything else left in results_keys

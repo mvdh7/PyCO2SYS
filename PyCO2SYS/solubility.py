@@ -17,18 +17,36 @@ def _deltaKappaCalcite_I75(temperature):
     return deltaVKCa, KappaKCa
 
 
-def pk_calcite_M83(temperature, salinity, pressure, gas_constant):
+def coeffs_pk_calcite_M83():
+    return np.array(
+        [
+            -171.9065,
+            -0.077993,
+            2839.319,
+            71.595,
+            -0.77712,
+            0.0028426,
+            178.34,
+            -0.07711,
+            0.0041249,
+            0.0,
+        ]
+    )
+
+
+def pk_calcite_M83(
+    coeffs_pk_calcite, temperature, salinity, pressure, gas_constant
+):
     """Calcite solubility following M83."""
+    cf = coeffs_pk_calcite
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
-    logKCa = -171.9065 - 0.077993 * TempK + 2839.319 / TempK
-    logKCa = logKCa + 71.595 * np.log10(TempK)
-    logKCa = logKCa + (
-        -0.77712 + 0.0028426 * TempK + 178.34 / TempK
-    ) * np.sqrt(salinity)
-    logKCa = (
-        logKCa - 0.07711 * salinity + 0.0041249 * np.sqrt(salinity) * salinity
+    logKCa = cf[0] + cf[1] * TempK + cf[2] / TempK
+    logKCa = logKCa + cf[3] * np.log10(TempK)
+    logKCa = logKCa + (cf[4] + cf[5] * TempK + cf[6] / TempK) * np.sqrt(
+        salinity
     )
+    logKCa = logKCa + cf[7] * salinity + cf[8] * np.sqrt(salinity) * salinity
     # sd fit = .01 (for salinity part, not part independent of salinity)
     KCa = 10.0**logKCa  # this is in (mol/kg-SW)^2 at zero pressure
     # Add pressure correction for calcite [I75, M79]
@@ -39,21 +57,39 @@ def pk_calcite_M83(temperature, salinity, pressure, gas_constant):
         / (10 * gas_constant * TempK)
     )
     KCa = KCa * np.exp(lnKCafac)
-    return -np.log10(KCa)
+    return cf[9] - np.log10(KCa)
 
 
-def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
+def coeffs_pk_aragonite_M83():
+    return np.array(
+        [
+            -171.945,
+            -0.077993,
+            2903.293,
+            71.595,
+            -0.068393,
+            0.0017276,
+            88.135,
+            -0.10018,
+            0.0059415,
+            0.0,
+        ]
+    )
+
+
+def pk_aragonite_M83(
+    coeffs_pk_aragonite, temperature, salinity, pressure, gas_constant
+):
     """Aragonite solubility following M83 with pressure correction of I75."""
+    cf = coeffs_pk_aragonite
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
-    logKAr = -171.945 - 0.077993 * TempK + 2903.293 / TempK
-    logKAr = logKAr + 71.595 * np.log10(TempK)
-    logKAr = logKAr + (
-        -0.068393 + 0.0017276 * TempK + 88.135 / TempK
-    ) * np.sqrt(salinity)
-    logKAr = (
-        logKAr - 0.10018 * salinity + 0.0059415 * np.sqrt(salinity) * salinity
+    logKAr = cf[0] + cf[1] * TempK + cf[2] / TempK
+    logKAr = logKAr + cf[3] * np.log10(TempK)
+    logKAr = logKAr + (cf[4] + cf[5] * TempK + cf[6] / TempK) * np.sqrt(
+        salinity
     )
+    logKAr = logKAr + cf[7] * salinity + cf[8] * np.sqrt(salinity) * salinity
     # sd fit = .009 (for salinity part, not part independent of salinity)
     KAr = 10.0**logKAr  # this is in (mol/kg-SW)^2
     # Add pressure correction for aragonite [M79]:
@@ -68,7 +104,11 @@ def pk_aragonite_M83(temperature, salinity, pressure, gas_constant):
         / (10 * gas_constant * TempK)
     )
     KAr = KAr * np.exp(lnKArfac)
-    return -np.log10(KAr)
+    return cf[9] - np.log10(KAr)
+
+
+def coeffs_pk_calcite_I75():
+    return np.array([0.0])
 
 
 def pk_calcite_P0_I75(temperature, salinity):
@@ -87,10 +127,13 @@ def pk_calcite_P0_I75(temperature, salinity):
     )
 
 
-def pk_calcite_I75(temperature, salinity, pressure, gas_constant):
+def pk_calcite_I75(
+    coeffs_pk_calcite, temperature, salinity, pressure, gas_constant
+):
     """Calcite solubility constant following ICHP73/I75 with pressure correction.
     For use with GEOSECS constants.
     """
+    cf = coeffs_pk_calcite
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
     # === CO2SYS.m comments: =======
@@ -112,13 +155,20 @@ def pk_calcite_I75(temperature, salinity, pressure, gas_constant):
     KCa = 10**-pKCa * np.exp(
         (36 - 0.2 * temperature) * Pbar / (10 * gas_constant * TempK)
     )
-    return -np.log10(KCa)
+    return cf[0] - np.log10(KCa)
 
 
-def pk_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
+def coeffs_pk_aragonite_GEOSECS():
+    return np.array([0.0])
+
+
+def pk_aragonite_GEOSECS(
+    coeffs_pk_aragonite, temperature, salinity, pressure, gas_constant
+):
     """Aragonite solubility following ICHP73 with no pressure correction.
     For use with GEOSECS constants.
     """
+    cf = coeffs_pk_aragonite
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
     # === CO2SYS.m comments: =======
@@ -139,7 +189,7 @@ def pk_aragonite_GEOSECS(temperature, salinity, pressure, gas_constant):
     KAr = KAr * np.exp(
         (33.3 - 0.22 * temperature) * Pbar / (10 * gas_constant * TempK)
     )
-    return -np.log10(KAr)
+    return cf[0] - np.log10(KAr)
 
 
 def OC_from_CO3(CO3, Ca, pk_calcite):

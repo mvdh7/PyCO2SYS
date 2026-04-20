@@ -709,9 +709,17 @@ get_funcs_opts["opt_HCO3_root"] = {  # only added if icase == 207
     1: dict(pH=solve.inorganic.pH_from_dic_HCO3_lo),
     2: dict(pH=solve.inorganic.pH_from_dic_HCO3_hi),  # for typical seawater
 }
+get_coeffs_opts["opt_k_calcite"] = {
+    1: dict(coeffs_pk_calcite=solubility.coeffs_pk_calcite_M83()),
+    2: dict(coeffs_pk_calcite=solubility.coeffs_pk_calcite_I75()),
+}
 get_funcs_opts["opt_k_calcite"] = {
     1: dict(pk_calcite=solubility.pk_calcite_M83),
     2: dict(pk_calcite=solubility.pk_calcite_I75),  # for GEOSECS
+}
+get_coeffs_opts["opt_k_aragonite"] = {
+    1: dict(coeffs_pk_aragonite=solubility.coeffs_pk_aragonite_M83()),
+    2: dict(coeffs_pk_aragonite=solubility.coeffs_pk_aragonite_GEOSECS()),
 }
 get_funcs_opts["opt_k_aragonite"] = {
     1: dict(pk_aragonite=solubility.pk_aragonite_M83),
@@ -1441,7 +1449,7 @@ class CO2System(FunctionGraph):
               vp_factor | Vapour pressure factor, converts pCO2 and xCO2.
            gas_constant | Universal gas constant (J/mol/K).
         """
-        super().solve(parameters)
+        return super().solve(parameters)
 
     def to_pandas(self, parameters=None, store_steps=1):
         """Return parameters as a pandas `Series` or `DataFrame`.  All
@@ -1925,6 +1933,58 @@ class CO2System(FunctionGraph):
             self_adjusted = self
         self.requested = self_requested
         return self_adjusted
+
+    def get_u_coeffs_from_single(self, **u_single) -> dict[str, float]:
+        """Convert a set of single uncertainty values for pKs (e.g., from
+        OEDG18) into the vectors needed for propagation in PyCO2SYS.
+
+        The lengths of these vectors might be different depending on which
+        parameterisation has been chosen for each pK.
+
+        Parameters
+        ----------
+        u_single
+            The single uncertainty values in the pKs, e.g.:
+            `**dict(pk_H2O=0.01)`.
+
+        Returns
+        -------
+        dict[str, float]
+            The uncertainty values in the pK coefficients.
+        """
+        u_coeffs = {}
+        for k, v in u_single.items():
+            try:
+                u_coeffs["coeffs_" + k] = np.zeros_like(self["coeffs_" + k])
+                u_coeffs["coeffs_" + k] = (
+                    u_coeffs["coeffs_" + k].at[-1].set(u_single[k])
+                )
+            except nx.NetworkXError:
+                warn(f'No coeffs available for "{k}"')
+        return u_coeffs
+
+    def set_u_coeffs_from_single(self, **u_single):
+        """Convert a set of single uncertainty values for pKs (e.g., from
+        OEDG18) into the vectors needed for propagation in PyCO2SYS and assign
+        them as the uncertainty values in this CO2System.
+
+        The lengths of these vectors might be different depending on which
+        parameterisation has been chosen for each pK.
+
+        Parameters
+        ----------
+        u_single
+            The single uncertainty values in the pKs, e.g.:
+            `**dict(pk_H2O=0.01)`.
+
+        Returns
+        -------
+        CO2System
+            The CO2System with the uncertainties assigned.
+        """
+        u_coeffs = self.get_u_coeffs_from_single(**u_single)
+        self.set_u(**u_coeffs)
+        return self
 
 
 def sys(data=None, **kwargs):

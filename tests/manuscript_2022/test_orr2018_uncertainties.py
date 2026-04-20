@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 import PyCO2SYS as pyco2
-from PyCO2SYS import CO2System
+
 
 renamer = {
     "Hfree": "H_free",
@@ -31,7 +31,7 @@ opts_orr2 = dict(
     opt_k_carbonic=10,
     opt_total_borate=2,
 )
-sys2 = CO2System(**values_orr2, **opts_orr2)
+sys2 = pyco2.sys(**values_orr2, **opts_orr2)
 sys2.get_grads(grads_of, grads_wrt)
 # Get grads w.r.t. H_free manually from pH grad, because that's how Orr did it and the
 # results are not consistent otherwise
@@ -69,7 +69,7 @@ opts_orr3 = dict(
     opt_total_borate=2,
 )
 grads_wrt = ["total_phosphate", "total_silicate"]
-sys3 = CO2System(**values_orr3, **opts_orr3)
+sys3 = pyco2.sys(**values_orr3, **opts_orr3)
 sys3.get_grads(grads_of, grads_wrt)
 grads_Hfree_manual_orr3 = {}
 for wrt in grads_wrt:
@@ -104,7 +104,9 @@ opts_orr4 = dict(
     opt_total_borate=1,  # note this is different from Tables 2 and 3!
 )
 uncertainty_into = [
-    c for c in orr4.columns if c not in ["wrt", "program", "with_k_uncertainties"]
+    c
+    for c in orr4.columns
+    if c not in ["wrt", "program", "with_k_uncertainties"]
 ]
 uncertainty_into.append("pH")
 uncertainty_from = {
@@ -113,12 +115,18 @@ uncertainty_from = {
     "total_phosphate": 0.1,
     "total_silicate": 4,
 }
-sys4 = CO2System(**values_orr4, **opts_orr4).set_uncertainty(**uncertainty_from)
+sys4 = pyco2.sys(**values_orr4, **opts_orr4).set_uncertainty(
+    **uncertainty_from
+)
 sys4.propagate(uncertainty_into)
 
 u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
 nrow = pd.DataFrame(
-    {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "no"}
+    {
+        "wrt": ["dic_alkalinity"],
+        "program": "PyCO2SYS",
+        "with_k_uncertainties": "no",
+    }
 )
 for into in uncertainty_into:
     nrow[into] = sys4.uncertainty[into]
@@ -130,9 +138,15 @@ uncertainty_from.update(pyco2.uncertainty_OEDG18)
 sys4.set_uncertainty(**uncertainty_from)
 sys4.propagate(uncertainty_into)
 
-u_Hfree_manual_pks = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
+u_Hfree_manual_pks = (
+    np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
+)
 nrow = pd.DataFrame(
-    {"wrt": ["dic_alkalinity"], "program": "PyCO2SYS", "with_k_uncertainties": "yes"}
+    {
+        "wrt": ["dic_alkalinity"],
+        "program": "PyCO2SYS",
+        "with_k_uncertainties": "yes",
+    }
 )
 for into in uncertainty_into:
     nrow[into] = sys4.uncertainty[into]
@@ -174,12 +188,14 @@ def test_table4_OEDG18():
         for of in orr4_groups.columns:
             # if of != "Hfree":
             v_orr = orr4_groups.loc[with_k][of]
-            v_pyco2 = orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
+            v_pyco2 = (
+                orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
+            )
             assert np.isclose(v_orr, v_pyco2, rtol=1e-4, atol=0), (
                 f"Failed on {of} / {wrt}"
             )
 
 
-# test_table2_OEDG18()
-# test_table3_OEDG18()
-# test_table4_OEDG18()
+test_table2_OEDG18()
+test_table3_OEDG18()
+test_table4_OEDG18()

@@ -2,12 +2,14 @@
 import numpy as np
 import pandas as pd
 
-from PyCO2SYS import CO2System
+import PyCO2SYS as pyco2
 
 
 def test_pressured_differences():
     # Open file from MATLAB (created by Jon Sharp on 2023-01-19)
-    mlp = pd.read_csv("tests/data/test_pressured_kCO2_pressured_jds.csv", index_col=0)
+    mlp = pd.read_csv(
+        "tests/data/test_pressured_kCO2_pressured_jds.csv", index_col=0
+    )
     partypes = {1: "alkalinity", 2: "dic", 3: "pH", 4: "pCO2", 5: "fCO2"}
     opts = dict(opt_k_carbonic=10)
     solve_out = [
@@ -25,7 +27,7 @@ def test_pressured_differences():
             partypes[pars[0]]: group.par1.values,
             partypes[pars[1]]: group.par2.values,
         }
-        sys_in = CO2System(
+        sys_in = pyco2.sys(
             **values_pars,
             pressure=group.pressure.values,
             temperature=group.temperature.values,
@@ -33,7 +35,7 @@ def test_pressured_differences():
             **opts,
         )
         sys_in.solve(solve_in)
-        sys_out = CO2System(
+        sys_out = pyco2.sys(
             alkalinity=sys_in.alkalinity,
             dic=sys_in.dic,
             pressure=group.pressure_out.values,

@@ -2,7 +2,8 @@
 import numpy as np
 
 import PyCO2SYS as pyco2
-from PyCO2SYS import CO2System
+import PyCO2SYS.equilibria.p1atm as eq
+
 
 # Prepare test conditions
 npts = 100
@@ -14,11 +15,16 @@ temperature = 22.3
 salinity = 31.0
 total_sulfate = pyco2.salts.total_sulfate_MR66(salinity)
 total_fluoride = pyco2.salts.total_fluoride_R65(salinity)
-pk_HF_free = pyco2.equilibria.p1atm.pk_HF_free_PF87(temperature, salinity)
-pk_HSO4_free = pyco2.equilibria.p1atm.pk_HSO4_free_WM13(temperature, salinity)
+pk_HF_free = eq.pk_HF_free_PF87(
+    eq.coeffs_pk_HF_free_PF87(), temperature, salinity
+)
+pk_HSO4_free = eq.pk_HSO4_free_WM13(
+    eq.coeffs_pk_HSO4_free_WM13(), temperature, salinity
+)
 fH = pyco2.convert.fH_TWB82(temperature, salinity)
 
-# Do pH scale conversions in a loop forwards: Total => Seawater => NBS => Free => Total
+# Do pH scale conversions in a loop forwards:
+# Total => Seawater => NBS => Free => Total
 pH_S_f = pH_T_i + pyco2.convert.pH_tot_to_sws(
     total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
 )
@@ -28,7 +34,8 @@ pH_F_f = pH_N_f + pyco2.convert.pH_nbs_to_free(
 )
 pH_T_f = pH_F_f + pyco2.convert.pH_free_to_tot(total_sulfate, pk_HSO4_free)
 
-# Do pH scale conversions in a loop backwards: Total => Free => NBS => Seawater => Total
+# Do pH scale conversions in a loop backwards:
+# Total => Free => NBS => Seawater => Total
 pH_F_b = pH_T_i + pyco2.convert.pH_tot_to_free(total_sulfate, pk_HSO4_free)
 pH_N_b = pH_F_b + pyco2.convert.pH_free_to_nbs(
     total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
@@ -67,10 +74,10 @@ def test_pH_conversions():
 
 def test_pH_conversions_sys():
     scales = ["pH_total", "pH_sws", "pH_free", "pH_nbs"]
-    sys1 = CO2System(pH=8.1, opt_pH_scale=1)
-    sys2 = CO2System(pH=sys1["pH_sws"], opt_pH_scale=2)
-    sys3 = CO2System(pH=sys1["pH_free"], opt_pH_scale=3)
-    sys4 = CO2System(pH=sys1["pH_nbs"], opt_pH_scale=4)
+    sys1 = pyco2.sys(pH=8.1, opt_pH_scale=1)
+    sys2 = pyco2.sys(pH=sys1["pH_sws"], opt_pH_scale=2)
+    sys3 = pyco2.sys(pH=sys1["pH_free"], opt_pH_scale=3)
+    sys4 = pyco2.sys(pH=sys1["pH_nbs"], opt_pH_scale=4)
     for sys in [sys1, sys2, sys3, sys4]:
         sys.solve(scales)
     for scale in scales:

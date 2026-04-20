@@ -1,9 +1,10 @@
 # %%
 import numpy as np
 
-from PyCO2SYS import CO2System
+import PyCO2SYS as pyco2
 
-co2s = CO2System(temperature=0, salinity=35, opt_k_carbonic=18)
+
+co2s = pyco2.sys(temperature=0, salinity=35, opt_k_carbonic=18)
 co2s.solve(["pk_H2CO3", "pk_HCO3"])
 
 
