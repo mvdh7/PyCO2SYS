@@ -3,22 +3,23 @@
 """
 PyCO2SYS.equilibria.pcx
 =======================
-Calculate presure-correction factors for equilibrium constants.  These should be
-multiplied by the raw K value (not pK) to convert.
+Calculate presure-correction factors for equilibrium constants.  These should
+be multiplied by the raw K value (not pK) to convert.
 
 Functions
 ---------
 pressure_factor
-    Calculate pressure-correction factor for a particular equilibrium constant using
-    the deltaV / kappa formulation.
+    Calculate pressure-correction factor for a particular equilibrium constant
+    using the deltaV / kappa formulation.
 factor_k_BOH3_M79
     Calculate pressure-correction factor for k_BOH3 following M79.
     Used when opt_factor_pk_BOH3 = 1.
 factor_k_BOH3_GEOSECS
-    Calculate pressure-correction factor for k_BOH3 following the GEOSECS approach.
-    Used when opt_factor_pk_BOH3 = 2.
+    Calculate pressure-correction factor for k_BOH3 following the GEOSECS
+    approach. Used when opt_factor_pk_BOH3 = 2.
 factor_k_H2O
-    Calculate pressure-correction factor for k_H2O.  Used when opt_factor_pk_H2O = 1.
+    Calculate pressure-correction factor for k_H2O.  Used when
+    opt_factor_pk_H2O = 1.
 factor_k_H2O_fw
     Calculate pressure-correction factor for k_H2O in freshwater.
     Used when opt_factor_pk_H2O = 2.
@@ -135,8 +136,8 @@ from ..meta import valid
 
 
 def pressure_factor(deltaV, kappa, pressure, temperature, gas_constant):
-    """Calculate pressure-correction factor for a particular equilibrium constant using
-    the deltaV / kappa formulation.
+    """Calculate pressure-correction factor for a particular equilibrium
+    constant using the deltaV / kappa formulation.
 
     Parameters
     ----------
@@ -277,8 +278,8 @@ def factor_k_BOH3_M79(temperature, pressure, gas_constant):
 
 
 def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
-    """Calculate pressure-correction factor for k_BOH3 following the GEOSECS approach.
-    Used when opt_factor_pk_BOH3 = 2.
+    """Calculate pressure-correction factor for k_BOH3 following the GEOSECS
+    approach.  Used when opt_factor_pk_BOH3 = 2.
 
     Parameters
     ----------
@@ -297,8 +298,8 @@ def factor_k_BOH3_GEOSECS(temperature, pressure, gas_constant):
     # GEOSECS Pressure Effects On K1, K2, KB (on the NBS scale)
     # Takahashi et al, GEOSECS Pacific Expedition v. 3, 1982 quotes
     # Culberson and Pytkowicz, L and O 13:403-417, 1968:
-    # but the fits are the same as those in Edmond and Gieskes, GCA, 34:1261-1291, 1970
-    # who in turn quote Li, personal communication
+    # but the fits are the same as those in Edmond and Gieskes, GCA,
+    # 34:1261-1291, 1970 who in turn quote Li, personal communication
     TempK = convert.celsius_to_kelvin(temperature)
     Pbar = convert.decibar_to_bar(pressure)
     # This one is handled differently, because the equation doesn't fit the
@@ -335,7 +336,8 @@ def factor_k_H2O_fw(temperature, pressure, gas_constant):
 
 
 def factor_k_H2O(temperature, pressure, gas_constant):
-    """Calculate pressure-correction factor for k_H2O.  Used when opt_factor_pk_H2O = 1.
+    """Calculate pressure-correction factor for k_H2O.  Used when
+    opt_factor_pk_H2O = 1.
 
     Parameters
     ----------
@@ -474,7 +476,8 @@ def factor_k_NH3(temperature, pressure, gas_constant):
         The correction factor, to be multiplied by the K value to correct it.
     """
     # === CO2SYS.m comments: =======
-    # The corrections are from Millero, 1995, which are the same as Millero, 1983.
+    # The corrections are from Millero, 1995, which are the same as Millero,
+    # 1983.
     deltaV = -26.43 + 0.0889 * temperature - 0.000905 * temperature**2
     kappa = (-5.03 + 0.0814 * temperature) / 1000
     return pressure_factor(deltaV, kappa, pressure, temperature, gas_constant)
