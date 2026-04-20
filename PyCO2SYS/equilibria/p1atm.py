@@ -2443,9 +2443,8 @@ def coeffs_pk_HCO3_total_MMB25():
 
 @valid(temperature=[0, 35], salinity=[0, 41])
 def pk_HCO3_total_MMB25(coeffs_pk_HCO3, temperature, salinity):
-    """Carbonic acid dissociation constants with K2 following MMB25.
-    K1 should come from WMW14.
-    Used when opt_k_carbonic = 19.
+    """Second carbonic acid dissociation constant following MMB25.
+    K1 should come from WM13/WMW14.  Used when opt_k_carbonic = 19.
     """
     cf = coeffs_pk_HCO3
     TempK = convert.celsius_to_kelvin(temperature)
