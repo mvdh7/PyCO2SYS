@@ -139,22 +139,18 @@ def test_equilibrium_constants():
                 ]:
                     pk_python_in[:] = -999.9
                     pk_python_out[:] = -999.9
-            assert np.all(
-                np.isclose(
-                    pk_matlab_in,
-                    pk_python_in,
-                    rtol=1e-12,
-                    atol=1e-16,
-                )
-            )
-            assert np.all(
-                np.isclose(
-                    pk_matlab_out,
-                    pk_python_out,
-                    rtol=1e-12,
-                    atol=1e-16,
-                )
-            )
+            assert np.allclose(
+                pk_matlab_in,
+                pk_python_in,
+                rtol=1e-12,
+                atol=1e-16,
+            ), f"Failed on {m} / {p} {g}"
+            assert np.allclose(
+                pk_matlab_out,
+                pk_python_out,
+                rtol=1e-12,
+                atol=1e-16,
+            ), f"Failed on {m} / {p} {g}"
 
 
 def test_total_salts():
@@ -189,10 +185,8 @@ def test_total_salts():
                 "total_borate",
             ]:
                 python[:] = 0.0
-            assert np.all(
-                np.isclose(group[m].values, python, rtol=1e-12, atol=1e-16)
-            )
+            assert np.allclose(group[m].values, python, rtol=1e-12, atol=1e-16)
 
 
-test_equilibrium_constants()
-test_total_salts()
+# test_equilibrium_constants()
+# test_total_salts()

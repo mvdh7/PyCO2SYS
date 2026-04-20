@@ -110,17 +110,17 @@ uncertainty_into = [
 ]
 uncertainty_into.append("pH")
 uncertainty_from = {
-    "alkalinity": 2,
-    "dic": 2,
-    "total_phosphate": 0.1,
-    "total_silicate": 4,
+    "alkalinity": 2**2,
+    "dic": 2**2,
+    "total_phosphate": 0.1**2,
+    "total_silicate": 4**2,
 }
-sys4 = pyco2.sys(**values_orr4, **opts_orr4).set_uncertainty(
-    **uncertainty_from
-)
+sys4 = pyco2.sys(**values_orr4, **opts_orr4).set_u(**uncertainty_from)
 sys4.propagate(uncertainty_into)
 
-u_Hfree_manual = np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
+u_Hfree_manual = (
+    np.log(10) * 10 ** -sys4["pH"] * np.sqrt(sys4.uncertainty["pH"]) * 1e6
+)
 nrow = pd.DataFrame(
     {
         "wrt": ["dic_alkalinity"],
@@ -129,17 +129,16 @@ nrow = pd.DataFrame(
     }
 )
 for into in uncertainty_into:
-    nrow[into] = sys4.uncertainty[into]
+    nrow[into] = np.sqrt(sys4.uncertainty[into])
     if into == "H_free":
         nrow[into] = u_Hfree_manual * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
 # Now also include the pKs etc.
-uncertainty_from.update(pyco2.uncertainty_OEDG18)
-sys4.set_uncertainty(**uncertainty_from)
-sys4.propagate(uncertainty_into)
+sys4.set_u_OEDG18()
+sys4.prop(uncertainty_into)
 
 u_Hfree_manual_pks = (
-    np.log(10) * 10 ** -sys4["pH"] * sys4.uncertainty["pH"] * 1e6
+    np.log(10) * 10 ** -sys4["pH"] * np.sqrt(sys4.uncertainty["pH"]) * 1e6
 )
 nrow = pd.DataFrame(
     {
@@ -149,7 +148,7 @@ nrow = pd.DataFrame(
     }
 )
 for into in uncertainty_into:
-    nrow[into] = sys4.uncertainty[into]
+    nrow[into] = np.sqrt(sys4.uncertainty[into])
     if into == "H_free":
         nrow[into] = u_Hfree_manual_pks * 1e3
 orr4 = pd.concat((orr4, nrow), ignore_index=True)
@@ -192,10 +191,10 @@ def test_table4_OEDG18():
                 orr4.loc["dic_alkalinity"].loc["PyCO2SYS"].loc[with_k][of]
             )
             assert np.isclose(v_orr, v_pyco2, rtol=1e-4, atol=0), (
-                f"Failed on {of} / {wrt}"
+                f"Failed on {of} (with ks = {with_k})"
             )
 
 
-test_table2_OEDG18()
-test_table3_OEDG18()
-test_table4_OEDG18()
+# test_table2_OEDG18()
+# test_table3_OEDG18()
+# test_table4_OEDG18()

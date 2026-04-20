@@ -24,12 +24,11 @@ import jax
 from . import meta
 from .engine import CO2System, sys
 from .meta import hello  # because history
-from .uncertainty import all_OEDG18 as uncertainty_OEDG18
 
 
 jax.config.update("jax_enable_x64", True)
 
 say_hello = hello  # for backwards compatibility
-__all__ = ["CO2System", "hello", "say_hello", "sys", "uncertainty_OEDG18"]
+__all__ = ["CO2System", "hello", "say_hello", "sys"]
 __author__ = meta.authors
 __version__ = meta.version

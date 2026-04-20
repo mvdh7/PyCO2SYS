@@ -534,6 +534,84 @@ get_funcs_opts["opt_k_carbonic"] = {
 # Peng "correction", but that's handled elsewhere):
 gfo = get_funcs_opts
 get_funcs_opts["opt_k_carbonic"][7] = gfo["opt_k_carbonic"][6].copy()
+get_coeffs_opts["opt_k_carbonic"] = {
+    1: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_RRV93(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_RRV93(),
+    ),
+    2: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_GP89(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_GP89(),
+    ),
+    3: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_H73_DM87(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_H73_DM87(),
+    ),
+    4: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_MCHP73_DM87(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_MCHP73_DM87(),
+    ),
+    5: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_HM_DM87(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_HM_DM87(),
+    ),
+    6: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_nbs_MCHP73(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_nbs_MCHP73(),
+    ),
+    7: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_nbs_MCHP73(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_nbs_MCHP73(),
+    ),
+    8: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_M79(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_M79(),
+    ),
+    9: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_nbs_CW98(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_nbs_CW98(),
+    ),
+    10: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_LDK00(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_LDK00(),
+    ),
+    11: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_MM02(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_MM02(),
+    ),
+    12: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_MPL02(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_MPL02(),
+    ),
+    13: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_MGH06(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_MGH06(),
+    ),
+    14: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_M10(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_M10(),
+    ),
+    15: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_sws_WMW14(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_sws_WMW14(),
+    ),
+    16: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_SLH20(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_SLH20(),
+    ),
+    17: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_WMW14(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_SB21(),
+    ),
+    18: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_PLR18(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_PLR18(),
+    ),
+    19: dict(
+        coeffs_pk_H2CO3=equilibria.p1atm.coeffs_pk_H2CO3_total_WMW14(),
+        coeffs_pk_HCO3=equilibria.p1atm.coeffs_pk_HCO3_total_MMB25(),
+    ),
+}
 get_funcs_opts["opt_k_phosphate"] = {
     1: dict(
         pk_H3PO4_sws_1atm=equilibria.p1atm.pk_H3PO4_sws_YM95,
@@ -691,6 +769,12 @@ for o, funcs in get_funcs_opts["opt_pH_scale"].items():
         funcs.update(dict(pH_free=lambda pH, opt_to_free: pH + opt_to_free))
     if o in [1, 2, 3]:
         funcs.update(dict(pH_nbs=lambda pH, opt_to_nbs: pH + opt_to_nbs))
+get_coeffs_opts["opt_total_borate"] = {
+    1: dict(coeffs_total_borate=salts.coeffs_total_borate_U74()),
+    2: dict(coeffs_total_borate=salts.coeffs_total_borate_LKB10()),
+    3: dict(coeffs_total_borate=salts.coeffs_total_borate_KSK18()),
+    4: dict(coeffs_total_borate=salts.coeffs_total_borate_C65()),
+}
 get_funcs_opts["opt_total_borate"] = {
     1: dict(total_borate=salts.total_borate_U74),
     2: dict(total_borate=salts.total_borate_LKB10),
@@ -1053,6 +1137,9 @@ set_node_labels = {
     "coeffs_pk_NH3": "coeffs_pk_NH3",
     "coeffs_pk_Si": "coeffs_pk_Si",
     "coeffs_pk_HNO2": "coeffs_pk_HNO2",
+    "coeffs_pk_H2CO3": "coeffs_pk_H2CO3",
+    "coeffs_pk_HCO3": "coeffs_pk_HCO3",
+    "coeffs_total_borate": "coeffs_total_borate",
 }
 set_node_labels.update(
     {
@@ -1301,6 +1388,8 @@ class CO2System(FunctionGraph):
     available for a `dict` can be used.  Methods such as `keys`, `values` and
     `items` will run only over parameters that have already been solved for.
     """
+
+    from .uncertainty import set_u_OEDG18
 
     def __init__(
         self,
