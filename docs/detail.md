@@ -8,8 +8,6 @@
 
 # Arguments and results
 
-This page provides a comprehensive overview of the keyword arguments that can be provided to `pyco2.sys` and the results it can compute.
-
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
@@ -26,11 +24,11 @@ This page provides a comprehensive overview of the keyword arguments that can be
 
 Each argument to `pyco2.sys` can be either a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
-Pandas `DataFrame`s and xarray `Dataset`s can be provided using the `data` kwarg (see [User guide / Quick-start guide / Data structures](quick.md/#data-structures)).
+Pandas DataFrames and xarray Datasets can be provided using the `data` kwarg (see [User guide / Quick-start guide / Data structures](quick.md/#data-structures)).
 
 ### Carbonate system parameters
 
-Up to two carbonate system parameters can be provided.
+Two, one or zero carbonate system parameters can be provided.
 
 !!! inputs annotate "Carbonate system parameters"
 
@@ -38,7 +36,7 @@ Up to two carbonate system parameters can be provided.
 
     * `alkalinity`(1): **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
     * `dic`(2): **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
-    * `pH`: **pH** on the total, seawater, free or NBS scale.  Which scale is given by `opt_pH_scale`.
+    * `pH`: **pH** on the total, seawater, free or NBS scale, as given by `opt_pH_scale`.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * Any one of:
         * `pCO2`: **partial pressure of CO<sub>2</sub>** in μatm,
@@ -73,7 +71,7 @@ If not provided, these revert to default values.
     * `pressure`(3): **hydrostatic pressure** in dbar (default 0 dbar) at which the carbonate system parameters are provided.
     * `pressure_atmosphere`: **atmospheric pressure** in atm (default 1 atm).
 
-    As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
+    As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive and the two known parameters are at a different temperature and/or pressure from each other.
 
 1.  Shortcuts: `sal`, `s`
 2.  Shortcuts: `temp`, `t`
@@ -343,7 +341,7 @@ Buffer factors are evaluated using automatic differentiation of the complete alk
     * `Q_isocap_approx`: **isocapnic quotient approximation** of [HDW18](refs.md/#h).
     * `dlnfCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
     * `dlnpCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
-    * `substrate_inhibitor_ratio`(3): **substrate:inhibitor ratio** of [B15](refs.md/#b) in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+    * `substrate_inhibitor_ratio`(3): **substrate:inhibitor ratio** of [B15](refs.md/#b) in mol(HCO<sub>3</sub><sup>−</sup>) μmol(H<sup>+</sup>)<sup>−1</sup>.
      
 1.  Shortcut: `revelle`
 2.  Shortcut: `q`
@@ -359,7 +357,7 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
     * `pk_H2CO3`(2): **first carbonic acid** dissociation constant.
     * `pk_HCO3`(3): **second carbonic acid** dissociation constant.
     * `pk_H2O`(4): **water** dissociation constant.
-    * `pk_BOH3`: **boric acid** dissociation constant.
+    * `pk_BOH3`(5): **boric acid** dissociation constant.
     * `pk_HF_free`: **hydrogen fluoride** dissociation constant.
     * `pk_HSO4_free`: **bisulfate** dissociation constant.
     * `pk_H3PO4`: **first phosphoric acid** dissociation constant.
@@ -378,6 +376,7 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
 2.  Shortcut: `pk1`
 3.  Shortcut: `pk2`
 4.  Shortcut: `pkw`
+5.  Shortcut: `pkb`
 
 ### Other results
 
