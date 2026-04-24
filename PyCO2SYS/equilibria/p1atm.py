@@ -545,6 +545,48 @@ def pk_BOH3_nbs_LTB69(coeffs_pk_BOH3, temperature, salinity):
     logKB = cf[0] + cf[1] * salinity + cf[2] * temperature
     return cf[3] - logKB
 
+def coeffs_pk_BOH3_total_MMB26():
+    return np.array([-60.043854,
+    88.294428,
+    3709.084,
+    2982.6982,
+    -0.07836,
+    9.976213,
+    -524.59154,
+    -0.0213143,
+    0.000018276])
+
+@valid(temperature=[0, 45], salinity=[0, 45])
+def pk_BOH3_total_MMB26(coeffs_pk_BOH3, temperature, salinity):
+    """Boric acid dissociation constant following MMB26.  Used when
+    opt_k_BOH3 = 3.
+
+    Parameters
+    ----------
+    temperature : float
+        Temperature in °C.
+    salinity : float
+        Practical salinity.
+
+    Returns
+    -------
+    float
+        B(OH)3 dissociation constant.
+    """
+    cf = coeffs_pk_BOH3
+    Temp_K, Sal = temperature, salinity
+    pKB = (
+        + cf[0]
+        + cf[1] * np.sqrt(Sal)
+        + cf[2] / Temp_K
+        + cf[3] * np.sqrt(Sal) / Temp_K
+        + cf[4] * np.sqrt(Sal)/(1 + np.sqrt(Sal))
+        + cf[5] * np.log(Temp_K)
+        + cf[6] * np.sqrt(Sal)/np.log(Temp_K)
+        + cf[7] * np.sqrt(Sal)* Temp_K
+        + cf[8] * Sal* Temp_K
+    )
+    return pKB
 
 def coeffs_pk_H2O_sws_M95():
     return np.array(

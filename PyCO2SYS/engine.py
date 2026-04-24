@@ -655,10 +655,17 @@ get_funcs_opts["opt_k_BOH3"] = {
             pk_BOH3_nbs_1atm + nbs_to_sws
         ),
     ),
+   3: dict(
+        pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_MMB26,
+        pk_BOH3_sws_1atm=lambda pk_BOH3_total_1atm, tot_to_sws_1atm: (
+            pk_BOH3_total_1atm + tot_to_sws_1atm
+        ),
+    ),
 }
 get_coeffs_opts["opt_k_BOH3"] = {
     1: dict(coeffs_pk_BOH3=equilibria.p1atm.coeffs_pk_BOH3_total_D90b()),
     2: dict(coeffs_pk_BOH3=equilibria.p1atm.coeffs_pk_BOH3_nbs_LTB69()),
+    3: dict(coeffs_pk_BOH3=equilibria.p1atm.coeffs_pk_BOH3_total_MMB26()),
 }
 get_funcs_opts["opt_k_H2O"] = {
     1: dict(pk_H2O_sws_1atm=equilibria.p1atm.pk_H2O_sws_M95),
