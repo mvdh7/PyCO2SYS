@@ -18,7 +18,7 @@ co2t = (
     pyco2.sys(opt_k_BOH3=3, temperature=temperature)
     .set_u(coeffs_pk_BOH3=np.pad(cov_pkb, ((0, 1), (0, 1))))
     # .set_u_coeffs_from_single(pk_BOH3=0.04**2)
-    .prop("pk_BOH3")
+    .prop("pk_BOH3", keep_cov=False)
 )
 co2s = (
     pyco2.sys(opt_k_BOH3=3, salinity=salinity)
@@ -27,6 +27,7 @@ co2s = (
     .prop("pk_BOH3")
 )
 
+# %%
 var_pkb = np.diag(cov_pkb)
 std_pkb = np.sqrt(var_pkb)
 coeffs_true = pyco2.equilibria.p1atm.coeffs_pk_BOH3_total_MMB26()[:-1]
@@ -85,8 +86,8 @@ ax.fill_between(
 )
 ax.set_xlabel("Temperature / °C")
 ax = axs[1]
-ax.plot(salinity, co2s.pkb)
-ax.plot(salinity, pkb_sim_s)
+# ax.plot(salinity, co2s.pkb)
+# ax.plot(salinity, pkb_sim_s)
 ax.fill_between(
     salinity,
     co2s.pkb - 2 * np.sqrt(np.diag(co2s.u.pkb)),
