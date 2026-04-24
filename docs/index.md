@@ -8,23 +8,23 @@
 
 # PyCO2SYS
 
-!!! info "PyCO2SYS v2"
+PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.
 
-    **If you are here to test PyCO2SYS v2**, then create a test environment with Python v3.10 or greater, and then in that environment run
+!!! info "Installing PyCO2SYS v2"
 
-        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b5
+    Create an environment with Python v3.11 or greater and run
 
-    This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  If you wish to try out using PyCO2SYS with pandas and/or xarray, you'll need to install those into the environment separately.
+        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b6
 
-    As bugs are fixed and beta features finalised, new beta versions will be released ad hoc.  The final part of the version number (after the `-b`) will increment with each new beta release.
+    This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  To try out using PyCO2SYS with pandas and/or xarray, you'll need to install those separately.
+
+    As bugs are fixed and beta features finalised, new beta versions will be released ad hoc and the install link above updated.  New version releases will be announced on [SystemCO2.net](https://systemco2.net).
 
 !!! tip "JAX double precision"
 
-    On import, PyCO2SYS should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which will adversely affect the results.  If a warning about this appears when running code, or to be on the safe side, set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, for example:
+    On import, PyCO2SYS v2 should automatically [set JAX in double precision mode](https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision).  However, it's possible that this won't always happen, which will adversely affect the results.  If a warning about this appears when running code, or to be on the safe side, set the environment variable `JAX_ENABLE_X64=True` to enforce this behaviour, for example:
 
         conda env config vars set JAX_ENABLE_X64=True
-
-PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.  It was originally based on CO2SYS for MATLAB[^1].
 
 ## Installation
 
@@ -48,7 +48,7 @@ Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys
 
     conda install conda-forge::PyCO2SYS
 
-## How to use PyCO2SYS
+## How to use PyCO2SYS v2
 
 Start with the
 
@@ -75,11 +75,9 @@ may help you to transition.
 
 You can see some working examples of PyCO2SYS in action on Github at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).  You can run all of the notebooks there live in your browser [via Binder](https://mybinder.org/v2/gh/mvdh7/PyCO2SYS-examples/master), without installing anything on your computer.
 
-Adding your notebooks showcasing PyCO2SYS to [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples) is welcomed!
-
 ## About
 
-PyCO2SYS is maintained primarily by [Dr Matthew P. Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) of NIOZ Royal Netherlands Institute for Sea Research (Texel) with support from the main developers of all previous versions of CO2SYS.
+PyCO2SYS is maintained primarily by [Dr Matthew P. Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) at NIOZ Royal Netherlands Institute for Sea Research (Texel), with support from a range of other contributers and the developers of several other CO2SYS implementations.
 
 ### Citation
 
@@ -91,7 +89,7 @@ A paper describing PyCO2SYS is freely available:
 To cite the PyCO2SYS software itself:
 
 !!! note "PyCO2SYS code citation"
-    Humphreys, M. P., Cala, B. A., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2024).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
+    Humphreys, M. P., Martin-Mayor, M., Cala, B. A., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2024).  PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.*  [doi:10.5281/zenodo.3744275](http://doi.org/10.5281/zenodo.3744275).
 
 The DOI above refers to all versions of PyCO2SYS.  Please specify which version of PyCO2SYS you used.  You can find the version number that you are using in Python with:
 
@@ -100,11 +98,11 @@ import PyCO2SYS as pyco2
 pyco2.hello()
 ```
 
-You should also consider citing the original work by [Lewis and Wallace (1998)](refs.md/#l), and specify which [optional sets of constants](detail.md/#settings) you used in your calculations.
+You should also consider citing the original work by [Lewis and Wallace (1998)](refs/#l), plus which [optional sets of constants](detail/#settings) you used in your calculations.
 
 ### History
 
-The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs.md/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs.md/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs.md/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work ([HLSP22](refs.md/#h)).  Further (ongoing) modifications and additions to the PyCO2SYS code and documentation have been made by Matthew Humphreys, Luke Gregor, Daniel Sandborn, Abigail Schiller and Ben Cala.
+The original CO2SYS program for DOS was created by Ernie Lewis and Doug Wallace ([LW98](refs/#l)).  This was translated into MATLAB by Denis Pierrot and subsequently optimised by Steven van Heuven ([HPR11](refs/#h)).  Jim Orr and co-authors added further sets of equilibrium constants and implemented error propagation in a separate program ([OEDG18](refs/#o)).  The latest MATLAB version was translated into Python as PyCO2SYS by Matthew Humphreys, benefitting enormously from all this previous work ([HLSP22](refs/#h)).  Further (ongoing) modifications and additions to the PyCO2SYS code and documentation have been made by Matthew Humphreys, Luke Gregor, Daniel Sandborn, Abigail Schiller, Ben Cala and Macarena Martin-Mayor.
 
 ### License
 
@@ -112,8 +110,4 @@ PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](ht
 
 ## Contributing
 
-Suggestions for new features, bug reports and contributions to PyCO2SYS are very welcome.  Please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS/blob/master/CONTRIBUTING.md).
-
-To add a notebook to PyCO2SYS-examples, please follow the [contributing guidelines](https://github.com/mvdh7/PyCO2SYS-examples#contributing) for that repo.
-
-[^1]: For CO2SYS for MATLAB refer to [LW98](refs.md/#l), [HPR11](refs.md/#h) and [OEDG18](refs.md/#o).
+Please open a discussion at [SystemCO2.net](https://systemco2.net) if you have any suggestions for new features, bug reports or are planning a contribution to PyCO2SYS - all are very welcome.

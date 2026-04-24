@@ -49,9 +49,10 @@ Switches from Autograd to JAX for automatic differentiation.  Internal mechanism
     * Only one combination of optional settings allowed per calculation.
     * Optional settings each only affect one parameterisation, so there are more of them.  (In v1, `opt_k_carbonic` could alter several other parameterisations beyond just the carbonic acid equilibrium.)
     * "Input" and "output" conditions deprecated in favour of the `adjust` method.
-    * Uncertainty propagation uses automatic differentiation instead of finite differences.
+    * Uncertainty propagation uses automatic differentiation instead of finite differences and can handle arbitrary covariances within and between parameters.
     * Simple tests suggest calculations including iterative pH solving are on the order of 100 times faster and have about 100 times lower peak memory demand.
     * Differences in calculated values from v1.8 should all be at the level of computer precision (i.e., negligible).
+    * p*K*<sub>2</sub> of [MMB25](refs/#m) implemented.
 
 ## 1.8
 

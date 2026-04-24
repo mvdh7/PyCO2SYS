@@ -16,23 +16,34 @@ import PyCO2SYS as pyco2
 
 ## Solve the marine carbonate system
 
-The only function most users will need from PyCO2SYS is `pyco2.sys`.  For example:
+The only function you need is `pyco2.sys`.  For example:
 
 ```python
 # Set up a CO2System
 co2s = pyco2.sys(alkalinity=2250, dic=2100, temperature=15, salinity=34)
 
 # Solve for and return the value of pH
-pH = co2s["pH"]
+pH = co2s.pH
 
 # Solve for and return pCO2 and fCO2 at the same time
 # (`results` is a dict with the keys "pCO2" and "fCO2")
 results = co2s[["pCO2", "fCO2"]]
 ```
 
-As seen above, results can be calculated and accessed with square brackets, as if `co2s` were a dict.  It isn't a dict, it's a `CO2System`, so it can do some other things too.
+Results can be calculated and accessed with square brackets, as if `co2s` were a dict.  But it isn't a dict, it's a `CO2System`, which can do some other things too.
 
-Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, which are DIC (`dic`), total alkalinity (`alkalinity`), pH (`pH`), <i>p</i>CO<sub>2</sub> (`pCO2`), <i>f</i>CO<sub>2</sub> (`fCO2`), <i>x</i>CO<sub>2</sub> (`xCO2`), (bi)carbonate ion content (`HCO3` and `CO3`), and the saturation state of aragonite (`saturation_aragonite`) and calcite (`saturation_calcite`).
+Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, which are **total alkalinity** (`alkalinity`(1)), **dissolved inorganic carbon** (`dic`(2)), **pH** (`pH`), **<i>p</i>CO<sub>2</sub>** (`pCO2`), **<i>f</i>CO<sub>2</sub>** (`fCO2`), **<i>x</i>CO<sub>2</sub>** (`xCO2`), **aqueous CO<sub>2</sub>** (`CO2`) and **(bi)carbonate ion content** (`HCO3` and `CO3`), and the **saturation states of aragonite** (`saturation_aragonite`(3)) and **calcite** (`saturation_calcite`(4)).
+{ .annotate }
+
+1.  Shortcuts: `talk`, `alk`, `ta`.
+2.  Shortcut: `tco2`.
+3.  Shortcut: `oa`.
+4.  Shortcut: `oc`.
+
+Parameter names are all case-insensitive and many have optional shortcuts that you can use instead (click on the (1) symbols above to see them!).
+{ .annotate }
+
+1.  Shortcuts!
 
 !!! tip "Find out more"
 
@@ -111,29 +122,29 @@ fCO2_insitu = co2s_insitu["fCO2"]
 
     See [User guide / Uncertainty propagation](uncertainty.md) for more detail on propagating uncertainties.
 
-Uncertainties are defined and propagated using the `set_uncertainty` and `propagate` methods:
+Uncertainties are defined and propagated using the `set_u`(1) and `prop`(2) methods.
+{ .annotate }
 
-  * `set_uncertainty` is used to define the independent uncertainties in input parameters.  The kwargs used are the same as for the main `pyco2.sys` function.
+1.  Shortcut for `set_uncertainty`.
+2.  Shortcut for `propagate`.
 
-  * `propagate` propagates the defined uncertainties through to the calculated results.
-
-For example, to get the total uncertainty in pH from independent uncertainties in alkalinity and DIC:
+For example, to get the total uncertainty in pH from uncertainties in alkalinity and DIC:
 
 ```python
 # Set up a CO2System
 co2s = pyco2.sys(alkalinity=2250, dic=2100, temperature=15, salinity=34)
 
 # Uncertainties in alkalinity and DIC are both 2 µmol/kg
-co2s.set_uncertainty(alkalinity=2, dic=2)
+co2s.set_u(alkalinity=2, dic=2)
 
 # Propagate through to pH
-co2s.propagate("pH")
+co2s.prop("pH")
 
 # Retrieve total uncertainty in pH
-pH_uncertainty = co2s.uncertainty["pH"]
+pH_uncertainty = co2s.u.pH
 
 # Retrieve component of pH uncertainty due to DIC
-pH_uncertainty = co2s.uncertainty.parts["pH"]["dic"]
+pH_uncertainty = co2s.u.parts["pH"]["dic"]
 ```
 
 ## Multidimensional data
@@ -159,9 +170,9 @@ alkalinity_2D = co2s_2D["alkalinity"]  # shape is (3, 3)
 
 Some common data structures can be provided to `pyco2.sys` using the `data` kwarg.
 
-#### Dict(ionarie)s
+#### Dicts
 
-If your data are in a `dict`, you can provide this as `data`:
+If your data are in a dict, you can provide this as `data`:
 
 ```python
 # Define known parameters

@@ -8,10 +8,11 @@ import jax
 from jax import numpy as np
 
 
-version = "2.0.0-b5"
-version_xyz = "2.0.0-b5"
+version = "2.0.0-b6"
+version_xyz = "2.0.0-b6"
 authorlist = [
     "Humphreys, Matthew P.",
+    "Martin-Mayor, Macarena",
     "Cala, Ben A.",
     "Schiller, Abigail J.",
     "Sandborn, Daniel E.",
@@ -27,11 +28,11 @@ authors = " and ".join(authorlist)
 def hello():
     print(
         f"""
-          M.P. Humphreys, B.A. Cala, A.J. Schiller, D.E. Sandborn,
-                L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
-                        E.R. Lewis & D.W.R. Wallace
+         M.P. Humphreys, M. Martin-Mayor, B.A. Cala, A.J. Schiller,
+         D.E. Sandborn, L. Gregor, D. Pierrot, S.M.A.C. van Heuven,
+                       E.R. Lewis & D.W.R. Wallace
 
-                             ~~~ present ~~~
+                             ~~~ present ~~~     
 
         PyCO2SYS: marine carbonate system calculations in Python.
                Version {version_xyz} :: doi:10.5281/zenodo.3744275
