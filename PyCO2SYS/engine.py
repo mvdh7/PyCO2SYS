@@ -655,7 +655,7 @@ get_funcs_opts["opt_k_BOH3"] = {
             pk_BOH3_nbs_1atm + nbs_to_sws
         ),
     ),
-   3: dict(
+    3: dict(
         pk_BOH3_total_1atm=equilibria.p1atm.pk_BOH3_total_MMB26,
         pk_BOH3_sws_1atm=lambda pk_BOH3_total_1atm, tot_to_sws_1atm: (
             pk_BOH3_total_1atm + tot_to_sws_1atm
@@ -1280,6 +1280,7 @@ shortcuts.update(
         "pk1": "pk_H2CO3",
         "pk2": "pk_HCO3",
         "pkw": "pk_H2O",
+        "pkb": "pk_BOH3",
         "method_fco2": "method_fCO2",
         "which_fco2_insitu": "which_fCO2_insitu",
         "sal": "salinity",
