@@ -1576,7 +1576,7 @@ class CO2System(FunctionGraph):
         """
         return super().solve(parameters)
 
-    def to_pandas(self, parameters=None, store_steps=1):
+    def to_pandas(self, parameters=None):
         """Return parameters as a pandas `Series` or `DataFrame`.  All
         parameters should be scalar or one-dimensional vectors of the same
         size.
@@ -1587,8 +1587,6 @@ class CO2System(FunctionGraph):
             The parameter(s) to return.  These are solved for if not already
             available. If `None`, then all parameters that have already been
             solved for are returned.
-        store_steps : int, optional
-            See `solve`.
 
         Returns
         -------
@@ -1603,7 +1601,7 @@ class CO2System(FunctionGraph):
 
             if parameters is None:
                 parameters = self.keys()
-            self.solve(parameters=parameters, store_steps=store_steps)
+            self.solve(parameters=parameters)
             if isinstance(parameters, str):
                 return pd.Series(data=self[parameters], index=self.pd_index)
             else:
@@ -1627,7 +1625,7 @@ class CO2System(FunctionGraph):
                     ndims.append(self.xr_dims[i])
         return ndims
 
-    def to_xarray(self, parameters=None, store_steps=1):
+    def to_xarray(self, parameters=None):
         """Return parameters as an xarray `DataArray` or `Dataset`.
 
         Parameters
@@ -1636,8 +1634,6 @@ class CO2System(FunctionGraph):
             The parameter(s) to return.  These are solved for if not already
             available. If `None`, then all parameters that have already been
             solved for are returned.
-        store_steps : int, optional
-            See `solve`.
 
         Returns
         -------
@@ -1656,7 +1652,7 @@ class CO2System(FunctionGraph):
 
             if parameters is None:
                 parameters = self.keys()
-            self.solve(parameters=parameters, store_steps=store_steps)
+            self.solve(parameters=parameters)
             if isinstance(parameters, str):
                 ndims = self._get_xr_ndims(parameters)
                 return xr.DataArray(np.squeeze(self[parameters]), dims=ndims)
@@ -1683,7 +1679,7 @@ class CO2System(FunctionGraph):
             self.solve("gas_constant")
         match method_fCO2:
             case 1:
-                self.solve("fCO2", store_steps=0)
+                self.solve("fCO2")
                 fCO2 = self.fCO2
                 assert opt_which_fCO2_insitu in [1, 2]
                 if opt_which_fCO2_insitu == 2:
@@ -2439,6 +2435,8 @@ def sys(data=None, **kwargs):
         except KeyError:
             keys_ignored.append(k)
     # Merge data and user kwargs
+    print(kwargs_data)
+    print(kwargs_nodups)
     kwargs_data.update(kwargs_nodups)
     # Parse kwargs
     for k, v in kwargs_data.copy().items():
