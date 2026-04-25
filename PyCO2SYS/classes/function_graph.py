@@ -138,23 +138,18 @@ class FunctionGraph(UserDict):
         if isinstance(key, list):
             # If the user provides a list of keys to solve for, return all of
             # them as a dict
-            return {k: self.data[self.shortcuts[k.lower()]] for k in key}
+            return {k: self.data[self.shortcuts[k]] for k in key}
         else:
             # If a single key is requested, return the corresponding value(s)
-            return self.data[self.shortcuts[key.lower()]]
+            return self.data[self.shortcuts[key]]
 
     def __getattr__(self, attr):
         # This allows parameter values to be accessed with dot notation, purely
-        # for convenience.
-        # So, when the user tries to access something with dot notation...
-        try:
-            # ... then if it's an attribute, return it (this is the standard
-            # behaviour)...
+        # for convenience
+        if self.shortcuts[attr] in self.graph.nodes:
+            return self[attr]
+        else:
             return object.__getattribute__(self, attr)
-        except AttributeError:
-            # ... but if it's not an attribute,  return the corresponding
-            # parameter value, solving for it first if necessary.
-            return self[self.shortcuts[attr.lower()]]
 
     def __setitem__(self, key, value):
         # Don't allow the user to assign new key-value pairs to the dict
