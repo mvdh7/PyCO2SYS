@@ -2,6 +2,7 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 from collections import UserDict
 from inspect import signature
+from warnings import warn
 
 import jax
 import jax.numpy as np
@@ -184,10 +185,11 @@ class FunctionGraph(UserDict):
                 else:
                     ignored.append(k)
         if len(ignored) > 0:
-            print(
-                "Some parameters were not recognised or not valid for this"
+            warn(
+                "Some arguments were not recognised or not valid for this"
                 + " combination of known parameters and are"
-                + " being ignored (see `ignored` attribute)"
+                + " being ignored (see `ignored` attribute)",
+                stacklevel=3,
             )
         self.ignored |= set(ignored)
         self.nodes_original = set(
@@ -533,11 +535,6 @@ class FunctionGraph(UserDict):
         store_parts : bool, optional
             Whether the save the separate uncertainty components, by default
             `True`.
-
-        Returns
-        -------
-        _type_
-            _description_
         """
         if uncertainty_into is None:
             uncertainty_into = list(self.requested)

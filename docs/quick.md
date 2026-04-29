@@ -131,6 +131,8 @@ pH_var_dic = co2s.u.parts["pH"]["dic"]
 All arguments other than settings can be provided as lists or multidimensional numpy arrays.  The dimensions of different arguments can be different as long as they can be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) together.
 
 ```python
+import numpy as np
+
 # Define multidimensional arguments
 dic = np.array([2000, 2100, 2200])
 pCO2 = np.array([400, 450, 485])
@@ -184,6 +186,8 @@ co2s = pyco2.sys(
 If data are in a pandas DataFrame, this can be provided as `data`, and results returned as a pandas Series or DataFrame with consistent indexing:
 
 ```python
+import pandas as pd
+
 # Define known parameters
 df = pd.DataFrame({"dic": [2000, 2100, 2200], "pCO2": [400, 450, 485]})
 
@@ -207,6 +211,8 @@ Running `to_pandas` with no arguments will return a DataFrame containing all cur
 If data are in an xarray Dataset, this can be provided as `data`, and results returned as an xarray DataArray or Dataset with consistent dimensions:
 
 ```python
+import xarray as xr
+
 # Define known parameters
 ds = xr.Dataset({
     "temperature": ("dim_t", np.arange(0, 35)),
@@ -217,10 +223,10 @@ ds = xr.Dataset({
 co2s = pyco2.sys(data=ds)
 
 # Solve for and return a parameter as a DataArray
-k_CO2 = co2s.to_xarray("k_CO2")
+pk_CO2 = co2s.to_xarray("pk_CO2")
 
 # Solve for and return parameters as a Dataset
-ds_results = co2s.to_xarray(["k_H2CO3", "k_HCO3"])
+ds_results = co2s.to_xarray(["pk_H2CO3", "pk_HCO3"])
 ```
 
 Running `to_xarray` with no arguments will return a Dataset containing all currently calculated parameters.

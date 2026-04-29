@@ -1246,7 +1246,6 @@ exclude_on_store_steps_1 = [
 ]
 
 # Define shortcuts, the keys for which must all be lowercase
-# TODO turn this into a ShortcutsDict
 shortcuts = {k.lower(): k for k in set_node_labels if k.lower() != k}
 shortcuts.update({k.lower(): k for k in opts_default if k.lower() != k})
 shortcuts.update(
@@ -1615,7 +1614,7 @@ class CO2System(FunctionGraph):
                     }
                 )
         except ImportError:
-            warn("pandas could not be imported.")
+            warn("pandas could not be imported.", stacklevel=3)
 
     def _get_xr_ndims(self, parameter):
         ndims = []
@@ -1666,7 +1665,7 @@ class CO2System(FunctionGraph):
                     }
                 )
         except ImportError:
-            warn("xarray could not be imported.")
+            warn("xarray could not be imported.", stacklevel=3)
 
     def _get_expUps(
         self,
@@ -2050,7 +2049,7 @@ class CO2System(FunctionGraph):
         elif self.icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
         else:
-            warn("This system cannot be adjusted.")
+            warn("This system cannot be adjusted.", stacklevel=2)
             self_adjusted = self
         self.requested = self_requested
         return self_adjusted
@@ -2081,7 +2080,7 @@ class CO2System(FunctionGraph):
                     u_coeffs["coeffs_" + k].at[-1].set(u_single[k])
                 )
             except nx.NetworkXError:
-                warn(f'No coeffs available for "{k}"')
+                warn(f'No coeffs available for "{k}"', stacklevel=3)
         return u_coeffs
 
     def set_u_coeffs_from_single(self, **u_single):
@@ -2328,14 +2327,14 @@ def sys(data=None, **kwargs):
     if np.array(1.0).dtype == np.dtype("float32"):
         warn(
             "JAX does not appear to be using double precision - "
-            + "set the environment variable `JAX_ENABLE_X64=True`"
+            + "set the environment variable `JAX_ENABLE_X64=True`",
+            stacklevel=2,
         )
     # Merge data with kwargs
     pd_index = None
     xr_dims = None
     xr_shape = None
     data_is_dict = isinstance(data, dict)
-    keys_ignored = []
     kwargs_data = {}
     if data is not None:
         # First, check for string kwargs, which indicate keys in data that need
@@ -2350,16 +2349,14 @@ def sys(data=None, **kwargs):
                         + f" it is already being used for {renamer_user[v]}"
                     )
                 else:
-                    renamer_user[v] = shortcuts[k.lower()]
+                    renamer_user[v] = shortcuts[k]
         # Next, go through keys of data and get shortcuts or renames for them
         renamer_data = {}
         for k in data:
             if k in renamer_user:
                 renamer_data[k] = renamer_user[k]
-            elif k in shortcuts:
-                renamer_data[k] = shortcuts[k.lower()]
             else:
-                keys_ignored.append(k)
+                renamer_data[k] = shortcuts[k]
         # Check for duplicates
         renamer_values = []
         for v in renamer_data.values():
@@ -2389,7 +2386,10 @@ def sys(data=None, **kwargs):
                         if c in renamer_data:
                             kwargs_data[renamer_data[c]] = data[c].to_numpy()
             except ImportError:
-                warn("pandas could not be imported - ignoring `data`.")
+                warn(
+                    "pandas could not be imported - ignoring `data`.",
+                    stacklevel=2,
+                )
             data_is_xarray = False
             if not data_is_pandas:
                 try:
@@ -2408,35 +2408,35 @@ def sys(data=None, **kwargs):
                                     v, xr_dims
                                 )
                 except ImportError:
-                    warn("xarray could not be imported - ignoring `data`.")
+                    warn(
+                        "xarray could not be imported - ignoring `data`.",
+                        stacklevel=2,
+                    )
                 if not data_is_xarray:
                     # If we reach this point, `data` is neither dict nor
                     # pandas df nor xarray ds, so it's ignored
-                    warn("Type of `data` not recognised - it will be ignored.")
-                    keys_ignored.append("data")
+                    warn(
+                        "Type of `data` not recognised - it will be ignored.",
+                        stacklevel=2,
+                    )
     # Check there aren't any duplicate kwargs with different aliases, and drop
     # any kwargs that are strings (used to identify `data` columns)
     kwargs_nodups = {}
     for k, v in kwargs.items():
-        try:
-            skl = shortcuts[k]
-            if skl in kwargs_nodups:
-                raise SyntaxError(
-                    f"Repeated kwarg, possibly under a different shortcut: {k}"
+        if shortcuts[k] in kwargs_nodups:
+            raise SyntaxError(
+                f"Repeated kwarg, possibly under a different shortcut: {k}"
+            )
+        elif not isinstance(v, str):
+            kwargs_nodups[shortcuts[k]] = v
+            if shortcuts[k] in kwargs_data:
+                warn(
+                    f"{shortcuts[k]} found in both `data` and `kwargs`, "
+                    + "possibly under different shortcuts - using the "
+                    + "`kwargs` value",
+                    stacklevel=2,
                 )
-            elif not isinstance(v, str):
-                kwargs_nodups[skl] = v
-                if skl in kwargs_data:
-                    warn(
-                        f"{skl} found in both `data` and `kwargs`, possibly "
-                        + "under different shortcuts - using the `kwargs` "
-                        + "value"
-                    )
-        except KeyError:
-            keys_ignored.append(k)
     # Merge data and user kwargs
-    print(kwargs_data)
-    print(kwargs_nodups)
     kwargs_data.update(kwargs_nodups)
     # Parse kwargs
     for k, v in kwargs_data.copy().items():
@@ -2456,7 +2456,8 @@ def sys(data=None, **kwargs):
             else:
                 kwargs_data[k] = np.ravel(np.array(kwargs_data[k]))[0].item()
                 warn(
-                    f"`{k}` is not scalar; only the first value will be used."
+                    f"`{k}` is not scalar; only the first value will be used.",
+                    stacklevel=2,
                 )
             if isinstance(kwargs_data[k], float):
                 kwargs_data[k] = int(kwargs_data[k])

@@ -95,14 +95,8 @@ Parameters can be solved for using `solve`:
 
     ```python
     # Solve for a calculated parameter
-    co2s.solve("dic", store_steps=1)
+    co2s.solve("dic")
     ```
-
-This gives the added flexibility of the `store_steps` kwarg:
-  
-  * If `0`, then only the requested parameter is stored.
-  * If `1` (default), then the standard set of intermediate parameters is stored in the `co2s`.
-  * If `2`, then all possible intermediate parameters are stored.
 
 #### Dot notation
 
@@ -192,12 +186,11 @@ An example:
     )
 
     # Set and propagate uncertainties
-    co2s.set_uncertainty(alkalinity=2.1, pH=0.02)
-    co2s.propagate("dic")
+    co2s.set_u(alkalinity=2.1, pH=0.02).prop("dic")
 
     # Retrieve uncertainties and their components
-    dic_uncertainty = co2s.uncertainty["dic"]
-    dic_uncertainty_from_pH = co2s.uncertainty.parts["dic"]["pH"]
+    dic_uncertainty = co2s.u["dic"]
+    dic_uncertainty_from_pH = co2s.u.parts["dic"]["pH"]
     ```
 
 === "v1.8"

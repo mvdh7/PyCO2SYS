@@ -8,32 +8,7 @@
 
 # Version history
 
-!!! info "Semantics"
-    Version numbering aims to follow [semantic versioning](https://semver.org/). Therefore:
-
-      * New *patch* versions (e.g. 1.1.**0** to 1.1.**1**) make minor changes that do not alter fuctionality or calculated results.
-      * New *minor* versions (e.g. 1.**0**.1 to 1.**1**.0) add new functionality, but will not break your code.  They will not alter the results of calculations with default settings (except for in the hopefully rare case of correcting a bug or typo).
-      * New *major* versions (e.g. **1**.1.1 to **2**.0.0) may break your code and require you to rewrite things.  They may significantly alter the results of calculations with default settings.
-
-    We will always add aliases for existing functions if their API is updated, to avoid unforseen breaking changes wherever possible.
-
-!!! warning
-    *Will (not) break your code* refers **only** to the functions covered in this documentation.
-
-    For the main CO2SYS function as imported with
-
-    ```python
-    import PyCO2SYS as pyco2
-    
-    co2s = pyco2.sys(**kwargs)
-    ```
-
-    the only things that may change, in at least a *minor* version release, are:
-
-      1. Additional inputs may be added to the `kwargs`, but always with default values such that the results do not change if they are not explicitly set.
-      2. Additional calculated variables may be returned in the output `results`.
-
-    The structure of the underlying modules and their functions is not yet totally stable and, for now, may change in any version increment.  Such changes will be described in the release notes below.
+Version numbering aims to follow [semantic versioning](https://semver.org/).
 
 ## 2.0 (forthcoming)
 

@@ -42,18 +42,12 @@ results = co2s[["pH", "pCO2"]]
 A parameter can be solved for without returning its value, using the `solve` method.  This gives more control over how intermediate parameters are handled:
 
 ```python
-co2s.solve(parameters=None, store_steps=1)
+co2s.solve(parameters=None)
 ```
 
 !!! inputs "`solve` keyword arguments"
 
     `parameters`: a single parameter key as a string or list of parameter keys to solve for.  If `None` (default), then all possible parameters are solved for
-
-    `store_steps` determines which intermediate parameters are stored internally after the calculation is complete:
-
-      * `0`: store only the specifically requested parameters.
-      * **`1`: store the most used set of intermediate parameters (default).**
-      * `2`: store the complete set of parameters.
 
 ## Chaining methods
 
