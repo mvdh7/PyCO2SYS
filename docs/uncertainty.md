@@ -40,15 +40,17 @@ co2s = pyco2.sys(t=[5, 10, 15]).set_u(t=[0.1, 0.2, 0.3])
 
 ### With covariances
 
-Provide an **array with the shape of the parameter, squared** if there are covariances between uncertainties in different elements.
+Provide a **NumPy array with the shape of the parameter, squared** if there are covariances between uncertainties in different elements.
 
 ```python
+import numpy as np
+
 co2s = (
     pyco2.sys(t=[5, 10, 15])
-    .set_u(t=[[0.1, 0.05, 0.05],
-              [0.05, 0.2, 0.05],
-              [0.05, 0.05, 0.3]]
-))
+    .set_u(t=np.array(
+        [[0.1, 0.05, 0.05],
+         [0.05, 0.2, 0.05],
+         [0.05, 0.05, 0.3]])))
 ```
 
 > Above: three temperature values with a three-by-three covariance matrix for their uncertainties.
