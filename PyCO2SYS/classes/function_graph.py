@@ -69,6 +69,46 @@ class Valids(ShortcutDotDict):
         self.direct = ShortcutDotDict(shortcuts)
         self.indirect = ShortcutDotDict(shortcuts)
 
+    def why(self, parameter):
+        """Find out why a particular parameter is (in)valid.
+
+        Parameters
+        ----------
+        parameter : str
+            The name of the parameter to investigate (or its shortcut).
+
+        Returns
+        -------
+        ShortcutDotDict
+            A dict with containing the parent parameters of the investigated
+            `parameter` that have an influence on its validity.
+            The dict contains two keys, "direct" and "indirect":
+              - "direct" contains parameters that the investigated `parameter`
+                has defined validity ranges for.
+              - "indirect" contains other parent parameters that may themselves
+                be invalid for other reasons.
+        """
+        p = self._shortcuts[parameter]
+        direct = ShortcutDotDict(self._shortcuts)
+        if p in self.direct:
+            direct.update({p: self.direct[p]})
+        indirect = ShortcutDotDict(self._shortcuts)
+        if p in self.indirect:
+            indirect.update({p: self.indirect[p]})
+        out = ShortcutDotDict(self._shortcuts)
+        out["direct"] = direct
+        out["indirect"] = indirect
+        return out
+
+    def get_graph(self):
+        graph = nx.DiGraph()
+        for d in ["direct", "indirect"]:
+            for to, fr_dict in self.__getattr__(d).items():
+                for fr, v in fr_dict.items():
+                    pct = 100 * np.sum(v) / np.size(v)
+                    graph.add_edge(fr, to, type=d, pct=pct)
+        return graph
+
 
 class FunctionGraph(UserDict):
     def __init__(
@@ -118,6 +158,7 @@ class FunctionGraph(UserDict):
                     "uncertainty",
                     "v",
                     "valid",
+                    "why",
                 ]:
                     raise Exception(
                         f'Invalid shortcut "{k}" (reserved attribute)'
@@ -581,7 +622,7 @@ class FunctionGraph(UserDict):
     set_u = set_uncertainty
     prop = propagate
 
-    def get_valid(self, parameters=None):
+    def check_valid(self, parameters=None):
         if parameters is None:
             parameters = list(self.requested)
         elif isinstance(parameters, str):
@@ -598,14 +639,15 @@ class FunctionGraph(UserDict):
             if n in parameters_all:
                 if "func" in sgn[n] and hasattr(sgn[n]["func"], "valid"):
                     sv[n] = ~np.isnan(self[n])
-                    sv.direct[n] = ShortcutDotDict(self.shortcuts)
+                    if n not in sv.direct:
+                        sv.direct[n] = ShortcutDotDict(self.shortcuts)
                     for k, v in sgn[n]["func"].valid.items():
                         sv.direct[n][k] = (self[k] >= v[0]) & (self[k] <= v[1])
                         sv[n] &= sv.direct[n][k]
                 for p in self.graph.predecessors(n):
                     if p in sv:
-                        print(n, p)
-                        sv.indirect[n] = ShortcutDotDict(self.shortcuts)
+                        if n not in sv.indirect:
+                            sv.indirect[n] = ShortcutDotDict(self.shortcuts)
                         if n not in sv:
                             sv[n] = ~np.isnan(self[n])
                         sv.indirect[n][p] = sv[p]

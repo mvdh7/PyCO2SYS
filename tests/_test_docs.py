@@ -1,37 +1,62 @@
 # %%
+import networkx as nx
+import numpy as np
+from matplotlib import pyplot as plt
+
 import PyCO2SYS as pyco2
+from PyCO2SYS.engine import node_labels
 
 
-co2s = pyco2.sys(t=[5, 10, 15]).set_u(t=0.2)
-co2s = pyco2.sys(t=[5, 10, 15]).set_u(t=[0.1, 0.2, 0.3]).prop("pk1")
-co2s = (
-    pyco2.sys(t=[5, 10, 15])
-    .set_u(
-        t=[
-            [0.1, 0.05, 0.05],
-            [0.05, 0.2, 0.05],
-            [0.05, 0.05, 0.3],
-        ]
-    )
-    .prop("pk1")
+co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([0, 35]))
+co2s.check_valid(
+    ["pk1"]
+    # ignore=None,
+    # nan_invalid=False,
 )
-co2s = (
-    pyco2.sys(
-        dic=2100,
-        ta=2250,
-        t=[5, 10, 15],
-    )
-    .set_u(t=0.1)
-    .set_u_OEDG18()
-).prop("pk1")
 
-# Propagate uncertainties that were set with set_u
-co2s.prop(["pH", "fCO2"])
+# print(co2s.valid)
+# print(co2s.valid.direct)
+# print(co2s.valid.indirect)
+# co2s.valid.pk_H2CO3
+# co2s.valid.parts.total_borate
 
-# Access uncertainty results
-uncert_fCO2 = co2s.u["fCO2"]
-uncert_pH_due_to_dic = co2s.u.parts["pH"]["t"]
+# co2s = pyco2.sys()
+# co2s.solve(store_steps=2)  # Solve for all parameters
+# co2s.plot_graph(mode="valid")
 
-# You can also use dot notation and shortcuts here
-uncert_fCO2 = co2s.u.fCO2
-uncert_pH_due_to_dic = co2s.u.parts.pH.t
+graph = co2s.v.get_graph()
+
+fig, ax = plt.subplots(figsize=(5, 5))
+pos = nx.nx_agraph.graphviz_layout(graph, prog="dot")
+nx.draw_networkx_nodes(
+    graph,
+    ax=ax,
+    pos=pos,
+    node_color="xkcd:light grey",
+)
+edge_colors = {"direct": "xkcd:light red", "indirect": "xkcd:sea blue"}
+nx.draw_networkx_edges(
+    graph,
+    ax=ax,
+    pos=pos,
+    edge_color=[edge_colors[graph.edges[e]["type"]] for e in graph.edges],
+)
+nx.draw_networkx_edge_labels(
+    graph,
+    ax=ax,
+    pos=pos,
+    edge_labels={
+        e: str(np.round(graph.edges[e]["pct"]).astype(int))
+        for e in graph.edges
+    },
+    # rotate=False,
+    bbox={
+        "boxstyle": "round",
+        "ec": (1.0, 1.0, 1.0, 0.0),
+        "fc": (1.0, 1.0, 1.0, 0.0),
+    },
+)
+nx.draw_networkx_labels(
+    graph, ax=ax, pos=pos, labels={n: node_labels[n] for n in graph.nodes}
+)
+fig.tight_layout()

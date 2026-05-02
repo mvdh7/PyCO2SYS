@@ -12,44 +12,33 @@ PyCO2SYS includes a tool to check whether arguments such as temperature, salinit
 
 Many of these validity ranges are poorly constrained or unknown, so the validity ranges will likely be updated in the future.
 
-## Recording validity
+## Checking validity
 
 The validity checker can be best thought of as a test of whether any values are definitely invalid; if no problems are flagged up, then that's not a guarantee that the value is valid.
 
 ```python
-import PyCO2SYS as pyco2
-
-co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([0, 35]))  # Set up a CO2System
-co2s.check_valid(ignore=None, nan_invalid=False)
+co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([0, 35])).solve("pk1")
+co2s.check_valid()
 ```
 
-Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System`.  This is much like the [`uncertainty`](uncertainty.md) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced.md/#use-shortcuts).  For example:
+Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System` (shortcut: `v`).  This is much like the [`uncertainty`](uncertainty.md) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced.md/#use-shortcuts).  For example:
 
 ```python
-co2s.valid.total_borate
->>> [[1],
-     [0]]
-
-co2s.valid.pk_H2CO3
->>> [[2, 2, 2],
-     [0, 0, 2]]
+co2s.valid.pk1  # True where pk1 is valid, False where it's invalid
 ```
 
-The values in these fields use an additive binary system, where
+A parameter can be invalid for two reasons:
 
-  * `0` = no reason to be invalid,
-  * `1` = one or more of the arguments are out of their valid range,
-  * `2` = one or more of the arguments were themselves invalid (inherited invalidity).
+  1. **Direct:** the parameter itself has defined validity ranges for its arguments, which the arguments have broken.
+  2. **Indirect:** (at least) one of the arguments is itself invalid, either directly or indirectly.
 
-So where both `1` and `2` are true for a parameter, it will be assigned with a `3`.
-
-In the example above, the first `total_borate` value is invalid because one of its inputs was out of the valid range.  The find this, check `valid.parts`:
+To find out why a parameter is invalid, use the `why` method:
 
 ```python
-co2s.valid.parts.total_borate
+why_pk1 = co2s.valid.why("pk1")
 ```
 
-This returns a dict containing a logical array for each argument to the `total_borate` function that has a defined valid range, in this case, only `salinity`.  The logical is `True` where the `salinity` values fall within the defined range, and `False` where they are invalid, either because they are out of range or because they have inherited invalidity from an earlier calculation step.
+This returns a dict with the keys `direct` and `indirect`, containing the Boolean validity arrays for the arguments that affect the validity of the original parameter.  Using `why` iteratively on the parameters that appear in the `indirect` dict will eventually reveal the root causes of invalidity.
 
 ## Visualising validity
 

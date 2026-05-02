@@ -979,7 +979,7 @@ condition_independent = (
 # NOTE This dict's keys are also used as the basis for the shortcuts,
 #      so every parameter that isn't all lowercase must appear here.
 #      (except those with __pre suffixes - they're added automatically).
-set_node_labels = {
+node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
     "acf_CO3": r"$\gamma_{\mathrm{CO}_3^{2–}}$",
     "acf_Mg": r"$\gamma_{\mathrm{Mg}^{2+}}$",
@@ -1176,10 +1176,10 @@ set_node_labels = {
     "coeffs_Mg": "coeffs_Mg",
     "coeffs_Ca": "coeffs_Ca",
 }
-set_node_labels.update(
+node_labels.update(
     {
         k + "__pre": r"$^\pi$" + v
-        for k, v in set_node_labels.items()
+        for k, v in node_labels.items()
         if k not in condition_independent
     }
 )
@@ -1246,7 +1246,7 @@ exclude_on_store_steps_1 = [
 ]
 
 # Define shortcuts, the keys for which must all be lowercase
-shortcuts = {k.lower(): k for k in set_node_labels if k.lower() != k}
+shortcuts = {k.lower(): k for k in node_labels if k.lower() != k}
 shortcuts.update({k.lower(): k for k in opts_default if k.lower() != k})
 shortcuts.update(
     {
