@@ -24,7 +24,7 @@ def test_pandas():
         dic=dic_overwrite,
     )
     assert isinstance(co2s, pyco2.CO2System)
-    assert "extra" in co2s.ignored
+    assert co2s.ignored == {"extra"}
     assert np.allclose(co2s.temperature, wtf)
     assert co2s.dic == dic_overwrite
     pH = co2s.to_pandas("pH")
