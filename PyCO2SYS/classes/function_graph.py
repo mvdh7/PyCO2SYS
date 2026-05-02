@@ -48,6 +48,9 @@ class ShortcutDotDict(UserDict):
             except KeyError:
                 raise AttributeError(attr)
 
+    def __getitem__(self, key):
+        return self.data[self._shortcuts[key]]
+
 
 class Uncertainties(ShortcutDotDict):
     def __init__(self, shortcuts):
@@ -489,29 +492,33 @@ class FunctionGraph(UserDict):
         return self
 
     def set_uncertainty(self, **kwargs):
-        """Assign independent uncertainties for parameters.
+        """Assign uncertainties for parameters.
 
-        The values should be the 1-sigma independent uncertainty in each
-        parameter.  These can be single scalar values, or arrays of the same
-        shape as the corresponding parameter.
+        The values should be the uncertainty as a variance in each parameter.
+        Each uncertainty can be can be
+          - a single scalar value,
+          - an array of the same shape as the corresponding parameter, or
+          - a covariance matrix.
         """
         uset = []
         for k, v in kwargs.items():
-            if k.lower().endswith("__f"):
-                skl = self.shortcuts[k[:-3]] + "__f"
-            else:
-                skl = self.shortcuts[k]
+            skl = self.shortcuts[k]
             if skl in uset:
                 raise SyntaxError(
-                    f"Keyword argument repeated, possibly with a different alias: {k}"
+                    "Keyword argument repeated, "
+                    + f"possibly with a different shortcut: {k}"
                 )
             uset.append(skl)
             if skl not in self.nodes_original:
                 raise Exception(
-                    "Uncertainty can be assigned only for user-provided parameters"
+                    "Uncertainty can be assigned only for "
+                    + "user-provided parameters"
                 )
-            self.uncertainty.assign(**{skl: v})
-        # # Recalculate any uncertainties that have already been propagated
+            v_np = v
+            if isinstance(v, list):
+                v_np = np.array(v)
+            self.uncertainty.assign(**{skl: v_np})
+        # Recalculate any uncertainties that have already been propagated
         self.propagate([self.shortcuts[k] for k in self.uncertainty])
         return self
 
