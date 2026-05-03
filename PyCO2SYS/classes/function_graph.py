@@ -107,6 +107,13 @@ class Valids(ShortcutDotDict):
                 for fr, v in fr_dict.items():
                     pct = 100 * np.sum(v) / np.size(v)
                     graph.add_edge(fr, to, type=d, pct=pct)
+        for n in graph.nodes:
+            if n in self:
+                nx.set_node_attributes(
+                    graph,
+                    {n: 100 * np.sum(self[n]) / np.size(self[n])},
+                    name="pct",
+                )
         return graph
 
 
