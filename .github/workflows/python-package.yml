@@ -26,7 +26,7 @@ jobs:
           auto-activate: false
       - name: Create conda environment
         run: |
-          conda create -n pyco2sys -c conda-forge python=${{ matrix.python-version }} pygraphviz
+          conda create -n pyco2sys -c conda-forge python=${{ matrix.python-version }} pygraphviz pip
       - name: Install pip dependencies
         run: |
           conda activate pyco2sys
@@ -35,6 +35,7 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
+          conda activate pyco2sys
           pytest
         env:
           JAX_ENABLE_X64: True
