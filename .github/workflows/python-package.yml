@@ -21,11 +21,16 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install pip dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest xarray pandas openpyxl matplotlib pygraphviz
+          pip install pytest xarray pandas openpyxl matplotlib
           pip install .
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v4.0.1
+      - name: Install conda dependencies
+        run: |
+          conda install pygraphviz
       - name: Test with pytest
         run: |
           pytest
