@@ -3,8 +3,6 @@ from contextlib import redirect_stdout
 from os import devnull, listdir
 from pathlib import Path
 
-import PyCO2SYS as pyco2  # noqa - this is assumed by all the docs
-
 
 raise_errors = True  # usually should be True, can use False for manual testing
 
@@ -21,7 +19,7 @@ def test_docs():
             lines = f.read().splitlines()
         is_code = False
         n_spaces = 0
-        code_lines = ""
+        code_lines = "import PyCO2SYS as pyco2\n"
         mode = "v2"
         for line in lines:
             # Don't run code that's an example of how v1 worked
