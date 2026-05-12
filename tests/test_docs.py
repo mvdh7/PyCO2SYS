@@ -43,7 +43,7 @@ def test_docs():
             with open(devnull, "w") as f, redirect_stdout(f):
                 globals_dict = {}
                 locals_dict = {}
-                exec(code_lines, globals=globals_dict, locals=locals_dict)
+                exec(code_lines, globals_dict, locals_dict)
         except Exception as e:
             print(f"ERROR in docs file {fname}")
             print(e)
