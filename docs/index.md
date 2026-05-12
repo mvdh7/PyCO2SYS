@@ -10,15 +10,15 @@
 
 PyCO2SYS is a Python toolbox for solving the marine carbonate system and calculating related seawater properties.
 
-!!! info "Installing PyCO2SYS v2"
+## Installation
 
-    Create an environment with Python v3.11 or greater and run
+Create an environment with Python v3.11 or greater and run
 
-        pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b6
+    pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b6
 
-    This installs PyCO2SYS and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  To try out using PyCO2SYS with pandas and/or xarray, you'll need to install those separately.
+This installs the latest "stable" beta release of PyCO2SYS v2 and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  To try out using PyCO2SYS with pandas and/or xarray, you'll need to install those separately.
 
-    As bugs are fixed and beta features finalised, new beta versions will be released ad hoc and the install link above updated.  New version releases will be announced on [SystemCO2.net](https://systemco2.net).
+As bugs are fixed and beta features finalised, new beta versions will be released ad hoc and the install link above updated.  New version releases will be announced on [SystemCO2.net](https://systemco2.net).
 
 !!! tip "JAX double precision"
 
@@ -26,12 +26,7 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
         conda env config vars set JAX_ENABLE_X64=True
 
-## Installation
-
-!!! warning "Don't follow the instructions below"
-
-    The installation instructions below are not yet active - see the boxes above if you're here to test PyCO2SYS v2!
-
+<!--
 ### With pip
 
 Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
@@ -47,6 +42,7 @@ Install from the [Python Package Index](https://pypi.org/project/PyCO2SYS/):
 Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys):
 
     conda install conda-forge::PyCO2SYS
+-->
 
 ## How to use PyCO2SYS v2
 
@@ -71,13 +67,15 @@ If you're already familiar with PyCO2SYS v1, then
 
 may help you to transition.
 
+<!--
 ### Examples
 
 You can see some working examples of PyCO2SYS in action on Github at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).  You can run all of the notebooks there live in your browser [via Binder](https://mybinder.org/v2/gh/mvdh7/PyCO2SYS-examples/master), without installing anything on your computer.
+-->
 
 ## About
 
-PyCO2SYS is maintained primarily by [Dr Matthew P. Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) at NIOZ Royal Netherlands Institute for Sea Research (Texel), with support from a range of other contributers and the developers of several other CO2SYS implementations.
+PyCO2SYS is developed and maintained primarily by [Dr Matthew P. Humphreys](https://www.nioz.nl/en/about/organisation/staff/matthew-humphreys) at NIOZ Royal Netherlands Institute for Sea Research (Texel), with support from a range of other contributers and the developers of several other CO2SYS implementations.
 
 ### Citation
 
@@ -85,6 +83,8 @@ A paper describing PyCO2SYS is freely available:
 
 !!! note "PyCO2SYS manuscript"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2022).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15-43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
+
+Although this is about PyCO2SYS v1.8, it is similar enough that it could still be used as a citation for now.  A paper specifically describing PyCO2SYS v2 is in preparation.
 
 To cite the PyCO2SYS software itself:
 
@@ -110,4 +110,4 @@ PyCO2SYS is licensed under the [GNU General Public License version 3 (GPLv3)](ht
 
 ## Contributing
 
-Please open a discussion at [SystemCO2.net](https://systemco2.net) if you have any suggestions for new features, bug reports or are planning a contribution to PyCO2SYS - all are very welcome.
+Please open a discussion at [SystemCO2.net](https://systemco2.net) if you have any suggestions for new features, bug reports or are planning a contribution to PyCO2SYS, all of which are very welcome.
