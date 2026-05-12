@@ -14,23 +14,22 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
         os: [ubuntu-latest, windows-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash -el {0}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v4
         with:
-          auto-activate: true
-          activate-environment: ""
-      - name: Set up Python ${{ matrix.python-version }}
+          auto-activate: false
+      - name: Create conda environment
         run: |
-          conda init
-          conda update -n base --all
-          conda create -n pyco2sys python=${{ matrix.python-version }}
-          conda activate pyco2sys
-          conda install pygraphviz
+          conda create -n pyco2sys -c conda-forge python=${{ matrix.python-version }} pygraphviz
       - name: Install pip dependencies
         run: |
+          conda activate pyco2sys
           python -m pip install --upgrade pip
           pip install pytest xarray pandas openpyxl matplotlib
           pip install .
