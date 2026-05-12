@@ -6,9 +6,7 @@ from pathlib import Path
 import PyCO2SYS as pyco2  # noqa - this is assumed by all the docs
 
 
-test_mode = "manual"  # "manual" for errors to pass with warning.
-# But change this to something else (e.g., auto) for production, otherwise
-# this test will just pass when it shouldn't.
+raise_errors = True  # usually should be True, can use False for manual testing
 
 
 def test_docs():
@@ -47,8 +45,8 @@ def test_docs():
         except Exception as e:
             print(f"ERROR in docs file {fname}")
             print(e)
-            if test_mode != "manual":
+            if raise_errors:
                 raise Exception(e)
 
 
-test_docs()
+# test_docs()
