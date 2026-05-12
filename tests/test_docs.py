@@ -14,7 +14,7 @@ def test_docs():
     docs_path = Path("docs")
     files = [f for f in listdir(docs_path) if f.endswith(".md")]
     for fname in files:
-        with open(Path(docs_path, fname), "r") as f:
+        with open(Path(docs_path, fname), "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
         is_code = False
         n_spaces = 0
@@ -44,4 +44,4 @@ def test_docs():
             print(e)
 
 
-# test_docs()
+test_docs()
