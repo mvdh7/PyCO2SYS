@@ -21,6 +21,8 @@ jobs:
         uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
+          auto-activate: true
+          activate-environment: ""
       - name: Set up Python ${{ matrix.python-version }}
         run: |
           mamba update -n base --all
