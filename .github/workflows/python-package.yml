@@ -24,6 +24,7 @@ jobs:
           activate-environment: ""
       - name: Set up Python ${{ matrix.python-version }}
         run: |
+          conda init
           conda update -n base --all
           conda create -n pyco2sys python=${{ matrix.python-version }}
           conda activate pyco2sys
