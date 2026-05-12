@@ -1,4 +1,4 @@
-name: Run tests
+name: Tests
 on:
   push:
     paths:
@@ -6,6 +6,7 @@ on:
       - tests/**
       - pyproject.toml
       - pytest.ini
+      - .github/workflows/python-package.yml
 jobs:
   build:
     runs-on: ${{ matrix.os }}
