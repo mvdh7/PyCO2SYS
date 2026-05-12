@@ -22,12 +22,18 @@ Marine carbonate system calculations in Python.
 import jax
 
 from . import meta
-from .engine import CO2System, sys
+from .engine import CO2System, node_labels as labels, sys
 from .meta import hello
 
 
 jax.config.update("jax_enable_x64", True)
 say_hello = hello  # for backwards compatibility
-__all__ = ["CO2System", "hello", "say_hello", "sys"]
+__all__ = [
+    "CO2System",
+    "hello",
+    "labels",
+    "say_hello",
+    "sys",
+]
 __author__ = meta.authors
 __version__ = meta.version

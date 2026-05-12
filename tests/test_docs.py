@@ -6,6 +6,11 @@ from pathlib import Path
 import PyCO2SYS as pyco2  # noqa - this is assumed by all the docs
 
 
+test_mode = "manual"  # "manual" for errors to pass with warning.
+# But change this to something else (e.g., auto) for production, otherwise
+# this test will just pass when it shouldn't.
+
+
 def test_docs():
     # This executes any code contained within a block starting ```python and
     # ending ``` in the online docs (any file in the docs folder ending ".md"),
@@ -42,6 +47,8 @@ def test_docs():
         except Exception as e:
             print(f"ERROR in docs file {fname}")
             print(e)
+            if test_mode != "manual":
+                raise Exception(e)
 
 
 test_docs()
