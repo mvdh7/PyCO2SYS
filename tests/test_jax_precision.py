@@ -1,7 +1,7 @@
 # %%
 from jax import numpy as np
 
-import PyCO2SYS as pyco2  # necessary to enable double precision
+import PyCO2SYS as pyco2  # noqa - necessary to enable double precision
 
 
 def test_jax_double_precision():

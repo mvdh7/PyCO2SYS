@@ -8,95 +8,113 @@
 
 # Uncertainty propagation
 
-Independent uncertainties are defined and propagated with the `set_uncertainty` and `propagate` methods.
+Uncertainties are assigned and propagated with the `set_u`(1) and `prop`(2) methods.
+{ .annotate }
 
-All derivatives needed for uncertainty propagation are calculated with automatic differentiation.
+1.  Shortcut for `set_uncertainty`.
+2.  Shortcut for `propagate`.
 
-## Define independent uncertainties
+## Assign uncertainties
 
-If the uncertainty in each [argument](detail.md/#keyword-arguments) is independent – i.e. there is no covariance between the uncertainties in different parameters – then the `set_uncertainty` and `propagate` methods can be used to propagate the parameter uncertainties through into any [result](detail.md/#results):
+All uncertainty values must be provided as **variances**, not standard deviations.
+
+### Constant, independent
+
+Provide a **single scalar value** if the uncertainty in each element of a parameter has the same value and is independent from the other elements.
 
 ```python
-import PyCO2SYS as pyco2
-
-# Set up the CO2System
-co2s = pyco2.sys(dic=2100, alkalinity=2250, temperature=20)
-
-# Define uncertainties in the known parameters
-co2s.set_uncertainty(dic=2, alkalinity=1)
+co2s = pyco2.sys(t=[5, 10, 15]).set_u(t=0.2)
 ```
 
-!!! inputs "`set_uncertainty` kwargs"
+> Above: three temperature values, each with an independent 1*σ* uncertainty of √0.2 °C.
 
-    `set_uncertainty` can take the same kwargs as `pyco2.sys`, excepting the settings (keys beginning with `"opt_"`).  It is not necessary to provide an uncertainty for every parameter - those that are not specified are assumed to have zero uncertainty.
+### Variable, independent
 
-    The values provided should be the 1<i>σ</i> uncertainty in each parameter.  They can be single scalar values or arrays matching the shape of the correpsonding parameter.
-
-    To provide a fractional value for any uncertainty, append `"__f"` to the end of its key in `uncertainty_from`.
-
-The "standard" uncertainties in the equilbrium constants and total borate used by CO2SYS for MATLAB following [OEDG18](refs.md/#o) are available as a dict in the correct format for `set_uncertainty` at `pyco2.uncertainty_OEDG18`:
+Provide an **array with the same shape as the parameter** if the uncertainty in each element is different, but still is independent from the other elements.
 
 ```python
-# Also include equilibrium constant uncertainties
-co2s.set_uncertainty(**pyco2.uncertainty_OEDG18)
+co2s = pyco2.sys(t=[5, 10, 15]).set_u(t=[0.1, 0.2, 0.3])
 ```
 
-If `set_uncertainty` is run multiple times on the same `CO2System`, each successive call adds to the existing set of uncertainties, overwriting where an uncertainty for that parameter was already declared.
+> Above: three temperature values, each with a different independent uncertainty.
 
-!!! warn "`set_uncertainty` after `propagate`"
+### With covariances
 
-    If `set_uncertainty` is run after running `propagate` on a system, then `propagate` will automatically be run again with the new set uncertainties, so that the values in `co2s.uncertainty` are all correct for the current set of assigned uncertainties.
-
-## Propagate independent uncertainties
+Provide a **NumPy array with the shape of the parameter, squared** if there are covariances between uncertainties in different elements.
 
 ```python
-# Propagate uncertainties set with set_uncertainty
-co2s.propagate(["pH", "fCO2"])
+import numpy as np
+
+co2s = (
+    pyco2.sys(t=[5, 10, 15])
+    .set_u(t=np.array(
+        [[0.1, 0.05, 0.05],
+         [0.05, 0.2, 0.05],
+         [0.05, 0.05, 0.3]])))
+```
+
+> Above: three temperature values with a three-by-three covariance matrix for their uncertainties.
+
+### Standard set from OEDG18
+
+To assign the "standard" set of uncertainties in the equilbrium constants and total borate assigned by [OEDG18](refs/#o), use the method `set_u_OEDG18`:
+
+```python
+co2s = (
+    pyco2.sys(
+        dic=2100,
+        ta=2250,
+        t=[5, 10, 15],
+    )
+    .set_u(t=0.1)
+    .set_u_OEDG18()
+)
+```
+
+Running `set_u` multiple times on the same `CO2System` adds to the existing set, overwriting existing entries.
+
+!!! warning "`set_u` after `prop`"
+
+    If `set_u` is run after running `prop` on a system, then `prop` will automatically be run again with the new set uncertainties, so that the values in `co2s.u` are all correct for the current set of assigned uncertainties.
+
+### Finding assigned values
+
+The assigned uncertainty values are stored in `co2s.u.assigned`(1).
+{ .annotate }
+
+1.  Shortcut for `co2s.uncertainty.assigned`.
+
+## Propagate uncertainties
+
+```python
+# Propagate uncertainties that were set with set_u
+co2s.prop(["pH", "fCO2"])
 
 # Access uncertainty results
-uncert_fCO2 = co2s.uncertainty["fCO2"]
-uncert_pH_due_to_dic = co2s.uncertainty["pH"]["dic"]
+uncert_fCO2 = co2s.u["fCO2"]
+uncert_pH_due_to_dic = co2s.u.parts["pH"]["t"]
+
+# You can also use dot notation and shortcuts here
+uncert_fCO2 = co2s.u.fCO2
+uncert_pH_due_to_dic = co2s.u.parts.pH.t
 ```
 
 The total uncertainties are the Pythagorean sum of all the components.  This calculation assumes that all argument uncertainties are independent from each other and that they are provided in terms of single standard deviations.
 
-!!! inputs "`propagate` arguments"
+!!! inputs "`prop` arguments"
 
     * `uncertainty_into`: a list of the parameter keys that uncertainties are to be propagated into.
 
-    If `propagate` is run with no arguments, then uncertainties will be propagated into all results that have been currently solved for.
+    If `prop` is run with no arguments, then uncertainties will be propagated into all results that have been currently solved for.
 
-!!! outputs "`propagate` results"
+!!! outputs "`prop` results"
 
     The uncertainty results are stored in `co2s.uncertainty`, for which `co2s.u` can be used as a shortcut.
 
-    * For each result `into` in `uncertainty_into`, there is a new sub-dict `co2s.uncertainty[into]` containing the total and component uncertainties in that result.
+    * For each result `into` in `uncertainty_into`, there is a new sub-dict `co2s.u[into]` containing the total and component uncertainties in that result.
   
-    * The total uncertainty is in `co2s.uncertainty[into]`.
+    * The total uncertainty is in `co2s.u[into]`.
   
-    * The uncertainties from each argument `from` that has had an uncertainty defined with `set_uncertainty` are also in the sub-dict with the corresponding keys: `co2s.uncertainty[into][from]`.
+    * The uncertainties from each argument `from` that has had an uncertainty defined with `set_u` are also in a sub-dict with the corresponding keys: `co2s.u.parts[into][from]`.
 
-    All `into` and `from` values can be accessed with dot notation instead of with square brackets, and the [shortcuts](detail.md/#arguments-and-results) can be used.
-
-## Uncertainties with covariances
-
-PyCO2SYS does not currently have a generalised function for the complete process of propagating uncertainties that co-vary.  However, it does allow the derivative of any result with respect to any argument to be calculated:
-
-```python
-grads_of = ["pH"]  # Get derivatives of pH...
-grads_wrt = ["dic", "alkalinity"]  # ... with respect to DIC and alkalinity
-co2s.get_grads(grads_of, grads_wrt)
-
-# Access derivatives - shortcuts and dot notation can be used
-dpH_ddic = co2s.grads["pH"]["dic"]
-dpH_dalk = co2s.grads["pH"]["alkalinity"]
-```
-
-!!! inputs "`get_grads` arguments"
-
-    * `grads_of`: a list of parameter keys for which the derivatives of are to be calculated.
-    * `grads_wrt`: a list of parameter keys for which the derivatives with respect to are to be calculated.
-
-!!! outputs "`get_grads` results"
-
-    For each result `of` in `grads_of` and argument `wrt` in `grads_wrt`, the corresponding derivative is stored in `co2s.grads[of][wrt]`.
+    All `into` and `from` values can be accessed with dot notation instead of with square brackets, and the [shortcuts](detail/#arguments-and-results) can be used.

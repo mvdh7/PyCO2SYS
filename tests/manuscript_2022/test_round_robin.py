@@ -3,7 +3,8 @@ import itertools
 
 import numpy as np
 
-from PyCO2SYS import CO2System
+import PyCO2SYS as pyco2
+
 
 # Define round-robin test conditions
 values = dict(
@@ -26,7 +27,7 @@ opts = dict(
     opt_pH_scale=1,
     opt_total_borate=1,
 )
-sys_init = CO2System(**values_init, **opts)
+sys_init = pyco2.sys(**values_init, **opts)
 
 # Define parameter types and names and get initial values
 partypes = {
@@ -56,7 +57,7 @@ def test_round_robin():
     for par1, par2 in icases:
         # print(" ")
         # print(par1, par2)
-        sys = CO2System(
+        sys = pyco2.sys(
             **{
                 par1: sys_init[par1],
                 par2: sys_init[par2],

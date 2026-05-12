@@ -8,8 +8,6 @@
 
 # Arguments and results
 
-This page provides a comprehensive overview of the keyword arguments that can be provided to `pyco2.sys` and the results it can compute.
-
 !!! info "Content, not concentration"
     For all arguments and results in μmol&nbsp;kg<sup>–1</sup>, the "kg" refers to the total solution, not H<sub>2</sub>O.  These are therefore accurately termed *substance content* or *molinity* values (as opposed to *concentration* or *molality*).
 
@@ -26,11 +24,11 @@ This page provides a comprehensive overview of the keyword arguments that can be
 
 Each argument to `pyco2.sys` can be either a single scalar value, or a [NumPy array](https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html) containing a series of values.  A combination of different multidimensional array shapes and sizes is allowed as long as they can all be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) with each other.
 
-Pandas `DataFrame`s and xarray `Dataset`s can be provided using the `data` kwarg (see [User guide / Quick-start guide / Data structures](quick.md/#data-structures)).
+Pandas DataFrames and xarray Datasets can be provided using the `data` kwarg (see [User guide / Quick-start guide / Data structures](quick/#data-structures)).
 
 ### Carbonate system parameters
 
-Up to two carbonate system parameters can be provided.
+Two, one or zero carbonate system parameters can be provided.
 
 !!! inputs annotate "Carbonate system parameters"
 
@@ -38,7 +36,7 @@ Up to two carbonate system parameters can be provided.
 
     * `alkalinity`(1): **total alkalinity** in μmol&nbsp;kg<sup>–1</sup>.
     * `dic`(2): **dissolved inorganic carbon** in μmol&nbsp;kg<sup>–1</sup>.
-    * `pH`: **pH** on the total, seawater, free or NBS scale.  Which scale is given by `opt_pH_scale`.
+    * `pH`: **pH** on the total, seawater, free or NBS scale, as given by `opt_pH_scale`.
     * `HCO3`: **bicarbonate ion** in μmol&nbsp;kg<sup>–1</sup>.
     * Any one of:
         * `pCO2`: **partial pressure of CO<sub>2</sub>** in μatm,
@@ -73,7 +71,7 @@ If not provided, these revert to default values.
     * `pressure`(3): **hydrostatic pressure** in dbar (default 0 dbar) at which the carbonate system parameters are provided.
     * `pressure_atmosphere`: **atmospheric pressure** in atm (default 1 atm).
 
-    As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive **and** the two known parameters are at a different temperature and/or pressure from each other.
+    As in previous versions of (Py)CO2SYS, there is no built-in way to handle the (rare) case where both known parameters are temperature- and/or pressure-sensitive and the two known parameters are at a different temperature and/or pressure from each other.
 
 1.  Shortcuts: `sal`, `s`
 2.  Shortcuts: `temp`, `t`
@@ -119,15 +117,15 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
 
 !!! inputs "pH scale"
 
-    * `opt_pH_scale`: which **pH scale** was used for `pH`, as defined by [ZW01](refs.md/#z):
+    * `opt_pH_scale`: which **pH scale** was used for `pH`, as defined by [ZW01](refs/#z):
         * `1`: total (default), i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-])$.
         * `2`: seawater, i.e. $\mathrm{pH} = -\log_{10} ([\mathrm{H}^+] + [\mathrm{HSO}_4^-] + [\mathrm{HF}])$.
         * `3`: free, i.e. $\mathrm{pH} = -\log_{10} [\mathrm{H}^+]$.
         * `4`: NBS, i.e. relative to [NBS/NIST](https://www.nist.gov/history/nist-100-foundations-progress/nbs-nist) reference standards.
     
     * `opt_fH`: how the **hydrogen ion activity coefficient** is calculated, for conversions to/from the NBS scale:
-        * **`1`: [TWB82](refs.md/#t) (default).**
-        * `2`: [PTBO87](refs.md/#p), for GEOSECS compatibility.
+        * **`1`: [TWB82](refs/#t) (default).**
+        * `2`: [PTBO87](refs/#p), for GEOSECS compatibility.
         * `3`: the coefficient is set to 1, for freshwater.
 
 #### Carbonic acid dissociation
@@ -135,34 +133,35 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
 !!! inputs "Carbonic acid dissociation"
 
     * `opt_k_carbonic`: which set of equilibrium constant parameterisations to use for **carbonic acid dissociation**.  The valid temperature (*T*) and salinity (*S*) ranges, original pH scale, and type of material measured to derive each set of constants are shown.
-        * `1`: [RRV93](refs.md/#r) (0 < *T* < 45 °C, 5 < *S* < 45, total scale, artificial seawater).
-        * `2`: [GP89](refs.md/#g) (−1 < *T* < 40 °C, 10 < *S* < 50, seawater scale, artificial seawater).
-        * `3`: [H73a](refs.md/#h) and [H73b](refs.md/#h) refit by [DM87](refs.md/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, artificial seawater).
-        * `4`: [MCHP73](refs.md/#m) refit by [DM87](refs.md/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, real seawater).
-        * `5`: [H73a](refs.md/#h), [H73b](refs.md/#h) and [MCHP73](refs.md/#m) refit by [DM87](refs.md/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, artificial seawater).
-        * `6`: [MCHP73](refs.md/#m) aka "GEOSECS" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
-        * `7`: [MCHP73](refs.md/#m) without certain species aka "Peng" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
-        * `8`: [M79](refs.md/#m) (0 < *T* < 50 °C, *S* = 0, freshwater only).
-        * `9`: [CW98](refs.md/#c) (2 < *T* < 30 °C, 0 < *S* < 40, NBS scale, real estuarine seawater).
-        * **`10`: [LDK00](refs.md/#l) (default) (2 < *T* < 35 °C, 19 < *S* < 43, total scale, real seawater).**
-        * `11`: [MM02](refs.md/#m) (0 < *T* < 45 °C, 5 < *S* < 42, seawater scale, real seawater).
-        * `12`: [MPL02](refs.md/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, seawater scale, field measurements).
-        * `13`: [MGH06](refs.md/#m) (0 < *T* < 50 °C, 1 < *S* < 50, seawater scale, real seawater).
-        * `14`: [M10](refs.md/#m) (0 < *T* < 50 °C, 1 < *S* < 50, seawater scale, real seawater).
-        * `15`: [WMW14](refs.md/#w) (0 < *T* < 45 °C, 0 < *S* < 45, seawater scale, real seawater).
-        * `16`: [SLH20](refs.md/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, total scale, field measurements).
-        * `17`: [SB21](refs.md/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, total scale, real seawater).
-        * `18`: [PLR18](refs.md/#p) (–6 < *T* < 25 °C, 33 < *S* < 100, total scale, real seawater).
+        * `1`: [RRV93](refs/#r) (0 < *T* < 45 °C, 5 < *S* < 45, total scale, artificial seawater).
+        * `2`: [GP89](refs/#g) (−1 < *T* < 40 °C, 10 < *S* < 50, seawater scale, artificial seawater).
+        * `3`: [H73a](refs/#h) and [H73b](refs/#h) refit by [DM87](refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, artificial seawater).
+        * `4`: [MCHP73](refs/#m) refit by [DM87](refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, real seawater).
+        * `5`: [H73a](refs/#h), [H73b](refs/#h) and [MCHP73](refs/#m) refit by [DM87](refs/#d) (2 < *T* < 35 °C, 20 < *S* < 40, seawater scale, artificial seawater).
+        * `6`: [MCHP73](refs/#m) aka "GEOSECS" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
+        * `7`: [MCHP73](refs/#m) without certain species aka "Peng" (2 < *T* < 35 °C, 19 < *S* < 43, NBS scale, real seawater).
+        * `8`: [M79](refs/#m) (0 < *T* < 50 °C, *S* = 0, freshwater only).
+        * `9`: [CW98](refs/#c) (2 < *T* < 30 °C, 0 < *S* < 40, NBS scale, real estuarine seawater).
+        * **`10`: [LDK00](refs/#l) (default) (2 < *T* < 35 °C, 19 < *S* < 43, total scale, real seawater).**
+        * `11`: [MM02](refs/#m) (0 < *T* < 45 °C, 5 < *S* < 42, seawater scale, real seawater).
+        * `12`: [MPL02](refs/#m) (−1.6 < *T* < 35 °C, 34 < *S* < 37, seawater scale, field measurements).
+        * `13`: [MGH06](refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, seawater scale, real seawater).
+        * `14`: [M10](refs/#m) (0 < *T* < 50 °C, 1 < *S* < 50, seawater scale, real seawater).
+        * `15`: [WM13](refs/#w)/[WMW14](refs/#w) (0 < *T* < 45 °C, 0 < *S* < 45, seawater scale, real seawater).
+        * `16`: [SLH20](refs/#s)  (−1.67 < *T* < 31.80 °C, 30.73 < *S* < 37.57, total scale, field measurements).
+        * `17`: [SB21](refs/#s) (15 < *T* < 35 °C, 19.6 < *S* < 41, total scale, real seawater).
+        * `18`: [PLR18](refs/#p) (–6 < *T* < 25 °C, 33 < *S* < 100, total scale, real seawater).
+        * `19`: [MMB25](refs/#m) for p*K*<sub>2</sub> with p*K*<sub>1</sub> from [WM13](refs/#w)/[WMW14](refs/#w) (0 < *T* < 35 °C, 0 < *S* < 41, total scale, real seawater).
 
     * `opt_factor_k_H2CO3`: **first carbonic acid** dissociation constant **pressure correction**:
-        * **`1`: [M95](refs.md/#m) (default).**
-        * `2`: [EG70](refs.md/#e), for GEOSECS compatibility.
-        * `3`: [M83](refs.md/#m), for freshwater.
+        * **`1`: [M95](refs/#m) (default).**
+        * `2`: [EG70](refs/#e), for GEOSECS compatibility.
+        * `3`: [M83](refs/#m), for freshwater.
 
     * `opt_factor_k_HCO3`: **second carbonic acid** dissociation constant** pressure correction**:
-        * **`1`: [M95](refs.md/#m) (default).**
-        * `2`: [EG70](refs.md/#e), for GEOSECS compatibility.
-        * `3`: [M83](refs.md/#m), for freshwater.
+        * **`1`: [M95](refs/#m) (default).**
+        * `2`: [EG70](refs/#e), for GEOSECS compatibility.
+        * `3`: [M83](refs/#m), for freshwater.
 
 #### Other dissociation constants
 
@@ -170,58 +169,58 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
 
     * `opt_k_HSO4`: which parameterisation to use to model **bisulfate dissociation**:
 
-        * **`1`: [D90a](refs.md/#d) (default)**.
-        * `2`: [KRCB77](refs.md/#k).
-        * `3`: [WM13](refs.md/#w) with the corrections of [WMW14](refs.md/#w).
+        * **`1`: [D90a](refs/#d) (default)**.
+        * `2`: [KRCB77](refs/#k).
+        * `3`: [WM13](refs/#w) with the corrections of [WMW14](refs/#w).
 
     * `opt_k_HF`: which parameterisation to use for **hydrogen fluoride dissociation:**
-        * **`1`: [DR79](refs.md/#d) (default)**.
-        * `2`: [PF87](refs.md/#p).
+        * **`1`: [DR79](refs/#d) (default)**.
+        * `2`: [PF87](refs/#p).
 
     * `opt_k_BOH3`: which parameterisation to use for **boric acid dissociation**:
-        * **`1`: [D90b](refs.md/#d) (default).**
-        * `2`: [LTB69](refs.md/#l), for GEOSECS compatibility.
+        * **`1`: [D90b](refs/#d) (default).**
+        * `2`: [LTB69](refs/#l), for GEOSECS compatibility.
 
     * `opt_k_phosphate`: which parameterisation to use for **phosphoric acid dissociation**:
-        * **`1`: [YM95](refs.md/#y) (default).**
-        * `2`: [KP67](refs.md/#k), for GEOSECS compatibility.
+        * **`1`: [YM95](refs/#y) (default).**
+        * `2`: [KP67](refs/#k), for GEOSECS compatibility.
 
     * `opt_k_NH3`: which parameterisation to use for **ammonium dissociation**:
-        * **`1`: [CW95](refs.md/#c) (default).**
-        * `2`: [YM95](refs.md/#y).
+        * **`1`: [CW95](refs/#c) (default).**
+        * `2`: [YM95](refs/#y).
 
     * `opt_k_Si`: which parameterisation to use for **silicate dissociation**:
-        * **`1`: [YM95](refs.md/#y) (default).**
-        * `2`: [SMB64](refs.md/#s), for GEOSECS compatibility.
+        * **`1`: [YM95](refs/#y) (default).**
+        * `2`: [SMB64](refs/#s), for GEOSECS compatibility.
 
     * `opt_k_calcite`: which parameterisation to use for the **saturation state with respect to **:
-        * **`1`: [M83](refs.md/#m) (default).**
-        * `2`: [I75](refs.md/#i), for GEOSECS compatibility.
+        * **`1`: [M83](refs/#m) (default).**
+        * `2`: [I75](refs/#i), for GEOSECS compatibility.
 
     * `opt_k_aragonite`: which parameterisation to use for the **saturation state with respect to **:
-        * **`1`: [M83](refs.md/#m) (default).**
-        * `2`: [ICHP73](refs.md/#i), for GEOSECS compatibility.
+        * **`1`: [M83](refs/#m) (default).**
+        * `2`: [ICHP73](refs/#i), for GEOSECS compatibility.
 
     * `opt_k_H2O`: which parameterisation to use for **water dissociation**:
-        * **`1`: [M95](refs.md/#m) (default).**
-        * `2`: [M79](refs.md/#m), for GEOSECS compatibility.
-        * `3`: [HO58](refs.md/#h) refit by [M79](refs.md/#m), for freshwater.
+        * **`1`: [M95](refs/#m) (default).**
+        * `2`: [M79](refs/#m), for GEOSECS compatibility.
+        * `3`: [HO58](refs/#h) refit by [M79](refs/#m), for freshwater.
     
     * `opt_k_HNO2`: which parameterisation to use for **nitrous acid dissociation**:
-        * **`1`: [BBWB24](refs.md/#b) for seawater (default).** 
-        * `2`: [BBWB24](refs.md/#b) for freshwater.
+        * **`1`: [BBWB24](refs/#b) for seawater (default).** 
+        * `2`: [BBWB24](refs/#b) for freshwater.
 
 #### Other dissociation constant pressure corrections
 
 !!! inputs "Other dissociation constant pressure corrections"
 
     * `opt_factor_k_BOH3`: **boric acid** dissociation constant **pressure correction**:
-        * **`1`: [M79](refs.md/#m) (default).**
-        * `2`: [EG70](refs.md/#e), for GEOSECS compatibility.
+        * **`1`: [M79](refs/#m) (default).**
+        * `2`: [EG70](refs/#e), for GEOSECS compatibility.
 
     * `opt_factor_k_H2O`: **water** dissociation constant **pressure correction**:
-        *  **`1`: [M95](refs.md/#m) (default).**
-        *  `2`: [M83](refs.md/#m), for freshwater.
+        *  **`1`: [M95](refs/#m) (default).**
+        *  `2`: [M83](refs/#m), for freshwater.
 
 #### Total salt contents
 
@@ -230,13 +229,13 @@ These settings are ignored if [their values are provided as arguments](#nutrient
 !!! inputs "Total salt contents"
 
     * `opt_total_borate`: which **boron:salinity** relationship is used to calculate total borate (ignored if the `total_borate` argument is provided):
-        * **`1`: [U74](refs.md/#u) (default)**.
-        * `2`: [LKB10](refs.md/#l).
-        * `3`: [KSK18](refs.md/#k), for the Baltic Sea.
+        * **`1`: [U74](refs/#u) (default)**.
+        * `2`: [LKB10](refs/#l).
+        * `3`: [KSK18](refs/#k), for the Baltic Sea.
 
     * `opt_Ca`: which **calcium:salinity** relationship is used to calculate dissolved calcium (ignored if the `Ca` argument is provided):
-        * **`1`: [RT67](refs.md/#r) (default)**.
-        * `2`: [C65](refs.md/#c), for GEOSECS compatibility.
+        * **`1`: [RT67](refs/#r) (default)**.
+        * `2`: [C65](refs/#c), for GEOSECS compatibility.
 
 #### Other settings
 
@@ -251,15 +250,15 @@ These settings are ignored if [their values are provided as arguments](#nutrient
         * **`1`: using a fugacity factor (default)**.
         * `2`: assuming that partial pressure and fugacity are equal, for compatibility with GEOSECS.
 
-    * `opt_HCO3_root`: if **DIC and bicarbonate ion** are the known carbonate system parameter pair, then there are two possible valid solutions (e.g., [HLSP22](refs.md/#h)):
+    * `opt_HCO3_root`: if **DIC and bicarbonate ion** are the known carbonate system parameter pair, then there are two possible valid solutions (e.g., [HLSP22](refs/#h)):
         * `1`: find the low-pH solution.
         * **`2`: find the high-pH solution (default)**. 
 
 <!-- * `opt_fCO2_temperature`: how to calculate the **temperature-sensitivity of fCO<sub>2</sub>** (`upsilon`) when only one marine carbonate system parameter is known:
-  * **`1`: [H24](refs.md/#h) parameterisation (default).**
-  * `2`: [TOG93](refs.md/#t) linear fit.
-  * `3`: [TOG93](refs.md/#t) quadratic fit.
-If `1` is selected, then the [H24](refs.md/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs.md/#t) dataset is used instead (see [H24](refs.md/#h)). -->
+  * **`1`: [H24](refs/#h) parameterisation (default).**
+  * `2`: [TOG93](refs/#t) linear fit.
+  * `3`: [TOG93](refs/#t) quadratic fit.
+If `1` is selected, then the [H24](refs/#h) parameterisation is possible only if an `fCO2` value can be calculated.  If it cannot be, then the constant *b<sub>h</sub>* fitted to the [TOG93](refs/#t) dataset is used instead (see [H24](refs/#h)). -->
 
 ### Equilibrium constants
 
@@ -332,18 +331,18 @@ Buffer factors are evaluated using automatic differentiation of the complete alk
 !!! outputs annotate "Buffer factors"
 
     * `revelle_factor`(1): **Revelle factor**.
-    * `psi`: *ψ* of [FCG94](refs.md/#f).
-    * `gamma_dic`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](refs.md/#e).
-    * `beta_dic`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](refs.md/#e).
-    * `omega_dic`: **buffer factor *ω*<sub>DIC</sub>** of [ESM10](refs.md/#e).
-    * `gamma_alkalinity`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](refs.md/#e).
-    * `beta_alkalinity`: **buffer factor *β*<sub>TA</sub>** of [ESM10](refs.md/#e).
-    * `omega_alkalinity`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](refs.md/#e).
-    * `Q_isocap`(2): **isocapnic quotient** of [HDW18](refs.md/#h).
-    * `Q_isocap_approx`: **isocapnic quotient approximation** of [HDW18](refs.md/#h).
+    * `psi`: *ψ* of [FCG94](refs/#f).
+    * `gamma_dic`: **buffer factor *γ*<sub>DIC</sub>** of [ESM10](refs/#e).
+    * `beta_dic`: **buffer factor *β*<sub>DIC</sub>** of [ESM10](refs/#e).
+    * `omega_dic`: **buffer factor *ω*<sub>DIC</sub>** of [ESM10](refs/#e).
+    * `gamma_alkalinity`: **buffer factor *γ*<sub>TA</sub>** of [ESM10](refs/#e).
+    * `beta_alkalinity`: **buffer factor *β*<sub>TA</sub>** of [ESM10](refs/#e).
+    * `omega_alkalinity`: **buffer factor *ω*<sub>TA</sub>** of [ESM10](refs/#e).
+    * `Q_isocap`(2): **isocapnic quotient** of [HDW18](refs/#h).
+    * `Q_isocap_approx`: **isocapnic quotient approximation** of [HDW18](refs/#h).
     * `dlnfCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
     * `dlnpCO2_dT`: **temperature derivative** of **ln(fCO<sub>2</sub>)**.
-    * `substrate_inhibitor_ratio`(3): **substrate:inhibitor ratio** of [B15](refs.md/#b) in mol(HCO<sub>3</sub><sup>−</sup>)·μmol(H<sup>+</sup>)<sup>−1</sup>.
+    * `substrate_inhibitor_ratio`(3): **substrate:inhibitor ratio** of [B15](refs/#b) in mol(HCO<sub>3</sub><sup>−</sup>) μmol(H<sup>+</sup>)<sup>−1</sup>.
      
 1.  Shortcut: `revelle`
 2.  Shortcut: `q`
@@ -359,7 +358,7 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
     * `pk_H2CO3`(2): **first carbonic acid** dissociation constant.
     * `pk_HCO3`(3): **second carbonic acid** dissociation constant.
     * `pk_H2O`(4): **water** dissociation constant.
-    * `pk_BOH3`: **boric acid** dissociation constant.
+    * `pk_BOH3`(5): **boric acid** dissociation constant.
     * `pk_HF_free`: **hydrogen fluoride** dissociation constant.
     * `pk_HSO4_free`: **bisulfate** dissociation constant.
     * `pk_H3PO4`: **first phosphoric acid** dissociation constant.
@@ -378,6 +377,7 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
 2.  Shortcut: `pk1`
 3.  Shortcut: `pk2`
 4.  Shortcut: `pkw`
+5.  Shortcut: `pkb`
 
 ### Other results
 
@@ -385,6 +385,6 @@ All equilibrium constants are returned on the pH scale of `opt_pH_scale` except 
 
     * `fugacity_factor`: **fugacity factor** for converting between CO<sub>2</sub> partial pressure and fugacity.
     * `vp_factor`: **vapour pressure factor** for converting between <i>x</i>CO<sub>2</sub> and <i>p</i>CO<sub>2</sub>.    
-    * `gas_constant`: **ideal gas constant** in ml bar<sup>−1</sup> mol<sup>−1</sup> K<sup>−1</sup> (note the unusual unit).
+    * `gas_constant`: **ideal gas constant** in J mol<sup>−1</sup> K<sup>−1</sup>.
 
 <!-- * `upsilon`: the **sensitivity of *f*CO<sub>2</sub> to temperature** in % °C<sup>–1</sup>, calculated with the method specified by `opt_fCO2_temperature`. -->

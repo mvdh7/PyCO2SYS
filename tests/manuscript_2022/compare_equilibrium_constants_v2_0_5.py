@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 
 import PyCO2SYS as pyco2
-from PyCO2SYS import CO2System
 
 
 def options_old2new(KSO4CONSTANTS):
-    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated format."""
+    """Convert traditional CO2SYS `KSO4CONSTANTS` input to new separated
+    format.
+    """
     if np.shape(KSO4CONSTANTS) == ():
         KSO4CONSTANTS = np.array([KSO4CONSTANTS])
     only2KSO4 = {
@@ -110,10 +111,10 @@ def test_equilibrium_constants():
                 )
             )
         # Solve under input and output conditions
-        sys_in = CO2System(**values_in, **opts)
-        sys_in.solve(svars, store_steps=2)
-        sys_out = CO2System(**values_out, **opts)
-        sys_out.solve(svars, store_steps=2)
+        sys_in = pyco2.sys(**values_in, **opts)
+        sys_in.solve(svars)
+        sys_out = pyco2.sys(**values_out, **opts)
+        sys_out.solve(svars)
         # Compare MATLAB with Python
         for m, p in m_to_p:
             with warnings.catch_warnings():
@@ -188,15 +189,21 @@ def test_total_salts():
         elif g[0] == 7:
             opts.update(dict(opt_total_borate=4))
         # Solve
-        sys = CO2System(**values, **opts)
+        sys = pyco2.sys(**values, **opts)
         sys.solve(svars)
         # Compare MATLAB with Python
         for m, p in m_to_p:
-            python = sys[p]
+            python = np.array(sys[p])
             # These terms are not included when opt_k_carbonic == 8
-            if g[0] == 8 and p in ["total_sulfate", "total_fluoride", "total_borate"]:
+            if g[0] == 8 and p in [
+                "total_sulfate",
+                "total_fluoride",
+                "total_borate",
+            ]:
                 python[:] = 0.0
-            assert np.all(np.isclose(group[m].values, python, rtol=1e-12, atol=1e-16))
+            assert np.all(
+                np.isclose(group[m].values, python, rtol=1e-12, atol=1e-16)
+            )
 
 
 # test_equilibrium_constants()

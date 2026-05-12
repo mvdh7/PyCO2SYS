@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate various buffer factors of the marine carbonate system."""
 
 from jax import numpy as np
@@ -7,12 +7,15 @@ from jax import numpy as np
 from . import solubility, solve
 from .meta import egrad
 
+
 ilog10e = -1 / np.log10(np.exp(1))  # multiplier to convert pH to ln(H)
 
 
 def d_lnOmega__d_CO3(CO3, Ca, pk_calcite):
     """Function for d[ln(Omega)]/d[CO3].  Identical for calcite and aragonite."""
-    return egrad(lambda CO3: np.log(solubility.OC_from_CO3(CO3, Ca, pk_calcite)))(CO3)
+    return egrad(
+        lambda CO3: np.log(solubility.OC_from_CO3(CO3, Ca, pk_calcite))
+    )(CO3)
 
 
 def d_dic__d_pH__alkalinity(
@@ -272,7 +275,9 @@ def d_lnCO2__d_pH__dic(dic, pH, pk_CO2, pk_H2CO3, pk_HCO3):
     return egrad(
         lambda pH: np.log(
             pk_CO2
-            * solve.inorganic.fCO2_from_dic_pH(dic, pH, pk_CO2, pk_H2CO3, pk_HCO3)
+            * solve.inorganic.fCO2_from_dic_pH(
+                dic, pH, pk_CO2, pk_H2CO3, pk_HCO3
+            )
         )
     )(pH)
 
@@ -382,12 +387,22 @@ def beta_alkalinity(d_alkalinity__d_pH__dic):
     return 1e-6 * d_alkalinity__d_pH__dic / ilog10e
 
 
-def omega_dic(d_dic__d_pH__alkalinity, d_CO3__d_pH__alkalinity, d_lnOmega__d_CO3):
-    return 1e-6 * d_dic__d_pH__alkalinity / (d_lnOmega__d_CO3 * d_CO3__d_pH__alkalinity)
+def omega_dic(
+    d_dic__d_pH__alkalinity, d_CO3__d_pH__alkalinity, d_lnOmega__d_CO3
+):
+    return (
+        1e-6
+        * d_dic__d_pH__alkalinity
+        / (d_lnOmega__d_CO3 * d_CO3__d_pH__alkalinity)
+    )
 
 
-def omega_alkalinity(d_alkalinity__d_pH__dic, d_CO3__d_pH__dic, d_lnOmega__d_CO3):
-    return 1e-6 * d_alkalinity__d_pH__dic / (d_lnOmega__d_CO3 * d_CO3__d_pH__dic)
+def omega_alkalinity(
+    d_alkalinity__d_pH__dic, d_CO3__d_pH__dic, d_lnOmega__d_CO3
+):
+    return (
+        1e-6 * d_alkalinity__d_pH__dic / (d_lnOmega__d_CO3 * d_CO3__d_pH__dic)
+    )
 
 
 def d_alkalinity__d_pH__fCO2(
@@ -478,7 +493,9 @@ def d_alkalinity__d_pH__fCO2(
 def d_dic__d_pH__fCO2(pH, fCO2, pk_CO2, pk_H2CO3, pk_HCO3):
     pH, fCO2 = np.broadcast_arrays(pH, fCO2, pk_CO2, pk_H2CO3, pk_HCO3)[:2]
     return egrad(
-        lambda pH: solve.inorganic.dic_from_pH_fCO2(pH, fCO2, pk_CO2, pk_H2CO3, pk_HCO3)
+        lambda pH: solve.inorganic.dic_from_pH_fCO2(
+            pH, fCO2, pk_CO2, pk_H2CO3, pk_HCO3
+        )
     )(pH)
 
 
@@ -585,7 +602,9 @@ def d_fCO2__d_pH__alkalinity(
     )(pH)
 
 
-def revelle_factor(dic, fCO2, d_fCO2__d_pH__alkalinity, d_dic__d_pH__alkalinity):
+def revelle_factor(
+    dic, fCO2, d_fCO2__d_pH__alkalinity, d_dic__d_pH__alkalinity
+):
     """Revelle factor as defined by BTSP79."""
     return (d_fCO2__d_pH__alkalinity / d_dic__d_pH__alkalinity) * (dic / fCO2)
 

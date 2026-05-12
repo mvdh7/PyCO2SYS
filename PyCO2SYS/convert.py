@@ -1,5 +1,5 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
-# Copyright (C) 2020--2025  Matthew P. Humphreys et al.  (GNU GPLv3)
+# Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """
 PyCO2SYS.convert
 ================
@@ -34,8 +34,6 @@ kelvin_to_celsius
 decibar_to_bar
 bar_to_decibar
 """
-
-import copy
 
 from jax import numpy as np
 
@@ -186,7 +184,9 @@ def pH_sws_to_free(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
     float
         The conversion; add to pH or pK to convert scale.
     """
-    return -pH_free_to_sws(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free)
+    return -pH_free_to_sws(
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
+    )
 
 
 def pH_sws_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
@@ -250,7 +250,9 @@ def pH_tot_to_sws(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free):
     float
         The conversion; add to pH or pK to convert scale.
     """
-    return -pH_sws_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free)
+    return -pH_sws_to_tot(
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free
+    )
 
 
 def pH_sws_to_nbs(fH):
@@ -332,10 +334,14 @@ def pH_nbs_to_tot(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
     float
         The conversion; add to pH or pK to convert scale.
     """
-    return -pH_tot_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH)
+    return -pH_tot_to_nbs(
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
+    )
 
 
-def pH_free_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+def pH_free_to_nbs(
+    total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
+):
     """Free to NBS pH scale conversion.
 
     Parameters
@@ -361,7 +367,9 @@ def pH_free_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
     ) + pH_sws_to_nbs(fH)
 
 
-def pH_nbs_to_free(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
+def pH_nbs_to_free(
+    total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
+):
     """NBS to Free pH scale conversion.
 
     Parameters
@@ -382,7 +390,9 @@ def pH_nbs_to_free(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH):
     float
         The conversion; add to pH or pK to convert scale.
     """
-    return -pH_free_to_nbs(total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH)
+    return -pH_free_to_nbs(
+        total_fluoride, total_sulfate, pk_HF_free, pk_HSO4_free, fH
+    )
 
 
 def fH_PTBO87(temperature, salinity):
@@ -393,7 +403,9 @@ def fH_PTBO87(temperature, salinity):
     # given there off so that it is about .008 (1#) lower. It
     # doesn't agree with the check value they give on p. 456.
     TempK = temperature + 273.15
-    return 1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * salinity**2
+    return (
+        1.29 - 0.00204 * TempK + (0.00046 - 0.00000148 * TempK) * salinity**2
+    )
 
 
 def fH_TWB82(temperature, salinity):
@@ -402,4 +414,8 @@ def fH_TWB82(temperature, salinity):
     # Takahashi et al, Chapter 3 in GEOSECS Pacific Expedition,
     # v. 3, 1982 (p. 80).
     TempK = temperature + 273.15
-    return 1.2948 - 0.002036 * TempK + (0.0004607 - 0.000001475 * TempK) * salinity**2
+    return (
+        1.2948
+        - 0.002036 * TempK
+        + (0.0004607 - 0.000001475 * TempK) * salinity**2
+    )

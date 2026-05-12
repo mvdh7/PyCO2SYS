@@ -94,18 +94,30 @@ def plot_graph(
     if mode == "state":
         node_states = nx.get_node_attributes(graph_to_plot, "state", default=0)
         edge_states = nx.get_edge_attributes(graph_to_plot, "state", default=0)
-        node_colour = [self.c_state[node_states[n]] for n in nx.nodes(graph_to_plot)]
-        edge_colour = [self.c_state[edge_states[e]] for e in nx.edges(graph_to_plot)]
+        node_colour = [
+            self.c_state[node_states[n]] for n in nx.nodes(graph_to_plot)
+        ]
+        edge_colour = [
+            self.c_state[edge_states[e]] for e in nx.edges(graph_to_plot)
+        ]
     elif mode == "valid":
         node_valid = nx.get_node_attributes(graph_to_plot, "valid", default=0)
         edge_valid = nx.get_edge_attributes(graph_to_plot, "valid", default=0)
-        node_valid_p = nx.get_node_attributes(graph_to_plot, "valid_p", default=0)
-        node_colour = [self.c_valid[node_valid[n]] for n in nx.nodes(graph_to_plot)]
-        edge_colour = [self.c_valid[edge_valid[e]] for e in nx.edges(graph_to_plot)]
+        node_valid_p = nx.get_node_attributes(
+            graph_to_plot, "valid_p", default=0
+        )
+        node_colour = [
+            self.c_valid[node_valid[n]] for n in nx.nodes(graph_to_plot)
+        ]
+        edge_colour = [
+            self.c_valid[edge_valid[e]] for e in nx.edges(graph_to_plot)
+        ]
         node_edgecolors = [
             self.c_valid[node_valid_p[n]] for n in nx.nodes(graph_to_plot)
         ]
-        node_linewidths = [[0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)]
+        node_linewidths = [
+            [0, 2][node_valid_p[n]] for n in nx.nodes(graph_to_plot)
+        ]
     else:
         warn('`mode` not recognised, options are "state" or "valid".')
         node_colour = self.c_state[0]

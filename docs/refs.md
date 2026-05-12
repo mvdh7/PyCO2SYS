@@ -96,9 +96,6 @@ Click on each reference to see more details.
 ??? note "HLSP22: Humphreys et al. (2022) *Geosci. Model Dev.*"
     Humphreys, M. P., Lewis, E. R., Sharp, J. D., and Pierrot, D. (2021).  PyCO2SYS v1.8: marine carbonate system calculations in Python.  *Geoscientific Model Development* 15, 15–43.  [doi:10.5194/gmd-15-15-2022](https://doi.org/10.5194/gmd-15-15-2022).
 
-??? note "HSS22: Humphreys et al. (2022) *"PyCO2SYS: marine carbonate..."*"
-    Humphreys, M. P., Schiller, A. J., Sandborn, D. E., Gregor, L., Pierrot, D., van Heuven, S. M. A. C., Lewis, E. R., and Wallace, D. W. R. (2022). PyCO2SYS: marine carbonate system calculations in Python.  *Zenodo.* [doi:10.5281/zenodo.3744275](https://doi.org/10.5281/zenodo.3744275).
-
 ??? note "HPR11: van Heuven et al. (2011) *"CO<sub>2</sub>SYS v1.1, MATLAB..."*"
     van Heuven, S., Pierrot, D., Rae, J. W. B., Lewis, E., and Wallace, D. W. R. (2011). CO<sub>2</sub>SYS v 1.1, MATLAB program developed for CO<sub>2</sub> system calculations. ORNL/CDIAC-105b, Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, TN, USA. [doi:10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1](https://doi.org/10.3334/CDIAC/otg.CO2SYS_MATLAB_v1.1).
 
@@ -172,6 +169,9 @@ Click on each reference to see more details.
 
 ??? note "MM02: Mojica Prieto & Millero (2002) *Geochim. Cosmochim. Acta*"
     Mojica Prieto, F. J., and Millero, F. J. (2002). The values of pK<sub>1</sub> + pK<sub>2</sub> for the dissociation of carbonic acid in seawater. *Geochimica et Cosmochimica Acta* 66, 2529–2540. <a href='https://doi.org/10.1016/S0016-7037(02)00855-4'>doi:10.1016/S0016-7037(02)00855-4</a>.
+
+??? note "MMB25: Martin-Mayor et al. (2025) *Geochim. Cosmochim. Acta*"
+    Martin-Mayor, M., Byrne, R. H., Schockman, K. M., and Liu, X. (2025). Spectrophotometric determination of bicarbonate dissociation constants (*K*<sub>2</sub>) for freshwater, estuarine, and marine waters over a wide range of temperatures. *Geochimica et Cosmochimica Acta* 401, 149-159. [doi:10.1016/j.gca.2025.06.001](https://doi.org/10.1016/j.gca.2025.06.001).
 
 ??? note "MPL02: Millero et al. (2002) *Deep-Sea Res. Pt. I* "
     Millero, F. J., Pierrot, D., Lee, K., Wanninkhof, R., Feely, R., Sabine, C. L., et al. (2002). Dissociation constants for carbonic acid determined from field measurements. *Deep-Sea Research Part I* 49, 1705–1723. <a href='https://doi.org/10.1016/S0967-0637(02)00093-6'>doi:10.1016/S0967-0637(02)00093-6</a>.

@@ -14,69 +14,45 @@ All the code examples assume the following import convention:
 import PyCO2SYS as pyco2
 ```
 
+---
+
 ## Solve the marine carbonate system
 
-The only function most users will need from PyCO2SYS is `pyco2.sys`.  For example:
+The only function needed is `pyco2.sys`.  For example:
 
 ```python
 # Set up a CO2System
-co2s = pyco2.sys(alkalinity=2250, dic=2100, temperature=15, salinity=34)
+co2s = pyco2.sys(
+    alkalinity=2250,
+    dic=2100,
+    temperature=15.1,
+    salinity=34.4,
+    total_silicate=8.3,
+    opt_total_borate=2,  # use LKB10 for total borate
+)
 
-# Solve for and return the value of pH
+# Solve for and return the value of pH (either option below works)
+pH = co2s.pH
 pH = co2s["pH"]
 
-# Solve for and return pCO2 and fCO2 at the same time
-# (`results` is a dict with the keys "pCO2" and "fCO2")
+# Solve for and return pCO2 and fCO2 at the same time:
+# `results` is a dict with keys "pCO2" and "fCO2"
 results = co2s[["pCO2", "fCO2"]]
 ```
 
-As seen above, results can be calculated and accessed with square brackets, as if `co2s` were a dict.  It isn't a dict, it's a `CO2System`, so it can do some other things too.
+Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, any other ther relevant parameters like hydrographic properties and nutrient contents, and any settings to control which parameterisations are used.
 
-Each call of `pyco2.sys` may include up to two known core marine carbonate system parameters, which are DIC (`dic`), total alkalinity (`alkalinity`), pH (`pH`), <i>p</i>CO<sub>2</sub> (`pCO2`), <i>f</i>CO<sub>2</sub> (`fCO2`), <i>x</i>CO<sub>2</sub> (`xCO2`), (bi)carbonate ion content (`HCO3` and `CO3`), and the saturation state of aragonite (`saturation_aragonite`) and calcite (`saturation_calcite`).
+All parameters can be scalars, lists or multi-dimensional NumPy arrays.  For pandas DataFrames and xarray Datasets, use the `data` kwarg as described below in [Data structures](#data-structures).  All settings (beginning with `opt_`) must be scalar integers.
 
-!!! tip "Find out more"
+Parameter names are all case-insensitive and many have shortcuts that can be used instead.  See [Arguments and results](detail.md) for a list of all the options.
 
-    See [User guide / Arguments and results](detail.md) for the full sets of keyword arguments that can be provided to `pyco2.sys` and the results parameters that can be calculated.
+---
 
-    See [User guide / Advanced tips and tricks](advanced.md) for a more detailed overview of how results can be solved for and accessed from a `CO2System`.
+## Adjust to different temperatures and/or pressures
 
-A few common examples are given below.
-
-## Calculate without core parameters
-
-Some properties (mainly equilibrium constants and total salt contents) can be calculated without solving the marine carbonate system, so `pyco2.sys` can be run with no core parameters:
-
-```python
-# Set up a CO2System under default conditions 
-# (temperature 25 °C, salinity 35, hydrostatic pressure 0 dbar
-#   - other values could be specified with the appropriate kwargs)
-co2s = pyco2.sys()
-
-# Get water dissociation constant
-pk_H2O = co2s["pk_H2O"]
-```
-
-## Use different parameterisations
-
-PyCO2SYS contains many different options for the parameterisations of equilibrium constants and total salt contents.  These can be selected using `kwargs` beginning with `opt_`, for example:
-
-```python
-# Set up a CO2System with non-default equilibrium constants for carbonic acid
-# and non-default total borate from salinity
-co2s = pyco2.sys(opt_k_carbonic=3, opt_total_borate=2)
-```
-
-All settings arguments must be single, scalar, integer values.
-
-## Convert to different temperatures and/or pressures
-
-!!! tip "Find out more"
-
-    See [User guide / Adjust conditions](adjust.md) for more detail on temperature and pressure conversions.
+To convert parameters to different temperatures and/or pressures, use the `adjust` method.  See [Adjust conditions](adjust.md) for more detail on temperature and pressure conversions.
 
 ### With two known parameters
-
-To convert parameters to different temperatures and/or pressures, use the `adjust` method.
 
 For example, to calculate the saturation state with respect to aragonite under in situ conditions from alkalinity and pH measured in the laboratory at 25 °C:
 
@@ -91,50 +67,62 @@ saturation_aragonite = co2s_insitu["saturation_aragonite"]
 
 ### With one known parameter
 
-The partial pressure (`pCO2`), fugacity (`fCO2`), dry-air mole fraction (`xCO2`) and aqueous content (`CO2`) of CO<sub>2</sub> can be interconverted and adjusted to different temperatures without a second parameter:
+The partial pressure (`pCO2`), fugacity (`fCO2`), dry-air mole fraction (`xCO2`) and aqueous CO<sub>2</sub> content (`CO2`) can be interconverted and adjusted to different temperatures without a second parameter ([H24](refs/#h)):
 
 ```python
 # Set up the initial CO2System with known pCO2
 co2s_lab = pyco2.sys(pCO2=400, temperature=25)
 
-# Calculate fCO2 under lab conditions (optional step)
-fCO2_lab = co2s_lab["fCO2"]
+# Convert to fCO2 under initial conditions (optional)
+fCO2_lab = co2s_lab.fCO2
 
-# Adjust fCO2 to in situ conditions(10 °C and 1500 dbar hydrostatic pressure)
-co2s_insitu = co2s_lab.adjust(temperature=10, pressure=1500)
-fCO2_insitu = co2s_insitu["fCO2"]
+# Calculate fCO2 in situ (10 °C)
+co2s_insitu = co2s_lab.adjust(temperature=10)
+fCO2_insitu = co2s_insitu.fCO2
 ```
+
+---
 
 ## Propagate uncertainties
 
-!!! tip "Find out more"
+Uncertainties are assigned using the `set_u`(1) method and propagated with `prop`(2).  For more details, see [Uncertainty propagation](uncertainty.md).
+{ .annotate }
 
-    See [User guide / Uncertainty propagation](uncertainty.md) for more detail on propagating uncertainties.
+1.  Shortcut for `set_uncertainty`.
+2.  Shortcut for `propagate`.
 
-Uncertainties are defined and propagated using the `set_uncertainty` and `propagate` methods:
+!!! warning "Variance, not standard deviation"
 
-  * `set_uncertainty` is used to define the independent uncertainties in input parameters.  The kwargs used are the same as for the main `pyco2.sys` function.
+    Uncertainty values must be assigned in terms of variances, not as standard deviations.
 
-  * `propagate` propagates the defined uncertainties through to the calculated results.
+    Calculated uncertainties are also returned as variances.
 
-For example, to get the total uncertainty in pH from independent uncertainties in alkalinity and DIC:
+The uncertainty for each parameter can be given either as a scalar, an array of the same shape as the parameter, or as a covariance matrix.
+
+For example, to get the total uncertainty in pH from uncertainties in alkalinity and DIC and including the set of uncertainties for equilibrium constants and total borate content proposed by [OEDG18](refs/#o):
 
 ```python
 # Set up a CO2System
 co2s = pyco2.sys(alkalinity=2250, dic=2100, temperature=15, salinity=34)
 
-# Uncertainties in alkalinity and DIC are both 2 µmol/kg
-co2s.set_uncertainty(alkalinity=2, dic=2)
+# 1-sigma uncertainties in alkalinity and DIC are both 2 µmol/kg
+co2s.set_u(alkalinity=2**2, dic=2**2)
+
+# Also assign all OEDG18 uncertainties
+co2s.set_u_OEDG18()
 
 # Propagate through to pH
-co2s.propagate("pH")
+co2s.prop("pH")
 
-# Retrieve total uncertainty in pH
-pH_uncertainty = co2s.uncertainty["pH"]
+# Retrieve total uncertainty as a variance in pH
+# (take the square root to get back to a standard deviation)
+pH_var = co2s.u.pH
 
 # Retrieve component of pH uncertainty due to DIC
-pH_uncertainty = co2s.uncertainty.parts["pH"]["dic"]
+pH_var_dic = co2s.u.parts["pH"]["dic"]
 ```
+
+---
 
 ## Multidimensional data
 
@@ -143,6 +131,8 @@ pH_uncertainty = co2s.uncertainty.parts["pH"]["dic"]
 All arguments other than settings can be provided as lists or multidimensional numpy arrays.  The dimensions of different arguments can be different as long as they can be [broadcasted](https://numpy.org/doc/stable/user/basics.broadcasting.html) together.
 
 ```python
+import numpy as np
+
 # Define multidimensional arguments
 dic = np.array([2000, 2100, 2200])
 pCO2 = np.array([400, 450, 485])
@@ -159,9 +149,9 @@ alkalinity_2D = co2s_2D["alkalinity"]  # shape is (3, 3)
 
 Some common data structures can be provided to `pyco2.sys` using the `data` kwarg.
 
-#### Dict(ionarie)s
+#### Dicts
 
-If your data are in a `dict`, you can provide this as `data`:
+If your data are in a dict, you can provide this as `data`:
 
 ```python
 # Define known parameters
@@ -188,14 +178,16 @@ co2s = pyco2.sys(
 )
 ```
 
-#### Pandas DataFrames
+#### pandas DataFrames
 
-!!! warning "`DataFrame` not `Series`"
-    Pandas data must be collected into a `DataFrame` and passed together through the `data` kwarg.  It's not possible to pass individual pandas `Series`s separately as kwargs to `pyco2.sys`.  If this is necessary, then each `Series` must first be converted into a NumPy array.
+!!! warning "DataFrame not Series"
+    pandas data must be collected into a DataFrame and passed together through the `data` kwarg.  It's not possible to pass individual pandas Series separately as kwargs to `pyco2.sys`.  If this is necessary, then each Series must first be converted into a NumPy array.
 
-If data are in a pandas `DataFrame`, this can be provided as `data`, and results returned as a pandas `Series` or `DataFrame` with consistent indexing:
+If data are in a pandas DataFrame, this can be provided as `data`, and results returned as a pandas Series or DataFrame with consistent indexing:
 
 ```python
+import pandas as pd
+
 # Define known parameters
 df = pd.DataFrame({"dic": [2000, 2100, 2200], "pCO2": [400, 450, 485]})
 
@@ -209,16 +201,18 @@ pH = co2s.to_pandas("pH")
 df_results = co2s.to_pandas(["pH", "alkalinity"])
 ```
 
-Running `to_pandas` with no arguments will return a `DataFrame` containing all currently calculated parameters.
+Running `to_pandas` with no arguments will return a DataFrame containing all currently calculated parameters.
 
-#### Xarray Datasets
+#### xarray Datasets
 
-!!! warning "`Dataset` not `DataArray`"
-    Xarray data must be collected into a `Dataset` and passed together through the `data` kwarg.  It's not possible to pass individual xarray `DataArray`s separately as kwargs to `pyco2.sys`.  If this is necessary, then each `DataArray` must first be converted into a NumPy array.
+!!! warning "Dataset not DataArray"
+    xarray data must be collected into a Dataset and passed together through the `data` kwarg.  It's not possible to pass individual xarray DataArrays separately as kwargs to `pyco2.sys`.  If this is necessary, then each DataArray must first be converted into a NumPy array.
 
-If data are in an xarray `Dataset`, this can be provided as `data`, and results returned as an xarray `DataArray` or `Dataset` with consistent dimensions:
+If data are in an xarray Dataset, this can be provided as `data`, and results returned as an xarray DataArray or Dataset with consistent dimensions:
 
 ```python
+import xarray as xr
+
 # Define known parameters
 ds = xr.Dataset({
     "temperature": ("dim_t", np.arange(0, 35)),
@@ -229,10 +223,10 @@ ds = xr.Dataset({
 co2s = pyco2.sys(data=ds)
 
 # Solve for and return a parameter as a DataArray
-k_CO2 = co2s.to_xarray("k_CO2")
+pk_CO2 = co2s.to_xarray("pk_CO2")
 
 # Solve for and return parameters as a Dataset
-ds_results = co2s.to_xarray(["k_H2CO3", "k_HCO3"])
+ds_results = co2s.to_xarray(["pk_H2CO3", "pk_HCO3"])
 ```
 
-Running `to_xarray` with no arguments will return a `Dataset` containing all currently calculated parameters.
+Running `to_xarray` with no arguments will return a Dataset containing all currently calculated parameters.
