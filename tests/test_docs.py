@@ -39,9 +39,7 @@ def test_docs():
                     n_spaces = line.find("```python")
         try:
             with open(devnull, "w") as f, redirect_stdout(f):
-                globals_dict = {}
-                locals_dict = {}
-                exec(code_lines, globals_dict, locals_dict)
+                exec(code_lines, globals())
         except Exception as e:
             print(f"ERROR in docs file {fname}")
             print(e)
