@@ -46,6 +46,7 @@ def test_docs():
             print(f"ERROR in docs file {fname}")
             print(e)
             if raise_errors:
+                print(code_lines)
                 raise Exception(e)
 
 
