@@ -72,7 +72,7 @@ The arrow colours show which parameters are inside (blue, e.g. $p$ for $P_1$) or
 
 If a parameter is invalid (e.g., $P_1$), then all other parameters it is used to calculate are also considered indirectly invalid.  This is shown with red dashed arrows leading to child parameters (e.g., $\mathrm{p}K_1^*$).
 
-The following code was used to generate the figure above.  Note that this also requires [PyGraphviz](https://pygraphviz.github.io/).
+The following code was used to generate the figure above.  Note that this also requires [PyGraphviz](https://pygraphviz.github.io/) to be installed.
 
 ```python
 from matplotlib import pyplot as plt
