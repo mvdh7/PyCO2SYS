@@ -1,21 +1,18 @@
 # %%
+import networkx as nx
 import numpy as np
+from matplotlib import pyplot as plt
 
 import PyCO2SYS as pyco2
 
 
-co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([15, 35])).solve("pk1")
-co2s.check_valid()
-co2s.valid.pk1  # True where pk1 is valid, False where it's invalid
-why_pk1 = co2s.valid.why("pk1")
+co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([15, 35]))
+co2s.check_valid("pk1")  # TODO nan_invalid switch
+# TODO invalid only if a property actually affects result
+# e.g. pcx when pressure = 0
+# e.g. pk_salt when total_salt = 0
+
 graph = co2s.v.get_graph()
-import networkx as nx
-
-
-nx.draw_networkx(graph)
-from matplotlib import pyplot as plt
-
-
 c_valid = "xkcd:turquoise blue"
 c_invalid = "xkcd:light red"
 fig, ax = plt.subplots(figsize=(5, 5))
@@ -67,3 +64,4 @@ nx.draw_networkx_labels(
 )
 ax.axis("off")
 fig.tight_layout()
+fig.savefig("docs/img/fig_valid.png")

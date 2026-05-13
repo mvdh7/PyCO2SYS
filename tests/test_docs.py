@@ -3,7 +3,8 @@ from contextlib import redirect_stdout
 from os import devnull, listdir
 from pathlib import Path
 
-import PyCO2SYS as pyco2  # noqa - this is assumed by all the docs
+
+raise_errors = True  # usually should be True, can use False for manual testing
 
 
 def test_docs():
@@ -14,11 +15,11 @@ def test_docs():
     docs_path = Path("docs")
     files = [f for f in listdir(docs_path) if f.endswith(".md")]
     for fname in files:
-        with open(Path(docs_path, fname), "r") as f:
+        with open(Path(docs_path, fname), "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
         is_code = False
         n_spaces = 0
-        code_lines = ""
+        code_lines = "import PyCO2SYS as pyco2\n"
         mode = "v2"
         for line in lines:
             # Don't run code that's an example of how v1 worked
@@ -38,10 +39,13 @@ def test_docs():
                     n_spaces = line.find("```python")
         try:
             with open(devnull, "w") as f, redirect_stdout(f):
-                exec(code_lines)
+                exec(code_lines, globals())
         except Exception as e:
             print(f"ERROR in docs file {fname}")
             print(e)
+            if raise_errors:
+                print(code_lines)
+                raise Exception(e)
 
 
 # test_docs()

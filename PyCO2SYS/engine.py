@@ -973,6 +973,27 @@ condition_independent = (
     "total_sulfate",
     "total_sulfide",
     "total_nitrite",
+    "coeffs_pk_CO2",
+    "coeffs_pk_H2S",
+    "coeffs_pk_HF",
+    "coeffs_pk_H2O",
+    "coeffs_pk_HSO4",
+    "coeffs_pk_BOH3",
+    "coeffs_pk_NH3",
+    "coeffs_pk_Si",
+    "coeffs_pk_HNO2",
+    "coeffs_pk_H2CO3",
+    "coeffs_pk_HCO3",
+    "coeffs_pk_H3PO4",
+    "coeffs_pk_H2PO4",
+    "coeffs_pk_HPO4",
+    "coeffs_pk_calcite",
+    "coeffs_pk_aragonite",
+    "coeffs_total_borate",
+    "coeffs_total_fluoride",
+    "coeffs_total_sulfate",
+    "coeffs_Mg",
+    "coeffs_Ca",
 )
 
 # Define labels for parameter plotting
@@ -1168,8 +1189,8 @@ node_labels = {
     "coeffs_pk_H3PO4": "coeffs_pk_H3PO4",
     "coeffs_pk_H2PO4": "coeffs_pk_H2PO4",
     "coeffs_pk_HPO4": "coeffs_pk_HPO4",
-    "coeffs_k_calcite": "coeffs_k_calcite",
-    "coeffs_k_aragonite": "coeffs_k_aragonite",
+    "coeffs_pk_calcite": "coeffs_pk_calcite",
+    "coeffs_pk_aragonite": "coeffs_pk_aragonite",
     "coeffs_total_borate": "coeffs_total_borate",
     "coeffs_total_fluoride": "coeffs_total_fluoride",
     "coeffs_total_sulfate": "coeffs_total_sulfate",
@@ -1941,13 +1962,17 @@ class CO2System(FunctionGraph):
         elif method_fCO2 == 6:
             cfuncs["exp_upsilon"] = upsilon.expUps_quadratic_TOG93
         for k, func in cfuncs.items():
-            for f in signature(func).parameters.keys():
+            for f in (
+                signature(func).parameters.keys()
+            ):  # TODO should come from graph args not function signature?
                 graph_adj.add_edge(f, k)
         nx.set_node_attributes(graph_adj, cfuncs, name="func")
         args = {}
         for node, attrs in graph_adj.nodes.items():
             if node in cfuncs:
-                args[node] = list(signature(attrs["func"]).parameters)
+                args[node] = list(
+                    signature(attrs["func"]).parameters
+                )  # TODO should come from graph args not function signature?
         nx.set_node_attributes(graph_adj, args, name="args")
         # Now we can create the new CO2System
         co2a = CO2System(

@@ -78,7 +78,3 @@ co2s = (
     .prop("oa")
 )
 ```
-
-## Setting up the `CO2System`
-
-Running the `pyco2.sys` function performs some conditioning of the arguments (converts `int` to `float` and all iterables to NumPy arrays) before passing these into the constructor for a `CO2System` object, which is returned.  If all arguments are already well-conditioned, then they can be passed directly to `PyCO2SYS.CO2System`, thus skipping the (minor) extra overhead of `pyco2.sys`.

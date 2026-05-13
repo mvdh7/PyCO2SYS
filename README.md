@@ -12,15 +12,15 @@
 <!-- TOC -->
 
 - [PyCO2SYS](#pyco2sys)
-    - [Introduction](#introduction)
-    - [Citation](#citation)
-    - [Installation](#installation)
-        - [With pip](#with-pip)
-        - [With conda/mamba](#with-condamamba)
-    - [Documentation](#documentation)
-    - [Basic use](#basic-use)
-    - [About](#about)
-    - [License](#license)
+  - [Introduction](#introduction)
+  - [Citation](#citation)
+  - [Installation](#installation)
+    - [With pip](#with-pip)
+    - [With conda/mamba](#with-condamamba)
+  - [Documentation](#documentation)
+  - [Basic use](#basic-use)
+  - [About](#about)
+  - [License](#license)
 
 <!-- /TOC -->
 
