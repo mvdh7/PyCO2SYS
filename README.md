@@ -13,6 +13,8 @@
 >
 > See the v2 docs at [mvdh.xyz/PyCO2SYS](https://mvdh7.xyz/PyCO2SYS) for instructions and please [provide feedback](https://github.com/mvdh7/PyCO2SYS/issues)!
 
+Are you a user of (Py)CO2SYS or any other marine carbonate system solving software?  Come join the new online community at [SystemCO<sub>2</sub>](https://systemco2.net)!
+
 <!-- TOC -->
 
 - [PyCO2SYS](#pyco2sys)
