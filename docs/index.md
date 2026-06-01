@@ -14,7 +14,7 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 Create an environment with Python v3.11 or greater and run
 
-    pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b6
+    pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0-b7
 
 This installs the latest "stable" beta release of PyCO2SYS v2 and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  To try out using PyCO2SYS with pandas and/or xarray, you'll need to install those separately.
 
