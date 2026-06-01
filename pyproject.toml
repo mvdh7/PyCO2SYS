@@ -45,3 +45,9 @@ known-first-party = ["PyCO2SYS"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.pytest]
+minversion = "6.0"
+norecursedirs = [".*", "*.egg*", "build", "dist"]
+testpaths = ["tests"]
+python_files = ["test_*.py", "compare_*.py"]
