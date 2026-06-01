@@ -36,6 +36,7 @@ Switches from Autograd to JAX for automatic differentiation.  Internal mechanism
     * Only one combination of optional settings allowed per calculation.
     * Optional settings each only affect one parameterisation, so there are more of them.  (In v1, `opt_k_carbonic` could alter several other parameterisations beyond just the carbonic acid equilibrium.)
     * "Input" and "output" conditions deprecated in favour of the `adjust` method.
+    * Some intermediate parameters are rarely used directly and are not needed again after their child parameters have been calculated; these intermediates are not stored by default, to save memory.
     * Simple tests suggest calculations including iterative pH solving are 10-100 times faster and have 10-100 times lower peak memory demand.
     * Some differences in calculated values from v1.8 but these should all be at the level of computer precision (i.e., negligible).
 

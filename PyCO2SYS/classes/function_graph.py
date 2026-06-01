@@ -124,6 +124,7 @@ class FunctionGraph(UserDict):
         graph: nx.DiGraph | None = None,
         funcs: dict | None = None,
         shortcuts: dict | None = None,
+        no_store: set | None = None,
     ):
         super().__init__()
         if graph is not None:
@@ -151,6 +152,7 @@ class FunctionGraph(UserDict):
                     "ignored",
                     "indirect",
                     "jacs",
+                    "no_store",
                     "nodes_original",
                     "parts",
                     "prop",
@@ -173,6 +175,13 @@ class FunctionGraph(UserDict):
             self.shortcuts = ShortcutsDict(**shortcuts)
         else:
             self.shortcuts = ShortcutsDict()
+        if no_store is not None:
+            if isinstance(no_store, str):
+                self.no_store = set([no_store])
+            else:
+                self.no_store = set(no_store)
+        else:
+            self.no_store = set()
         self.ignored = set()
         self.requested = set()
         self.nodes_original = set()
@@ -253,8 +262,11 @@ class FunctionGraph(UserDict):
     def solve(
         self,
         parameters: list | str | None = None,
+        store_steps=1,
     ):
         """Solve for the requested parameter(s)."""
+        if store_steps not in [0, 1, 2]:
+            raise Exception("`store_steps` must be 0, 1 or 2")
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
@@ -289,9 +301,20 @@ class FunctionGraph(UserDict):
                 if p in parameters:
                     nx.set_node_attributes(self.graph, {p: 3}, name="state")
                 else:
-                    nx.set_node_attributes(self.graph, {p: 2}, name="state")
+                    if store_steps == 2 or (
+                        store_steps == 1 and p not in self.no_store
+                    ):
+                        nx.set_node_attributes(
+                            self.graph, {p: 2}, name="state"
+                        )
             except KeyError:
                 raise Exception(f"{p} has no associated function in the graph")
+        if store_steps < 2:
+            for p in parameters_all:
+                if (
+                    store_steps == 0 or p in self.no_store
+                ) and p not in parameters:
+                    self.data.pop(p)
         self.remove_jax_overhead(self.data)
         return self
 
