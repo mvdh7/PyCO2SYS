@@ -8,8 +8,7 @@ import jax
 from jax import numpy as np
 
 
-version = "2.0.0-b6"
-version_xyz = "2.0.0-b6"
+version = "2.0.0-b7"
 authorlist = [
     "Humphreys, Matthew P.",
     "Martin-Mayor, Macarena",
@@ -35,7 +34,7 @@ def hello():
                              ~~~ present ~~~     
 
         PyCO2SYS: marine carbonate system calculations in Python.
-               Version {version_xyz} :: doi:10.5281/zenodo.3744275
+               Version {version} :: doi:10.5281/zenodo.3744275
 
 
   Py  CCCC       OOOOO        222        SSS      YY      YY      SSS
