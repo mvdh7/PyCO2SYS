@@ -1205,9 +1205,9 @@ node_labels.update(
     }
 )
 
-# This is the list of parameters that will NOT be stored internally when
+# This is the set of parameters that will NOT be stored internally when
 # store_steps == 1
-exclude_on_store_steps_1 = [
+exclude_on_store_steps_1 = {
     "factor_k_BOH3",
     "factor_k_CO2",
     "factor_k_H2CO3",
@@ -1264,7 +1264,7 @@ exclude_on_store_steps_1 = [
     "sws_to_opt",
     "tot_to_opt",
     "tot_to_sws_1atm",
-]
+}
 
 # Define shortcuts, the keys for which must all be lowercase
 shortcuts = {k.lower(): k for k in node_labels if k.lower() != k}
@@ -1453,6 +1453,7 @@ class CO2System(FunctionGraph):
         graph: nx.DiGraph | None = None,
         funcs: dict | None = None,
         shortcuts: dict | None = None,
+        no_store: set | None = None,
         icase: int = None,
         opts: dict = None,
         pd_index=None,
@@ -1460,7 +1461,11 @@ class CO2System(FunctionGraph):
         xr_shape=None,
     ):
         super().__init__(
-            defaults=defaults, graph=graph, funcs=funcs, shortcuts=shortcuts
+            defaults=defaults,
+            graph=graph,
+            funcs=funcs,
+            shortcuts=shortcuts,
+            no_store=no_store,
         )
         self.icase = icase
         self.opts = ShortcutDotDict(self.shortcuts)
@@ -1476,7 +1481,8 @@ class CO2System(FunctionGraph):
 
     def solve(
         self,
-        parameters: list | str | None = None,
+        parameters: list[str] | str | None = None,
+        store_steps: int = 1,
     ):
         """Calculate parameter(s) and store them internally.
 
@@ -1594,7 +1600,7 @@ class CO2System(FunctionGraph):
               vp_factor | Vapour pressure factor, converts pCO2 and xCO2.
            gas_constant | Universal gas constant (J/mol/K).
         """
-        return super().solve(parameters)
+        return super().solve(parameters, store_steps=store_steps)
 
     def to_pandas(self, parameters=None):
         """Return parameters as a pandas `Series` or `DataFrame`.  All
@@ -2557,6 +2563,7 @@ def sys(data=None, **kwargs):
         funcs=funcs,
         shortcuts=shortcuts,
         defaults=defaults,
+        no_store=exclude_on_store_steps_1,
         icase=icase,
         opts=opts,
         pd_index=pd_index,

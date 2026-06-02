@@ -2,6 +2,8 @@
 
 Contributions to PyCO2SYS from anyone are very welcome, but please read this first!
 
+The best way to get involved is to join the discussion at [SystemCO2.net](https://systemco2.net).
+
 - [Contributing to PyCO2SYS](#contributing-to-pyco2sys)
   - [How does PyCO2SYS work?](#how-does-pyco2sys-work)
     - [Version 1](#version-1)
@@ -23,25 +25,25 @@ Version 1 followed a similar approach to CO2SYS-MATLAB, which allowed all parame
 
 Version 2 completely overhauls the internal mechanism for calculations.  Some flexibility has been lost, primarily, all of the optional settings (any argument beginning with `opt_`) all need to be scalars instead of arrays.  However, this has been done to allow results to be computed only when requested, instead of every possible parameter at once, resulting in considerable speed-ups in computations.
 
-Calculations are based around the `CO2System` class.  A `CO2System` is constructed by providing a set of `values`, containing potentially multidimensional parameters such as the known marine carbonate system parameters, temperature, salinity, pressure and nutrients, and a set of `opts`, which determine (e.g.) which parameterisations are used for the various equilibrium constants.
+Calculations are based around the `CO2System` class, which is itself subclassed from a `FunctionGraph`.  A `CO2System` is constructed by providing a set of `values`, containing potentially multidimensional parameters such as the known marine carbonate system parameters, temperature, salinity, pressure and nutrients, and a set of `opts`, which determine (e.g.) which parameterisations are used for the various equilibrium constants.
 
 When a `CO2System` is initalised, a directed graph (specifically, `networkx.DiGraph`) is constructed in which each node is a function to calculate a particular parameter, and the edges connect to other parameters that are required as the function inputs.  The graph is then used when a parameter is requested to be computed to determine which calculations need to be carried out to reach the required result.
 
 ## Ideas and bug reporting
 
-If you would like a new feature to be added to PyCO2SYS, or if you find a bug or error in any of its calculations, then please first [share this as an issue](https://github.com/mvdh7/PyCO2SYS/issues). Please do this regardless of whether you are able to solve the issue yourself, to help to avoid duplicate work.
+If you would like a new feature to be added to PyCO2SYS, or if you find a bug or error in any of its calculations, then please first create a topic on [SystemCO2.net](https://systemco2.net) or [share it as an issue](https://github.com/mvdh7/PyCO2SYS/issues). Please do this regardless of whether you are able to solve the issue yourself, to help to avoid duplicate work.
 
 ## Adding or editing code
 
 If you would like to add or edit something directly then please make a fork of PyCO2SYS, make your changes, and submit the updates back with a pull request, noting the comments below.  If you are frequently making lots of contributions, you could also be given direct access to the main repo.
 
-Please add a comment on the corresponding [issue](https://github.com/mvdh7/PyCO2SYS/issues) to say that you are working on that problem.
+Please make a topic on [SystemCO2.net](https://systemco2.net) and/or add a comment on the corresponding [issue](https://github.com/mvdh7/PyCO2SYS/issues) to say that you are working on that problem.
 
 ### Branches
 
 The *main* branch contains the most recent release, and nothing more.  Please do not submit pull requests directly to *main*.
 
-Usually, the *develop* branch is where the next version is being prepared.  When you have something ready to add, please submit your pull request to *develop*.  You may also wish to make your new fork from *develop* to be sure you are using the latest version.  However, v2 is currently being prepared in the *jax* branch, with *develop* being used for patches for v1.
+Usually, the *develop* branch is where the next version is being prepared.  When you have something ready to add, please submit your pull request to *develop*.  You may also wish to make your new fork from *develop* to be sure you are using the latest version.  However, v2 is currently being prepared in the *v2-beta-dev* branch, with the most recent v2 release in *v2-beta-release*, with *develop* still being used for patches for v1.
 
 ### Code style
 
@@ -58,6 +60,8 @@ Anyone making a substantial contribution will be invited to join the list of aut
 ## Documentation
 
 Documentation is available at [PyCO2SYS.readthedocs.io](https://pyco2sys.readthedocs.io/en/latest/).  This site is automatically generated after each commit from the files in the [docs](https://github.com/mvdh7/PyCO2SYS/tree/main/docs) directory on `main` using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).  The docs on *develop* are also automatically generated after each commit to that branch and can be seen at [pyco2sys.hseao3.group](https://pyco2sys.hseao3.group).
+
+The docs for the v2 beta can be accessed at [mvdh.xyz/PyCO2SYS](https://mvdh.xyz/PyCO2SYS).
 
 There is a repo of PyCO2SYS examples as [Jupyter Notebooks](https://jupyter.org/), which you can add to at [PyCO2SYS-examples](https://github.com/mvdh7/PyCO2SYS-examples).
 

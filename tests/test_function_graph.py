@@ -3,7 +3,7 @@ import numpy as onp
 from jax import numpy as np
 from scipy import stats
 
-from tests.function_graph import FunctionGraph
+from PyCO2SYS.classes.function_graph import FunctionGraph
 
 
 # alpha: standard input with default
@@ -102,6 +102,7 @@ def test_uncertainty_scalar():
         .solve("phi")
     )
     fd_df_da = (fd_fg.phi[1] - fd_fg.phi[0]) / fd_diff
+    fg.get_jacs("phi", "a")
     assert abs_diff_pct(fd_df_da, fg.jacs.phi.a) < 1e-5
     for _ in range(10):
         mc_nreps = 10_000_000
@@ -297,7 +298,7 @@ def test_u_covar_combi():
             .propagate()
         )
         # Check combi variances match
-        combi_vars = FunctionGraph.cut_covariances(fg.u.combi)
+        combi_vars = FunctionGraph.cut_cov(fg.u.combi)
         assert np.allclose(np.diag(fg.u.gamma), combi_vars[0])
         assert np.allclose(np.diag(fg.u.phi), combi_vars[1])
         mc_nreps = 10_000
@@ -328,11 +329,11 @@ def test_u_covar_combi():
         ).all()
 
 
-test_make_fg()
-test_make_fg_all_defaults()
-test_shortcuts()
-test_uncertainty_scalar()
-test_u_coeffs_independent()
-test_u_coeffs_covar_scalar()
-test_u_coeffs_covar_vec()
-test_u_covar_combi()
+# test_make_fg()
+# test_make_fg_all_defaults()
+# test_shortcuts()
+# test_uncertainty_scalar()
+# test_u_coeffs_independent()
+# test_u_coeffs_covar_scalar()
+# test_u_coeffs_covar_vec()
+# test_u_covar_combi()
