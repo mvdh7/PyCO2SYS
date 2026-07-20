@@ -998,7 +998,7 @@ condition_independent = (
 
 # Define labels for parameter plotting
 # NOTE This dict's keys are also used as the basis for the shortcuts,
-#      so every parameter that isn't all lowercase must appear here.
+#      so every parameter that isn't all lowercase should appear here.
 #      (except those with __pre suffixes - they're added automatically).
 node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
@@ -1467,6 +1467,7 @@ class CO2System(FunctionGraph):
             shortcuts=shortcuts,
             no_store=no_store,
         )
+        self.adjusted = False
         self.icase = icase
         self.opts = ShortcutDotDict(self.shortcuts)
         self.opts.update(opts)
@@ -1478,6 +1479,36 @@ class CO2System(FunctionGraph):
             assert xr_shape is None
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
+
+    def __repr__(self):
+        text = "CO2System"
+        if self.adjusted:
+            text += " (adjusted)"
+        if self.icase == 0:
+            text += " with no known CO2 parameters."
+        elif self.icase < 100:
+            known = parameters_core[self.icase - 1]
+            text += f" with known {known}."
+        else:
+            text += " with known {} and {}.".format(
+                *icase_to_params(self.icase)
+            )
+        text += "\n  User-defined parameters:"
+        if len(self.nodes_user) == 0:
+            text += "\n    None."
+        else:
+            params_user = list(self.nodes_user)
+            params_user.sort()
+            text += "\n    "
+            for i, p in enumerate(params_user):
+                text += p
+                if i < len(params_user) - 1:
+                    text += ", "
+                else:
+                    text += "."
+            if self.adjusted:
+                text += "\n    (__pre suffix indicates pre-adjustment values)"
+        return text
 
     def solve(
         self,
@@ -1765,12 +1796,12 @@ class CO2System(FunctionGraph):
         # not foolproof, but they do avoid needing to import pandas.
         if all([hasattr(param, a) for a in ["index", "values", "dtype"]]):
             assert self.pd_index is not None, (
-                "Parameter cannot be provided as a pandas `Series`"
+                "Parameters cannot be provided as a pandas Series"
                 + " because this CO2System was not constructed"
-                + " from an pandas `DataFrame`."
+                + " from an pandas DataFrame."
             )
             assert self.pd_index.equals(param.index), (
-                "Cannot use this pandas `Series` for the adjust-to value"
+                "Cannot use this pandas Series for the adjust-to value"
                 + " because its index does not match that used to construct"
                 + " this CO2System."
             )
@@ -1780,12 +1811,35 @@ class CO2System(FunctionGraph):
         # not foolproof, but they do avoid needing to import xarray.
         if all([hasattr(param, a) for a in ["data", "dims", "coords"]]):
             assert self.xr_dims is not None, (
-                "Parameter cannot be provided as an xarray `DataArray`"
-                + " because this `CO2System` was not constructed"
-                + " from an xarray `Dataset`."
+                "Parameters cannot be provided as an xarray DataArray"
+                + " because this CO2System was not constructed"
+                + " from an xarray Dataset."
             )
             param = da_to_array(param, self.xr_dims)
         return param
+
+    def _adjust_alkalinity_dic(self, temperature=None, pressure=None):
+        temperature = self._adjust_prep(temperature)
+        pressure = self._adjust_prep(pressure)
+        kwargs_adjust = {}
+        if temperature is not None:
+            kwargs_adjust["temperature"] = temperature
+        if pressure is not None:
+            kwargs_adjust["pressure"] = pressure
+        data_pre = {
+            k: self.data[k] for k in self.nodes_user if k not in kwargs_adjust
+        }
+        co2a = CO2System(
+            graph=self.graph,
+            defaults=self.defaults,
+            shortcuts=self.shortcuts,
+            icase=self.icase,
+            opts=self.opts,
+            pd_index=self.pd_index,
+            xr_dims=self.xr_dims,
+            xr_shape=self.xr_shape,
+        ).set_data(**data_pre, **kwargs_adjust)
+        return co2a
 
     def _adjust_2p(self, temperature=None, pressure=None):
         temperature = self._adjust_prep(temperature)
@@ -1866,12 +1920,6 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        # Final housekeeping: the new CO2System will usually get its icase
-        # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  So adjusted systems here get assigned whichever icase the
-        # original system had.  This doesn't affect any calculations, but it
-        # does affect __str__ and __repr__.
-        # TODO make ^ actually affect __str__ and __repr__
         co2a.solve(self.requested)
         return co2a
 
@@ -2008,40 +2056,35 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        # Final housekeeping: the new CO2System will usually get its icase
-        # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  Adjusted systems will get assigned whichever icase the
-        # original system had.  This doesn't affect any calculations, but it
-        # does affect __str__ and __repr__.
-        # TODO make it actually affect __str__ and __repr__
         co2a.solve(self.requested)
         return co2a
 
     def adjust(self, **kwargs):
-        """Adjust the `CO2System` to a different temperature and/or pressure.
+        """Adjust the CO2System to a different temperature and/or
+        pressure.
 
-        Works differently depending on whether one or two core marine carbonate
-        system (MCS) parameters are known.
+        Works differently depending on whether one or two core marine
+        carbonate system (MCS) parameters are known.
 
-        If the original `CO2System` was created from a pandas `DataFrame` or
-        xarray `Dataset` using the `data` kwarg, then the `temperature` and
-        `pressure` provided to `adjust` can be pandas `Series`s or xarray
-        `DataArray`s, as long as their index or dimensions are consistent with
-        the original `data`.
+        If the original CO2System was created from a pandas DataFrame or
+        xarray Dataset using the data kwarg, then the temperature and
+        pressure provided to adjust can be pandas Series or xarray
+        DataArrays, as long as their index or dimensions are consistent
+        with the original data.
 
-        Any other system properties (e.g. `salinity`, total salt contents,
+        Any other system properties (e.g. salinity, total salt contents,
         optional settings) must be defined when creating the original,
-        unadjusted `CO2System`.  They cannot be added in during the `adjust`
+        unadjusted CO2System.  They cannot be added in during the adjust
         step.
 
         Parameters when two core MCS parameters are known
         -------------------------------------------------
         temperature : array-like, optional
-            The temperature to adjust to in °C, by default `None`, in which
-            case temperature is not adjusted.
+            The temperature to adjust to in °C, by default None,
+            in which case temperature is not adjusted.
         pressure : array-like, optional
-            The pressure to adjust to in °C, by default `None`, in which case
-            pressure is not adjusted.
+            The pressure to adjust to in °C, by default None,
+            in which case pressure is not adjusted.
 
         Parameters when one core MCS parameter is known
         -----------------------------------------------
@@ -2049,48 +2092,59 @@ class CO2System(FunctionGraph):
             The temperature to adjust to in °C.
         method_fCO2 : int
             How to do the temperature conversion:
-                `1`: using the parameterised υh equation of H24 (default).
-                `2`: using the constant υh fitted to the TOG93 dataset by H24.
-                `3`: using the constant theoretical υx of H24.
-                `4`: following the H24 approach, but using a user-provided `bh`.
-                `5`: using the linear fit of TOG93.
-                `6`: using the quadratic fit of TOG93.
+                1: parameterised υh equation of H24 (default).
+                2: constant υh fitted to the TOG93 dataset by H24.
+                3: constant theoretical υx of H24.
+                4: H24 approach but using a user-provided bh.
+                5: linear fit of TOG93.
+                6: quadratic fit of TOG93.
 
-        Additional parameter when `method_fCO2` is `1`
-        ----------------------------------------------
-        * `which_fCO2_insitu`: whether the input- (`1`, default) or output-
-        (`2`) condition pCO2, fCO2, [CO2(aq)] and/or xCO2 values are at in situ
-        conditions, for determining bh with the parameterisation of H24.
+        Additional parameter when method_fCO2 is 1
+        ------------------------------------------
+        * which_fCO2_insitu: whether the input- (1, default) or output-
+        (2) condition pCO2, fCO2, [CO2(aq)] and/or xCO2 values are at
+        in situ conditions, for determining bh with the parameterisation
+        of H24.
 
-        Additional parameter when `method_fCO2` is `4`
-        ----------------------------------------------
+        Additional parameter when method_fCO2 is 4
+        ------------------------------------------
         bh : array-like
             bh of H24 in J/mol.
 
         Returns
         -------
         CO2System
-            A separate `CO2System` adjusted to the requested temperature and/or
-            pressure.
+            A separate CO2System adjusted to the requested temperature
+            and/or pressure.
         """
-        self_requested = self.requested.copy()
+        self_requested = self.requested.copy()  # needs to stay here
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
-        if self.icase > 100:
+        if self.icase == 102:
+            self_adjusted = self._adjust_alkalinity_dic(**kwargs)
+            return self_adjusted
+        elif self.icase > 102:
             self_adjusted = self._adjust_2p(**kwargs)
         elif self.icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
         else:
-            warn("This system cannot be adjusted.", stacklevel=2)
-            self_adjusted = self
+            raise Exception("This CO2System cannot be adjusted.")
         self.requested = self_requested
+        self_adjusted.adjusted = True
+        state_zero = {}
+        for p in self_adjusted.nodes_user.copy():
+            if p in self.nodes_defaults:
+                self_adjusted.nodes_user.remove(p)
+                self_adjusted.nodes_defaults |= {p}
+                state_zero[p] = 0
+        nx.set_node_attributes(self_adjusted.graph, state_zero, "state")
         return self_adjusted
 
     def get_u_coeffs_from_single(self, **u_single) -> dict[str, float]:
         """Convert a set of single uncertainty values for pKs (e.g., from
         OEDG18) into the vectors needed for propagation in PyCO2SYS.
 
-        The lengths of these vectors might be different depending on which
-        parameterisation has been chosen for each pK.
+        The lengths of these vectors might be different depending on
+        which parameterisation has been chosen for each pK.
 
         Parameters
         ----------

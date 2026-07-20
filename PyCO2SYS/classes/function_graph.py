@@ -184,6 +184,8 @@ class FunctionGraph(UserDict):
             self.no_store = set()
         self.ignored = set()
         self.requested = set()
+        self.nodes_user = set()
+        self.nodes_defaults = set()
         self.nodes_original = set()
         self.grads = ShortcutDotDict(self.shortcuts)
         self.jacs = ShortcutDotDict(self.shortcuts)
@@ -252,11 +254,15 @@ class FunctionGraph(UserDict):
                 stacklevel=3,
             )
         self.ignored |= set(ignored)
-        self.nodes_original = set(
+        self.nodes_user = set(
+            self.shortcuts[k] for k, v in data.items() if v is not None
+        )
+        self.nodes_defaults = set(
             self.shortcuts[k]
-            for k, v in (self_defaults | data).items()
+            for k, v in self_defaults.items()
             if v is not None
         )
+        self.nodes_original = self.nodes_user | self.nodes_defaults
         return self
 
     def solve(
