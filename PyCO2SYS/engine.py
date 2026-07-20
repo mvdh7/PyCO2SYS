@@ -135,6 +135,18 @@ citations = {
         1: "find low-pH root with DIC-HCO3 known pair",
         2: "find high-pH root with DIC-HCO3 known pair",
     },
+    "method_fCO2": {
+        1: "Humphreys (2024), parameterised υ_h",
+        2: "Humphreys (2024), constant υ_h fitted to Takahashi et al. (1993) dataset",
+        3: "Humphreys (2024), constant theoretical υ_h",
+        4: "Humphreys (2024), user provided b_h",
+        5: "Takahashi et al. (1993), linear fit",
+        6: "Takahashi et al. (1993), quadratic fit",
+    },
+    "which_fCO2_insitu": {
+        1: "pre-adjustment values are in situ",
+        2: "adjusted values are in situ",
+    },
 }
 
 # Define functions for calculations that depend neither on icase nor opts:
@@ -1471,7 +1483,6 @@ class OptsDict(ShortcutDotDict):
 
     def __repr__(self):
         text = "CO2System settings."
-        text += "\nOnly includes parameterisations with multiple options."
         opts_sections = {
             "Equilibrium constants": [
                 "opt_pH_scale",
@@ -1529,6 +1540,7 @@ class OptsDict(ShortcutDotDict):
                     self.data[opt],
                     citations[opt][self.data[opt]],
                 )
+        text += "\nOnly parameterisations with multiple options are included."
         return text
 
 
@@ -1627,6 +1639,8 @@ class CO2System(FunctionGraph):
             no_store=no_store,
         )
         self.adjusted = False
+        self.method_fCO2 = None
+        self.which_fCO2_insitu = None
         self.icase = icase
         self.opts = OptsDict(self.shortcuts)
         self.opts.update(opts)
@@ -1668,6 +1682,22 @@ class CO2System(FunctionGraph):
             if self.adjusted:
                 text += (
                     "\n│     (__pre suffix indicates pre-adjustment values)"
+                )
+        if self.adjusted and self.method_fCO2 is not None:
+            text += "\n├─ Temperature-sensitivity of fCO2:"
+            if self.method_fCO2 == 1:
+                text += "\n│  ├─────── method_fCO2[{:>2.0f}]: {}.".format(
+                    self.method_fCO2,
+                    citations["method_fCO2"][self.method_fCO2],
+                )
+                text += "\n│  └─ which_fCO2_insitu[{:>2.0f}]: {}.".format(
+                    self.which_fCO2_insitu,
+                    citations["which_fCO2_insitu"][self.which_fCO2_insitu],
+                )
+            else:
+                text += "\n│  └─ method_fCO2[{:>2.0f}]: {}.".format(
+                    self.method_fCO2,
+                    citations["method_fCO2"][self.method_fCO2],
                 )
         text += "\n└─ Parameterisations and options:"
         opts = ["opt_pH_scale", "opt_k_carbonic", "opt_total_borate"]
@@ -1909,7 +1939,7 @@ class CO2System(FunctionGraph):
         method_fCO2,
         temperature,
         bh_upsilon=None,
-        opt_which_fCO2_insitu=1,
+        which_fCO2_insitu=1,
     ):
         if method_fCO2 in [1, 2, 3, 4]:
             self.solve("gas_constant")
@@ -1917,8 +1947,8 @@ class CO2System(FunctionGraph):
             case 1:
                 self.solve("fCO2")
                 fCO2 = self.fCO2
-                assert opt_which_fCO2_insitu in [1, 2]
-                if opt_which_fCO2_insitu == 2:
+                assert which_fCO2_insitu in [1, 2]
+                if which_fCO2_insitu == 2:
                     # If the output conditions are the environmental ones, then
                     # we need to provide an estimate of output fCO2 in order to
                     # use the bh parameterisation; we get this using the
@@ -1934,7 +1964,7 @@ class CO2System(FunctionGraph):
                     self.data["salinity"],
                     fCO2,
                     self.data["gas_constant"],
-                    opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+                    which_fCO2_insitu=which_fCO2_insitu,
                 )
             case 2:
                 return upsilon.expUps_TOG93_H24(
@@ -2107,7 +2137,7 @@ class CO2System(FunctionGraph):
         temperature=None,
         bh=None,
         method_fCO2=1,
-        which_fCO2_insitu=2,
+        which_fCO2_insitu=1,
     ):
         temperature = self._adjust_prep(temperature)
         bh = self._adjust_prep(bh)
@@ -2234,6 +2264,9 @@ class CO2System(FunctionGraph):
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
         co2a.solve(self.requested)
+        co2a.method_fCO2 = method_fCO2
+        if method_fCO2 == 1:
+            co2a.which_fCO2_insitu = which_fCO2_insitu
         return co2a
 
     def adjust(self, **kwargs):
