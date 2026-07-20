@@ -768,9 +768,6 @@ get_funcs_opts["opt_pH_scale"] = {
         opt_to_sws=convert.pH_nbs_to_sws,
     ),
 }
-# TODO these below can be added only if there is a pH accessible!
-# While also depending on an opt!  See also below TODO for fCO2
-# i.e. icase == 3 or icase > 100
 for o, funcs in get_funcs_opts["opt_pH_scale"].items():
     if o == 1:
         funcs.update(dict(pH_total=lambda pH: pH))
@@ -832,23 +829,6 @@ get_funcs_opts["opt_k_aragonite"] = {
     1: dict(pk_aragonite=solubility.pk_aragonite_M83),
     2: dict(pk_aragonite=solubility.pk_aragonite_GEOSECS),  # for GEOSECS
 }
-# # TODO option 1 below can only be added if there is an fCO2 value accessible
-# # (see also similar TODO above about pH)
-# get_funcs_opts["opt_fCO2_temperature"] = {
-#     1: dict(
-#         bh=upsilon.get_bh_H24,
-#         upsilon=upsilon.inverse,
-#     ),
-#     2: dict(
-#         bl=lambda: upsilon.bl_TOG93,
-#         upsilon=upsilon.linear,
-#     ),
-#     3: dict(
-#         aq=lambda: upsilon.aq_TOG93,
-#         bq=lambda: upsilon.bq_TOG93,
-#         upsilon=upsilon.quadratic,
-#     ),
-# }
 get_funcs_opts["opt_Mg_calcite_type"] = {
     1: dict(
         pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep
@@ -2016,9 +1996,7 @@ class CO2System(FunctionGraph):
         elif method_fCO2 == 6:
             cfuncs["exp_upsilon"] = upsilon.expUps_quadratic_TOG93
         for k, func in cfuncs.items():
-            for f in (
-                signature(func).parameters.keys()
-            ):  # TODO should come from graph args not function signature?
+            for f in signature(func).parameters.keys():
                 graph_adj.add_edge(f, k)
         nx.set_node_attributes(graph_adj, cfuncs, name="func")
         args = {}
@@ -2026,7 +2004,7 @@ class CO2System(FunctionGraph):
             if node in cfuncs:
                 args[node] = list(
                     signature(attrs["func"]).parameters
-                )  # TODO should come from graph args not function signature?
+                )  # could come from graph args, not function signature?
         nx.set_node_attributes(graph_adj, args, name="args")
         # Now we can create the new CO2System
         co2a = CO2System(
@@ -2396,10 +2374,6 @@ def sys(data=None, **kwargs):
     opt_HCO3_root: with known `dic` and `HCO3`, which root to solve for.
         1: the lower pH root.
         2: the higher pH root [DEFAULT].
-    opt_fCO2_temperature: sensitivity of fCO2 to temperature.
-        1: H24 parameterisation [DEFAULT].
-        2: TOG93 linear fit.
-        3: TOG93 quadratic fit.
 
     Equilibrium constants
     ---------------------
