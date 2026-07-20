@@ -157,7 +157,7 @@ In v1, a second set of temperature and/or pressure conditions could be specified
     fCO2_adj = co2s["fCO2_out"]
     ```
 
-The result `co2s_adj` is a separate `CO2System` at the requested temperature and pressure.  If the original `co2s` had two known parameters, then both are used to make the adjustment (via DIC and alkalinity).  Temperature can also be adjusted with only one known parameter, if its one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub>.  The kwargs `method_fCO2`, `opt_which_fCO2_insitu` and `bh_upsilon` allow for finer control of the one-parameter adjustment (see the [v2 general instructions](detail.md) for details).
+The result `co2s_adj` is a separate `CO2System` at the requested temperature and pressure.  If the original `co2s` had two known parameters, then both are used to make the adjustment (via DIC and alkalinity).  Temperature can also be adjusted with only one known parameter, if its one of pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] or *x*CO<sub>2</sub>.  The kwargs `method_fCO2`, `which_fCO2_insitu` and `bh_upsilon` allow for finer control of the one-parameter adjustment (see the [v2 general instructions](detail.md) for details).
 
 ## Uncertainty propagation
 
