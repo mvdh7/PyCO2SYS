@@ -25,6 +25,118 @@ from .classes.function_graph import (
 )
 
 
+citations = {
+    "opt_pH_scale": {
+        1: "total pH scale",
+        2: "seawater pH scale",
+        3: "free pH scale",
+        4: "NBS pH scale",
+    },
+    "opt_k_carbonic": {
+        1: "Roy et al. (1993)",
+        2: "Goyet & Poisson (1989)",
+        3: "Hansson (1973) refit by Dickson & Millero (1987)",
+        4: "Mehrbach et al. (1987) refit by Dickson & Millero (1987)",
+        5: "Hansson (1973) and Mehrbach et al. (1987) refit by Dickson & Millero (1987)",
+        6: "Mehrbach et al. (1973)",
+        7: "Mehrbach et al. (1973)",
+        8: "Millero (1979), freshwater",
+        9: "Cai & Wang (1998)",
+        10: "Lueker et al. (2000)",
+        11: "Mojica Prieto & Millero (2002)",
+        12: "Millero et al. (2002)",
+        13: "Millero et al. (2006)",
+        14: "Millero (2010)",
+        15: "Waters & Millero (2013) corrected by Waters et al. (2014)",
+        16: "Sulpis et al. (2020)",
+        17: "Schockman & Byrne (2021)",
+        18: "Papadimitriou et al. (2018)",
+        19: "Martin-Mayor et al. (2025)",
+    },
+    "opt_total_borate": {
+        1: "Uppström (1974)",
+        2: "Lee et al. (2010)",
+        3: "Kuliński et al. (2018)",
+    },
+    "opt_Ca": {
+        1: "Riley & Tongudai (1967)",
+        2: "Culkin (1965)",
+    },
+    "opt_k_HSO4": {
+        1: "Dickson (1990a)",
+        2: "Khoo et al. (1977)",
+        3: "Waters & Millero (2013) corrected by Waters et al. (2014)",
+    },
+    "opt_k_HF": {
+        1: "Dickson & Riley (1979)",
+        2: "Perez & Fraga (1987)",
+    },
+    "opt_k_BOH3": {
+        1: "Dickson (1990b)",
+        2: "Li et al. (1969)",
+    },
+    "opt_k_phosphate": {
+        1: "Yao & Millero (1995)",
+        2: "Kester & Pytkowicz (1967)",
+    },
+    "opt_k_NH3": {
+        1: "Clegg & Whitfield (1995)",
+        2: "Yao & Millero (1995)",
+    },
+    "opt_k_Si": {
+        1: "Yao & Millero (1995)",
+        2: "Sillén et al. (1964)",
+    },
+    "opt_k_calcite": {
+        1: "Mucci (1983)",
+        2: "Ingle (1975)",
+    },
+    "opt_k_aragonite": {
+        1: "Mucci (1983)",
+        2: "Ingle et al. (1973)",
+    },
+    "opt_k_H2O": {
+        1: "Millero (1995)",
+        2: "Millero (1979)",
+        3: "Harned & Owen (1958) refit by Millero (1979), freshwater",
+    },
+    "opt_k_HNO2": {
+        1: "Borer et al. (2024)",
+        2: "Borer et al. (2024), freshwater",
+    },
+    "opt_factor_k_H2CO3": {
+        1: "Millero (1995)",
+        2: "Edmond & Gieskes (1970)",
+        3: "Millero (1983), freshwater",
+    },
+    "opt_factor_k_HCO3": {
+        1: "Millero (1995)",
+        2: "Edmond & Gieskes (1970)",
+        3: "Millero (1983), freshwater",
+    },
+    "opt_factor_k_BOH3": {
+        1: "Millero (1979)",
+        2: "Edmond & Gieskes (1970)",
+    },
+    "opt_factor_k_H2O": {
+        1: "Millero (1995)",
+        2: "Millero (1983), freshwater",
+    },
+    "opt_gas_constant": {
+        1: "DOEv2",
+        2: "DOEv3",
+        3: "2018 CODATA",
+    },
+    "opt_fugacity_factor": {
+        1: "pCO2 ≠ fCO2",
+        2: "pCO2 = fCO2",
+    },
+    "opt_HCO3_root": {
+        1: "find low-pH root with DIC-HCO3 known pair",
+        2: "find high-pH root with DIC-HCO3 known pair",
+    },
+}
+
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
     # Total salt contents
@@ -1353,6 +1465,73 @@ def da_to_array(da, xr_dims):
     return np.moveaxis(da_data, move_from, range(len(xr_dims)))
 
 
+class OptsDict(ShortcutDotDict):
+    def __init__(self, shortcuts):
+        super().__init__(shortcuts)
+
+    def __repr__(self):
+        text = "CO2System settings."
+        text += "\nOnly includes parameterisations with multiple options."
+        opts_sections = {
+            "Equilibrium constants": [
+                "opt_pH_scale",
+                "opt_k_carbonic",
+                "opt_k_HSO4",
+                "opt_k_HF",
+                "opt_k_BOH3",
+                "opt_k_phosphate",
+                "opt_k_NH3",
+                "opt_k_Si",
+                "opt_k_calcite",
+                "opt_k_aragonite",
+                "opt_k_H2O",
+                "opt_k_HNO2",
+            ],
+            "Pressure correction factors": [
+                "opt_factor_k_H2CO3",
+                "opt_factor_k_HCO3",
+                "opt_factor_k_BOH3",
+                "opt_factor_k_H2O",
+            ],
+            "Total salt contents": [
+                "opt_total_borate",
+                "opt_Ca",
+            ],
+            "Other settings": [
+                "opt_HCO3_root",  # needs to not be last in this list
+                "opt_gas_constant",
+                "opt_fugacity_factor",
+            ],
+        }
+        sections = list(opts_sections.keys())
+        for section, opts in opts_sections.items():
+            if section == sections[-1]:
+                text += f"\n└─ {section.upper()}:"
+            else:
+                text += f"\n├─ {section.upper()}:"
+            opts = [opt for opt in opts if opt in self.data]
+            len_opts_max = max([len(opt) for opt in opts])
+            for opt in opts:
+                if section == sections[-1]:
+                    if opt == opts[-1]:
+                        text += "\n   └─"
+                    else:
+                        text += "\n   ├─"
+                else:
+                    if opt == opts[-1]:
+                        text += "\n│  └─"
+                    else:
+                        text += "\n│  ├─"
+                text += "─" * (
+                    len_opts_max - len(opt)
+                ) + " {}[{:>2.0f}]: {}.".format(
+                    opt,
+                    self.data[opt],
+                    citations[opt][self.data[opt]],
+                )
+        return text
+
+
 class CO2System(FunctionGraph):
     """An equilibrium model of the marine carbonate system.
 
@@ -1449,7 +1628,7 @@ class CO2System(FunctionGraph):
         )
         self.adjusted = False
         self.icase = icase
-        self.opts = ShortcutDotDict(self.shortcuts)
+        self.opts = OptsDict(self.shortcuts)
         self.opts.update(opts)
         self.pd_index = pd_index
         if xr_dims is not None:
@@ -1473,13 +1652,13 @@ class CO2System(FunctionGraph):
             text += " with known {} and {}.".format(
                 *icase_to_params(self.icase)
             )
-        text += "\n  User-defined parameters:"
+        text += "\n├─ User-defined parameters:"
         if len(self.nodes_user) == 0:
             text += "\n    None."
         else:
             params_user = list(self.nodes_user)
             params_user.sort()
-            text += "\n    "
+            text += "\n│  └─ "
             for i, p in enumerate(params_user):
                 text += p
                 if i < len(params_user) - 1:
@@ -1487,7 +1666,27 @@ class CO2System(FunctionGraph):
                 else:
                     text += "."
             if self.adjusted:
-                text += "\n    (__pre suffix indicates pre-adjustment values)"
+                text += (
+                    "\n│     (__pre suffix indicates pre-adjustment values)"
+                )
+        text += "\n└─ Parameterisations and options:"
+        opts = ["opt_pH_scale", "opt_k_carbonic", "opt_total_borate"]
+        len_opts_max = max([len(opt) for opt in opts])
+        for opt in opts:
+            text += (
+                "\n   ├─"
+                + "─" * (len_opts_max - len(opt))
+                + " {}[{:>2.0f}]: {}.".format(
+                    opt,
+                    self.opts[opt],
+                    citations[opt][self.opts[opt]],
+                )
+            )
+        text += (
+            "\n   └─"
+            + "─" * (len_opts_max - 2)
+            + " Others: see CO2System.opts."
+        )
         return text
 
     def solve(
