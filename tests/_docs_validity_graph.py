@@ -7,7 +7,7 @@ import PyCO2SYS as pyco2
 
 
 co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([15, 35]))
-co2s.check_valid("pk1")  # TODO nan_invalid switch
+co2s.check_valid("pk1")
 # TODO invalid only if a property actually affects result
 # e.g. pcx when pressure = 0
 # e.g. pk_salt when total_salt = 0

@@ -156,12 +156,12 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
     * `opt_factor_k_H2CO3`: **first carbonic acid** dissociation constant **pressure correction**:
         * **`1`: [M95](refs/#m) (default).**
         * `2`: [EG70](refs/#e), for GEOSECS compatibility.
-        * `3`: [M83](refs/#m), for freshwater.
+        * `3`: [Mi83](refs/#m), for freshwater.
 
     * `opt_factor_k_HCO3`: **second carbonic acid** dissociation constant** pressure correction**:
         * **`1`: [M95](refs/#m) (default).**
         * `2`: [EG70](refs/#e), for GEOSECS compatibility.
-        * `3`: [M83](refs/#m), for freshwater.
+        * `3`: [Mi83](refs/#m), for freshwater.
 
 #### Other dissociation constants
 
@@ -220,7 +220,7 @@ If `pH` is provided as an known marine carbonate system parameter, the pH scale 
 
     * `opt_factor_k_H2O`: **water** dissociation constant **pressure correction**:
         *  **`1`: [M95](refs/#m) (default).**
-        *  `2`: [M83](refs/#m), for freshwater.
+        *  `2`: [Mi83](refs/#m), for freshwater.
 
 #### Total salt contents
 

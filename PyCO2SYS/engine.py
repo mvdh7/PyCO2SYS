@@ -25,6 +25,130 @@ from .classes.function_graph import (
 )
 
 
+citations = {
+    "opt_pH_scale": {
+        1: "total pH scale",
+        2: "seawater pH scale",
+        3: "free pH scale",
+        4: "NBS pH scale",
+    },
+    "opt_k_carbonic": {
+        1: "Roy et al. (1993)",
+        2: "Goyet & Poisson (1989)",
+        3: "Hansson (1973) refit by Dickson & Millero (1987)",
+        4: "Mehrbach et al. (1987) refit by Dickson & Millero (1987)",
+        5: "Hansson (1973) and Mehrbach et al. (1987) refit by Dickson & Millero (1987)",
+        6: "Mehrbach et al. (1973)",
+        7: "Mehrbach et al. (1973)",
+        8: "Millero (1979), freshwater",
+        9: "Cai & Wang (1998)",
+        10: "Lueker et al. (2000)",
+        11: "Mojica Prieto & Millero (2002)",
+        12: "Millero et al. (2002)",
+        13: "Millero et al. (2006)",
+        14: "Millero (2010)",
+        15: "Waters & Millero (2013) corrected by Waters et al. (2014)",
+        16: "Sulpis et al. (2020)",
+        17: "Schockman & Byrne (2021)",
+        18: "Papadimitriou et al. (2018)",
+        19: "Martin-Mayor et al. (2025)",
+    },
+    "opt_total_borate": {
+        1: "Uppström (1974)",
+        2: "Lee et al. (2010)",
+        3: "Kuliński et al. (2018)",
+    },
+    "opt_Ca": {
+        1: "Riley & Tongudai (1967)",
+        2: "Culkin (1965)",
+    },
+    "opt_k_HSO4": {
+        1: "Dickson (1990a)",
+        2: "Khoo et al. (1977)",
+        3: "Waters & Millero (2013) corrected by Waters et al. (2014)",
+    },
+    "opt_k_HF": {
+        1: "Dickson & Riley (1979)",
+        2: "Perez & Fraga (1987)",
+    },
+    "opt_k_BOH3": {
+        1: "Dickson (1990b)",
+        2: "Li et al. (1969)",
+    },
+    "opt_k_phosphate": {
+        1: "Yao & Millero (1995)",
+        2: "Kester & Pytkowicz (1967)",
+    },
+    "opt_k_NH3": {
+        1: "Clegg & Whitfield (1995)",
+        2: "Yao & Millero (1995)",
+    },
+    "opt_k_Si": {
+        1: "Yao & Millero (1995)",
+        2: "Sillén et al. (1964)",
+    },
+    "opt_k_calcite": {
+        1: "Mucci (1983)",
+        2: "Ingle (1975)",
+    },
+    "opt_k_aragonite": {
+        1: "Mucci (1983)",
+        2: "Ingle et al. (1973)",
+    },
+    "opt_k_H2O": {
+        1: "Millero (1995)",
+        2: "Millero (1979)",
+        3: "Harned & Owen (1958) refit by Millero (1979), freshwater",
+    },
+    "opt_k_HNO2": {
+        1: "Borer et al. (2024)",
+        2: "Borer et al. (2024), freshwater",
+    },
+    "opt_factor_k_H2CO3": {
+        1: "Millero (1995)",
+        2: "Edmond & Gieskes (1970)",
+        3: "Millero (1983), freshwater",
+    },
+    "opt_factor_k_HCO3": {
+        1: "Millero (1995)",
+        2: "Edmond & Gieskes (1970)",
+        3: "Millero (1983), freshwater",
+    },
+    "opt_factor_k_BOH3": {
+        1: "Millero (1979)",
+        2: "Edmond & Gieskes (1970)",
+    },
+    "opt_factor_k_H2O": {
+        1: "Millero (1995)",
+        2: "Millero (1983), freshwater",
+    },
+    "opt_gas_constant": {
+        1: "DOEv2",
+        2: "DOEv3",
+        3: "2018 CODATA",
+    },
+    "opt_fugacity_factor": {
+        1: "pCO2 ≠ fCO2",
+        2: "pCO2 = fCO2",
+    },
+    "opt_HCO3_root": {
+        1: "find low-pH root with DIC-HCO3 known pair",
+        2: "find high-pH root with DIC-HCO3 known pair",
+    },
+    "method_fCO2": {
+        1: "Humphreys (2024), parameterised υ_h",
+        2: "Humphreys (2024), constant υ_h fitted to Takahashi et al. (1993) dataset",
+        3: "Humphreys (2024), constant theoretical υ_h",
+        4: "Humphreys (2024), user provided b_h",
+        5: "Takahashi et al. (1993), linear fit",
+        6: "Takahashi et al. (1993), quadratic fit",
+    },
+    "which_fCO2_insitu": {
+        1: "pre-adjustment values are in situ",
+        2: "adjusted values are in situ",
+    },
+}
+
 # Define functions for calculations that depend neither on icase nor opts:
 get_funcs = {
     # Total salt contents
@@ -768,9 +892,6 @@ get_funcs_opts["opt_pH_scale"] = {
         opt_to_sws=convert.pH_nbs_to_sws,
     ),
 }
-# TODO these below can be added only if there is a pH accessible!
-# While also depending on an opt!  See also below TODO for fCO2
-# i.e. icase == 3 or icase > 100
 for o, funcs in get_funcs_opts["opt_pH_scale"].items():
     if o == 1:
         funcs.update(dict(pH_total=lambda pH: pH))
@@ -832,23 +953,6 @@ get_funcs_opts["opt_k_aragonite"] = {
     1: dict(pk_aragonite=solubility.pk_aragonite_M83),
     2: dict(pk_aragonite=solubility.pk_aragonite_GEOSECS),  # for GEOSECS
 }
-# # TODO option 1 below can only be added if there is an fCO2 value accessible
-# # (see also similar TODO above about pH)
-# get_funcs_opts["opt_fCO2_temperature"] = {
-#     1: dict(
-#         bh=upsilon.get_bh_H24,
-#         upsilon=upsilon.inverse,
-#     ),
-#     2: dict(
-#         bl=lambda: upsilon.bl_TOG93,
-#         upsilon=upsilon.linear,
-#     ),
-#     3: dict(
-#         aq=lambda: upsilon.aq_TOG93,
-#         bq=lambda: upsilon.bq_TOG93,
-#         upsilon=upsilon.quadratic,
-#     ),
-# }
 get_funcs_opts["opt_Mg_calcite_type"] = {
     1: dict(
         pkt_Mg_calcite_25C_1atm=solubility.get_pkt_Mg_calcite_25C_1atm_minprep
@@ -998,7 +1102,7 @@ condition_independent = (
 
 # Define labels for parameter plotting
 # NOTE This dict's keys are also used as the basis for the shortcuts,
-#      so every parameter that isn't all lowercase must appear here.
+#      so every parameter that isn't all lowercase should appear here.
 #      (except those with __pre suffixes - they're added automatically).
 node_labels = {
     "acf_Ca": r"$\gamma_{\mathrm{Ca}^{2+}}$",
@@ -1064,7 +1168,7 @@ node_labels = {
     "pk_CO2_1atm": "p$K_0′^0$",
     "pk_CO2": "p$K_0′$",
     "pk_H2CO3_sws_1atm": r"p$K_1^\mathrm{S0}$",
-    "pk_H2CO3_sws": "p$K_1^s$",
+    "pk_H2CO3_sws": r"p$K_1^\mathrm{S}$",
     "pk_H2CO3_total_1atm": r"p$K_1^\mathrm{T0}$",
     "pk_H2CO3": "p$K_1^*$",
     "pk_H2O_sws_1atm": r"p$K_w^\mathrm{S0}$",
@@ -1081,7 +1185,7 @@ node_labels = {
     "pk_H3PO4_sws": r"p$K_\mathrm{P1}^\mathrm{S}$",
     "pk_H3PO4": r"p$K_\mathrm{P1}^*$",
     "pk_HCO3_sws_1atm": r"p$K_2^\mathrm{S0}$",
-    "pk_HCO3_sws": "p$K_2^s$",
+    "pk_HCO3_sws": r"p$K_2^\mathrm{S}$",
     "pk_HCO3_total_1atm": r"p$K_2^\mathrm{T0}$",
     "pk_HCO3": "p$K_2^*$",
     "pk_HF_free_1atm": r"p$K_\mathrm{HF}^\mathrm{F0}$",
@@ -1141,23 +1245,23 @@ node_labels = {
     "vp_factor": "$v$",
     "xCO2": r"$x\mathrm{CO}_2$",
     # pH scale conversions
-    "free_to_opt": r"$_\mathrm{F}^*Y$",
+    "free_to_opt": r"$_\mathrm{F}Y$",
     "free_to_sws_1atm": r"$_\mathrm{F}^\mathrm{S}Y^0$",
     "nbs_to_free": r"$_\mathrm{N}^\mathrm{F}Y$",
-    "nbs_to_opt": r"$_\mathrm{N}^*Y$",
+    "nbs_to_opt": r"$_\mathrm{N}Y$",
     "nbs_to_sws": r"$_\mathrm{N}^\mathrm{S}Y$",
     "nbs_to_tot": r"$_\mathrm{N}^\mathrm{T}Y$",
-    "opt_to_free": r"$_*^\mathrm{F}Y$",
-    "opt_to_nbs": r"$_*^\mathrm{N}Y$",
-    "opt_to_sws": r"$_*^\mathrm{S}Y$",
-    "opt_to_tot": r"$_*^\mathrm{T}Y$",
+    "opt_to_free": r"$^\mathrm{F}Y$",
+    "opt_to_nbs": r"$^\mathrm{N}Y$",
+    "opt_to_sws": r"$^\mathrm{S}Y$",
+    "opt_to_tot": r"$^\mathrm{T}Y$",
     "sws_to_free": r"$_\mathrm{S}^\mathrm{F}Y$",
     "sws_to_nbs": r"$_\mathrm{S}^\mathrm{N}Y$",
-    "sws_to_opt": r"$_\mathrm{S}^*Y$",
+    "sws_to_opt": r"$_\mathrm{S}Y$",
     "sws_to_tot": r"$_\mathrm{S}^\mathrm{T}Y$",
     "tot_to_free": r"$_\mathrm{T}^\mathrm{F}Y$",
     "tot_to_nbs": r"$_\mathrm{T}^\mathrm{N}Y$",
-    "tot_to_opt": r"$_\mathrm{T}^*Y$",
+    "tot_to_opt": r"$_\mathrm{T}Y$",
     "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "tot_to_sws": r"$_\mathrm{T}^\mathrm{S}Y$",
     # TODO below not formatted
@@ -1373,6 +1477,73 @@ def da_to_array(da, xr_dims):
     return np.moveaxis(da_data, move_from, range(len(xr_dims)))
 
 
+class OptsDict(ShortcutDotDict):
+    def __init__(self, shortcuts):
+        super().__init__(shortcuts)
+
+    def __repr__(self):
+        text = "CO2System settings."
+        opts_sections = {
+            "Equilibrium constants": [
+                "opt_pH_scale",
+                "opt_k_carbonic",
+                "opt_k_HSO4",
+                "opt_k_HF",
+                "opt_k_BOH3",
+                "opt_k_phosphate",
+                "opt_k_NH3",
+                "opt_k_Si",
+                "opt_k_calcite",
+                "opt_k_aragonite",
+                "opt_k_H2O",
+                "opt_k_HNO2",
+            ],
+            "Pressure correction factors": [
+                "opt_factor_k_H2CO3",
+                "opt_factor_k_HCO3",
+                "opt_factor_k_BOH3",
+                "opt_factor_k_H2O",
+            ],
+            "Total salt contents": [
+                "opt_total_borate",
+                "opt_Ca",
+            ],
+            "Other settings": [
+                "opt_HCO3_root",  # needs to not be last in this list
+                "opt_gas_constant",
+                "opt_fugacity_factor",
+            ],
+        }
+        sections = list(opts_sections.keys())
+        for section, opts in opts_sections.items():
+            if section == sections[-1]:
+                text += f"\n└─ {section.upper()}:"
+            else:
+                text += f"\n├─ {section.upper()}:"
+            opts = [opt for opt in opts if opt in self.data]
+            len_opts_max = max([len(opt) for opt in opts])
+            for opt in opts:
+                if section == sections[-1]:
+                    if opt == opts[-1]:
+                        text += "\n   └─"
+                    else:
+                        text += "\n   ├─"
+                else:
+                    if opt == opts[-1]:
+                        text += "\n│  └─"
+                    else:
+                        text += "\n│  ├─"
+                text += "─" * (
+                    len_opts_max - len(opt)
+                ) + " {}[{:>2.0f}]: {}.".format(
+                    opt,
+                    self.data[opt],
+                    citations[opt][self.data[opt]],
+                )
+        text += "\nOnly parameterisations with multiple options are included."
+        return text
+
+
 class CO2System(FunctionGraph):
     """An equilibrium model of the marine carbonate system.
 
@@ -1467,8 +1638,11 @@ class CO2System(FunctionGraph):
             shortcuts=shortcuts,
             no_store=no_store,
         )
+        self.adjusted = False
+        self.method_fCO2 = None
+        self.which_fCO2_insitu = None
         self.icase = icase
-        self.opts = ShortcutDotDict(self.shortcuts)
+        self.opts = OptsDict(self.shortcuts)
         self.opts.update(opts)
         self.pd_index = pd_index
         if xr_dims is not None:
@@ -1478,6 +1652,72 @@ class CO2System(FunctionGraph):
             assert xr_shape is None
         self.xr_dims = xr_dims
         self.xr_shape = xr_shape
+
+    def __repr__(self):
+        text = "CO2System"
+        if self.adjusted:
+            text += " (adjusted)"
+        if self.icase == 0:
+            text += " with no known CO2 parameters."
+        elif self.icase < 100:
+            known = parameters_core[self.icase - 1]
+            text += f" with known {known}."
+        else:
+            text += " with known {} and {}.".format(
+                *icase_to_params(self.icase)
+            )
+        text += "\n├─ User-defined parameters:"
+        if len(self.nodes_user) == 0:
+            text += "\n    None."
+        else:
+            params_user = list(self.nodes_user)
+            params_user.sort()
+            text += "\n│  └─ "
+            for i, p in enumerate(params_user):
+                text += p
+                if i < len(params_user) - 1:
+                    text += ", "
+                else:
+                    text += "."
+            if self.adjusted:
+                text += (
+                    "\n│     (__pre suffix indicates pre-adjustment values)"
+                )
+        if self.adjusted and self.method_fCO2 is not None:
+            text += "\n├─ Temperature-sensitivity of fCO2:"
+            if self.method_fCO2 == 1:
+                text += "\n│  ├─────── method_fCO2[{:>2.0f}]: {}.".format(
+                    self.method_fCO2,
+                    citations["method_fCO2"][self.method_fCO2],
+                )
+                text += "\n│  └─ which_fCO2_insitu[{:>2.0f}]: {}.".format(
+                    self.which_fCO2_insitu,
+                    citations["which_fCO2_insitu"][self.which_fCO2_insitu],
+                )
+            else:
+                text += "\n│  └─ method_fCO2[{:>2.0f}]: {}.".format(
+                    self.method_fCO2,
+                    citations["method_fCO2"][self.method_fCO2],
+                )
+        text += "\n└─ Parameterisations and options:"
+        opts = ["opt_pH_scale", "opt_k_carbonic", "opt_total_borate"]
+        len_opts_max = max([len(opt) for opt in opts])
+        for opt in opts:
+            text += (
+                "\n   ├─"
+                + "─" * (len_opts_max - len(opt))
+                + " {}[{:>2.0f}]: {}.".format(
+                    opt,
+                    self.opts[opt],
+                    citations[opt][self.opts[opt]],
+                )
+            )
+        text += (
+            "\n   └─"
+            + "─" * (len_opts_max - 2)
+            + " Others: see CO2System.opts."
+        )
+        return text
 
     def solve(
         self,
@@ -1699,7 +1939,7 @@ class CO2System(FunctionGraph):
         method_fCO2,
         temperature,
         bh_upsilon=None,
-        opt_which_fCO2_insitu=1,
+        which_fCO2_insitu=1,
     ):
         if method_fCO2 in [1, 2, 3, 4]:
             self.solve("gas_constant")
@@ -1707,8 +1947,8 @@ class CO2System(FunctionGraph):
             case 1:
                 self.solve("fCO2")
                 fCO2 = self.fCO2
-                assert opt_which_fCO2_insitu in [1, 2]
-                if opt_which_fCO2_insitu == 2:
+                assert which_fCO2_insitu in [1, 2]
+                if which_fCO2_insitu == 2:
                     # If the output conditions are the environmental ones, then
                     # we need to provide an estimate of output fCO2 in order to
                     # use the bh parameterisation; we get this using the
@@ -1724,7 +1964,7 @@ class CO2System(FunctionGraph):
                     self.data["salinity"],
                     fCO2,
                     self.data["gas_constant"],
-                    opt_which_fCO2_insitu=opt_which_fCO2_insitu,
+                    which_fCO2_insitu=which_fCO2_insitu,
                 )
             case 2:
                 return upsilon.expUps_TOG93_H24(
@@ -1765,12 +2005,12 @@ class CO2System(FunctionGraph):
         # not foolproof, but they do avoid needing to import pandas.
         if all([hasattr(param, a) for a in ["index", "values", "dtype"]]):
             assert self.pd_index is not None, (
-                "Parameter cannot be provided as a pandas `Series`"
+                "Parameters cannot be provided as a pandas Series"
                 + " because this CO2System was not constructed"
-                + " from an pandas `DataFrame`."
+                + " from an pandas DataFrame."
             )
             assert self.pd_index.equals(param.index), (
-                "Cannot use this pandas `Series` for the adjust-to value"
+                "Cannot use this pandas Series for the adjust-to value"
                 + " because its index does not match that used to construct"
                 + " this CO2System."
             )
@@ -1780,12 +2020,35 @@ class CO2System(FunctionGraph):
         # not foolproof, but they do avoid needing to import xarray.
         if all([hasattr(param, a) for a in ["data", "dims", "coords"]]):
             assert self.xr_dims is not None, (
-                "Parameter cannot be provided as an xarray `DataArray`"
-                + " because this `CO2System` was not constructed"
-                + " from an xarray `Dataset`."
+                "Parameters cannot be provided as an xarray DataArray"
+                + " because this CO2System was not constructed"
+                + " from an xarray Dataset."
             )
             param = da_to_array(param, self.xr_dims)
         return param
+
+    def _adjust_alkalinity_dic(self, temperature=None, pressure=None):
+        temperature = self._adjust_prep(temperature)
+        pressure = self._adjust_prep(pressure)
+        kwargs_adjust = {}
+        if temperature is not None:
+            kwargs_adjust["temperature"] = temperature
+        if pressure is not None:
+            kwargs_adjust["pressure"] = pressure
+        data_pre = {
+            k: self.data[k] for k in self.nodes_user if k not in kwargs_adjust
+        }
+        co2a = CO2System(
+            graph=self.graph,
+            defaults=self.defaults,
+            shortcuts=self.shortcuts,
+            icase=self.icase,
+            opts=self.opts,
+            pd_index=self.pd_index,
+            xr_dims=self.xr_dims,
+            xr_shape=self.xr_shape,
+        ).set_data(**data_pre, **kwargs_adjust)
+        return co2a
 
     def _adjust_2p(self, temperature=None, pressure=None):
         temperature = self._adjust_prep(temperature)
@@ -1866,12 +2129,6 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        # Final housekeeping: the new CO2System will usually get its icase
-        # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  So adjusted systems here get assigned whichever icase the
-        # original system had.  This doesn't affect any calculations, but it
-        # does affect __str__ and __repr__.
-        # TODO make ^ actually affect __str__ and __repr__
         co2a.solve(self.requested)
         return co2a
 
@@ -1880,7 +2137,7 @@ class CO2System(FunctionGraph):
         temperature=None,
         bh=None,
         method_fCO2=1,
-        which_fCO2_insitu=2,
+        which_fCO2_insitu=1,
     ):
         temperature = self._adjust_prep(temperature)
         bh = self._adjust_prep(bh)
@@ -1968,9 +2225,7 @@ class CO2System(FunctionGraph):
         elif method_fCO2 == 6:
             cfuncs["exp_upsilon"] = upsilon.expUps_quadratic_TOG93
         for k, func in cfuncs.items():
-            for f in (
-                signature(func).parameters.keys()
-            ):  # TODO should come from graph args not function signature?
+            for f in signature(func).parameters.keys():
                 graph_adj.add_edge(f, k)
         nx.set_node_attributes(graph_adj, cfuncs, name="func")
         args = {}
@@ -1978,7 +2233,7 @@ class CO2System(FunctionGraph):
             if node in cfuncs:
                 args[node] = list(
                     signature(attrs["func"]).parameters
-                )  # TODO should come from graph args not function signature?
+                )  # could come from graph args, not function signature?
         nx.set_node_attributes(graph_adj, args, name="args")
         # Now we can create the new CO2System
         co2a = CO2System(
@@ -2008,40 +2263,38 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        # Final housekeeping: the new CO2System will usually get its icase
-        # wrong, because it doesn't recognise parameters with keys ending
-        # "__pre".  Adjusted systems will get assigned whichever icase the
-        # original system had.  This doesn't affect any calculations, but it
-        # does affect __str__ and __repr__.
-        # TODO make it actually affect __str__ and __repr__
         co2a.solve(self.requested)
+        co2a.method_fCO2 = method_fCO2
+        if method_fCO2 == 1:
+            co2a.which_fCO2_insitu = which_fCO2_insitu
         return co2a
 
     def adjust(self, **kwargs):
-        """Adjust the `CO2System` to a different temperature and/or pressure.
+        """Adjust the CO2System to a different temperature and/or
+        pressure.
 
-        Works differently depending on whether one or two core marine carbonate
-        system (MCS) parameters are known.
+        Works differently depending on whether one or two core marine
+        carbonate system (MCS) parameters are known.
 
-        If the original `CO2System` was created from a pandas `DataFrame` or
-        xarray `Dataset` using the `data` kwarg, then the `temperature` and
-        `pressure` provided to `adjust` can be pandas `Series`s or xarray
-        `DataArray`s, as long as their index or dimensions are consistent with
-        the original `data`.
+        If the original CO2System was created from a pandas DataFrame or
+        xarray Dataset using the data kwarg, then the temperature and
+        pressure provided to adjust can be pandas Series or xarray
+        DataArrays, as long as their index or dimensions are consistent
+        with the original data.
 
-        Any other system properties (e.g. `salinity`, total salt contents,
+        Any other system properties (e.g. salinity, total salt contents,
         optional settings) must be defined when creating the original,
-        unadjusted `CO2System`.  They cannot be added in during the `adjust`
+        unadjusted CO2System.  They cannot be added in during the adjust
         step.
 
         Parameters when two core MCS parameters are known
         -------------------------------------------------
         temperature : array-like, optional
-            The temperature to adjust to in °C, by default `None`, in which
-            case temperature is not adjusted.
+            The temperature to adjust to in °C, by default None,
+            in which case temperature is not adjusted.
         pressure : array-like, optional
-            The pressure to adjust to in °C, by default `None`, in which case
-            pressure is not adjusted.
+            The pressure to adjust to in °C, by default None,
+            in which case pressure is not adjusted.
 
         Parameters when one core MCS parameter is known
         -----------------------------------------------
@@ -2049,48 +2302,59 @@ class CO2System(FunctionGraph):
             The temperature to adjust to in °C.
         method_fCO2 : int
             How to do the temperature conversion:
-                `1`: using the parameterised υh equation of H24 (default).
-                `2`: using the constant υh fitted to the TOG93 dataset by H24.
-                `3`: using the constant theoretical υx of H24.
-                `4`: following the H24 approach, but using a user-provided `bh`.
-                `5`: using the linear fit of TOG93.
-                `6`: using the quadratic fit of TOG93.
+                1: parameterised υh equation of H24 (default).
+                2: constant υh fitted to the TOG93 dataset by H24.
+                3: constant theoretical υx of H24.
+                4: H24 approach but using a user-provided bh.
+                5: linear fit of TOG93.
+                6: quadratic fit of TOG93.
 
-        Additional parameter when `method_fCO2` is `1`
-        ----------------------------------------------
-        * `which_fCO2_insitu`: whether the input- (`1`, default) or output-
-        (`2`) condition pCO2, fCO2, [CO2(aq)] and/or xCO2 values are at in situ
-        conditions, for determining bh with the parameterisation of H24.
+        Additional parameter when method_fCO2 is 1
+        ------------------------------------------
+        * which_fCO2_insitu: whether the input- (1, default) or output-
+        (2) condition pCO2, fCO2, [CO2(aq)] and/or xCO2 values are at
+        in situ conditions, for determining bh with the parameterisation
+        of H24.
 
-        Additional parameter when `method_fCO2` is `4`
-        ----------------------------------------------
+        Additional parameter when method_fCO2 is 4
+        ------------------------------------------
         bh : array-like
             bh of H24 in J/mol.
 
         Returns
         -------
         CO2System
-            A separate `CO2System` adjusted to the requested temperature and/or
-            pressure.
+            A separate CO2System adjusted to the requested temperature
+            and/or pressure.
         """
-        self_requested = self.requested.copy()
+        self_requested = self.requested.copy()  # needs to stay here
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
-        if self.icase > 100:
+        if self.icase == 102:
+            self_adjusted = self._adjust_alkalinity_dic(**kwargs)
+            return self_adjusted
+        elif self.icase > 102:
             self_adjusted = self._adjust_2p(**kwargs)
         elif self.icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
         else:
-            warn("This system cannot be adjusted.", stacklevel=2)
-            self_adjusted = self
+            raise Exception("This CO2System cannot be adjusted.")
         self.requested = self_requested
+        self_adjusted.adjusted = True
+        state_zero = {}
+        for p in self_adjusted.nodes_user.copy():
+            if p in self.nodes_defaults:
+                self_adjusted.nodes_user.remove(p)
+                self_adjusted.nodes_defaults |= {p}
+                state_zero[p] = 0
+        nx.set_node_attributes(self_adjusted.graph, state_zero, "state")
         return self_adjusted
 
     def get_u_coeffs_from_single(self, **u_single) -> dict[str, float]:
         """Convert a set of single uncertainty values for pKs (e.g., from
         OEDG18) into the vectors needed for propagation in PyCO2SYS.
 
-        The lengths of these vectors might be different depending on which
-        parameterisation has been chosen for each pK.
+        The lengths of these vectors might be different depending on
+        which parameterisation has been chosen for each pK.
 
         Parameters
         ----------
@@ -2342,10 +2606,6 @@ def sys(data=None, **kwargs):
     opt_HCO3_root: with known `dic` and `HCO3`, which root to solve for.
         1: the lower pH root.
         2: the higher pH root [DEFAULT].
-    opt_fCO2_temperature: sensitivity of fCO2 to temperature.
-        1: H24 parameterisation [DEFAULT].
-        2: TOG93 linear fit.
-        3: TOG93 quadratic fit.
 
     Equilibrium constants
     ---------------------

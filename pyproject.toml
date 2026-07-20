@@ -10,11 +10,11 @@ description = "PyCO2SYS: marine carbonate system calculations in Python"
 readme = "README.md"
 requires-python = ">= 3.11"
 dependencies = [
-    "jax",
-    "networkx",
+    "jax>=0.10,<0.12",
+    "networkx>=3.2.1,<4",
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -27,6 +27,17 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Oceanography",
 ]
 dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.3.0",
+    "matplotlib>=3.11,<4",
+    "pandas>=3,<4",
+    "pygraphviz>=2,<3",
+    "pytest>=9.1.1,<10",
+    "pytest-xdist>=3.8.0,<4",
+    "xarray>=2026.7.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["PyCO2SYS*"]
@@ -47,7 +58,15 @@ known-first-party = ["PyCO2SYS"]
 convention = "numpy"
 
 [tool.pytest]
-minversion = "6.0"
-norecursedirs = [".*", "*.egg*", "build", "dist"]
+minversion = "9.0"
+norecursedirs = [
+    ".*",
+    "*.egg*",
+    "build",
+    "dist",
+    "docs",
+    "site",
+    "PyCO2SYS",
+]
 testpaths = ["tests"]
 python_files = ["test_*.py", "compare_*.py"]

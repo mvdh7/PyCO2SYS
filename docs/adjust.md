@@ -110,7 +110,7 @@ fCO2_insitu = co2s_insitu["fCO2"]
   
     Only when `method_fCO2` is `1`:
 
-    * `which_fCO2_insitu`: whether the **input (`1`, default)** or output (`2`) condition pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are at in situ conditions, for determining $b_h$ with the parameterisation of [H24](refs.md/#h).
+    * `which_fCO2_insitu`: whether the **pre-adjustment (`1`, default)** or adjusted (`2`) pCO<sub>2</sub>, fCO<sub>2</sub>, [CO<sub>2</sub>(aq)] and/or <i>x</i>CO<sub>2</sub> values are under in situ conditions, for determining $b_h$ with the parameterisation of [H24](refs.md/#h).
   
     Only when `method_fCO2` is `4`:
 

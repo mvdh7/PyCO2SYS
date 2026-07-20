@@ -165,7 +165,7 @@ def expUps_parameterised_H24(
     salinity,
     fCO2,
     gas_constant,
-    opt_which_fCO2_insitu=1,
+    which_fCO2_insitu=1,
 ):
     """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
     with a constant bh coefficient based on a parameterisation with the OceanSODA-ETZH
@@ -180,10 +180,10 @@ def expUps_parameterised_H24(
     salinity : array-like
         Practical salinity.
     fCO2 : array-like
-        Seawater CO2 fugacity at the condition corresponding to opt_which_fCO2_insitu.
+        Seawater CO2 fugacity at the condition corresponding to which_fCO2_insitu.
     gas_constant : array-like
         Universal gas constant.
-    opt_which_fCO2_insitu : int, optional
+    which_fCO2_insitu : int, optional
         Whether (1) the input condition (starting) or (2) output condition (adjusted)
         temperature should be used to calculate bh, by default 1 (i.e., input).  If
         using (2), then the user needs to make sure the fCO2 input already approximately
@@ -194,10 +194,10 @@ def expUps_parameterised_H24(
     array-like
         The adjustment factor exp(Υ).
     """
-    if opt_which_fCO2_insitu == 1:
+    if which_fCO2_insitu == 1:
         # Calculate bh from the input conditions
         bh = get_bh_H24(temperature, salinity, fCO2)
-    elif opt_which_fCO2_insitu == 2:
+    elif which_fCO2_insitu == 2:
         # Calculate bh from the output conditions (fCO2 should also be estimated there)
         bh = get_bh_H24(temperature_out, salinity, fCO2)
     return expUps_Hoff_H24(temperature, temperature_out, gas_constant, bh)
