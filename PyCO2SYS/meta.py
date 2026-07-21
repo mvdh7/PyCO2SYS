@@ -8,7 +8,7 @@ import jax
 from jax import numpy as np
 
 
-version = "2.0.0b8"
+version = "2.0.0b9"
 authorlist = [
     "Humphreys, Matthew P.",
     "Martin-Mayor, Macarena",
