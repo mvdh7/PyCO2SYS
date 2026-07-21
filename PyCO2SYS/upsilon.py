@@ -58,9 +58,27 @@ def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
     )
 
 
-def get_bh_H24(temperature, salinity, fCO2):
-    """Calculate bh based on the parameterisation of Humphreys (2024) to the OceanSODA-
-    ETZH data product.
+def coeffs_bh_H24():
+    # from Humphreys (2024, Ocean Sci.), Table S1
+    return np.array(
+        [
+            3.13184463e04,
+            1.39487529e02,
+            -1.21087624e00,
+            -4.22484243e00,
+            -6.52212406e-01,
+            -1.69522191e01,
+            -5.47585838e-04,
+            -3.02071783e00,
+            1.66972942e-01,
+            3.09654019e-01,
+        ]
+    )
+
+
+def get_bh_H24(temperature, salinity, fCO2, coeffs_bh):
+    """Calculate b_h based on the parameterisation of Humphreys (2024)
+    to the OceanSODA-ETZH data product.
 
     Parameters
     ----------
@@ -70,24 +88,16 @@ def get_bh_H24(temperature, salinity, fCO2):
         Practical salinity.
     fCO2 : array-like
         Seawater fugacity of CO2 in µatm.
+    coeffs_bh : array-like
+        Coefficients for the fit
 
     Returns
     -------
     bh : array-like
         The coefficient bh in J / mol.
     """
-    c, t, tt, s, ss, f, ff, ts, tf, sf = (
-        3.13184463e04,
-        1.39487529e02,
-        -1.21087624e00,
-        -4.22484243e00,
-        -6.52212406e-01,
-        -1.69522191e01,
-        -5.47585838e-04,
-        -3.02071783e00,
-        1.66972942e-01,
-        3.09654019e-01,
-    )
+    c, t, tt, s, ss, f, ff, ts, tf, sf = coeffs_bh
+    # Humphreys (2024, Ocean Sci.), Equation 35
     return (
         c
         + t * temperature

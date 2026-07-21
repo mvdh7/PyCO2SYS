@@ -45,6 +45,9 @@ include = ["PyCO2SYS*"]
 [tool.setuptools.dynamic]
 version = {attr = "PyCO2SYS.meta.version"}
 
+[tool.setuptools.package-data]
+"PyCO2SYS.uncertainty.covmx" = ["*.txt"]
+
 [tool.ruff]
 line-length = 79
 

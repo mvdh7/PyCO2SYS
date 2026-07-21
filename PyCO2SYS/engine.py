@@ -23,6 +23,7 @@ from .classes.function_graph import (
     ShortcutDotDict,
     ShortcutsDict,
 )
+from .uncertainty import covmx
 
 
 citations = {
@@ -1264,6 +1265,8 @@ node_labels = {
     "tot_to_opt": r"$_\mathrm{T}Y$",
     "tot_to_sws_1atm": r"$_\mathrm{T}^\mathrm{S}Y^0$",
     "tot_to_sws": r"$_\mathrm{T}^\mathrm{S}Y$",
+    # Coefficients
+    "coeffs_bh": "$c$[$b_h$]",
     # TODO below not formatted
     "pk_Mg_calcite_1atm": "pk_Mg_calcite_1atm",
     "pkt_Mg_calcite_1atm": "pkt_Mg_calcite_1atm",
@@ -2188,12 +2191,16 @@ class CO2System(FunctionGraph):
         if method_fCO2 == 1:
             assert which_fCO2_insitu in [1, 2]
             if which_fCO2_insitu == 1:
-                cfuncs["bh"] = lambda temperature__pre, salinity, fCO2__pre: (
-                    upsilon.get_bh_H24(temperature__pre, salinity, fCO2__pre)
+                cfuncs["bh"] = (
+                    lambda temperature__pre, salinity, fCO2__pre, coeffs_bh: (
+                        upsilon.get_bh_H24(
+                            temperature__pre, salinity, fCO2__pre, coeffs_bh
+                        )
+                    )
                 )
             elif which_fCO2_insitu == 2:
                 cfuncs["bh"] = (
-                    lambda temperature__pre, temperature, salinity, fCO2__pre, gas_constant: (
+                    lambda temperature__pre, temperature, salinity, fCO2__pre, coeffs_bh, gas_constant: (
                         upsilon.get_bh_H24(
                             temperature__pre,
                             salinity,
@@ -2203,6 +2210,7 @@ class CO2System(FunctionGraph):
                                 temperature,
                                 gas_constant,
                             ),
+                            coeffs_bh,
                         )
                     )
                 )
@@ -2236,9 +2244,13 @@ class CO2System(FunctionGraph):
                 )  # could come from graph args, not function signature?
         nx.set_node_attributes(graph_adj, args, name="args")
         # Now we can create the new CO2System
+        defaults = self.defaults
+        if method_fCO2 == 1:
+            defaults = defaults.copy()
+            defaults["coeffs_bh"] = upsilon.coeffs_bh_H24()
         co2a = CO2System(
             graph=graph_adj,
-            defaults=self.defaults,
+            defaults=defaults,
             shortcuts=self.shortcuts,
             icase=self.icase,
             opts=self.opts,
@@ -2267,6 +2279,10 @@ class CO2System(FunctionGraph):
         co2a.method_fCO2 = method_fCO2
         if method_fCO2 == 1:
             co2a.which_fCO2_insitu = which_fCO2_insitu
+            nx.set_node_attributes(
+                co2a.graph, {"coeffs_bh": True}, name="coeffs"
+            )
+            co2a.set_uncertainty(coeffs_bh=covmx.bh_H24())
         return co2a
 
     def adjust(self, **kwargs):
