@@ -99,7 +99,11 @@ uncert_fCO2 = co2s.u.fCO2
 uncert_pH_due_to_dic = co2s.u.parts.pH.t
 ```
 
-The total uncertainties are the Pythagorean sum of all the components.  This calculation assumes that all argument uncertainties are independent from each other and that they are provided in terms of single standard deviations.
+The propagated uncertainties are expressed as variances (so take the square root to get the standard deviation).  If possible from the assigned uncertainties, then the propagated uncertainties will include off-diagonal terms for covariances between the different elements.  To extract an array of the same shape as the relevant parameter that includes only the direct variance in each element (e.g., the main diagonal of a square covariance matrix), use the `cut_cov` method:
+
+```python
+u_fCO2_no_covariances = co2s.cut_cov(co2s.u.fCO2)
+```
 
 !!! inputs "`prop` arguments"
 

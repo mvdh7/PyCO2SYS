@@ -1556,11 +1556,11 @@ class CO2System(FunctionGraph):
         Adjust the system to a different temperature and/or pressure.
     get_grads
         Calculate derivatives of parameters with respect to each other.
+    get_jacs
+        Calculate Jacobian matrices of derivatives.
     keys_all
         Return a tuple of all possible results keys, including those that have
         not yet been solved for.
-    plot_graph
-        Draw graphs showing the relationships between the different parameters.
     propagate
         Propagate independent uncertainties through the calculations.
     solve
@@ -1574,49 +1574,55 @@ class CO2System(FunctionGraph):
     ----------
     grads : dict
         Derivatives of parameters with respect to each other, calculated with
-        `get_grads`.
+        get_grads.
+    ignored : list
+        Which kwargs or keys in data were ignored.
     opts : dict
         The optional settings being used for calculations.  Constructed when
-        the `CO2System` is initalised; subsequent changes will not affect any
+        the CO2System is initalised; subsequent changes will not affect any
         calculations.
-    uncertainty : dict
+    uncertainty or u : Uncertainties
         Uncertainties in parameters with respect to each other, calculated with
-        `propagate`.
+        propagate (or prop).
+    validity or v : Valids
+        Validity of parameters with respect to each other.
+
+    In addition to the methods listed above, all of the methods usually
+    available for a dict can be used.  Methods such as keys, values and
+    items will run only over parameters that have already been solved for.
 
     Advanced attributes
     -------------------
-    adjusted : bool
-        Whether this system was generated using `adjust`.
-    c_state : dict
-        Colours for plotting the state graph (see `plot_graph`).
-    c_valid : dict
-        Colours for plotting the validity graph (see `plot_graph`)
-    checked_valid : bool
-        Whether the validity of the system has been checked.
     data : dict
-        The known parameters (either user provided or solved for).
+        The known parameters (either user-provided or solved for).
+        This is **not** related to the sys function data argument.
     graph : nx.DiGraph
         The graph of calculations.
-    icase : int
-        Which known core parameters were provided.
-    ignored : list
-        Which kwargs or keys in `data` were ignored.
-    nodes_original : tuple
-        Which parameters were user-provided or took fixed default values.
-    pd_index : pd.Index
-        If `data` was a pandas `DataFrame`, this contains its index.
-    requested : list
-        Which parameters have been directly requested for solving.
     shortcuts : dict
         Alternative key mapper.
-    xr_dims : tuple
-        If `data` was an xarray `Dataset`, this contains all its dimensions.
-    xr_shape : tuple
-        If `data` was an xarray `Dataset`, this contains its fullest shape.
-
-    In addition to the methods listed above, all of the methods usually
-    available for a `dict` can be used.  Methods such as `keys`, `values` and
-    `items` will run only over parameters that have already been solved for.
+    _adjusted : bool
+        Whether this system was generated using adjust.
+    _icase : int
+        Which known core parameters were provided.
+    _method_fCO2 : int
+        Which method was used to adjust fCO2 in an adjusted system.
+    _nodes_defaults : set
+        Which parameters took the default values.
+    _nodes_original : set
+        Which parameters were user-provided or took the default values.
+    _nodes_user : set
+        Which parameters were user-provided.
+    _pd_index : pd.Index
+        If data was a pandas DataFrame, this contains its index.
+    _requested : list
+        Which parameters have been directly requested for solving.
+    _which_fCO2_insitu : int
+        If method_fCO2 == 1, whether pre-adjustment or adjusted fCO2
+        represents in situ conditions.
+    _xr_dims : tuple
+        If data was an xarray Dataset, this contains all its dimensions.
+    _xr_shape : tuple
+        If data was an xarray Dataset, this contains its fullest shape.
     """
 
     from .uncertainty import set_u_OEDG18
@@ -1641,39 +1647,39 @@ class CO2System(FunctionGraph):
             shortcuts=shortcuts,
             no_store=no_store,
         )
-        self.adjusted = False
-        self.method_fCO2 = None
-        self.which_fCO2_insitu = None
-        self.icase = icase
+        self._adjusted = False
+        self._method_fCO2 = None
+        self._which_fCO2_insitu = None
+        self._icase = icase
         self.opts = OptsDict(self.shortcuts)
         self.opts.update(opts)
-        self.pd_index = pd_index
+        self._pd_index = pd_index
         if xr_dims is not None:
             assert xr_shape is not None
             assert len(xr_dims) == len(xr_shape)
         else:
             assert xr_shape is None
-        self.xr_dims = xr_dims
-        self.xr_shape = xr_shape
+        self._xr_dims = xr_dims
+        self._xr_shape = xr_shape
 
     def __repr__(self):
         text = "CO2System"
-        if self.adjusted:
+        if self._adjusted:
             text += " (adjusted)"
-        if self.icase == 0:
+        if self._icase == 0:
             text += " with no known CO2 parameters."
-        elif self.icase < 100:
-            known = parameters_core[self.icase - 1]
+        elif self._icase < 100:
+            known = parameters_core[self._icase - 1]
             text += f" with known {known}."
         else:
             text += " with known {} and {}.".format(
-                *icase_to_params(self.icase)
+                *icase_to_params(self._icase)
             )
         text += "\n├─ User-defined parameters:"
-        if len(self.nodes_user) == 0:
+        if len(self._nodes_user) == 0:
             text += "\n    None."
         else:
-            params_user = list(self.nodes_user)
+            params_user = list(self._nodes_user)
             params_user.sort()
             text += "\n│  └─ "
             for i, p in enumerate(params_user):
@@ -1682,25 +1688,25 @@ class CO2System(FunctionGraph):
                     text += ", "
                 else:
                     text += "."
-            if self.adjusted:
+            if self._adjusted:
                 text += (
                     "\n│     (__pre suffix indicates pre-adjustment values)"
                 )
-        if self.adjusted and self.method_fCO2 is not None:
+        if self._adjusted and self._method_fCO2 is not None:
             text += "\n├─ Temperature-sensitivity of fCO2:"
-            if self.method_fCO2 == 1:
+            if self._method_fCO2 == 1:
                 text += "\n│  ├─────── method_fCO2[{:>2.0f}]: {}.".format(
-                    self.method_fCO2,
-                    citations["method_fCO2"][self.method_fCO2],
+                    self._method_fCO2,
+                    citations["method_fCO2"][self._method_fCO2],
                 )
                 text += "\n│  └─ which_fCO2_insitu[{:>2.0f}]: {}.".format(
-                    self.which_fCO2_insitu,
-                    citations["which_fCO2_insitu"][self.which_fCO2_insitu],
+                    self._which_fCO2_insitu,
+                    citations["which_fCO2_insitu"][self._which_fCO2_insitu],
                 )
             else:
                 text += "\n│  └─ method_fCO2[{:>2.0f}]: {}.".format(
-                    self.method_fCO2,
-                    citations["method_fCO2"][self.method_fCO2],
+                    self._method_fCO2,
+                    citations["method_fCO2"][self._method_fCO2],
                 )
         text += "\n└─ Parameterisations and options:"
         opts = ["opt_pH_scale", "opt_k_carbonic", "opt_total_borate"]
@@ -1872,13 +1878,13 @@ class CO2System(FunctionGraph):
                 parameters = self.keys()
             self.solve(parameters=parameters)
             if isinstance(parameters, str):
-                return pd.Series(data=self[parameters], index=self.pd_index)
+                return pd.Series(data=self[parameters], index=self._pd_index)
             else:
                 return pd.DataFrame(
                     {
                         p: pd.Series(
-                            data=self[p] * np.ones(self.pd_index.shape),
-                            index=self.pd_index,
+                            data=self[p] * np.ones(self._pd_index.shape),
+                            index=self._pd_index,
                         )
                         for p in parameters
                     }
@@ -1890,8 +1896,8 @@ class CO2System(FunctionGraph):
         ndims = []
         if not np.isscalar(self[parameter]):
             for i, vs in enumerate(self[parameter].shape):
-                if vs == self.xr_shape[i]:
-                    ndims.append(self.xr_dims[i])
+                if vs == self._xr_shape[i]:
+                    ndims.append(self._xr_dims[i])
         return ndims
 
     def to_xarray(self, parameters=None):
@@ -1912,7 +1918,7 @@ class CO2System(FunctionGraph):
             original xarray dimensions passed into the `CO2System` as `data`.
             If `data` was not an `xr.Dataset` then this function will not work.
         """
-        assert self.xr_dims is not None and self.xr_shape is not None, (
+        assert self._xr_dims is not None and self._xr_shape is not None, (
             "`data` was not provided as an `xr.Dataset` "
             + "when creating this `CO2System`."
         )
@@ -2007,12 +2013,12 @@ class CO2System(FunctionGraph):
         # arrays, if necessary.  The checks to see if they are Series are
         # not foolproof, but they do avoid needing to import pandas.
         if all([hasattr(param, a) for a in ["index", "values", "dtype"]]):
-            assert self.pd_index is not None, (
+            assert self._pd_index is not None, (
                 "Parameters cannot be provided as a pandas Series"
                 + " because this CO2System was not constructed"
                 + " from an pandas DataFrame."
             )
-            assert self.pd_index.equals(param.index), (
+            assert self._pd_index.equals(param.index), (
                 "Cannot use this pandas Series for the adjust-to value"
                 + " because its index does not match that used to construct"
                 + " this CO2System."
@@ -2022,12 +2028,12 @@ class CO2System(FunctionGraph):
         # arrays, if necessary.  The checks to see if they are DataArrays are
         # not foolproof, but they do avoid needing to import xarray.
         if all([hasattr(param, a) for a in ["data", "dims", "coords"]]):
-            assert self.xr_dims is not None, (
+            assert self._xr_dims is not None, (
                 "Parameters cannot be provided as an xarray DataArray"
                 + " because this CO2System was not constructed"
                 + " from an xarray Dataset."
             )
-            param = da_to_array(param, self.xr_dims)
+            param = da_to_array(param, self._xr_dims)
         return param
 
     def _adjust_alkalinity_dic(self, temperature=None, pressure=None):
@@ -2039,17 +2045,17 @@ class CO2System(FunctionGraph):
         if pressure is not None:
             kwargs_adjust["pressure"] = pressure
         data_pre = {
-            k: self.data[k] for k in self.nodes_user if k not in kwargs_adjust
+            k: self.data[k] for k in self._nodes_user if k not in kwargs_adjust
         }
         co2a = CO2System(
             graph=self.graph,
             defaults=self.defaults,
             shortcuts=self.shortcuts,
-            icase=self.icase,
+            icase=self._icase,
             opts=self.opts,
-            pd_index=self.pd_index,
-            xr_dims=self.xr_dims,
-            xr_shape=self.xr_shape,
+            pd_index=self._pd_index,
+            xr_dims=self._xr_dims,
+            xr_shape=self._xr_shape,
         ).set_data(**data_pre, **kwargs_adjust)
         return co2a
 
@@ -2101,7 +2107,7 @@ class CO2System(FunctionGraph):
         # The new system will have the same set of user-provided parameter
         # values as the original, but the ones that are condition-dependent get
         # renamed with "__pre" appended.
-        data_pre = self[list(self.nodes_original)]
+        data_pre = self[list(self._nodes_original)]
         for k, v in data_pre.copy().items():
             if k not in no_pre:
                 data_pre[k + "__pre"] = data_pre.pop(k)
@@ -2109,11 +2115,11 @@ class CO2System(FunctionGraph):
             graph=graph_adj,
             defaults=self.defaults,
             shortcuts=self.shortcuts,
-            icase=self.icase,
+            icase=self._icase,
             opts=self.opts,
-            pd_index=self.pd_index,
-            xr_dims=self.xr_dims,
-            xr_shape=self.xr_shape,
+            pd_index=self._pd_index,
+            xr_dims=self._xr_dims,
+            xr_shape=self._xr_shape,
         ).set_data(**data_pre, **kwargs_adjust)
         # Parameters that have already been solved for in the original system
         # are copied across, so that they don't need solving for again.
@@ -2132,7 +2138,7 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        co2a.solve(self.requested)
+        co2a.solve(self._requested)
         return co2a
 
     def _adjust_1p(
@@ -2179,7 +2185,7 @@ class CO2System(FunctionGraph):
         # The new system will have the same set of user-provided parameter
         # values as the original, but the ones that are condition-dependent get
         # renamed with "__pre" appended.
-        data_pre = self[list(self.nodes_original)]
+        data_pre = self[list(self._nodes_original)]
         for k, v in data_pre.copy().items():
             if k not in no_pre:
                 data_pre[k + "__pre"] = data_pre.pop(k)
@@ -2252,11 +2258,11 @@ class CO2System(FunctionGraph):
             graph=graph_adj,
             defaults=defaults,
             shortcuts=self.shortcuts,
-            icase=self.icase,
+            icase=self._icase,
             opts=self.opts,
-            pd_index=self.pd_index,
-            xr_dims=self.xr_dims,
-            xr_shape=self.xr_shape,
+            pd_index=self._pd_index,
+            xr_dims=self._xr_dims,
+            xr_shape=self._xr_shape,
         ).set_data(**data_pre, temperature=temperature)
         # Parameters that have already been solved for in the original system
         # are copied across, so that they don't need solving for again.
@@ -2275,10 +2281,10 @@ class CO2System(FunctionGraph):
             else:
                 uncertainty_pre[k + "__pre"] = v
         co2a.set_uncertainty(**uncertainty_pre)
-        co2a.solve(self.requested)
-        co2a.method_fCO2 = method_fCO2
+        co2a.solve(self._requested)
+        co2a._method_fCO2 = method_fCO2
         if method_fCO2 == 1:
-            co2a.which_fCO2_insitu = which_fCO2_insitu
+            co2a._which_fCO2_insitu = which_fCO2_insitu
             nx.set_node_attributes(
                 co2a.graph, {"coeffs_bh": True}, name="coeffs"
             )
@@ -2343,24 +2349,24 @@ class CO2System(FunctionGraph):
             A separate CO2System adjusted to the requested temperature
             and/or pressure.
         """
-        self_requested = self.requested.copy()  # needs to stay here
+        self_requested = self._requested.copy()  # needs to stay here
         kwargs = {shortcuts[k.lower()]: v for k, v in kwargs.items()}
-        if self.icase == 102:
+        if self._icase == 102:
             self_adjusted = self._adjust_alkalinity_dic(**kwargs)
             return self_adjusted
-        elif self.icase > 102:
+        elif self._icase > 102:
             self_adjusted = self._adjust_2p(**kwargs)
-        elif self.icase in [4, 5, 8, 9]:
+        elif self._icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
         else:
             raise Exception("This CO2System cannot be adjusted.")
-        self.requested = self_requested
-        self_adjusted.adjusted = True
+        self._requested = self_requested
+        self_adjusted._adjusted = True
         state_zero = {}
-        for p in self_adjusted.nodes_user.copy():
-            if p in self.nodes_defaults:
-                self_adjusted.nodes_user.remove(p)
-                self_adjusted.nodes_defaults |= {p}
+        for p in self_adjusted._nodes_user.copy():
+            if p in self._nodes_defaults:
+                self_adjusted._nodes_user.remove(p)
+                self_adjusted._nodes_defaults |= {p}
                 state_zero[p] = 0
         nx.set_node_attributes(self_adjusted.graph, state_zero, "state")
         return self_adjusted
