@@ -77,3 +77,11 @@ def valid(**kwargs):
         return wrapper
 
     return decorator
+
+
+class PyCO2SYSError(Exception):
+    """PyCO2SYS custom exception."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)

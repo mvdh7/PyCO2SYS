@@ -1,5 +1,6 @@
 # PyCO2SYS: marine carbonate system calculations in Python.
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
+# ruff: noqa: C408
 from inspect import signature
 from warnings import warn
 
@@ -23,6 +24,7 @@ from .classes.function_graph import (
     ShortcutDotDict,
     ShortcutsDict,
 )
+from .meta import PyCO2SYSError
 from .uncertainty import covmx
 
 
@@ -1538,7 +1540,7 @@ class OptsDict(ShortcutDotDict):
                         text += "\n│  ├─"
                 text += "─" * (
                     len_opts_max - len(opt)
-                ) + " {}[{:>2.0f}]: {}.".format(
+                ) + " {}[{:>2.0f}]: {}.".format(  # noqa
                     opt,
                     self.data[opt],
                     citations[opt][self.data[opt]],
@@ -1634,8 +1636,8 @@ class CO2System(FunctionGraph):
         funcs: dict | None = None,
         shortcuts: dict | None = None,
         no_store: set | None = None,
-        icase: int = None,
-        opts: dict = None,
+        icase: int | None = None,
+        opts: dict | None = None,
         pd_index=None,
         xr_dims=None,
         xr_shape=None,
@@ -1715,7 +1717,7 @@ class CO2System(FunctionGraph):
             text += (
                 "\n   ├─"
                 + "─" * (len_opts_max - len(opt))
-                + " {}[{:>2.0f}]: {}.".format(
+                + " {}[{:>2.0f}]: {}.".format(  # noqa: UP032
                     opt,
                     self.opts[opt],
                     citations[opt][self.opts[opt]],
@@ -2012,7 +2014,7 @@ class CO2System(FunctionGraph):
         # Convert temperature and/or pressure from pandas Series to NumPy
         # arrays, if necessary.  The checks to see if they are Series are
         # not foolproof, but they do avoid needing to import pandas.
-        if all([hasattr(param, a) for a in ["index", "values", "dtype"]]):
+        if all(hasattr(param, a) for a in ["index", "values", "dtype"]):
             assert self._pd_index is not None, (
                 "Parameters cannot be provided as a pandas Series"
                 + " because this CO2System was not constructed"
@@ -2027,7 +2029,7 @@ class CO2System(FunctionGraph):
         # Convert temperature and/or pressure from xarray DataArrays to NumPy
         # arrays, if necessary.  The checks to see if they are DataArrays are
         # not foolproof, but they do avoid needing to import xarray.
-        if all([hasattr(param, a) for a in ["data", "dims", "coords"]]):
+        if all(hasattr(param, a) for a in ["data", "dims", "coords"]):
             assert self._xr_dims is not None, (
                 "Parameters cannot be provided as an xarray DataArray"
                 + " because this CO2System was not constructed"
@@ -2093,7 +2095,7 @@ class CO2System(FunctionGraph):
             if "func" in attrs:
                 args[node] = [
                     k if k in no_pre else k + "__pre"
-                    for k in signature(attrs["func"]).parameters.keys()
+                    for k in signature(attrs["func"]).parameters
                 ]
         nx.set_node_attributes(graph_pre, args, name="args")
         # graph_pre can now be merged with a new graph to compute everything
@@ -2171,7 +2173,7 @@ class CO2System(FunctionGraph):
             if "func" in attrs:
                 args[node] = [
                     k if k in no_pre else k + "__pre"
-                    for k in signature(attrs["func"]).parameters.keys()
+                    for k in signature(attrs["func"]).parameters
                 ]
         nx.set_node_attributes(graph_pre, args, name="args")
         # graph_pre can now be merged with a new graph to compute everything
@@ -2239,7 +2241,7 @@ class CO2System(FunctionGraph):
         elif method_fCO2 == 6:
             cfuncs["exp_upsilon"] = upsilon.expUps_quadratic_TOG93
         for k, func in cfuncs.items():
-            for f in signature(func).parameters.keys():
+            for f in signature(func).parameters:
                 graph_adj.add_edge(f, k)
         nx.set_node_attributes(graph_adj, cfuncs, name="func")
         args = {}
@@ -2359,7 +2361,7 @@ class CO2System(FunctionGraph):
         elif self._icase in [4, 5, 8, 9]:
             self_adjusted = self._adjust_1p(**kwargs)
         else:
-            raise Exception("This CO2System cannot be adjusted.")
+            raise PyCO2SYSError("This CO2System cannot be adjusted.")
         self._requested = self_requested
         self_adjusted._adjusted = True
         state_zero = {}
@@ -2393,9 +2395,7 @@ class CO2System(FunctionGraph):
         for k, v in u_single.items():
             try:
                 u_coeffs["coeffs_" + k] = np.zeros_like(self["coeffs_" + k])
-                u_coeffs["coeffs_" + k] = (
-                    u_coeffs["coeffs_" + k].at[-1].set(u_single[k])
-                )
+                u_coeffs["coeffs_" + k] = u_coeffs["coeffs_" + k].at[-1].set(v)
             except nx.NetworkXError:
                 warn(f'No coeffs available for "{k}"', stacklevel=3)
         return u_coeffs
@@ -2657,7 +2657,7 @@ def sys(data=None, **kwargs):
             if isinstance(v, str):
                 if v in renamer_user:
                     # Can't repeat keys e.g. `data=df, dic="var", pH="var"`
-                    raise Exception(
+                    raise PyCO2SYSError(
                         f'"{v}" cannot be used for {k} because'
                         + f" it is already being used for {renamer_user[v]}"
                     )
@@ -2781,7 +2781,7 @@ def sys(data=None, **kwargs):
             # because it doesn't take care of indices properly
             try:
                 _ = kwargs_data[k].values
-                raise Exception(
+                raise PyCO2SYSError(
                     f"`{k}` provided as a `pd.Series` or `xr.DataArray`, "
                     + "which is not allowed."
                 )
@@ -2817,7 +2817,7 @@ def sys(data=None, **kwargs):
     icase_all = np.arange(1, len(parameters_core) + 1)
     icase = icase_all[core_known]
     if len(icase) > 2:
-        raise Exception(
+        raise PyCO2SYSError(
             "A maximum of 2 known core parameters can be provided."
         )
     if len(icase) == 0:
