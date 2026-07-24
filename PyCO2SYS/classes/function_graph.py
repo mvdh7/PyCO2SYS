@@ -77,6 +77,7 @@ class Valids(ShortcutDotDict):
         super().__init__(shortcuts)
         self.direct = ShortcutDotDict(shortcuts)
         self.indirect = ShortcutDotDict(shortcuts)
+        self.range = ShortcutDotDict(shortcuts)
 
     def why(self, parameter):
         """Find out why a particular parameter is (in)valid.
@@ -204,6 +205,11 @@ class FunctionGraph(UserDict):
         self.u = self.uncertainty
         self.valid = Valids(self.shortcuts)
         self.v = self.valid
+        for n in self.graph.nodes:
+            sgnn = self.graph.nodes[n]
+            if "func" in sgnn and hasattr(sgnn["func"], "valid"):
+                self.valid.range[n] = ShortcutDotDict(self.shortcuts)
+                self.valid.range[n].update(sgnn["func"].valid)
 
     def __getitem__(self, key):
         # When the user requests a dict key that hasn't been solved for yet,
