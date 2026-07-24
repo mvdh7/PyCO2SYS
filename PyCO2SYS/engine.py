@@ -187,7 +187,7 @@ get_funcs = {
     "factor_k_Si": equilibria.pcx.factor_k_Si,
     "factor_k_NH3": equilibria.pcx.factor_k_NH3,
     "factor_k_CO2": equilibria.pcx.factor_k_CO2,
-    "factor_k_HNO2": lambda: 1.0,  # unknown!
+    "factor_k_HNO2": equilibria.pcx.factor_k_HNO2,
     # Equilibrium constants at pressure and on the free pH scale
     "pk_HF_free": lambda pk_HF_free_1atm, factor_k_HF: (
         pk_HF_free_1atm - np.log10(factor_k_HF)

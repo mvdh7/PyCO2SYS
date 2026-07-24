@@ -692,3 +692,10 @@ def factor_k_CO2(temperature, pressure, gas_constant, pressure_atmosphere):
         * vCO2
         / (10 * gas_constant * (temperature + 273.15))
     )
+
+
+@valid(pressure=[0, 10])
+def factor_k_HNO2(pressure):
+    # This is a placeholder to allow a validity range to be defined
+    # despite the fact no pressure correction factor is yet available
+    return 1.0
