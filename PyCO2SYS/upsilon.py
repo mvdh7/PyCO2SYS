@@ -3,11 +3,13 @@
 from jax import numpy as np
 
 from . import constants
+from .meta import valid
 
 
 bh_TOG93_H24 = 28995  # J / mol
 bh_enthalpy_H24 = 25288  # J / mol
 bl_TOG93 = 42.3e-3  # 1 / °C
+u_bl_TOG93 = 0.0023  # 1 / °C
 aq_TOG93 = -43.5e-6  # 1 / °C ** 2
 bq_TOG93 = 43.3e-3  # 1 / °C
 
@@ -31,8 +33,8 @@ def inverse(temperature, gas_constant, bh):
 
 
 def expUps_Hoff_H24(temperature__pre, temperature, gas_constant, bh):
-    """Calculate exp(Υ) using the van 't Hoff form of Humphreys (2024) with a variable
-    bh coefficient.
+    """Calculate exp(Υ) using the van 't Hoff form of Humphreys (2024)
+    with a variable bh coefficient.
 
     Parameters
     ----------
@@ -76,8 +78,9 @@ def coeffs_bh_H24():
     )
 
 
+@valid(temperature=[-1.8, 35.83])
 def get_bh_H24(temperature, salinity, fCO2, coeffs_bh):
-    """Calculate b_h based on the parameterisation of Humphreys (2024)
+    """Calculate bh based on the parameterisation of Humphreys (2024)
     to the OceanSODA-ETZH data product.
 
     Parameters
@@ -89,7 +92,7 @@ def get_bh_H24(temperature, salinity, fCO2, coeffs_bh):
     fCO2 : array-like
         Seawater fugacity of CO2 in µatm.
     coeffs_bh : array-like
-        Coefficients for the fit
+        Coefficients for the fit.
 
     Returns
     -------
@@ -112,9 +115,17 @@ def get_bh_H24(temperature, salinity, fCO2, coeffs_bh):
     )
 
 
-def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
-    """Calculate υ using the van 't Hoff form of Humphreys (2024) with a variable bh
-    coefficient based on a parameterisation with the OceanSODA-ETZH data product.
+@valid(temperature=[-1.8, 35.83])
+def ups_parameterised_H24(
+    temperature,
+    salinity,
+    fCO2,
+    coeffs_bh,
+    gas_constant,
+):
+    """Calculate υ using the van 't Hoff form of Humphreys (2024) with a
+    variable bh coefficient based on a parameterisation with the
+    OceanSODA-ETZH data product.
 
     Parameters
     ----------
@@ -124,6 +135,8 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
         Practical salinity.
     fCO2 : array-like
         Seawater fugacity of CO2 in µatm.
+    coeffs_bh : array-like
+        Coefficients for the fit.
     gas_constant : float
         The universal gas constant in J / (mol * K).
 
@@ -131,7 +144,7 @@ def ups_parameterised_H24(temperature, salinity, fCO2, gas_constant):
     -------
         υ in % / °C.
     """
-    bh = get_bh_H24(temperature, salinity, fCO2)
+    bh = get_bh_H24(temperature, salinity, fCO2, coeffs_bh)
     return inverse(temperature, gas_constant, bh)
 
 
@@ -142,9 +155,9 @@ def expUps_parameterised_H24_t0_insitu(
     fCO2__pre,
     gas_constant,
 ):
-    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
-    with a constant bh coefficient based on a parameterisation with the OceanSODA-ETZH
-    data product.
+    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of
+    Humphreys (2024) with a constant bh coefficient based on a
+    parameterisation with the OceanSODA-ETZH data product.
 
     Parameters
     ----------
@@ -177,9 +190,9 @@ def expUps_parameterised_H24(
     gas_constant,
     which_fCO2_insitu=1,
 ):
-    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
-    with a constant bh coefficient based on a parameterisation with the OceanSODA-ETZH
-    data product.
+    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of
+    Humphreys (2024) with a constant bh coefficient based on a
+    parameterisation with the OceanSODA-ETZH data product.
 
     Parameters
     ----------
@@ -190,7 +203,8 @@ def expUps_parameterised_H24(
     salinity : array-like
         Practical salinity.
     fCO2 : array-like
-        Seawater CO2 fugacity at the condition corresponding to which_fCO2_insitu.
+        Seawater CO2 fugacity at the condition corresponding to
+        which_fCO2_insitu.
     gas_constant : array-like
         Universal gas constant.
     which_fCO2_insitu : int, optional
@@ -272,8 +286,9 @@ def ups_TOG93_H24(temperature, gas_constant):
 
 
 def expUps_TOG93_H24(temperature__pre, temperature, gas_constant):
-    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of Humphreys (2024)
-    with a constant bh coefficient fitted to the Takahashi et al. (1993) dataset.
+    """Calculate adjustment factor exp(Υ) using the van 't Hoff form of
+    Humphreys (2024) with a constant bh coefficient fitted to the
+    Takahashi et al. (1993) dataset.
 
     Parameters
     ----------
@@ -303,17 +318,10 @@ def ups_linear_TOG93():
     return bl_TOG93
 
 
-def linear(bl):
-    return bl * 100
-
-
-def quadratic(temperature, aq, bq):
-    return 100 * (2 * aq * temperature + bq)
-
-
-def expUps_linear_TOG93(temperature__pre, temperature):
-    """Calculate adjustment factor exp(Υ) with the linear fit of Takahashi et al.
-    (1993).
+@valid(temperature__pre=[2.1, 24.5], temperature=[2.1, 24.5])
+def expUps_linear_TOG93(temperature__pre, temperature, bl):
+    """Calculate adjustment factor exp(Υ) with the linear fit of
+    Takahashi et al. (1993).
 
     Parameters
     ----------
@@ -321,13 +329,15 @@ def expUps_linear_TOG93(temperature__pre, temperature):
         Starting temperature (t0) in °C or K.
     temperature : array-like
         Adjusted temperature (t1) in °C or K.
+    bl : float
+        The temperature sensitivity of fCO2 in 1 / °C.
 
     Returns
     -------
     array-like
         The adjustment factor exp(Υ).
     """
-    return np.exp(bl_TOG93 * (temperature - temperature__pre))
+    return np.exp(bl * (temperature - temperature__pre))
 
 
 def ups_quadratic_TOG93(temperature):
@@ -345,9 +355,10 @@ def ups_quadratic_TOG93(temperature):
     return 2 * aq_TOG93 * temperature + bq_TOG93
 
 
+@valid(temperature__pre=[2.1, 24.5], temperature=[2.1, 24.5])
 def expUps_quadratic_TOG93(temperature__pre, temperature):
-    """Calculate adjustment factor exp(Υ) with the quadratic fit of Takahashi et al.
-    (1993).
+    """Calculate adjustment factor exp(Υ) with the quadratic fit of
+    Takahashi et al. (1993).
 
     Parameters
     ----------

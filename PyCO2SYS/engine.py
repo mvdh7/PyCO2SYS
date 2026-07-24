@@ -2256,6 +2256,9 @@ class CO2System(FunctionGraph):
         if method_fCO2 == 1:
             defaults = defaults.copy()
             defaults["coeffs_bh"] = upsilon.coeffs_bh_H24()
+        elif method_fCO2 == 5:
+            defaults = defaults.copy()
+            defaults["bl"] = upsilon.bl_TOG93
         co2a = CO2System(
             graph=graph_adj,
             defaults=defaults,
@@ -2274,8 +2277,8 @@ class CO2System(FunctionGraph):
                     co2a.data[k] = v
                 else:
                     co2a.data[k + "__pre"] = v
-        # Uncertainties that were assigned in the original system are copied
-        # across.
+        # Uncertainties that were assigned in the original system are
+        # copied across
         uncertainty_pre = {}
         for k, v in self.uncertainty.assigned.items():
             if k in no_pre:
@@ -2285,12 +2288,25 @@ class CO2System(FunctionGraph):
         co2a.set_uncertainty(**uncertainty_pre)
         co2a.solve(self._requested)
         co2a._method_fCO2 = method_fCO2
+        # For method_fCO2 == 1 only (H24 parameterisation), we also need
+        # to store the which_fCO2_insitu value
         if method_fCO2 == 1:
             co2a._which_fCO2_insitu = which_fCO2_insitu
+        # Finally, assign uncertainties based on H24
+        if method_fCO2 == 1:  # H24 parameterisation
             nx.set_node_attributes(
-                co2a.graph, {"coeffs_bh": True}, name="coeffs"
+                co2a.graph,
+                {"coeffs_bh": True},
+                name="coeffs",
             )
             co2a.set_uncertainty(coeffs_bh=covmx.bh_H24())
+        elif method_fCO2 == 5:
+            nx.set_node_attributes(
+                co2a.graph,
+                {"bl": False},
+                name="coeffs",
+            )
+            co2a.set_uncertainty(bl=upsilon.u_bl_TOG93**2)
         return co2a
 
     def adjust(self, **kwargs):
