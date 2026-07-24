@@ -53,6 +53,7 @@ line-length = 79
 
 [tool.ruff.lint]
 ignore = [
+    "EXE002",  # shebang-missing-executable-file
     "N999",  # invalid-module-name
 ]
 
