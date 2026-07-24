@@ -51,6 +51,11 @@ version = {attr = "PyCO2SYS.meta.version"}
 [tool.ruff]
 line-length = 79
 
+[tool.ruff.lint]
+ignore = [
+    "N999",  # invalid-module-name
+]
+
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
