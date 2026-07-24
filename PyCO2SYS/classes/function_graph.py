@@ -89,13 +89,13 @@ class Valids(ShortcutDotDict):
         Returns
         -------
         ShortcutDotDict
-            A dict with containing the parent parameters of the investigated
-            `parameter` that have an influence on its validity.
+            A dict with containing the parent parameters of the
+            investigated parameter that have an influence on its validity.
             The dict contains two keys, "direct" and "indirect":
-              - "direct" contains parameters that the investigated `parameter`
-                has defined validity ranges for.
-              - "indirect" contains other parent parameters that may themselves
-                be invalid for other reasons.
+              - "direct" contains parameters that the investigated
+                parameter has defined validity ranges for.
+              - "indirect" contains other parent parameters that may
+                themselves be invalid for other reasons.
         """
         p = self._shortcuts[parameter]
         direct = ShortcutDotDict(self._shortcuts)
@@ -259,8 +259,8 @@ class FunctionGraph(UserDict):
                     ignored.append(k)
         if len(ignored) > 0:
             warn(
-                "Some arguments were not recognised or not valid for this"
-                + " combination of known parameters and are"
+                "Some arguments were not recognised or not valid for"
+                + " this combination of known parameters and are"
                 + " being ignored (see `ignored` attribute)",
                 stacklevel=3,
             )
@@ -279,10 +279,26 @@ class FunctionGraph(UserDict):
 
     def solve(
         self,
-        parameters: list | str | None = None,
-        store_steps=1,
+        parameters: set | list | str | None = None,
+        store_steps: int = 1,
     ):
-        """Solve for the requested parameter(s)."""
+        """Solve for the requested parameter(s).
+
+        Parameters
+        ----------
+        parameters : set | list | str | None, optional
+            Which parameters (or their shortcuts) to solve for, by
+            default None, in which case all possible parameters are
+            solved for.
+        store_steps : int, optional
+            Whether to save no (0), some (1) or all (2) intermediate
+            parameters while solving for the requested parameters.
+
+        Returns
+        -------
+        FunctionGraph
+            The FunctionGraph with the requested parameters calculated.
+        """
         if store_steps not in [0, 1, 2]:
             raise FunctionGraphError("`store_steps` must be 0, 1 or 2")
         if parameters is None:
@@ -339,15 +355,15 @@ class FunctionGraph(UserDict):
         return self
 
     def get_func_of(self, var_of: str):
-        """Create a function to compute `var_of` directly from an input set
-        of values.
+        """Create a function to compute `var_of` directly from an input
+        set of values.
 
         The created function has the signature
 
             value_of = get_value_of(**kwargs)
 
-        where the `kwargs` are the originally user-defined and default values,
-        obtained with
+        where the `kwargs` are the originally user-defined and default
+        values, obtained with
 
             kwargs = {k: fg[k] for k in fg._nodes_original}
         """
@@ -392,8 +408,9 @@ class FunctionGraph(UserDict):
         return get_value_of
 
     def get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with `_get_func_of` so that one of
-        its kwargs is instead a positional arg (and which can thus be gradded).
+        """Reorganise a function created with `_get_func_of` so that one
+        of its kwargs is instead a positional arg (and which can thus be
+        gradded).
 
         Parameters
         ----------
@@ -474,8 +491,8 @@ class FunctionGraph(UserDict):
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
-        """Compute the derivatives of `vars_of` with respect to `vars_wrt` and
-        store them in `sys.grads[var_of][var_wrt]`.
+        """Compute the derivatives of `vars_of` with respect to `vars_wrt`
+        and store them in `sys.grads[var_of][var_wrt]`.
 
         Parameters
         ----------
@@ -527,8 +544,8 @@ class FunctionGraph(UserDict):
         Returns
         -------
         float
-            The Jacobian of `var_of` with respect to `var_wrt`.  Its dimensions
-            are `*(np.shape(var_of), *np.shape(var_wrt))`.
+            The Jacobian of `var_of` with respect to `var_wrt`.
+            Its dimensions are `*(np.shape(var_of), *np.shape(var_wrt))`.
         """
         var_of = self.shortcuts[var_of]
         var_wrt = self.shortcuts[var_wrt]
@@ -625,14 +642,15 @@ class FunctionGraph(UserDict):
         Parameters
         ----------
         uncertainty_into : str | list[str], optional
-            Which parameters to propagate uncertainty into, by default `None`,
-            in which case the list of parameters in `self._requested` is used.
+            Which parameters to propagate uncertainty into, by default
+            None, in which case the list of parameters in
+            self._requested is used.
         keep_cov : bool, optional
-            Whether to keep covariance terms in the final results, by default
-            `True`.
+            Whether to keep covariance terms in the final results,
+            by default True.
         store_parts : bool, optional
-            Whether the save the separate uncertainty components, by default
-            `True`.
+            Whether the save the separate uncertainty components,
+            by default True.
         """
         if uncertainty_into is None:
             uncertainty_into = list(self._requested)
@@ -662,7 +680,7 @@ class FunctionGraph(UserDict):
                     self.u[ui] = self.u[ui] + part
                 if store_parts:
                     self.u.parts[ui][uf] = part
-            if store_parts:
+            if ui in self.u.parts and store_parts:
                 self.remove_jax_overhead(self.u.parts[ui])
             if not keep_cov:
                 self.u[ui] = self.cut_cov(self.u[ui])
@@ -747,20 +765,20 @@ class FunctionGraph(UserDict):
         y_ndims: int,
         ux_ndims: int,
     ) -> str:
-        """Get the `np.einsum` subscripts for uncertainty propagation of `ux`
-        from `x` to `y`.
+        """Get the `np.einsum` subscripts for uncertainty propagation of
+        `ux` from `x` to `y`.
 
         Parameters
         ----------
         x_ndims : int
-            The number of dimensions of the variable to propagate uncertainties
-            from.
+            The number of dimensions of the variable to propagate
+            uncertainties from.
         y_ndims : int
-            The number of dimensions of the variable to propagate uncertainties
-            into.
+            The number of dimensions of the variable to propagate
+            uncertainties into.
         ux_ndims : int
-            The number of dimensions of the uncertainties for `x`.  Should be
-            either the same as, or double, `x_ndims`.
+            The number of dimensions of the uncertainties for `x`.
+            Should be either the same as, or double, `x_ndims`.
 
         Returns
         -------
@@ -800,8 +818,8 @@ class FunctionGraph(UserDict):
         jac: float | np.ndarray,
         ux: float | np.ndarray,
     ) -> np.ndarray:
-        """Propagate uncertainties `ux` from `x` to `y` given the Jacobian of
-        `y` with respect to `x` (`jac`).
+        """Propagate uncertainties `ux` from `x` to `y` given the
+        Jacobian of `y` with respect to `x` (`jac`).
         """
         x_ndims = len(np.shape(x))
         y_ndims = len(np.shape(y))
@@ -818,8 +836,8 @@ class FunctionGraph(UserDict):
         grad_yx: float | np.ndarray,
         ux: float | np.ndarray,
     ):
-        """Propagate independent uncertainties `ux` from `x` to `y` given the
-        derivative of `y` with respect to `x` (`grad_yx`).
+        """Propagate independent uncertainties `ux` from `x` to `y`
+        given the derivative of `y` with respect to `x` (`grad_yx`).
         """
         uy = ux * grad_yx**2
         return uy
