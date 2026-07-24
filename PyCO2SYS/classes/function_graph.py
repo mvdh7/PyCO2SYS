@@ -14,6 +14,7 @@ from ..meta import egrad
 
 jax.config.update("jax_enable_x64", True)
 
+
 # NODE STATES
 # ===========
 # -1 = value unknown
@@ -21,6 +22,14 @@ jax.config.update("jax_enable_x64", True)
 #  1 = user-provided value
 #  2 = calculated as intermediate
 #  3 = calculated by explicit request
+
+
+class FunctionGraphError(Exception):
+    """FunctionGraph custom exception."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 
 class ShortcutsDict(UserDict):
@@ -131,7 +140,9 @@ class FunctionGraph(UserDict):
             self.graph = graph.copy()
         else:
             if not isinstance(funcs, dict):
-                raise Exception("Either `graph` or `funcs` must be provided")
+                raise FunctionGraphError(
+                    "Either `graph` or `funcs` must be provided"
+                )
             self.graph = self.get_graph(funcs)
         if defaults is not None:
             self.defaults = {
@@ -169,7 +180,7 @@ class FunctionGraph(UserDict):
                     "valid",
                     "why",
                 ]:
-                    raise Exception(
+                    raise FunctionGraphError(
                         f'Invalid shortcut "{k}" (reserved attribute)'
                     )
             self.shortcuts = ShortcutsDict(**shortcuts)
@@ -177,7 +188,7 @@ class FunctionGraph(UserDict):
             self.shortcuts = ShortcutsDict()
         if no_store is not None:
             if isinstance(no_store, str):
-                self.no_store = set([no_store])
+                self.no_store = set([no_store])  # noqa
             else:
                 self.no_store = set(no_store)
         else:
@@ -254,14 +265,15 @@ class FunctionGraph(UserDict):
                 stacklevel=3,
             )
         self.ignored |= set(ignored)
-        self._nodes_user = set(
+        self._nodes_user = {
             self.shortcuts[k] for k, v in data.items() if v is not None
-        )
-        self._nodes_defaults = set(
+        }
+
+        self._nodes_defaults = {
             self.shortcuts[k]
             for k, v in self_defaults.items()
             if v is not None
-        )
+        }
         self._nodes_original = self._nodes_user | self._nodes_defaults
         return self
 
@@ -272,7 +284,7 @@ class FunctionGraph(UserDict):
     ):
         """Solve for the requested parameter(s)."""
         if store_steps not in [0, 1, 2]:
-            raise Exception("`store_steps` must be 0, 1 or 2")
+            raise FunctionGraphError("`store_steps` must be 0, 1 or 2")
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
@@ -314,7 +326,9 @@ class FunctionGraph(UserDict):
                             self.graph, {p: 2}, name="state"
                         )
             except KeyError:
-                raise Exception(f"{p} has no associated function in the graph")
+                raise FunctionGraphError(
+                    f"{p} has no associated function in the graph"
+                )
         if store_steps < 2:
             for p in parameters_all:
                 if (
@@ -587,7 +601,7 @@ class FunctionGraph(UserDict):
                 )
             uset.append(skl)
             if skl not in self._nodes_original:
-                raise Exception(
+                raise FunctionGraphError(
                     "Uncertainty can be assigned only for "
                     + "user-provided parameters"
                 )
@@ -601,7 +615,7 @@ class FunctionGraph(UserDict):
 
     def propagate(
         self,
-        uncertainty_into: str | list[str] = None,
+        uncertainty_into: str | list[str] | None = None,
         keep_cov: bool = True,
         store_parts: bool = True,
     ):
@@ -698,7 +712,7 @@ class FunctionGraph(UserDict):
         """Construct a graph from a dict of functions."""
         graph = nx.DiGraph()
         for k, func in funcs.items():
-            for f in signature(func).parameters.keys():
+            for f in signature(func).parameters:
                 graph.add_edge(f, k)
         nx.set_node_attributes(graph, funcs, name="func")
         args = {}
