@@ -48,22 +48,22 @@ Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys
 
 Start with the
 
-  * [Quick-start guide](quick.md)
+  * [Quick-start guide](quick)
 
 before moving on to
 
-  * [Arguments and results](detail.md),
-  * [Adjust conditions](adjust.md),
-  * [Uncertainty propagation](uncertainty.md), and
-  * [Validity range checker](validity.md).
+  * [Arguments and results](detail),
+  * [Adjust conditions](adjust),
+  * [Uncertainty propagation](uncertainty), and
+  * [Validity range checker](validity).
 
 If you're really interested, also look at
 
-  * [Advanced tips and tricks](advanced.md).
+  * [Advanced tips and tricks](advanced).
 
 If you're already familiar with PyCO2SYS v1, then
 
-  * [Switching from v1 to v2](v1_to_v2.md)
+  * [Switching from v1 to v2](v1_to_v2)
 
 may help you to transition.
 

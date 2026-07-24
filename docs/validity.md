@@ -23,7 +23,7 @@ co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([15, 35])).solve("pk1")
 co2s.check_valid()
 ```
 
-Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System` (shortcut: `v`).  This is much like the [`uncertainty`](uncertainty.md) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced.md/#use-shortcuts).  For example:
+Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System` (shortcut: `v`).  This is much like the [`uncertainty`](uncertainty) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced/#use-shortcuts).  For example:
 
 ```python
 co2s.valid.pk1  # True where pk1 is valid, False where it's invalid

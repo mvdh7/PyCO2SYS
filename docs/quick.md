@@ -44,13 +44,13 @@ Each call of `pyco2.sys` may include up to two known core marine carbonate syste
 
 All parameters can be scalars, lists or multi-dimensional NumPy arrays.  For pandas DataFrames and xarray Datasets, use the `data` kwarg as described below in [Data structures](#data-structures).  All settings (beginning with `opt_`) must be scalar integers.
 
-Parameter names are all case-insensitive and many have shortcuts that can be used instead.  See [Arguments and results](detail.md) for a list of all the options.
+Parameter names are all case-insensitive and many have shortcuts that can be used instead.  See [Arguments and results](detail) for a list of all the options.
 
 ---
 
 ## Adjust to different temperatures and/or pressures
 
-To convert parameters to different temperatures and/or pressures, use the `adjust` method.  See [Adjust conditions](adjust.md) for more detail on temperature and pressure conversions.
+To convert parameters to different temperatures and/or pressures, use the `adjust` method.  See [Adjust conditions](adjust) for more detail on temperature and pressure conversions.
 
 ### With two known parameters
 
@@ -85,7 +85,7 @@ fCO2_insitu = co2s_insitu.fCO2
 
 ## Propagate uncertainties
 
-Uncertainties are assigned using the `set_u`(1) method and propagated with `prop`(2).  For more details, see [Uncertainty propagation](uncertainty.md).
+Uncertainties are assigned using the `set_u`(1) method and propagated with `prop`(2).  For more details, see [Uncertainty propagation](uncertainty).
 { .annotate }
 
 1.  Shortcut for `set_uncertainty`.

@@ -12,7 +12,7 @@
 
 ### As if the `CO2System` were a dict
 
-First is to treat the `CO2System` as a dict and access with the keys given in [Arguments and results](detail.md/#results):
+First is to treat the `CO2System` as a dict and access with the keys given in [Arguments and results](detail/#results):
 
 ```python
 import PyCO2SYS as pyco2
@@ -71,7 +71,7 @@ co2s = (
 
 ## Use shortcuts
 
-All parameter keys are case-insensitive and some also have shorter versions that can be used instead (see [Arguments and results](detail.md)).
+All parameter keys are case-insensitive and some also have shorter versions that can be used instead (see [Arguments and results](detail)).
 
 The example above (for [Chaining methods](#chaining-methods)) is great if the focus is on writing clear and human-readable final code that someone else can follow.  But if the focus is on quickly running some calculations, the same thing could be written much more concisely:
 
