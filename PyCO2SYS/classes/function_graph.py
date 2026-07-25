@@ -72,12 +72,43 @@ class Uncertainties(ShortcutDotDict):
             self.assigned[self._shortcuts[k]] = v
 
 
+class Range(ShortcutDotDict):
+    def __init__(self, shortcuts):
+        super().__init__(shortcuts)
+
+    def __repr__(self):
+        text = "DIRECTLY ASSIGNED VALID RANGES"
+        keys = list(self.data.keys())
+        keys.sort()
+        for k in keys:
+            if k == keys[-1]:
+                text += f"\n└─ {k}"
+            else:
+                text += f"\n├─ {k}"
+            leys = list(self.data[k].keys())
+            leys.sort()
+            for l in leys:
+                w = self.data[k][l]
+                end = f"{l}: {w[0]} to {w[1]}"
+                if k == keys[-1]:
+                    if l == leys[-1]:
+                        text += "\n   └─ " + end
+                    else:
+                        text += "\n   ├─ " + end
+                else:
+                    if l == leys[-1]:
+                        text += "\n│  └─ " + end
+                    else:
+                        text += "\n│  ├─ " + end
+        return text
+
+
 class Valids(ShortcutDotDict):
     def __init__(self, shortcuts):
         super().__init__(shortcuts)
         self.direct = ShortcutDotDict(shortcuts)
         self.indirect = ShortcutDotDict(shortcuts)
-        self.range = ShortcutDotDict(shortcuts)
+        self.range = Range(shortcuts)
 
     def why(self, parameter):
         """Find out why a particular parameter is (in)valid.
