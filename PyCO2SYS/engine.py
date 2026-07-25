@@ -1422,6 +1422,31 @@ shortcuts.update(
         "q": "Q_isocap",
     }
 )
+# Add any missing shortcuts
+for k in get_funcs:
+    if k != k.lower() and k.lower() not in shortcuts:
+        shortcuts[k.lower()] = k
+for v in get_funcs_core.values():
+    for l in v:
+        if l != l.lower() and l.lower() not in shortcuts:
+            shortcuts[l.lower()] = l
+for k in funcs_chemspec:
+    if k != k.lower() and k.lower() not in shortcuts:
+        shortcuts[k.lower()] = k
+for k, v in get_coeffs_opts.items():
+    if k != k.lower() and k.lower() not in shortcuts:
+        shortcuts[k.lower()] = k
+    for w in v.values():
+        for m in w:
+            if m != m.lower() and m.lower() not in shortcuts:
+                shortcuts[m.lower()] = m
+for k, v in get_funcs_opts.items():
+    if k != k.lower() and k.lower() not in shortcuts:
+        shortcuts[k.lower()] = k
+    for w in v.values():
+        for m in w:
+            if m != m.lower() and m.lower() not in shortcuts:
+                shortcuts[m.lower()] = m
 # This needs to be the final step of constructing `shortcuts`:
 # append "__pre" to all shortcuts that need it and don't yet have it
 for k, v in shortcuts.copy().items():
