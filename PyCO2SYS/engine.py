@@ -2858,8 +2858,14 @@ def sys(data=None, **kwargs):
     icase_all = np.arange(1, len(parameters_core) + 1)
     icase = icase_all[core_known]
     if len(icase) > 2:
+        icase_params = [
+            parameters_core[i] for i, k in enumerate(core_known) if k
+        ]
         raise PyCO2SYSError(
-            "A maximum of 2 known core parameters can be provided."
+            "A maximum of 2 known core parameters can be provided"
+            + f" (you provided: {icase_params[0]}"
+            + (", {}" * (len(icase_params) - 1)).format(*icase_params[1:])
+            + ")."
         )
     if len(icase) == 0:
         icase = np.array(0)
@@ -2867,11 +2873,28 @@ def sys(data=None, **kwargs):
         icase = icase[0] * 100 + icase[1]
     icase = icase.item()
     # Assemble relevant functions
+    if icase not in get_funcs_core:
+        icase_params = [
+            parameters_core[i] for i, k in enumerate(core_known) if k
+        ]
+        if len(icase_params) == 1:
+            raise PyCO2SYSError(
+                "A second known core parameter must be provided "
+                + f"together with {icase_params[0]}."
+            )
+        else:
+            raise PyCO2SYSError(
+                "{} and {}".format(*icase_params)
+                + " is not a valid pair of core parameters."
+            )
     funcs = get_funcs | get_funcs_core[icase]
     for opt, v in opts.items():
         # opt_HCO3_root is available only for icase == 207 (known DIC & HCO3)
         if not (opt == "opt_HCO3_root" and icase != 207):
-            funcs.update(get_funcs_opts[opt][v])
+            try:
+                funcs.update(get_funcs_opts[opt][v])
+            except KeyError:
+                raise PyCO2SYSError(f"{v} is not a valid option for {opt}.")
     # Add defaults that depend on opts (i.e., coeffs)
     defaults = values_default.copy()
     for opt, v in get_coeffs_opts.items():
