@@ -14,7 +14,7 @@ Many of these validity ranges are poorly constrained or unknown, so the validity
 
 ## Viewing validity ranges
 
-The validity ranges are stored in `CO2System.valid.range`.  This is a dict, for which you can also use dot notation and shortcuts.  The keys are the parameters that have a valid range defined for at least one of their arguments.  The values are also dicts containing the range for each argument.
+The validity ranges are stored in `CO2System.valid.range`.  This is a dict, which also works with dot notation and shortcuts.  The keys are the parameters that have a valid range defined for at least one of their arguments.  The values are also dicts containing the range for each argument.
 
 ## Checking validity
 
