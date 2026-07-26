@@ -220,7 +220,7 @@ class FunctionGraph(UserDict):
             self.shortcuts = ShortcutsDict()
         if no_store is not None:
             if isinstance(no_store, str):
-                self.no_store = set([no_store])  # noqa
+                self.no_store = set([no_store])  # noqa: C405
             else:
                 self.no_store = set(no_store)
         else:
