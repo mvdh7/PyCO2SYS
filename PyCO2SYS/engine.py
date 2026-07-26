@@ -1565,7 +1565,7 @@ class OptsDict(ShortcutDotDict):
                         text += "\n│  ├─"
                 text += "─" * (
                     len_opts_max - len(opt)
-                ) + " {}[{:>2.0f}]: {}.".format(  # noqa
+                ) + " {}[{:>2.0f}]: {}.".format(  # noqa: UP032
                     opt,
                     self.data[opt],
                     citations[opt][self.data[opt]],
@@ -2715,8 +2715,8 @@ def sys(data=None, **kwargs):
         renamer_values = []
         for v in renamer_data.values():
             if v in renamer_values:
-                raise SyntaxError(
-                    f"`data` contains multiple keys corresponding to `{v}`, "
+                raise PyCO2SYSError(
+                    f"data contains multiple keys corresponding to {v}, "
                     + "possibly under different shortcuts"
                 )
             else:
@@ -2741,7 +2741,7 @@ def sys(data=None, **kwargs):
                             kwargs_data[renamer_data[c]] = data[c].to_numpy()
             except ImportError:
                 warn(
-                    "pandas could not be imported - ignoring `data`.",
+                    "pandas could not be imported - ignoring data.",
                     stacklevel=2,
                 )
             data_is_xarray = False
@@ -2763,31 +2763,38 @@ def sys(data=None, **kwargs):
                                 )
                 except ImportError:
                     warn(
-                        "xarray could not be imported - ignoring `data`.",
+                        "xarray could not be imported - ignoring data.",
                         stacklevel=2,
                     )
                 if not data_is_xarray:
                     # If we reach this point, `data` is neither dict nor
                     # pandas df nor xarray ds, so it's ignored
                     warn(
-                        "Type of `data` not recognised - it will be ignored.",
+                        "Type of data not recognised - it will be ignored.",
                         stacklevel=2,
                     )
+    else:
+        for k, v in kwargs.items():
+            if isinstance(v, str):
+                raise PyCO2SYSError(
+                    "Arguments cannot be provided as strings"
+                    + f" when data=None ({k})."
+                )
     # Check there aren't any duplicate kwargs with different aliases, and drop
     # any kwargs that are strings (used to identify `data` columns)
     kwargs_nodups = {}
     for k, v in kwargs.items():
         if shortcuts[k] in kwargs_nodups:
-            raise SyntaxError(
+            raise PyCO2SYSError(
                 f"Repeated kwarg, possibly under a different shortcut: {k}"
             )
         elif not isinstance(v, str):
             kwargs_nodups[shortcuts[k]] = v
             if shortcuts[k] in kwargs_data:
                 warn(
-                    f"{shortcuts[k]} found in both `data` and `kwargs`, "
+                    f"{shortcuts[k]} found in both data and kwargs, "
                     + "possibly under different shortcuts - using the "
-                    + "`kwargs` value",
+                    + "kwargs value",
                     stacklevel=2,
                 )
     # Merge data and user kwargs
@@ -2808,13 +2815,16 @@ def sys(data=None, **kwargs):
                 except (AttributeError, ValueError):
                     pass
             else:
-                kwargs_data[k] = np.ravel(np.array(kwargs_data[k]))[0].item()
-                warn(
-                    f"`{k}` is not scalar; only the first value will be used.",
-                    stacklevel=2,
+                raise PyCO2SYSError(
+                    f"{k} (and all other opts) must be scalar."
                 )
             if isinstance(kwargs_data[k], float):
-                kwargs_data[k] = int(kwargs_data[k])
+                if kwargs_data[k] == int(kwargs_data[k]):
+                    kwargs_data[k] = int(kwargs_data[k])
+                else:
+                    raise PyCO2SYSError(
+                        f"{k} (and all other opts) must be an integer."
+                    )
         # For non-opts
         else:
             # Downgrade pd.Series and xr.DataArray to numpy arrays without
@@ -2823,7 +2833,7 @@ def sys(data=None, **kwargs):
             try:
                 _ = kwargs_data[k].values
                 raise PyCO2SYSError(
-                    f"`{k}` provided as a `pd.Series` or `xr.DataArray`, "
+                    f"{k} provided as a pd.Series or xr.DataArray, "
                     + "which is not allowed."
                 )
             except AttributeError:
