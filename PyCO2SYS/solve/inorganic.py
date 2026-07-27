@@ -605,15 +605,16 @@ def pH_from_alkalinity_CO3(
     pk_HF_free,
     pk_HNO2,
 ):
-    """Calculate pH from total alkalinity and CO3 using a Newton-Raphson iterative
-    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
-    Lewis.
+    """Calculate pH from total alkalinity and CO3 using a Newton-Raphson
+    iterative method.  Based on the CalculatepHfromTATC function,
+    version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialise.from_CO3(alkalinity, CO3, total_borate, pk_HCO3, pk_BOH3)
     pH_tolerance = 1e-8
     pH_delta = 1.0 + pH_tolerance
-    while np.any(np.abs(pH_delta) >= pH_tolerance):
+    i = 0
+    while np.any(np.abs(pH_delta) >= pH_tolerance) and i < 100:
         pH_done = (
             np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
@@ -651,6 +652,16 @@ def pH_from_alkalinity_CO3(
         pH = np.where(
             pH_done, pH, pH + pH_delta
         )  # only update rows that need it
+        i += 1
+    pH_not_done = np.abs(pH_delta) >= pH_tolerance
+    if np.any(pH_not_done):
+        pH = np.where(pH_not_done, np.nan, pH)
+        warnings.warn(
+            "pH did not converge for at least some elements,"
+            + " returning np.nan.  The provided CO3 value is probably"
+            + " too high for the corresponding alkalinity.",
+            stacklevel=2,
+        )
     return pH
 
 
