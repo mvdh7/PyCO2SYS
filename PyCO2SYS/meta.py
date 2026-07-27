@@ -2,6 +2,7 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
+import warnings
 from functools import wraps
 
 import jax
@@ -85,3 +86,23 @@ class PyCO2SYSError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+
+class PyCO2SYSWarning(Warning):
+    """PyCO2SYS custom warning."""
+
+
+def warn(
+    message,
+    stacklevel=1,
+    source=None,
+    *,
+    skip_file_prefixes=(),
+):
+    return warnings.warn(
+        message,
+        category=PyCO2SYSWarning,
+        stacklevel=stacklevel + 1,
+        source=source,
+        skip_file_prefixes=skip_file_prefixes,
+    )

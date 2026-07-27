@@ -2,14 +2,13 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 from collections import UserDict
 from inspect import signature
-from warnings import warn
 
 import jax
 import jax.numpy as np
 import networkx as nx
 from jax import jacfwd
 
-from ..meta import egrad
+from ..meta import egrad, warn
 
 
 jax.config.update("jax_enable_x64", True)

@@ -2,7 +2,6 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 # ruff: noqa: C408
 from inspect import signature
-from warnings import warn
 
 import networkx as nx
 from jax import numpy as np
@@ -24,7 +23,7 @@ from .classes.function_graph import (
     ShortcutDotDict,
     ShortcutsDict,
 )
-from .meta import PyCO2SYSError
+from .meta import PyCO2SYSError, warn
 from .uncertainty import covmx
 
 

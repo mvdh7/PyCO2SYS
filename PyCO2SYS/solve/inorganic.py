@@ -2,10 +2,9 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-import warnings
-
 from jax import numpy as np
 
+from ..meta import warn
 from . import delta, initialise, speciate
 
 
@@ -203,7 +202,7 @@ def dic_from_alkalinity_pH_speciated(
     )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input pH values are impossibly high given the input alkalinity;"
             + " returning `np.nan` rather than negative DIC."
         )
@@ -656,7 +655,7 @@ def pH_from_alkalinity_CO3(
     pH_not_done = np.abs(pH_delta) >= pH_tolerance
     if np.any(pH_not_done):
         pH = np.where(pH_not_done, np.nan, pH)
-        warnings.warn(
+        warn(
             "pH did not converge for at least some elements,"
             + " returning np.nan.  The provided CO3 value is probably"
             + " too high for the corresponding alkalinity.",
@@ -771,7 +770,7 @@ def pH_from_dic_fCO2(dic, fCO2, pk_CO2, pk_H2CO3, pk_HCO3):
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     F = (RR >= 1) | (Discr <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input fCO2 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )
@@ -839,7 +838,7 @@ def pH_from_dic_HCO3_hi(dic, HCO3, pk_H2CO3, pk_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (HCO3 >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input HCO3 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )
@@ -877,7 +876,7 @@ def pH_from_dic_HCO3_lo(dic, HCO3, pk_H2CO3, pk_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (HCO3 >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input HCO3 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )
