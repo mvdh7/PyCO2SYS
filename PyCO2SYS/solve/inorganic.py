@@ -658,8 +658,7 @@ def pH_from_alkalinity_CO3(
         warn(
             "pH did not converge for at least some elements,"
             + " returning np.nan.  The provided CO3 value is probably"
-            + " too high for the corresponding alkalinity.",
-            stacklevel=2,
+            + " too high for the corresponding alkalinity."
         )
     return pH
 

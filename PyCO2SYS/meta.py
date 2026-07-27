@@ -2,6 +2,7 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
+import os
 import warnings
 from functools import wraps
 
@@ -99,10 +100,11 @@ def warn(
     *,
     skip_file_prefixes=(),
 ):
+    skip_file_prefixes = (os.path.dirname(__file__), *skip_file_prefixes)
     return warnings.warn(
         message,
         category=PyCO2SYSWarning,
-        stacklevel=stacklevel + 1,
+        stacklevel=stacklevel,
         source=source,
         skip_file_prefixes=skip_file_prefixes,
     )

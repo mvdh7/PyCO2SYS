@@ -1916,7 +1916,7 @@ class CO2System(FunctionGraph):
                     }
                 )
         except ImportError:
-            warn("pandas could not be imported.", stacklevel=3)
+            warn("pandas could not be imported.")
 
     def _get_xr_ndims(self, parameter):
         ndims = []
@@ -1967,7 +1967,7 @@ class CO2System(FunctionGraph):
                     }
                 )
         except ImportError:
-            warn("xarray could not be imported.", stacklevel=3)
+            warn("xarray could not be imported.")
 
     def _get_expUps(
         self,
@@ -2437,7 +2437,7 @@ class CO2System(FunctionGraph):
                 u_coeffs["coeffs_" + k] = np.zeros_like(self["coeffs_" + k])
                 u_coeffs["coeffs_" + k] = u_coeffs["coeffs_" + k].at[-1].set(v)
             except nx.NetworkXError:
-                warn(f'No coeffs available for "{k}"', stacklevel=3)
+                warn(f'No coeffs available for "{k}"')
         return u_coeffs
 
     def set_u_coeffs_from_single(self, **u_single):
@@ -2680,8 +2680,7 @@ def sys(data=None, **kwargs):
     if np.array(1.0).dtype == np.dtype("float32"):
         warn(
             "JAX does not appear to be using double precision - "
-            + "set the environment variable `JAX_ENABLE_X64=True`",
-            stacklevel=2,
+            + "set the environment variable `JAX_ENABLE_X64=True`"
         )
     # Merge data with kwargs
     pd_index = None
@@ -2739,10 +2738,7 @@ def sys(data=None, **kwargs):
                         if c in renamer_data:
                             kwargs_data[renamer_data[c]] = data[c].to_numpy()
             except ImportError:
-                warn(
-                    "pandas could not be imported - ignoring data.",
-                    stacklevel=2,
-                )
+                warn("pandas could not be imported - ignoring data.")
             data_is_xarray = False
             if not data_is_pandas:
                 try:
@@ -2761,17 +2757,11 @@ def sys(data=None, **kwargs):
                                     v, xr_dims
                                 )
                 except ImportError:
-                    warn(
-                        "xarray could not be imported - ignoring data.",
-                        stacklevel=2,
-                    )
+                    warn("xarray could not be imported - ignoring data.")
                 if not data_is_xarray:
                     # If we reach this point, `data` is neither dict nor
                     # pandas df nor xarray ds, so it's ignored
-                    warn(
-                        "Type of data not recognised - it will be ignored.",
-                        stacklevel=2,
-                    )
+                    warn("Type of data not recognised - it will be ignored.")
     else:
         for k, v in kwargs.items():
             if isinstance(v, str):
@@ -2793,8 +2783,7 @@ def sys(data=None, **kwargs):
                 warn(
                     f"{shortcuts[k]} found in both data and kwargs, "
                     + "possibly under different shortcuts - using the "
-                    + "kwargs value",
-                    stacklevel=2,
+                    + "kwargs value"
                 )
     # Merge data and user kwargs
     kwargs_data.update(kwargs_nodups)
