@@ -297,7 +297,7 @@ class FunctionGraph(UserDict):
             warn(
                 "Some arguments were not recognised or not valid for"
                 + " this combination of known parameters and are"
-                + " being ignored (see `ignored` attribute)"
+                + " being ignored (see CO2System.ignored)."
             )
         self.ignored |= set(ignored)
         self._nodes_user = {

@@ -1459,29 +1459,29 @@ shortcuts = ShortcutsDict(**shortcuts)
 
 
 def da_to_array(da, xr_dims):
-    """Convert an xarray `DataArray` `da` into a NumPy `array`.
+    """Convert an xarray DataArray into a NumPy array.
 
-    The NumPy `array` will have as many dimensions as `len(xr_dims)` and the
-    dimensions will be in the same order as indicated in `xr_dims`.
+    The NumPy array will have as many dimensions as len(xr_dims) and the
+    dimensions will be in the same order as indicated in xr_dims.
 
-    If `da` does not contain a dimension from `xr_dims`, a new singleton
+    If da does not contain a dimension from xr_dims, a new singleton
     dimension will be added in the appropriate position.
 
-    `da` is not allowed to contain any dimensions that are not in `xr_dims`.
+    da is not allowed to contain any dimensions that are not in xr_dims.
 
     Parameters
     ----------
     da : xarray.DataArray
-        The `DataArray` to be converted.
+        The DataArray to be converted.
     xr_dims : iterable
         The full list of dimension names in the correct order for the output
-        NumPy array.  Can be obtained from an xarray `Dataset` (`ds`) as
-        `ds.sizes`.
+        NumPy array.  Can be obtained from an xarray Dataset (ds) as
+        ds.sizes.
 
     Returns
     -------
     numpy.array
-        The converted `array`.
+        The converted array.
     """
     # Get `DataArray` info
     da_dims = list(da.sizes)
@@ -2841,9 +2841,12 @@ def sys(data=None, **kwargs):
                 and not k.startswith("pk_")
                 and not k.startswith("pkt_")
             ):
-                kwargs_data[k] = np.where(
-                    kwargs_data[k] < 0, np.nan, kwargs_data[k]
-                )
+                try:
+                    kwargs_data[k] = np.where(
+                        kwargs_data[k] < 0, np.nan, kwargs_data[k]
+                    )
+                except TypeError:
+                    pass  # happens e.g. if it's a column of strings
     opts = {k: v for k, v in kwargs_data.items() if k in opts_default}
     opts = opts_default | opts
     data = {
