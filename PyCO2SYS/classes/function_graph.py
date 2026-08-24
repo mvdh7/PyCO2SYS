@@ -172,7 +172,7 @@ class FunctionGraph(UserDict):
         else:
             if not isinstance(funcs, dict):
                 raise FunctionGraphError(
-                    "Either `graph` or `funcs` must be provided"
+                    "Either graph or funcs must be provided"
                 )
             self.graph = self.get_graph(funcs)
         if defaults is not None:
@@ -297,7 +297,7 @@ class FunctionGraph(UserDict):
             warn(
                 "Some arguments were not recognised or not valid for"
                 + " this combination of known parameters and are"
-                + " being ignored (see CO2System.ignored)."
+                + " being ignored (see ignored attribute)."
             )
         self.ignored |= set(ignored)
         self._nodes_user = {
@@ -335,7 +335,7 @@ class FunctionGraph(UserDict):
             The FunctionGraph with the requested parameters calculated.
         """
         if store_steps not in [0, 1, 2]:
-            raise FunctionGraphError("`store_steps` must be 0, 1 or 2")
+            raise FunctionGraphError("store_steps must be 0, 1 or 2")
         if parameters is None:
             parameters = list(self.graph.nodes)
         elif isinstance(parameters, str):
@@ -390,14 +390,14 @@ class FunctionGraph(UserDict):
         return self
 
     def get_func_of(self, var_of: str):
-        """Create a function to compute `var_of` directly from an input
+        """Create a function to compute var_of directly from an input
         set of values.
 
         The created function has the signature
 
             value_of = get_value_of(**kwargs)
 
-        where the `kwargs` are the originally user-defined and default
+        where the kwargs are the originally user-defined and default
         values, obtained with
 
             kwargs = {k: fg[k] for k in fg._nodes_original}
@@ -427,7 +427,7 @@ class FunctionGraph(UserDict):
 
         # Generate docstring
         get_value_of.__doc__ = (
-            f"Calculate `{var_of}`."
+            f"Calculate {var_of}."
             + "\n\nParameters\n----------"
             + "\nkwargs : dict"
             + "\n    Key-value pairs for the following parameters:"
@@ -443,14 +443,14 @@ class FunctionGraph(UserDict):
         return get_value_of
 
     def get_func_of_from_wrt(self, get_value_of, var_wrt):
-        """Reorganise a function created with `_get_func_of` so that one
+        """Reorganise a function created with _get_func_of so that one
         of its kwargs is instead a positional arg (and which can thus be
         gradded).
 
         Parameters
         ----------
         get_value_of : func
-            Function created with `get_func_of`.
+            Function created with get_func_of.
         var_wrt : str
             Name of the value to use as a positional arg instead.
 
@@ -475,42 +475,63 @@ class FunctionGraph(UserDict):
         )
         return egrad(get_value_of_from_wrt)
 
+    def get_grad_internal(self, var_of, var_wrt):
+        var_of = self.shortcuts[var_of]
+        var_wrt = self.shortcuts[var_wrt]
+        if var_wrt in self._nodes_original:
+            return self.get_grad(var_of, var_wrt)
+        else:
+            fgi_data = {k: self.data[k] for k in self._nodes_original}
+            fgi_data[var_wrt] = self[var_wrt]
+            return (
+                FunctionGraph(
+                    defaults=self.defaults,
+                    graph=self.graph,
+                    shortcuts=self.shortcuts,
+                    no_store=self.no_store,
+                )
+                .set_data(**fgi_data)
+                .get_grad(var_of, var_wrt)
+            )
+
     def get_grad(self, var_of, var_wrt):
-        """Compute the derivative of `var_of` with respect to `var_wrt`.
-        If there is already a value in `sys.grads[var_of][var_wrt]`,
-        then that value is returned instead of recalculating.
+        """Compute the derivative of var_of with respect to var_wrt.
+        If there is already a value in sys.grads[var_of][var_wrt],
+        then return that instead of recalculating.
 
         Parameters
         ----------
         var_of : str
             The name of the variable to get the derivative of.
         var_wrt : str
-            The name of the variable to get the derivative with respect to.
-            This must be one of the fixed values provided when creating the
-            `CO2System`, i.e., listed in its `nodes_original` attribute.
+            The name of the variable to get the derivative with respect
+            to.  This must be one of the fixed values provided when
+            creating the FunctionGraph, i.e., listed in its
+            nodes_original attribute.
 
         Returns
         -------
         float
-            The gradient of `var_of` with respect to `var_wrt`.
+            The gradient of var_of with respect to var_wrt.
         """
         var_of = self.shortcuts[var_of]
         var_wrt = self.shortcuts[var_wrt]
-        assert var_wrt in self._nodes_original, (
-            "`var_wrt` must be one of `self._nodes_original!`"
-        )
+        if var_wrt not in self._nodes_original:
+            raise FunctionGraphError(
+                "var_wrt must be one of self._nodes_original!"
+            )
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.grads[var_of][var_wrt]
         except (
             KeyError
         ):  # only do the calculations if there isn't already a value
-            # We need to know the shape of the variable that we want the grad
-            # of, the easy way to get this is just to solve for it (if that
-            # hasn't already been done)
+            # We need to know the shape of the variable that we want the
+            # grad of, the easy way to get this is just to solve for it
+            # (if that hasn't already been done)
             if var_of not in self.data:
                 self.solve(var_of)
-            # Next, we extract the originally set values, which are fixed
-            # during the differentiation
+            # Next, we extract the originally set values, which are
+            # fixed during the differentiation
             other_values_original = {
                 k: self.data[k] for k in self._nodes_original
             }
@@ -526,8 +547,8 @@ class FunctionGraph(UserDict):
         return d_of__d_wrt
 
     def get_grads(self, vars_of, vars_wrt):
-        """Compute the derivatives of `vars_of` with respect to `vars_wrt`
-        and store them in `sys.grads[var_of][var_wrt]`.
+        """Compute the derivatives of vars_of with respect to vars_wrt
+        and store them in sys.grads[var_of][var_wrt].
 
         Parameters
         ----------
@@ -535,12 +556,12 @@ class FunctionGraph(UserDict):
             The names of the variables to get the derivatives of.
         vars_wrt : list
             The names of the variables to get the derivatives with respect to.
-            These must all be one of the fixed values listed `nodes_original`.
+            These must all be one of the fixed values listed nodes_original.
 
         Returns
         -------
-        CO2System
-            The `CO2System` with the additional gradients computed.
+        FunctionGraph
+            The FunctionGraph with the additional gradients computed.
         """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
@@ -564,8 +585,8 @@ class FunctionGraph(UserDict):
         return jacfwd(get_value_of_from_wrt)
 
     def get_jac(self, var_of: str, var_wrt: str):
-        """Compute the Jacobian of `var_of` with respect to `var_wrt`.
-        If there is already a value in `sys.jacs[var_of][var_wrt]`,
+        """Compute the Jacobian of var_of with respect to var_wrt.
+        If there is already a value in sys.jacs[var_of][var_wrt],
         then that value is returned instead of recalculating.
 
         Parameters
@@ -574,19 +595,20 @@ class FunctionGraph(UserDict):
             The name of the variable to get the Jacobian of.
         var_wrt : str
             The name of the variable to get the Jacobian with respect to.
-            This must be one of the fixed values listed in `nodes_original`.
+            This must be one of the fixed values listed in nodes_original.
 
         Returns
         -------
         float
-            The Jacobian of `var_of` with respect to `var_wrt`.
-            Its dimensions are `*(np.shape(var_of), *np.shape(var_wrt))`.
+            The Jacobian of var_of with respect to var_wrt.
+            Its dimensions are (*np.shape(var_of), *np.shape(var_wrt)).
         """
         var_of = self.shortcuts[var_of]
         var_wrt = self.shortcuts[var_wrt]
-        assert var_wrt in self._nodes_original, (
-            "`var_wrt` must be one of `sys._nodes_original!`"
-        )
+        if var_wrt not in self._nodes_original:
+            raise FunctionGraphError(
+                "var_wrt must be one of sys._nodes_original!"
+            )
         try:  # see if we've already calculated this value
             d_of__d_wrt = self.jacs[var_of][var_wrt]
         except KeyError:  # Do the calculations only if needed
@@ -606,10 +628,9 @@ class FunctionGraph(UserDict):
         self,
         vars_of: str | list,
         vars_wrt: str | list,
-        store_jacs: bool = True,
     ):
-        """Compute the Jacobians of `vars_of` with respect to `vars_wrt` and
-        store them in `sys.jacs[var_of][var_wrt]`.
+        """Compute the Jacobians of vars_of with respect to vars_wrt and
+        store them in sys.jacs[var_of][var_wrt].
 
         Parameters
         ----------
@@ -618,7 +639,7 @@ class FunctionGraph(UserDict):
         vars_wrt : str | list
             The name(s) of the variable(s) to get the Jacobian(s) with
             respect to.  These must all be one of the fixed parameters
-            provided on initialisation, i.e., listed in `nodes_original`.
+            provided on initialisation, i.e., listed in nodes_original.
         """
         if isinstance(vars_of, str):
             vars_of = [vars_of]
@@ -748,12 +769,28 @@ class FunctionGraph(UserDict):
                         sv.direct[n][k] = (self[k] >= v[0]) & (self[k] <= v[1])
                         sv[n] &= sv.direct[n][k]
                 for p in self.graph.predecessors(n):
-                    if p in sv:
+                    if p in sv and p not in self._nodes_original:
                         if n not in sv.indirect:
                             sv.indirect[n] = ShortcutDotDict(self.shortcuts)
                         if n not in sv:
                             sv[n] = ~np.isnan(self[n])
-                        sv.indirect[n][p] = sv[p]
+                        # Check if n inherits invalidity from p,
+                        # which it should do only if p actually
+                        # affects n.  We check this using dn/dp.
+                        grad_n_p = self.get_grad_internal(n, p)
+                        sv.indirect[n][p] = sv[p] | (grad_n_p == 0)
+                        # vvvvv THIS IS (MAYBE) ONLY FOR PyCO2SYS! vvvvv
+                        # The dn/dp check doesn't work for the pressure
+                        # correction factors, but these should only
+                        # cause invalidity if pressure != 0, i.e., the
+                        # factors != 1.
+                        # This *could* be left in for non-PyCO2SYS
+                        # applications *if* we are happy to keep the
+                        # convention that any parameter whose name
+                        # starts with "factor_" is treated this way.
+                        if p.startswith("factor_"):
+                            sv.indirect[n][p] |= self[p] == 1
+                        # ^^^^^ THIS IS (MAYBE) ONLY FOR PyCO2SYS! ^^^^^
                         sv[n] &= sv.indirect[n][p]
         return self
 
@@ -800,8 +837,8 @@ class FunctionGraph(UserDict):
         y_ndims: int,
         ux_ndims: int,
     ) -> str:
-        """Get the `np.einsum` subscripts for uncertainty propagation of
-        `ux` from `x` to `y`.
+        """Get the np.einsum subscripts for uncertainty propagation of
+        ux from x to y.
 
         Parameters
         ----------
@@ -812,14 +849,14 @@ class FunctionGraph(UserDict):
             The number of dimensions of the variable to propagate
             uncertainties into.
         ux_ndims : int
-            The number of dimensions of the uncertainties for `x`.
-            Should be either the same as, or double, `x_ndims`.
+            The number of dimensions of the uncertainties for x.
+            Should be either the same as, or double, x_ndims.
 
         Returns
         -------
         subscripts : str
-            The subscripts to use with `np.einsum`:
-                `uy = np.einsum(subscripts, jac_yx, ux, jac_yx)`
+            The subscripts to use with np.einsum:
+                uy = np.einsum(subscripts, jac_yx, ux, jac_yx)
         """
         i0 = 97
         A = ""
@@ -853,8 +890,8 @@ class FunctionGraph(UserDict):
         jac: float | np.ndarray,
         ux: float | np.ndarray,
     ) -> np.ndarray:
-        """Propagate uncertainties `ux` from `x` to `y` given the
-        Jacobian of `y` with respect to `x` (`jac`).
+        """Propagate uncertainties ux from x to y
+        given the Jacobian of y with respect to x (jac).
         """
         x_ndims = len(np.shape(x))
         y_ndims = len(np.shape(y))
@@ -871,16 +908,17 @@ class FunctionGraph(UserDict):
         grad_yx: float | np.ndarray,
         ux: float | np.ndarray,
     ):
-        """Propagate independent uncertainties `ux` from `x` to `y`
-        given the derivative of `y` with respect to `x` (`grad_yx`).
+        """Propagate independent uncertainties ux from x to y
+        given the derivative of y with respect to x (grad_yx).
         """
         uy = ux * grad_yx**2
         return uy
 
     @staticmethod
     def cut_cov(uncert):
-        """Collapse a multidimensional uncertainty matrix to remove covariance
-        terms, equivalent to taking the main diagonal from a 2D matrix.
+        """Collapse a multidimensional uncertainty matrix to remove
+        covariance terms, equivalent to taking the main diagonal from a
+        2D matrix.
         """
         ushape = np.shape(uncert)
         if ushape == ():
@@ -892,7 +930,7 @@ class FunctionGraph(UserDict):
 
     @staticmethod
     def expand_zero_cov(v):
-        """Inverse of `cut_cov`."""
+        """Inverse of cut_cov()."""
         vc = np.zeros((*np.shape(v), *np.shape(v)))
         for i, val in enumerate(v.ravel()):
             ix = np.unravel_index(i, np.shape(v))
