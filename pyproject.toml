@@ -30,6 +30,7 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
+    "glodap>=0.4",
     "ipykernel>=7.3.0",
     "matplotlib>=3.11,<4",
     "pandas>=3,<4",
