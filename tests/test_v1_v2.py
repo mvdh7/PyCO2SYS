@@ -160,7 +160,7 @@ def test_v1_v2():
     # These are keys in the pyco2.sys that are no longer in sys.values
     results_keys = [
         k
-        for k in results.keys()
+        for k in results
         if not k.startswith("opt_")
         and not k.startswith("alkalinity_")
         and not k.startswith("par1")
@@ -187,12 +187,12 @@ def test_v1_v2():
     for k, v in co2s.items():
         if k == "gas_constant":
             # Units changed between v1 and v2
-            assert np.allclose(results[k] / 10, co2s[k], atol=0, rtol=1e-7)
+            assert np.allclose(results[k] / 10, v, atol=0, rtol=1e-7)
             results_keys.remove(k)
         elif k in results:
             # These ones have the same name in v1 and v2
             a = results[k]
-            b = co2s[k]
+            b = v
             if k in ["beta_dic", "gamma_dic", "omega_dic"]:
                 # These ones have NaNs in different places in v1 and v2, which
                 # makes allclose fail, so we need to make the NaNs match first
@@ -213,7 +213,7 @@ def test_v1_v2():
             results_keys.remove(v2_to_v1[k])
         elif k not in dont_compare:
             # All the others should be in the dont_compare list
-            raise Exception(f"{k} isn't in the dont_compare list")
+            raise Exception(f"{k} isn't in the dont_compare list")  # noqa: TRY002
     # Also test the edge cases (gradients of fCO2 and pCO2 w.r.t. temperature)
     # that have to be calculated manually for a pyco2.sys
     for k in results_keys.copy():
@@ -233,7 +233,7 @@ def test_v1_v2():
             results_keys.remove(k)
         else:
             # There shouldn't be anything else left in results_keys
-            raise Exception(k)
+            raise Exception(k)  # noqa: TRY002
 
 
 # test_v1_v2()

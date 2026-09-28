@@ -12,6 +12,10 @@ PyCO2SYS includes a tool to check whether arguments such as temperature, salinit
 
 Many of these validity ranges are poorly constrained or unknown, so the validity ranges will likely be updated in the future.
 
+## Viewing validity ranges
+
+The validity ranges are stored in `CO2System.valid.range`.  This is a dict, which also works with dot notation and shortcuts.  The keys are the parameters that have a valid range defined for at least one of their arguments.  The values are also dicts containing the range for each argument.
+
 ## Checking validity
 
 The validity checker can be best thought of as a test of whether any values are definitely invalid; if no problems are flagged up, then that's not a guarantee that the value is valid.
@@ -23,7 +27,7 @@ co2s = pyco2.sys(t=[10, 20, 30], s=np.vstack([15, 35])).solve("pk1")
 co2s.check_valid()
 ```
 
-Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System` (shortcut: `v`).  This is much like the [`uncertainty`](uncertainty.md) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced.md/#use-shortcuts).  For example:
+Once it's been checked, (in)validity is stored in the `valid` attribute of the `CO2System` (shortcut: `v`).  This is much like the [`uncertainty`](uncertainty) attribute, i.e., a dict where keys can also be accessed with dot notation and using [shortcuts](advanced/#use-shortcuts).  For example:
 
 ```python
 co2s.valid.pk1  # True where pk1 is valid, False where it's invalid

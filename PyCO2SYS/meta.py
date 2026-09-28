@@ -2,13 +2,15 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Define metadata about PyCO2SYS."""
 
+import os
+import warnings
 from functools import wraps
 
 import jax
 from jax import numpy as np
 
 
-version = "2.0.0b8"
+version = "2.0.0b9"
 authorlist = [
     "Humphreys, Matthew P.",
     "Martin-Mayor, Macarena",
@@ -77,3 +79,42 @@ def valid(**kwargs):
         return wrapper
 
     return decorator
+
+
+class PyCO2SYSError(Exception):
+    """PyCO2SYS custom exception."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
+class PyCO2SYSWarning(Warning):
+    """PyCO2SYS custom warning."""
+
+
+def warn(
+    message,
+    stacklevel=1,
+    source=None,
+    *,
+    skip_file_prefixes=(),
+):
+    try:
+        skip_file_prefixes = (os.path.dirname(__file__), *skip_file_prefixes)
+        return warnings.warn(
+            message,
+            category=PyCO2SYSWarning,
+            stacklevel=stacklevel,
+            source=source,
+            skip_file_prefixes=skip_file_prefixes,
+        )
+    except TypeError:
+        # Because Python v3.11 had no skip_file_prefixes kwarg
+        # This part can be removed once v3.11 is no longer supported
+        return warnings.warn(
+            message,
+            category=PyCO2SYSWarning,
+            stacklevel=stacklevel,
+            source=source,
+        )

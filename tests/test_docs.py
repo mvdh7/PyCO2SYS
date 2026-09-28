@@ -41,13 +41,13 @@ def test_docs():
             with open(devnull, "w") as f, redirect_stdout(f):
                 # globals() is necessary below for this to work on Python
                 # versions before v3.13
-                exec(code_lines, globals())
-        except Exception as e:
+                exec(code_lines, globals())  # noqa:S102
+        except Exception as e:  # noqa: BLE001
             print(f"ERROR in docs file {fname}")
             print(e)
             if raise_errors:
                 print(code_lines)
-                raise Exception(e)
+                raise Exception(e)  # noqa: TRY002
 
 
 # test_docs()

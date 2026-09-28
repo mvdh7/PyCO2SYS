@@ -274,7 +274,7 @@ To do this, the arguments should have the same keywords as the corresponding [re
 
 ## Results
 
-See [Advanced tips and tricks](advanced.md) for a more detailed overview of the different ways that the results keys in the sections below can be solved for and accessed from a `CO2System`.
+See [Advanced tips and tricks](advanced) for a more detailed overview of the different ways that the results keys in the sections below can be solved for and accessed from a `CO2System`.
 
 !!! tip "Find all possible results keys"
 

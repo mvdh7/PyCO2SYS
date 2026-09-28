@@ -2667,17 +2667,20 @@ def coeffs_pk_HNO2_total_BBWB24():
     return np.array([16084.01, 50.17, -336.92, 0.0])
 
 
-@valid(temperature=[5, 35])
-def pk_HNO2_total_BBWB24(coeffs_pk_HNO2, temperature):
+@valid(temperature=[5, 35], salinity=[34.9, 35.1])
+def pk_HNO2_total_BBWB24(coeffs_pk_HNO2, temperature, salinity):
     """Nitrous acid dissociation constant in artificial seawater following
     BBWB24.
 
-    Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C.
+    Used when opt_k_HNO2 = 1 (default).  Valid from 5 to 35 °C and at a
+    practical salinity of 35.
 
     Parameters
     ----------
     temperature : float
         Temperature in °C.
+    salinity : float
+        Practical salinity.  Not used, but present for validity.
 
     Returns
     -------
@@ -2694,8 +2697,8 @@ def coeffs_pk_HNO2_nbs_BBWB24_freshwater():
     return np.array([16437.31, 53.61, -357.43, 0.0])
 
 
-@valid(temperature=[5, 35])
-def pk_HNO2_nbs_BBWB24_freshwater(coeffs_pk_HNO2, temperature):
+@valid(temperature=[5, 35], salinity=[0, 0.5])
+def pk_HNO2_nbs_BBWB24_freshwater(coeffs_pk_HNO2, temperature, salinity):
     """Nitrous acid dissociation constant in freshwater following BBWB24.
 
     Used when opt_k_HNO2 = 2.  Valid from 5 to 35 °C.
@@ -2704,6 +2707,8 @@ def pk_HNO2_nbs_BBWB24_freshwater(coeffs_pk_HNO2, temperature):
     ----------
     temperature : float
         Temperature in °C.
+    salinity : float
+        Practical salinity.  Not used, but present for validity.
 
     Returns
     -------

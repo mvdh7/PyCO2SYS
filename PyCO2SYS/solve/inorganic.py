@@ -2,10 +2,9 @@
 # Copyright (C) 2020--2026  Matthew P. Humphreys et al.  (GNU GPLv3)
 """Calculate one new carbonate system variable from various input pairs."""
 
-import warnings
-
 from jax import numpy as np
 
+from ..meta import warn
 from . import delta, initialise, speciate
 
 
@@ -203,7 +202,7 @@ def dic_from_alkalinity_pH_speciated(
     )
     F = alkalinity_with_zero_dic > alkalinity
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input pH values are impossibly high given the input alkalinity;"
             + " returning `np.nan` rather than negative DIC."
         )
@@ -605,15 +604,16 @@ def pH_from_alkalinity_CO3(
     pk_HF_free,
     pk_HNO2,
 ):
-    """Calculate pH from total alkalinity and CO3 using a Newton-Raphson iterative
-    method.  Based on the CalculatepHfromTATC function, version 04.01, Oct 96, by Ernie
-    Lewis.
+    """Calculate pH from total alkalinity and CO3 using a Newton-Raphson
+    iterative method.  Based on the CalculatepHfromTATC function,
+    version 04.01, Oct 96, by Ernie Lewis.
     """
     # First guess inspired by M13/OE15, added v1.3.0:
     pH = initialise.from_CO3(alkalinity, CO3, total_borate, pk_HCO3, pk_BOH3)
     pH_tolerance = 1e-8
     pH_delta = 1.0 + pH_tolerance
-    while np.any(np.abs(pH_delta) >= pH_tolerance):
+    i = 0
+    while np.any(np.abs(pH_delta) >= pH_tolerance) and i < 100:
         pH_done = (
             np.abs(pH_delta) < pH_tolerance
         )  # check which ones don't need updating
@@ -651,6 +651,15 @@ def pH_from_alkalinity_CO3(
         pH = np.where(
             pH_done, pH, pH + pH_delta
         )  # only update rows that need it
+        i += 1
+    pH_not_done = np.abs(pH_delta) >= pH_tolerance
+    if np.any(pH_not_done):
+        pH = np.where(pH_not_done, np.nan, pH)
+        warn(
+            "pH did not converge for at least some elements,"
+            + " returning np.nan.  The provided CO3 value is probably"
+            + " too high for the corresponding alkalinity."
+        )
     return pH
 
 
@@ -760,7 +769,7 @@ def pH_from_dic_fCO2(dic, fCO2, pk_CO2, pk_H2CO3, pk_HCO3):
     Discr = (K1 * RR) ** 2 + 4 * (1 - RR) * K1 * K2 * RR
     F = (RR >= 1) | (Discr <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input fCO2 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )
@@ -828,7 +837,7 @@ def pH_from_dic_HCO3_hi(dic, HCO3, pk_H2CO3, pk_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (HCO3 >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input HCO3 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )
@@ -866,7 +875,7 @@ def pH_from_dic_HCO3_lo(dic, HCO3, pk_H2CO3, pk_HCO3):
     bsq_4ac = b**2 - 4 * a * c
     F = (HCO3 >= dic) | (bsq_4ac <= 0)
     if np.any(F):
-        warnings.warn(
+        warn(
             "Some input HCO3 values are impossibly high given the input DIC;"
             + " returning np.nan."
         )

@@ -30,6 +30,7 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
+    "glodap>=0.4",
     "ipykernel>=7.3.0",
     "matplotlib>=3.11,<4",
     "pandas>=3,<4",
@@ -45,8 +46,17 @@ include = ["PyCO2SYS*"]
 [tool.setuptools.dynamic]
 version = {attr = "PyCO2SYS.meta.version"}
 
+[tool.setuptools.package-data]
+"PyCO2SYS.uncertainty.covmx" = ["*.txt"]
+
 [tool.ruff]
 line-length = 79
+
+[tool.ruff.lint]
+ignore = [
+    "EXE002",  # shebang-missing-executable-file
+    "N999",  # invalid-module-name
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

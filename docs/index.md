@@ -14,7 +14,7 @@ PyCO2SYS is a Python toolbox for solving the marine carbonate system and calcula
 
 Create an environment with Python v3.11 or greater and run
 
-    pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0b8
+    pip install git+https://github.com/mvdh7/PyCO2SYS@v2.0.0b9
 
 This installs the latest "stable" beta release of PyCO2SYS v2 and its core requirements ([JAX](https://jax.readthedocs.io/en/latest/index.html) and [NetworkX](https://networkx.org/)).  To try out using PyCO2SYS with pandas and/or xarray, you'll need to install those separately.
 
@@ -48,22 +48,22 @@ Install from the [conda-forge channel](https://anaconda.org/conda-forge/pyco2sys
 
 Start with the
 
-  * [Quick-start guide](quick.md)
+  * [Quick-start guide](quick)
 
 before moving on to
 
-  * [Arguments and results](detail.md),
-  * [Adjust conditions](adjust.md),
-  * [Uncertainty propagation](uncertainty.md), and
-  * [Validity range checker](validity.md).
+  * [Arguments and results](detail),
+  * [Adjust conditions](adjust),
+  * [Uncertainty propagation](uncertainty), and
+  * [Validity range checker](validity).
 
 If you're really interested, also look at
 
-  * [Advanced tips and tricks](advanced.md).
+  * [Advanced tips and tricks](advanced).
 
 If you're already familiar with PyCO2SYS v1, then
 
-  * [Switching from v1 to v2](v1_to_v2.md)
+  * [Switching from v1 to v2](v1_to_v2)
 
 may help you to transition.
 
